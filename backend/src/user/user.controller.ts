@@ -26,5 +26,4 @@ export class UserController {
 		return (this.userService.createUser(user));
 	}
 
-
 }

@@ -4,7 +4,6 @@ import * as bcrypt from 'bcrypt';
 @Entity()
 export class User{
 	@PrimaryColumn()
-	@Generated('increment')
 	public id: number;
 
 	@Column({ unique: true })

@@ -36,9 +36,15 @@ export class AuthService {
 		const user = await this.usersService.getById(data.id);
 		if (!user)
 		{
-			this.usersService.createUserWithId({"name": data.username, "password": "42"}, data.id);
-			const payload = { username: data.username, sub: data.id};
-			return {access_token: this.jwtService.sign(payload)};
+			try{
+				this.usersService.createUser({"name": data.username, "password": "42", "id": data.id});
+				const payload = { username: data.username, sub: data.id};
+				return {access_token: this.jwtService.sign(payload)};
+			}
+			catch (error)
+			{
+				console.log(error);
+			}
 		}
 		const payload = { username: user.name, sub: user.id};
 		return {access_token: this.jwtService.sign(payload)};

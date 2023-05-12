@@ -58,18 +58,17 @@ export class AuthController {
 				<input type="text" name="password" id="password" required>\
 				</div>\
 				<div class="form-example">\
-				<input type="submit" value="Login" formaction="register">\
+				<input type="submit" value="Register" formaction="register">\
 				</div>\
   		</form>';	
 	}
 
 	@Get('/42/callback')
 	@UseGuards(AuthGuard42)
-	@Redirect('http://localhost:3000', 301)
-	async login42(@Req() req: any)
+	// @Redirect('http://localhost:3000', 301)
+	async login42(@Req() req: any): Promise<any>
 	{
 		const token = await this.authService.login42(req.user as FortyTwoUser);
-		// console.log(token);
-		// this.userService.createUser({"name": user.user.username, "password":"42"});
+		return ({"access_token": token.access_token});
 	}
 }
