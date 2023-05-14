@@ -1,12 +1,10 @@
-import { Body, Controller, Get, Inject, Post, Redirect, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, UnauthorizedException, UseGuards, Request, Response } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthLoginDto } from './auth.dto';
-import { JwtAuthGuard } from './jwt/jwt-auth.guard';
+import { AuthLoginDto } from './dtos/auth.dto';
 import { UserService } from 'src/user/user.service';
-import { get } from 'http';
-import { AuthGuard42 } from './42/42-auth.guard';
-import { FortyTwoUser } from './42/42.stategy';
-import { CreateUserDto } from 'src/user/user.dto';
+import { AuthGuard42 } from './guards/42-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { toFile } from 'qrcode';
 
 @Controller('auth')
 export class AuthController {
@@ -16,13 +14,17 @@ export class AuthController {
   private readonly userService: UserService;
 
 	@Post('/login')
-	async login(@Body() authLoginDto: AuthLoginDto) {
-		return this.authService.login(authLoginDto);
+	async login(@Request() req,@Body() authLoginDto: AuthLoginDto, @Response() res) {
+		const token = await this.authService.login(authLoginDto);
+
+		res.setHeader('Set-Cookie', await this.authService.getCookieWithJwtToken(authLoginDto.email));
+		req.headers.authorization = 'Bearer ' + token.access_token;
+		return (res.send(token));
 	}
 
 	@Post('/register')
 	async register(@Body() authLoginDto: AuthLoginDto) {
-		return this.userService.createUser(authLoginDto);
+		return await this.userService.createUser(authLoginDto);
 	}
 
 	@Get('/signin')
@@ -30,8 +32,8 @@ export class AuthController {
 	{
 		return '<form action="" method="post" class="form-example">\
 				<div class="form-example">\
-				<label for="name">Enter your name: </label>\
-				<input type="text" name="name" id="name" required>\
+				<label for="name">Enter your email: </label>\
+				<input type="text" name="email" id="email" required>\
 				</div>\
 				\
 				<div class="form-example">\
@@ -49,12 +51,16 @@ export class AuthController {
 	{
 		return '<form action="" method="post" class="form-example">\
 				<div class="form-example">\
+				<label for="name">Enter your email: </label>\
+				<input type="text" name="email" id="name" required>\
+				</div>\
+				\
 				<label for="name">Enter your name: </label>\
 				<input type="text" name="name" id="name" required>\
 				</div>\
 				\
 				<div class="form-example">\
-				<label for="email">Enter your pass: </label>\
+				<label for="pass">Enter your pass: </label>\
 				<input type="text" name="password" id="password" required>\
 				</div>\
 				<div class="form-example">\
@@ -63,12 +69,45 @@ export class AuthController {
   		</form>';	
 	}
 
-	@Get('/42/callback')
+	@Get('42/callback')
 	@UseGuards(AuthGuard42)
-	// @Redirect('http://localhost:3000', 301)
 	async login42(@Req() req: any): Promise<any>
 	{
-		const token = await this.authService.login42(req.user as FortyTwoUser);
+		const token = await this.authService.login42(req.user);
 		return ({"access_token": token.access_token});
+	}
+
+	@Post('2fa/generate')
+	@UseGuards(JwtAuthGuard)
+	async generate(@Request() request) {
+		const { otpAuthUrl } = await this.authService.generate2FASecret(request.user.user);
+		toFile('qrcode/code.png', otpAuthUrl);
+		let QRCode = await this.authService.generateQrCode(otpAuthUrl);
+		return (QRCode);
+	}
+
+	@Post('2fa/on')
+	@UseGuards(JwtAuthGuard)
+	async enable2fa(@Req() req, @Body() body) {
+		const isCodeValid = this.authService.isValidCode(body.code, req.user.user);
+		if (!isCodeValid)
+			throw new UnauthorizedException('Wrong authentication code');
+		await this.userService.enable2fa(req.user.id);
+		return ("success");
+	}
+
+	@Get('2fa/qrcode')
+	@UseGuards(JwtAuthGuard)
+	async seeQrCode(@Req() request){
+		return (await this.authService.generate2FASecret(request.user.user));
+	}
+
+	@Post('2fa/verify')
+	@UseGuards(JwtAuthGuard)
+	async verify2fa(@Req() req, @Body() body){
+		if (this.authService.isValidCode(req.user.user, body.code))
+			return ("Success");
+		else
+			return ("Failure");
 	}
 }

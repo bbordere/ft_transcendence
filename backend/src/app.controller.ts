@@ -1,8 +1,5 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Inject, Param, Post, UseInterceptors } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { CreateUserDto } from './user/user.dto';
-import { UserService } from './user/user.service';
-import { User } from './user/user.entity';
 
 @Controller()
 export class AppController {
