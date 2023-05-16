@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Req, UnauthorizedException, UseGuards, Request, Response } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, UnauthorizedException, UseGuards, Request, Response, Redirect } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dtos/auth.dto';
 import { UserService } from 'src/user/user.service';
@@ -97,9 +97,10 @@ export class AuthController {
 	}
 
 	@Get('2fa/qrcode')
-	@UseGuards(JwtAuthGuard)
+	// @UseGuards(JwtAuthGuard)
+	@Redirect("/qrcode/code.png")
 	async seeQrCode(@Req() request){
-		return (await this.authService.generate2FASecret(request.user.user));
+
 	}
 
 	@Post('2fa/verify')
