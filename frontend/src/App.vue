@@ -2,8 +2,9 @@
 import {ref} from 'vue'
 import field from "@/components/field.vue"
 import btn from "@/components/button.vue"
+import inscription from "@/components/inscription.vue"
 
-const color = ref('linear-gradient(32deg,#03a9f4,#f441a5,#ffeb3b,#03a9f4)')
+const showModal = ref(false)
 
 function onClick() {
 	connection.value = true
@@ -30,17 +31,21 @@ function backgroundColor() {
 		<img class="logo" alt="logo" src="./assets/img/logo.png">
 	</header>
 	<div class="connection">
-		<div class= "content2">
+		<div class= "co-42">
 			<img class="logo42" src="./assets/img/42.png" alt="logo 42">
 			<button class="btn42">42</button>
 		</div>
-		<div class= "content">
+		<div class= "co-email">
 			<span class="text">connection</span>
 			<form action="#">
 				<field str="pseudo" @updateInput = "speudo => display(speudo)" />
 				<field str="password" @updateInput = "password => display(password)" />
 				<btn @updateInput = "co => connection(input)" />
 			</form>
+			<button id="show-modal" @click="showModal = true">Show Modal</button>
+			<Teleport to="body">
+				<inscription :show="showModal" @close="showModal = false" />
+			</Teleport>
 		</div>
 	</div>
 	<footer>
@@ -62,8 +67,8 @@ function backgroundColor() {
 }
 
 body {
+	margin: -8px;
     position: absolute;
-	margin: -10px;
 	height: 100vh;
 	width: 100vw;
   --sinus:0.57357643635;
@@ -86,6 +91,8 @@ body {
 }
 
 .connection{
+	min-height: 350px;
+
 	height: 100vh;
 	width: 100vw;
 	display: flex;
@@ -94,7 +101,7 @@ body {
 	align-items: center;
 
 }
-.content2{
+.co-42{
 	width:350px;
 	height: 350px;
 
@@ -106,7 +113,7 @@ body {
              -4px -4px 4px #eaeaea;
 }
 
-.content2 .logo42{
+.co-42 .logo42{
 	height: 160x;
 	width: 160px;
 
@@ -115,9 +122,9 @@ body {
 	margin-right: auto;
 }
 
-.content{
+.co-email{
 	width:550px;
-	height: 350px;
+	height: 400px;
 	padding: 40px 30px;
 
 	background: inear-gradient(32deg,#03a8f4,#f441a6,#ffeb3b,#03a8f4);
@@ -126,7 +133,7 @@ body {
              -4px -4px 4px #eaeaea;
 }
 
-.content .text{
+.co-email .text{
 	font-size: 33px;
 	font-weight: 600;
 	display: flex;
@@ -144,7 +151,7 @@ header{
 	top: 0px;
 
 	background: linear-gradient(35deg, #B4CFEC, #DDE1E7);	
-	border-bottom: 2px solid #fd9b9c;
+	border-bottom: 2px solid black;
 }
 
 header .logo{
@@ -157,7 +164,7 @@ header .logo{
 	margin-left: auto;
 	margin-right: auto;
 
-	border: 3px solid #fd9b9c;
+	border: 3px solid black;
 	border-radius: 290px;
 	box-shadow: -3px -3px 7px #ffffff73,
                2px 2px 5px rgba(94,104,121,0.288);
@@ -170,7 +177,7 @@ footer {
 	bottom: 0px;
 
 	background: linear-gradient(35deg, #B4CFEC, #DDE1E7);	
-	border-top: 2px solid #fd9b9c;
+	border-top: 2px solid black;
 }
 
 footer .copyright {
@@ -208,6 +215,8 @@ footer .copyright {
 }
 
 .btn42::after {
+	color: #595959;
+
 	--m-i: linear-gradient(#000, #000);
 	--m-o: content-box, padding-box;
 	content: "";
@@ -227,15 +236,6 @@ footer .copyright {
 			#655adc,
 			#488cfb
 		);
-	/* background-image: linear-gradient( 35deg,
-			#488cfb,
-			#29dbbc,
-			#ddf505,
-			#ff9f0e,
-			#e440bb,
-			#655adc,
-			#488cfb
-		); */
 	-webkit-mask-image: var(--m-i), var(--m-i);
 	mask-image: var(--m-i), var(--m-i);
 	-webkit-mask-origin: var(--m-o);
@@ -250,6 +250,8 @@ footer .copyright {
 
 .btn42,
 .btn42:hover::after {
+	color: #595959;
+
 	animation-play-state: running;
 }
 
@@ -264,7 +266,8 @@ footer .copyright {
 }
 
 .btn42:focus{
-	color: #3498db;
+	color: black;
+;
 
 }
 
