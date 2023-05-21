@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Req, UnauthorizedException, UseGuards, Request, Response, Redirect } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, UnauthorizedException, UseGuards, Request, Response, Redirect, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dtos/auth.dto';
 import { UserService } from 'src/user/user.service';
@@ -71,9 +71,9 @@ export class AuthController {
 
 	@Get('42/callback')
 	@UseGuards(AuthGuard42)
-	async login42(@Req() req: any): Promise<any>
+	async login42(@Req() req: any, @Res({ passthrough: true }) res: any): Promise<any>
 	{
-		const token = await this.authService.login42(req.user);
+		const token = await this.authService.login42(req, res, req.user);
 		return ({"access_token": token.access_token});
 	}
 
@@ -89,17 +89,27 @@ export class AuthController {
 	@Post('2fa/on')
 	@UseGuards(JwtAuthGuard)
 	async enable2fa(@Req() req, @Body() body) {
-		const isCodeValid = this.authService.isValidCode(body.code, req.user.user);
+		const isCodeValid = this.authService.isValidCode(req.user.user, body.code);
 		if (!isCodeValid)
 			throw new UnauthorizedException('Wrong authentication code');
-		await this.userService.enable2fa(req.user.id);
+		await this.userService.enable2fa(req.user.user.id);
+		return ("success");
+	}
+
+	@Post('2fa/off')
+	@UseGuards(JwtAuthGuard)
+	async disable2fa(@Req() req, @Body() body) {
+		const isCodeValid = this.authService.isValidCode(req.user.user, body.code);
+		if (!isCodeValid)
+			throw new UnauthorizedException('Wrong authentication code');
+		await this.userService.disable2fa(req.user.user.id);
 		return ("success");
 	}
 
 	@Get('2fa/qrcode')
-	// @UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard)
 	@Redirect("/qrcode/code.png")
-	async seeQrCode(@Req() request){
+	async test(){
 
 	}
 

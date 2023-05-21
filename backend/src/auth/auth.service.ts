@@ -1,4 +1,4 @@
-import { Injectable, NotAcceptableException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotAcceptableException, UnauthorizedException, Req, Res } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { AuthLoginDto } from './dtos/auth.dto';
@@ -30,10 +30,13 @@ export class AuthService {
 
 		if (!validPass) throw new UnauthorizedException();
 
+		// if (user.auth2f === true)
+			//to do redirect to front verif page
+
 		return user;
 	}
 
-	async login42(data: AuthLogin42Dto) {
+	async login42(@Req() req, @Res({ passthrough: true }) res,data: AuthLogin42Dto) {
 		const user = await this.usersService.getByEmail(data.email);
 		if (!user)
 		{
@@ -42,9 +45,21 @@ export class AuthService {
 			const user = await this.usersService.createUser42(data);
 			const payload = { username: user.name, email: user.email};
 			return {access_token: this.jwtService.sign(payload)};
+			//to do redirect to front home page
 		}
-		const payload = { username: user.name, email: user.email};
-		return {access_token: this.jwtService.sign(payload)};
+		if (user.auth2f === true)
+		{
+			const payload = { username: user.name, email: user.email};
+			req.headers.authorization = "Bearer " + this.jwtService.sign(payload);
+			res.redirect("https://google.com"); //to do redirect to front verif page
+			return {access_token: this.jwtService.sign(payload)};
+		}
+		else
+		{
+			const payload = { username: user.name, email: user.email};
+			return {access_token: this.jwtService.sign(payload)};
+		}
+		//to do redirect to front home page
 	}
 
 	async generate2FASecret(user: User){

@@ -56,6 +56,12 @@ export class UserService {
 		this.usersRepository.save(user);
 	}
 
+	async disable2fa(id: number){
+		const user = await this.getById(id);
+		user.auth2f = false;
+		this.usersRepository.save(user);
+	}
+
 	async updateAccessToken(email: string, token: string){
 		const user = await this.getByEmail(email);
 		user.accessToken = token;
