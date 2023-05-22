@@ -16,7 +16,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
     super({
       clientID: process.env.FORTYTWO_ID,
       clientSecret: process.env.FORTYTWO_SECRET,
-      callbackURL: "http://localhost:3000/auth/42/callback",
+      callbackURL: "http://"+process.env.HOST+":3000/auth/42/callback",
 	  profileFields: {
 		'id': function (obj) { return String(obj.id); },
 		'name': 'login',
