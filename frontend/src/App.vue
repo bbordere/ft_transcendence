@@ -26,7 +26,7 @@ function backgroundColor() {
 
 <template>
 
-<body>
+<!-- <body>
 	<header>
 		<img class="logo" alt="logo" src="./assets/img/logo.png">
 	</header>
@@ -53,8 +53,23 @@ function backgroundColor() {
 	<footer>
 		<p class="copyright">copyright</p>
 	</footer>
-</body>
+	<div class="verif">
+		<verify></verify>
+	</div>
+</body> -->
 
+<!-- <nav>
+    <router-link to="/">Home</router-link>
+</nav>
+<main>
+    <router-view />
+</main> -->
+  <nav>
+    <router-link to="/">Home</router-link> | <router-link to="/verif">Verif</router-link>
+  </nav>
+  <main>
+    <router-view />
+  </main>
 </template>
 
 <style scoped>
@@ -280,5 +295,13 @@ footer .copyright {
 
 }
 
+.verif{
+	height: 100vh;
+	width: 100vw;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+}
 
 </style>
