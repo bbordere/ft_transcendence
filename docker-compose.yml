@@ -24,6 +24,7 @@ services:
       - "5050:80"
 
   nestjs:
+    restart: always
     depends_on:
       - postgres
     build: backend/
