@@ -37,12 +37,14 @@ function backgroundColor() {
 		</div>
 		<div class= "co-email">
 			<span class="text">connection</span>
-			<form action="#">
-				<field str="pseudo" @updateInput = "speudo => display(speudo)" />
-				<field str="password" @updateInput = "password => display(password)" />
-				<btn @updateInput = "co => connection(input)" />
+			<form action="/aled" method="post">
+				<field str="pseudo / email" @updateInput = "pseudo => display(pseudo)" />
+				<field str="mot de passe" @updateInput = "password => display(password)" />
+				<btn type="submit" @updateInput = "co => connection(input)" />
 			</form>
-			<button id="show-modal" @click="showModal = true">Show Modal</button>
+			<div class="inscription">
+				<button id="show-modal" @click="showModal = true">Inscription</button>
+			</div>
 			<Teleport to="body">
 				<inscription :show="showModal" @close="showModal = false" />
 			</Teleport>
@@ -109,8 +111,8 @@ body {
 
 	background: inear-gradient(32deg,#03a8f4,#f441a6,#ffeb3b,#03a8f4);
 	border-radius: 10px;
-	box-shadow:  4px 4px 4px #474747,
-             -4px -4px 4px #eaeaea;
+	box-shadow:  4px 4px 10px #474747,
+             -4px -4px 10px #eaeaea;
 }
 
 .co-42 .logo42{
@@ -124,7 +126,7 @@ body {
 
 .co-email{
 	width:550px;
-	height: 400px;
+	height: auto;
 	padding: 40px 30px;
 
 	background: inear-gradient(32deg,#03a8f4,#f441a6,#ffeb3b,#03a8f4);
@@ -143,7 +145,12 @@ body {
 	color: #595959;
 }
 
+.inscription {
+	padding-top: 40px;
+}
+
 header{
+	z-index: 10000;
 	position: absolute;
 	width: 100vw;
 	height: 80px;
@@ -171,6 +178,7 @@ header .logo{
 }
 
 footer {
+	z-index: 9999;
 	position: absolute;
 	width: 100vw;
 	height: 50px;
@@ -198,6 +206,7 @@ footer .copyright {
 .btn42 {
 	color: #595959;
 	display: block;
+	margin-top: 20px;
 	margin-left: auto;
 	margin-right: auto;
 	--border-radius: 25px;

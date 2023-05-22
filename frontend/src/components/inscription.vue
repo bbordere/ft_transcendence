@@ -12,9 +12,12 @@ const props = defineProps({show: Boolean})
       <div class="modal-container">
         <div class="modal-body">
 			<span class="text">inscription</span>
-			<field str="pseudo" @updateInput = "speudo => display(speudo)" />
-			<field str="password" @updateInput = "password => display(password)" />
-			<btn @updateInput = "co => connection(input)" />
+			<form action="/aled">
+				<field str="email" @updateInput = "email => display(email)" />
+				<field str="pseudo" @updateInput = "pseudo => display(pseudo)" />
+				<field str="mot de passe" @updateInput = "password => display(password)" />
+				<btn type="submit" @updateInput = "co => connection(input)" />
+			</form>
 			<div class="modal-footer">
 				<button class="btn-fermer" @click="$emit('close')">fermer</button>
 			</div>
@@ -28,7 +31,6 @@ const props = defineProps({show: Boolean})
 .modal-mask {
   position: fixed;
   z-index: 9998;
-  top: 80px;
   left: 0;
   width: 100%;
   height: 100%;
@@ -43,8 +45,10 @@ const props = defineProps({show: Boolean})
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
 
 	width:550px;
-	height: 400px;
+	height: auto;
 	padding: 40px 30px;
+	display: flex;
+	flex-direction: column;
 
 	border-radius: 10px;
 	box-shadow:  4px 4px 4px #47474780,
@@ -52,8 +56,17 @@ const props = defineProps({show: Boolean})
 			 transition: all 0.3s ease;
 }
 
+.modal-body .text { 
+font-size: 33px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	margin-bottom: 35px;
+	color: #595959;
+}
 .modal-footer {
-
+padding-top: 40px;
 }
 
 .modal-default-button {
