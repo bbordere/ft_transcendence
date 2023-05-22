@@ -1,9 +1,26 @@
 <script setup>
 import { ref } from 'vue'
-import field from "@/components/field.vue"
-import btn from "@/components/button.vue"
 
 const props = defineProps({show: Boolean})
+const email = ref('')
+const pseudo = ref('')
+const password = ref('')
+
+async function register(){
+const res = await fetch("http://localhost:3000/auth/register",
+            {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email.value,
+                    name: pseudo.value,
+                    password: password.value
+
+                })
+            })
+		}
 </script>
 
 <template>
@@ -12,12 +29,14 @@ const props = defineProps({show: Boolean})
       <div class="modal-container">
         <div class="modal-body">
 			<span class="text">inscription</span>
-			<form action="/aled">
-				<field str="email" @updateInput = "email => display(email)" />
-				<field str="pseudo" @updateInput = "pseudo => display(pseudo)" />
-				<field str="mot de passe" @updateInput = "password => display(password)" />
-				<btn type="submit" @updateInput = "co => connection(input)" />
-			</form>
+			<div class="form">
+				<input type="email" v-model="email" />
+				<label>@ email</label>
+				<input type="pseudo" v-model="pseudo" />
+				<label>mot de passe</label>
+				<input type="text" v-model="password" />
+				<button @click="register" />
+			</div>
 			<div class="modal-footer">
 				<button class="btn-fermer" @click="$emit('close')">fermer</button>
 			</div>

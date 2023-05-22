@@ -15,6 +15,7 @@ export class AuthController {
 
 	@Post('/login')
 	async login(@Request() req,@Body() authLoginDto: AuthLoginDto, @Response() res) {
+		console.log("EDQWE")
 		const token = await this.authService.login(authLoginDto);
 
 		res.setHeader('Set-Cookie', await this.authService.getCookieWithJwtToken(authLoginDto.email));
