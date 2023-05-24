@@ -22,6 +22,14 @@ function backgroundColor() {
 	
 }
 
+function closeModal(){
+	showModal.value = false;
+}
+
+function openModal(){
+	showModal.value = true;
+}
+
 </script>
 
 <template>
@@ -43,10 +51,10 @@ function backgroundColor() {
 				<btn type="submit" @updateInput = "co => connection(input)" />
 			</form>
 			<div class="inscription">
-				<button id="show-modal" @click="showModal = true">Inscription</button>
+				<button id="show-modal" @click.stop="openModal">Inscription</button>
 			</div>
 			<Teleport to="body">
-				<inscription :show="showModal" @close="showModal = false" />
+				<inscription :show="showModal" @close="closeModal" />
 			</Teleport>
 		</div>
 	</div>
@@ -58,18 +66,16 @@ function backgroundColor() {
 	</div>
 </body> -->
 
-<!-- <nav>
-    <router-link to="/">Home</router-link>
-</nav>
-<main>
-    <router-view />
-</main> -->
-  <nav>
-    <router-link to="/">Home</router-link> | <router-link to="/verif">Verif</router-link>
-  </nav>
-  <main>
-    <router-view />
-  </main>
+<body>
+	<nav>
+   	 <router-link to="/">Home</router-link> | <router-link to="/verif">Verif</router-link> | 
+		<router-link to="/auth">Auth</router-link>
+  	</nav>
+  	<main>
+  	  <router-view />
+  	</main>	
+</body>
+
 </template>
 
 <style scoped>

@@ -4,6 +4,7 @@ import field from "@/components/field.vue"
 import btn from "@/components/button.vue"
 
 const props = defineProps({show: Boolean})
+
 </script>
 
 <template>

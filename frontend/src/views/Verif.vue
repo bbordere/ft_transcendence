@@ -20,7 +20,7 @@
 		</div>
 		<div class="status" :class="[status === 'Success' ? 'text-green' : 'text-red']">{{ status }}</div>
 	</div>
-	</template>
+</template>
 	
 	
 	
@@ -128,6 +128,7 @@
 			width: 300px;
 			height: 150px;
 			margin: auto;
+			margin-top: auto;
 			background: rgb(255, 255, 255);
 			border-radius: 50px;
 			box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);

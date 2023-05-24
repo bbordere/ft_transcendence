@@ -5,6 +5,7 @@ import { UserService } from 'src/user/user.service';
 import { AuthGuard42 } from './guards/42-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { toFile } from 'qrcode';
+import { retry } from 'rxjs';
 
 @Controller('auth')
 export class AuthController {
@@ -76,7 +77,7 @@ export class AuthController {
 		const token = await this.authService.login42(req, res, req.user);
 		return ({"access_token": token.access_token});
 	}
-
+	
 	@Post('2fa/generate')
 	@UseGuards(JwtAuthGuard)
 	async generate(@Request() request) {
