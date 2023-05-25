@@ -6,6 +6,7 @@ import inscription from "@/components/inscription.vue"
 const email = ref('')
 const password = ref('')
 const showModal = ref(false)
+const status = ref('')
 
 async function login(){
 const res = await fetch("http://localhost:3000/auth/login",
@@ -20,11 +21,20 @@ const res = await fetch("http://localhost:3000/auth/login",
 
                 })
             })
-		}
-		
-function connection() {
-	console.log(email.value)
-	console.log(password.value)
+			status.value = await (await res.blob()).text();
+}
+
+
+async function login42(){
+const res = await fetch("http://localhost:3000/auth/42/callback",
+            {
+                method: 'get',
+			})
+			res.setHeader("Access-Control-Allow-Origin: *");
+    		header.append("Access-Control-Allow-Credentials: true ");
+    		header.append("Access-Control-Allow-Methods: GET, POST");
+    		header.append("Access-Control-Allow-Headers: Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control");
+
 }
 
 </script>
@@ -34,16 +44,18 @@ function connection() {
 <div class="connection">
 	<div class= "co-42">
 		<img class="logo42" src="../assets/img/42.png" alt="logo 42">
-		<button class="btn42">42</button>
+		<button class="btn42" @click="login42">42</button>
 	</div>
 	<div class= "co-email">
 		<span class="text">connection</span>
 		<div class="form">
-			<input type="email" v-model="email" />
-			<label>@ email</label>
-			<label>mot de passe</label>
-			<input type="text" v-model="password" />
-			<button @click="login" />
+			<div class="field">
+				<input type="email" id="email" placeholder="@ email" v-model="email" />
+			</div>
+			<div class="field">
+				<input type="text" placeholder="mot de passe" v-model="password" />
+			</div>
+			<button @click="login">connection</button>
 		</div>
 		<div class="inscription">
 			<button id="show-modal" @click="showModal = true">Inscription</button>
@@ -51,6 +63,7 @@ function connection() {
 		<Teleport to="body">
 			<inscription :show="showModal" @close="showModal = false" />
 		</Teleport>
+		{{status}}
 	</div>
 </div>
 
@@ -58,7 +71,7 @@ function connection() {
 
 <style scoped>
 
-.connection{
+.connection {
 	min-height: 350px;
 
 	height: 100vh;
@@ -69,7 +82,7 @@ function connection() {
 	align-items: center;
 
 }
-.co-42{
+.co-42 {
 	width:350px;
 	height: 350px;
 
@@ -81,7 +94,7 @@ function connection() {
              -4px -4px 10px #eaeaea;
 }
 
-.co-42 .logo42{
+.co-42 .logo42 {
 	height: 160x;
 	width: 160px;
 
@@ -90,12 +103,13 @@ function connection() {
 	margin-right: auto;
 }
 
-.co-email{
+.co-email {
 	display: flex;
 	flex-direction: column;
-	width:550px;
+	width:450px;
 	height: auto;
 	padding: 40px 30px;
+	gap: 20px;
 
 	background: inear-gradient(32deg,#03a8f4,#f441a6,#ffeb3b,#03a8f4);
 	border-radius: 10px;
@@ -103,7 +117,7 @@ function connection() {
              -4px -4px 4px #eaeaea;
 }
 
-.co-email .text{
+.co-email .text {
 	font-size: 33px;
 	font-weight: 600;
 	display: flex;
@@ -184,53 +198,13 @@ function connection() {
 	box-sizing: border-box;
 }
 
-.btn42:focus{
+.btn42:focus {
 	color: black;
 ;
 
 }
 
-.form{
-	height: auto;
-	width: auto;
-	display: flex;
-	flex-direction: column;
-	padding-bottom: 20px;
-}
-.form input{
-	padding-left: 25px;
-	padding-right: 25px;
-	outline: none;
-	border: none;
-	font-size: 18px;
-	background: #dde1e7;
-	color: #595959;
-	border-radius: 25px;
-	box-shadow: inset 2px 2px 5px #BABECC,
-				inset -5px -5px 10px #ffffff73;
-}
-.form input:focus{
-	box-shadow: inset 1px 1px 2px #BABECC,
-				inset -1px -1px 2px #ffffff73;
-}
-.form span{
-	position: absolute;
-	color: #595959;
-	width: 50px;
-	line-height: 50px;
-}
-.form label{
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	left: 25px;
-	pointer-events: none;
-	color: #666666;
-}
-.form input:valid ~ label{
-	opacity: 0;
-}
-.form button{
+.form button {
 	margin: 15px 0;
 	width: 100%;
 	height: 50px;
@@ -246,7 +220,71 @@ function connection() {
 	box-shadow:  4px 4px 4px #616161,
              -4px -4px 4px #eaeaea;
 }
-.form button:focus{
+.form button:focus {
+	color: #3498db;
+	box-shadow:  4px 4px 4px #606060,
+             -4px -4px 4px #c9c9c9;
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	align-self: center;
+	align-content: center;
+	gap: 20px;
+}
+
+.form .field input{ 
+	padding-left: 25px;
+	padding-right: 25px;
+	height: 50px;
+	width: 300px;
+	outline: none;
+	border: none;
+	font-size: 18px;
+	background: #dde1e7;
+	color: #595959;
+	border-radius: 25px;
+	box-shadow: inset 2px 2px 5px #BABECC,
+				inset -5px -5px 10px #ffffff73;
+}
+.field input:focus{
+	box-shadow: inset 1px 1px 2px #BABECC,
+				inset -1px -1px 2px #ffffff73;
+}
+.field span {
+	position: absolute;
+	color: #595959;
+	width: 50px;
+	line-height: 50px;
+}
+.field label {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	left: 25px;
+	pointer-events: none;
+	color: #666666;
+}
+
+.field button {
+	margin: 15px 0;
+	width: 100%;
+	height: 50px;
+	font-size: 18px;
+	line-height: 50px;
+	font-weight: 600;
+	background: #dde1e7;
+	border-radius: 25px;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	color: #595959;
+	box-shadow:  4px 4px 4px #616161,
+             -4px -4px 4px #eaeaea;
+}
+.field button:focus {
 	color: #3498db;
 	box-shadow:  4px 4px 4px #606060,
              -4px -4px 4px #c9c9c9;
