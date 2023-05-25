@@ -6,6 +6,7 @@ import { User } from 'src/user/user.entity';
 import { AuthLogin42Dto } from './dtos/auth42.dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
+import { FortyTwoUser } from './strategies/42.stategy';
 
 @Injectable()
 export class AuthService {
@@ -81,10 +82,30 @@ export class AuthService {
 	}
 
 
-	async getCookieWithJwtToken(email: string) {
+	async getTokenByMail(email: string): Promise<string> {
 		const user = await this.usersService.getByEmail(email);
 		const payload = { username: user.name, email: user.email};
-		const token = this.jwtService.sign(payload);
-		return `Authentication=${token}; HttpOnly; Path=/; Max-Age=3600s}`;
+		const token: string = this.jwtService.sign(payload);
+		return (token);
 	  }
+	
+	async getTokenByUser(user: User): Promise<string> {
+		const payload = { username: user.name, email: user.email};
+		const token: string = this.jwtService.sign(payload);
+		return (token);
+	}
+
+    async findOrCreate(fortyTwoUser: FortyTwoUser): Promise<User> {
+        try {
+            const user = await this.usersService.getByEmail(fortyTwoUser.email);
+            if (!user) {
+				const dto: AuthLogin42Dto = {name: fortyTwoUser.name,email: fortyTwoUser.email, password: "", image:	fortyTwoUser.photo}
+                return await this.usersService.createUser42(dto);
+            }
+            return user;
+        } catch ( error ) {
+            console.log( error );
+            throw new NotAcceptableException('findOrCreate');
+        }
+    }
 }

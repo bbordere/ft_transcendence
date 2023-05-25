@@ -11,6 +11,7 @@ const status = ref('')
 async function login(){
 const res = await fetch("http://localhost:3000/auth/login",
             {
+				credentials: "include",
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json'
@@ -31,7 +32,7 @@ const res = await fetch("http://localhost:3000/auth/login",
 <div class="connection">
 	<div class= "co-42">
 		<img class="logo42" src="../assets/img/42.png" alt="logo 42">
-		<button @click="$redirect('/auth/42/callback')" type="button" class="btn42">Login</button>
+		<button @click="$redirect('/auth/42/login')" type="button" class="btn42">Login</button>
 		
 
 	</div>

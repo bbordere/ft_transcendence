@@ -19,10 +19,10 @@ export default createRouter({
 		component: inscription
 	},
     {
-		path: '/auth/42/callback',
+		path: '/auth/42/login',
 		component: inscription,
 		beforeEnter(to, from, next) {
-			window.location.href = "http://localhost:3000/auth/42/callback";
+			window.location.href = "http://localhost:3000/auth/42/login";
 		}
 	},
   ],

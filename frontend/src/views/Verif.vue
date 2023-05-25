@@ -83,20 +83,20 @@ import { ref } from 'vue';
 
 	async function sendCode(code: string){
 		const res = await fetch("http://localhost:3000/auth/2fa/verify",
-				{
-					method: 'post',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJib3JkZXJlIiwiZW1haWwiOiJiYm9yZGVyZUBzdHVkZW50LjQyLmZyIiwiaWF0IjoxNjg0NzQ2MjQxfQ.-2WscK6hWEQAZjNzs3SU94o0Mi72Z4TGEzZaXWdS9yw' // to do changer pour recuperer le bon
-					},
-					body: JSON.stringify({
-						code: code,
-					})
+			{
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					code: code,
 				})
-				status.value = await (await res.blob()).text();
-				if (status.value === "Success")
-					delay(2000).then(any=>{router.push('/');});
-	}
+			})
+			status.value = await (await res.blob()).text();
+			if (status.value === "Success")
+				delay(2000).then(any=>{router.push('/');});
+		}
 	
 	function onPaste(event: Event) {
 		inputData = (event as ClipboardEvent).clipboardData

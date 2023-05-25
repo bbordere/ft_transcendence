@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "axios": "^1.4.0",
     "v-click-outside": "^3.2.0"
   }
 }
