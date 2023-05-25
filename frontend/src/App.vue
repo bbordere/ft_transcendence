@@ -1,21 +1,17 @@
 <script setup lang="ts">
 
-import auth from "@/components/auth.vue"
-
 </script>
 
 <template>
 
 <body>
-	<header>
-		<img class="logo" alt="logo" src="./assets/img/logo.png">
-	</header>
-
-	<auth />
-
-	<footer>
-		<p class="copyright">copyright</p>
-	</footer>
+	<nav>
+   	 <router-link to="/">Home</router-link> | <router-link to="/verif">Verif</router-link> | 
+		<router-link to="/auth">Auth</router-link>
+  	</nav>
+  	<main>
+  	  <router-view />
+  	</main>	
 </body>
 
 </template>
@@ -108,5 +104,13 @@ footer .copyright {
 }
 
 
+.verif{
+	height: 100vh;
+	width: 100vw;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+}
 
 </style>

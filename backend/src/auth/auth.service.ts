@@ -11,16 +11,17 @@ import { toDataURL } from 'qrcode';
 export class AuthService {
 	constructor(private usersService: UserService, private jwtService: JwtService) {}
 
-	async login(authLoginDto: AuthLoginDto) {
-		const user = await this.validateUser(authLoginDto);
+	async login(authLoginDto: AuthLoginDto, @Res() res) {
+		const user = await this.validateUser(authLoginDto, res);
 	
 		const payload = { username: user.name, email: user.email};
 		const access_token = this.jwtService.sign(payload);
 		await this.usersService.updateAccessToken(user.email, access_token);
+		// res.cookie('token', access_token);
 		return {access_token: access_token};
 	  }
 
-	async validateUser(authLoginDto: AuthLoginDto): Promise<User> {
+	async validateUser(authLoginDto: AuthLoginDto, @Res({ passthrough: true }) res): Promise<User> {
 		const { email, password } = authLoginDto;
 
 		const user = await this.usersService.getByEmail(email);
@@ -30,13 +31,13 @@ export class AuthService {
 
 		if (!validPass) throw new UnauthorizedException();
 
-		// if (user.auth2f === true)
-			//to do redirect to front verif page
+		if (user.auth2f === true)
+			res.redirect("http://localhost:8080/verif");
 
 		return user;
 	}
 
-	async login42(@Req() req, @Res({ passthrough: true }) res,data: AuthLogin42Dto) {
+	async login42(@Req() req, @Res({ passthrough: true }) res, data: AuthLogin42Dto) {
 		const user = await this.usersService.getByEmail(data.email);
 		if (!user)
 		{
@@ -44,19 +45,20 @@ export class AuthService {
 				throw new NotAcceptableException('User Already Exist !');
 			const user = await this.usersService.createUser42(data);
 			const payload = { username: user.name, email: user.email};
+			res.redirect("http://localhost:8080/");
 			return {access_token: this.jwtService.sign(payload)};
-			//to do redirect to front home page
 		}
 		if (user.auth2f === true)
 		{
 			const payload = { username: user.name, email: user.email};
-			req.headers.authorization = "Bearer " + this.jwtService.sign(payload);
-			res.redirect("https://google.com"); //to do redirect to front verif page
+			// req.headers.authorization = "Bearer " + this.jwtService.sign(payload);
+			res.redirect("http://localhost:8080/verif");
 			return {access_token: this.jwtService.sign(payload)};
 		}
 		else
 		{
 			const payload = { username: user.name, email: user.email};
+			res.redirect("http://localhost:8080/");
 			return {access_token: this.jwtService.sign(payload)};
 		}
 		//to do redirect to front home page

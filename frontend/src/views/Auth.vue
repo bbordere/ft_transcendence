@@ -24,19 +24,6 @@ const res = await fetch("http://localhost:3000/auth/login",
 			status.value = await (await res.blob()).text();
 }
 
-
-async function login42(){
-const res = await fetch("http://localhost:3000/auth/42/callback",
-            {
-                method: 'get',
-			})
-			res.setHeader("Access-Control-Allow-Origin: *");
-    		header.append("Access-Control-Allow-Credentials: true ");
-    		header.append("Access-Control-Allow-Methods: GET, POST");
-    		header.append("Access-Control-Allow-Headers: Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control");
-
-}
-
 </script>
 
 <template>
@@ -44,7 +31,9 @@ const res = await fetch("http://localhost:3000/auth/42/callback",
 <div class="connection">
 	<div class= "co-42">
 		<img class="logo42" src="../assets/img/42.png" alt="logo 42">
-		<button class="btn42" @click="login42">42</button>
+		<button @click="$redirect('/auth/42/callback')" type="button" class="btn42">Login</button>
+		
+
 	</div>
 	<div class= "co-email">
 		<span class="text">connection</span>
@@ -53,7 +42,7 @@ const res = await fetch("http://localhost:3000/auth/42/callback",
 				<input type="email" id="email" placeholder="@ email" v-model="email" />
 			</div>
 			<div class="field">
-				<input type="text" placeholder="mot de passe" v-model="password" />
+				<input type="password" placeholder="mot de passe" v-model="password" />
 			</div>
 			<button @click="login">connection</button>
 		</div>
