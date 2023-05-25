@@ -18,5 +18,12 @@ export default createRouter({
 		path: '/auth',
 		component: inscription
 	},
+    {
+		path: '/auth/42/callback',
+		component: inscription,
+		beforeEnter(to, from, next) {
+			window.location.href = "http://localhost:3000/auth/42/callback";
+		}
+	},
   ],
 })

@@ -1,43 +1,68 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import field from "@/components/field.vue"
-import btn from "@/components/button.vue"
 
 const props = defineProps({show: Boolean})
+const email = ref('')
+const pseudo = ref('')
+const password = ref('')
+
+async function register(){
+const res = await fetch("http://localhost:3000/auth/register",
+            {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email.value,
+                    name: pseudo.value,
+                    password: password.value
+
+                })
+            })
+		}
+
 
 </script>
 
 <template>
 <Transition name="modal">
     <div v-if="show" class="modal-mask">
-      <div class="modal-container">
-        <div class="modal-body">
-			<span class="text">inscription</span>
-			<form action="/aled">
-				<field str="email" @updateInput = "email => display(email)" />
-				<field str="pseudo" @updateInput = "pseudo => display(pseudo)" />
-				<field str="mot de passe" @updateInput = "password => display(password)" />
-				<btn type="submit" @updateInput = "co => connection(input)" />
-			</form>
-			<div class="modal-footer">
-				<button class="btn-fermer" @click="$emit('close')">fermer</button>
-			</div>
-        </div>
-      </div>
-    </div>
-  </Transition>
+    	<div class="modal-container">
+        	<div class="modal-body">
+				<span class="text">inscription</span>
+				<div class="form">
+					<div class="field">
+						<input type="email" placeholder="@ email" v-model="email" />
+					</div>
+					<div class="field">
+						<input type="text" placeholder="pseudo" v-model="pseudo" />
+					</div>
+					<div class="field">
+						<input type="text" placeholder="mot de passe" v-model="password" />
+					</div>
+						<button @click="register">inscription</button>
+					</div>
+					<div>
+						<button @click="$emit('close')" >fermer</button>
+					</div>
+        		</div>
+    		</div>
+    	</div>
+	</Transition>
 </template>
 
 <style scoped>
 .modal-mask {
-  position: fixed;
-  z-index: 9998;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  transition: opacity 0.3s ease;
+	position: fixed;
+	z-index: 9998;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	transition: opacity 0.3s ease;
 }
 
 .modal-container {
@@ -45,7 +70,7 @@ const props = defineProps({show: Boolean})
 	background-color: #B4CFECD0;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
 
-	width:550px;
+	width:450px;
 	height: auto;
 	padding: 40px 30px;
 	display: flex;
@@ -58,7 +83,9 @@ const props = defineProps({show: Boolean})
 }
 
 .modal-body .text { 
-font-size: 33px;
+	font-family: 'Poppins', sans-serif;
+
+	font-size: 50px;
 	font-weight: 600;
 	display: flex;
 	align-items: center;
@@ -66,26 +93,111 @@ font-size: 33px;
 	margin-bottom: 35px;
 	color: #595959;
 }
-.modal-footer {
-padding-top: 40px;
-}
+
 
 .modal-default-button {
-  float: right;
+	float: right;
 }
 
 .modal-enter-from {
-  opacity: 0;
+	opacity: 0;
 }
 
 .modal-leave-to {
-  opacity: 0;
+	opacity: 0;
 }
 
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
-  -webkit-transform: scale(1.5);
-  transform: scale(1.5);
+	-webkit-transform: scale(1.5);
+	transform: scale(1.5);
+}
+
+
+.form button {
+	margin: 15px 0;
+	width: 100%;
+	height: 50px;
+	font-size: 18px;
+	line-height: 50px;
+	font-weight: 600;
+	background: #dde1e7;
+	border-radius: 25px;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	color: #595959;
+	box-shadow:  4px 4px 4px #616161,
+             -4px -4px 4px #eaeaea;
+}
+.form button:focus {
+	color: #3498db;
+	box-shadow:  4px 4px 4px #606060,
+             -4px -4px 4px #c9c9c9;
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	align-self: center;
+	align-content: center;
+	gap: 20px;
+}
+
+.form .field input{ 
+	padding-left: 25px;
+	padding-right: 25px;
+	height: 50px;
+	width: 300px;
+	outline: none;
+	border: none;
+	font-size: 18px;
+	background: #dde1e7;
+	color: #595959;
+	border-radius: 25px;
+	box-shadow: inset 2px 2px 5px #BABECC,
+				inset -5px -5px 10px #ffffff73;
+}
+.field input:focus{
+	box-shadow: inset 1px 1px 2px #BABECC,
+				inset -1px -1px 2px #ffffff73;
+}
+.field span {
+	position: absolute;
+	color: #595959;
+	width: 50px;
+	line-height: 50px;
+}
+.field label {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	left: 25px;
+	pointer-events: none;
+	color: #666666;
+}
+
+.field button {
+	margin: 15px 0;
+	width: 100%;
+	height: 50px;
+	font-size: 18px;
+	line-height: 50px;
+	font-weight: 600;
+	background: #dde1e7;
+	border-radius: 25px;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	color: #595959;
+	box-shadow:  4px 4px 4px #616161,
+             -4px -4px 4px #eaeaea;
+}
+.field button:focus {
+	color: #3498db;
+	box-shadow:  4px 4px 4px #606060,
+             -4px -4px 4px #c9c9c9;
 }
 </style>
 

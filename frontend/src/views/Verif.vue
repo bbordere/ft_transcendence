@@ -1,7 +1,7 @@
 <template>
 	<div class="verify">
 		<h4>Enter OTP Code</h4>
-		<div class="input-field">
+		<div class="input-field"  :class="[status === 'Failure' ? 'shakeAnimation' : ' ']">
 			<form>
 			<input
 			  v-for="(n, index) in codeArr"
@@ -26,8 +26,9 @@
 	
 	
 	<script setup lang="ts">
-	
-	import { ref } from 'vue';
+
+	import router from '@/router';
+import { ref } from 'vue';
 	let status = ref("");
 	
 	let codeArr: string[] = ["", "", "", "", "", ""];
@@ -70,14 +71,16 @@
 	}
 	
 	function handleDelete(event: Event) {
-	  //keydown event = move to previous element then only delete number
-	
 		let value = (event.target as HTMLInputElement).value;
 		let currentActiveElement = event.target as HTMLInputElement;
 		if (!value)
 			(currentActiveElement.previousElementSibling as HTMLElement)?.focus();
 	}
 	
+	function delay(ms: number) {
+    	return new Promise( resolve => setTimeout(resolve, ms) );
+	}
+
 	async function sendCode(code: string){
 		const res = await fetch("http://localhost:3000/auth/2fa/verify",
 				{
@@ -91,6 +94,8 @@
 					})
 				})
 				status.value = await (await res.blob()).text();
+				if (status.value === "Success")
+					delay(2000).then(any=>{router.push('/');});
 	}
 	
 	function onPaste(event: Event) {
@@ -166,6 +171,28 @@
 	
 		.text-green{
 			color: rgb(12, 167, 12);
+		}
+
+		@keyframes shake {
+			0% {
+				margin-left: 0rem;
+				margin-right: 0rem;
+			}
+			25% {
+				margin-left: 0.75rem;
+				margin-right: 0.75rem;
+			}
+			75% {
+				margin-left: -0.5rem;
+				margin-right: -0.5rem;
+			}
+			100% {
+				margin-left: 0rem;
+				margin-right: 0rem;
+			}
+	}
+		.shakeAnimation{
+			animation: shake 0.2s ease-in-out 0s 2;
 		}
 	
 	</style>
