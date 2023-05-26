@@ -101,7 +101,6 @@ const res = await fetch("http://localhost:3000/auth/login",
 	padding: 40px 30px;
 	gap: 20px;
 
-	background: inear-gradient(32deg,#03a8f4,#f441a6,#ffeb3b,#03a8f4);
 	border-radius: 10px;
 	box-shadow:  4px 4px 4px #474747,
              -4px -4px 4px #eaeaea;

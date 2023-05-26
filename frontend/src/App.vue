@@ -7,7 +7,8 @@
 <body>
 	<nav>
    	 <router-link to="/">Home</router-link> | <router-link to="/verif">Verif</router-link> | 
-		<router-link to="/auth">Auth</router-link>
+		<router-link to="/auth">Auth</router-link> | <router-link to="/profile">profil</router-link> | 
+		<router-link to="/pong">pong</router-link>
   	</nav>
   	<main>
   	  <router-view />
