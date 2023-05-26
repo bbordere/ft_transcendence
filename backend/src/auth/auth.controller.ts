@@ -27,23 +27,16 @@ export class AuthController {
 	@Get('/42/callback')
 	@UseGuards(AuthGuard42)
 	async generateToken(@Res({passthrough: true}) res: Response, @Req() req: any){
-		let user = await this.userService.getByEmail(req.user['email']);
-		if (!user)
-		{
-			console.log(req.user['name']);
-			const dto: AuthLogin42Dto = {email: req.user['email'], name: req.user['name'], password: "", image: ""} // to do clean this 
-			user = await this.userService.createUser42(dto);
-		}
-		const tokens: string = await this.authService.getTokenByUser(user);
-		res.cookie('access_token', tokens, {httpOnly: true});
-		if (user.auth2f)
+		const tokens: string = await this.authService.getTokenByUser(req.user);
+		if (req.user.auth2f)
 			res.redirect('http://localhost:8080/verif');
-		else
+		else {
 			res.redirect('http://localhost:8080/');
+			res.cookie('access_token', tokens, {httpOnly: true});
+		}
 	}
 
 	@Post('/login')
-	@UseGuards(JwtAuthGuard)
 	async login(@Req() req: Request, @Body() authLoginDto: AuthLoginDto, @Res() res) {
 		console.log(req.cookies);
 		const tokens = await this.authService.login(authLoginDto, res);
@@ -100,8 +93,11 @@ export class AuthController {
 	@Post('2fa/verify')
 	@UseGuards(JwtAuthGuard)
 	async verify2fa(@Req() req: any, @Body() body, @Res() res){
-		if (this.authService.isValidCode(req.user.user, body.code))
+		if (this.authService.isValidCode(req.user.user, body.code)){
+			const tokens: string = await this.authService.getTokenByUser(req.user.user);
+			res.cookie('access_token', tokens, {httpOnly: true});
 			return (res.send("Success"));
+		}
 		else
 			return (res.send("Failure"));
 	}

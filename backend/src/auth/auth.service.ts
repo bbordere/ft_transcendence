@@ -52,7 +52,6 @@ export class AuthService {
 		if (user.auth2f === true)
 		{
 			const payload = { username: user.name, email: user.email};
-			// req.headers.authorization = "Bearer " + this.jwtService.sign(payload);
 			res.redirect("http://localhost:8080/verif");
 			return {access_token: this.jwtService.sign(payload)};
 		}
@@ -95,16 +94,15 @@ export class AuthService {
 		return (token);
 	}
 
-    async findOrCreate(fortyTwoUser: FortyTwoUser): Promise<User> {
+    async findOrCreate(loginDto: AuthLogin42Dto): Promise<User> {
         try {
-            const user = await this.usersService.getByEmail(fortyTwoUser.email);
-            if (!user) {
-				const dto: AuthLogin42Dto = {name: fortyTwoUser.name,email: fortyTwoUser.email, password: "", image:	fortyTwoUser.photo}
-                return await this.usersService.createUser42(dto);
-            }
-            return user;
-        } catch ( error ) {
-            console.log( error );
+            const user = await this.usersService.getByEmail(loginDto.email);
+            if (!user)
+                return await this.usersService.createUser42(loginDto);
+            return (user);
+        }
+		catch (error) {
+            console.log(error);
             throw new NotAcceptableException('findOrCreate');
         }
     }

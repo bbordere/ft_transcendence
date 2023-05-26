@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-42';
 import { AuthService } from '../auth.service';
+import { AuthLogin42Dto } from '../dtos/auth42.dto';
 
 export interface FortyTwoUser {
 	id: number,
@@ -26,7 +27,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: FortyTwoUser){
+  async validate(accessToken: string, refreshToken: string, profile: AuthLogin42Dto){
 		return await this.authService.findOrCreate(profile);
   }
 }
