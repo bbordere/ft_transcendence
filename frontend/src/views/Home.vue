@@ -1,6 +1,4 @@
-<script lang="ts">
-	// const res = await fetch("http://localhost:3000/auth", {method: "post"});
-	// console.log(await res.blob());
+<script setup lang="ts">
 </script>
 
 <template>

@@ -28,7 +28,7 @@
 	<script setup lang="ts">
 
 	import router from '@/router';
-import { ref } from 'vue';
+	import { ref } from 'vue';
 	let status = ref("");
 	
 	let codeArr: string[] = ["", "", "", "", "", ""];

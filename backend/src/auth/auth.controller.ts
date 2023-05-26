@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Req, UnauthorizedException, UseGuards, Redirect, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, UnauthorizedException, UseGuards, Redirect, Res, HttpCode } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dtos/auth.dto';
 import { UserService } from 'src/user/user.service';
@@ -31,8 +31,8 @@ export class AuthController {
 		if (req.user.auth2f)
 			res.redirect('http://localhost:8080/verif');
 		else {
-			res.redirect('http://localhost:8080/');
 			res.cookie('access_token', tokens, {httpOnly: true});
+			res.redirect('http://localhost:8080/');
 		}
 	}
 
@@ -46,6 +46,12 @@ export class AuthController {
 		// 	// res.redirect('http://localhost:8080/verif');
 		// else
 		// 	res.redirect('http://localhost:8080/');
+	}
+
+	@Post()
+	@UseGuards(JwtAuthGuard)
+	async checkLoginStatus(){
+		return ({ "statusCode": 200});
 	}
 
 	@Post('/register')
