@@ -4,6 +4,7 @@ import Verif from '@/views/Verif.vue'
 import inscription from '@/views/Auth.vue'
 import profile from '@/views/Profile.vue'
 import pong from '@/views/pong.vue'
+import auth2f from '@/views/Auth2f.vue'
 
 export default createRouter({
   history: createWebHistory(),
@@ -47,6 +48,17 @@ export default createRouter({
 		component: inscription,
 		beforeEnter(to, from, next) {
 			window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/login";
+		}
+	},
+	{
+		path: '/auth/2fa/home',
+		component: auth2f,
+	},
+	{
+		path: '/auth/2fa/generate',
+		component: auth2f,
+		beforeEnter(to, from, next) {
+			window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/generate";
 		}
 	},
   ],

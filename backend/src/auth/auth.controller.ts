@@ -6,7 +6,8 @@ import { AuthGuard42 } from './guards/42-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Request, Response } from 'express';
 import { toFile } from 'qrcode';
-import { AuthLogin42Dto } from './dtos/auth42.dto';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
 @Controller('auth')
 export class AuthController {
@@ -32,7 +33,7 @@ export class AuthController {
 		if (req.user.auth2f)
 			res.redirect("http://" + process.env.HOST + ":8080/verif");
 		else {
-			res.cookie('access_token', tokens, {httpOnly: true});
+			res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
 			res.redirect("http://" + process.env.HOST + ":8080/");
 		}
 	}
@@ -40,7 +41,7 @@ export class AuthController {
 	@Post('/login')
 	async login(@Req() req: Request, @Body() authLoginDto: AuthLoginDto, @Res({passthrough: true}) res: Response) {
 		const tokens = await this.authService.login(authLoginDto, res);
-		res.cookie('access_token', tokens.access_token, {httpOnly: true});
+		res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
 		res.statusCode = 201;
 	}
 
@@ -54,17 +55,17 @@ export class AuthController {
 	async register(@Req() req, @Body() authLoginDto: AuthLoginDto, @Res({passthrough: true}) res) {
 		await this.userService.createUser(authLoginDto);
 		const tokens = await this.authService.login(authLoginDto, res);
-		res.cookie('access_token', tokens.access_token, {httpOnly: true});
+		res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
 		res.statusCode = 201;
 	}
 
-	@Post('2fa/generate')
+	@Get('2fa/generate')
 	@UseGuards(JwtAuthGuard)
-	async generate(@Req() request) {
+	async generate(@Req() request, @Res({passthrough: true}) res: Response) {
 		const { otpAuthUrl } = await this.authService.generate2FASecret(request.user.user);
-		toFile('qrcode/code.png', otpAuthUrl);
+		toFile('qrcode/' + request.user.user.email + '.png', otpAuthUrl);
 		let QRCode = await this.authService.generateQrCode(otpAuthUrl);
-		return (QRCode);
+		res.redirect("http://" + process.env.HOST + ":8080/auth/2fa/home");
 	}
 
 	@Post('2fa/on')
@@ -89,19 +90,33 @@ export class AuthController {
 
 	@Get('2fa/qrcode')
 	@UseGuards(JwtAuthGuard)
-	@Redirect("/qrcode/code.png")
-	async test(){}
+	async streamCode(@Res() res: Response, @Req() req){
+		const file = createReadStream(join(process.cwd(), 'qrcode/' + req.user.user.email + '.png'));
+		file.pipe(res);
+	}
 	
 	@Post('2fa/verify')
 	@UseGuards(JwtAuthGuard)
 	async verify2fa(@Req() req: any, @Body() body, @Res() res){
 		if (this.authService.isValidCode(req.user.user, body.code)){
 			const tokens: string = await this.authService.getTokenByUser(req.user.user);
-			res.cookie('access_token', tokens, {httpOnly: true});
+			res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
 			return (res.send("Success"));
 		}
 		else
 			return (res.send("Failure"));
+	}
+
+	@Get('2fa/status')
+	@UseGuards(JwtAuthGuard)
+	getStatus(@Req() req: any){
+		return (req.user.user.auth2f);
+	}
+
+	@Get('2fa/completeStatus')
+	@UseGuards(JwtAuthGuard)
+	getGenStatus(@Req() req: any){
+		return ({"activated": req.user.user.auth2f, "generated": req.user.user.auth2fSecret != ""});
 	}
 
 

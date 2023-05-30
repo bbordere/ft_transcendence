@@ -101,6 +101,7 @@ export default{
 	overflow: hidden;
 	margin-top: 15px;
 	margin-bottom: 15px;
+	cursor: pointer;
 }
 
 .card-button::before{
