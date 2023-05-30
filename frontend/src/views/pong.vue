@@ -79,13 +79,19 @@
 }
 
 .timer {
+	display: flex;
 	height: 10%;
 	width: 100%;
+	align-items: center;
+	justify-content: center;
 }
 
 .pong_screen {
-	height: 77%;
+	max-width: 80%;
+	max-height: 80%;
+	min-width: auto;
 	width: 100%;
+	aspect-ratio: 4/3;
 
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
@@ -93,8 +99,11 @@
 }
 
 .button_panel {
+	display: flex;
 	height: 10%;
 	width: 100%;
+	align-items: center;
+	justify-content: space-between;
 }
 
 .right_column {
