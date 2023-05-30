@@ -2,6 +2,7 @@
 
 import {ref} from "vue"
 import inscription from "@/components/inscription.vue"
+import router from '../router'
 
 const email = ref('')
 const password = ref('')
@@ -9,20 +10,23 @@ const showModal = ref(false)
 const status = ref('')
 
 async function login(){
-const res = await fetch("http://localhost:3000/auth/login",
-            {
-				credentials: "include",
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: email.value,
-                    password: password.value
+	const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/login",
+	{
+		credentials: 'include',
+		method: 'post',
+		mode: "cors",
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			email: email.value,
+			password: password.value
 
-                })
-            })
-			status.value = await (await res.blob()).text();
+		})
+	})
+	status.value = res.status;
+	if (res.status === 201)
+		router.push('/');
 }
 
 </script>

@@ -8,7 +8,7 @@ export interface FortyTwoUser {
 	id: number,
 	name: string,
 	email: string
-	photo: string
+	pictureLink: string
 }
 
 @Injectable()
@@ -22,7 +22,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
 		'id': function (obj) { return String(obj.id); },
 		'name': 'login',
 		'email': 'email',
-		'photo': 'image_url'
+		'pictureLink': function (obj) { return String(obj.image.link); }
 	  }
     });
   }

@@ -18,6 +18,7 @@ export class AuthController {
 	@Get('logout')
 	async logout(@Res({ passthrough: true }) res: Response){
 		res.cookie('access_token', '', {expires: new Date()});
+		res.redirect("http://" + process.env.HOST + ":8080/auth");
 	}
 
 	@Get('/42/login')
@@ -29,23 +30,18 @@ export class AuthController {
 	async generateToken(@Res({passthrough: true}) res: Response, @Req() req: any){
 		const tokens: string = await this.authService.getTokenByUser(req.user);
 		if (req.user.auth2f)
-			res.redirect('http://localhost:8080/verif');
+			res.redirect("http://" + process.env.HOST + ":8080/verif");
 		else {
 			res.cookie('access_token', tokens, {httpOnly: true});
-			res.redirect('http://localhost:8080/');
+			res.redirect("http://" + process.env.HOST + ":8080/");
 		}
 	}
 
 	@Post('/login')
-	async login(@Req() req: Request, @Body() authLoginDto: AuthLoginDto, @Res() res) {
-		console.log(req.cookies);
+	async login(@Req() req: Request, @Body() authLoginDto: AuthLoginDto, @Res({passthrough: true}) res: Response) {
 		const tokens = await this.authService.login(authLoginDto, res);
 		res.cookie('access_token', tokens.access_token, {httpOnly: true});
-		return (res.send(tokens.access_token));
-		// if (user.auth2f)
-		// 	// res.redirect('http://localhost:8080/verif');
-		// else
-		// 	res.redirect('http://localhost:8080/');
+		res.statusCode = 201;
 	}
 
 	@Post()
@@ -53,13 +49,13 @@ export class AuthController {
 	async checkLoginStatus(){
 		return ({ "statusCode": 200});
 	}
-
+	
 	@Post('/register')
-	async register(@Req() req, @Body() authLoginDto: AuthLoginDto, @Res() res) {
-		const user = await this.userService.createUser(authLoginDto);
-		const tokens: string = await this.authService.getTokenByUser(user);
-		res.cookie('access_token', tokens, {httpOnly: true});
-		res.redirect('http://localhost:8080/');
+	async register(@Req() req, @Body() authLoginDto: AuthLoginDto, @Res({passthrough: true}) res) {
+		await this.userService.createUser(authLoginDto);
+		const tokens = await this.authService.login(authLoginDto, res);
+		res.cookie('access_token', tokens.access_token, {httpOnly: true});
+		res.statusCode = 201;
 	}
 
 	@Post('2fa/generate')

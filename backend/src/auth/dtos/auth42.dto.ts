@@ -1,6 +1,6 @@
 export class AuthLogin42Dto {
 	name: string;
 	email: string;
-	image: string;
+	pictureLink: string;
 	password: string;
 }

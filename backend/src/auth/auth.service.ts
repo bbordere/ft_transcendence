@@ -14,11 +14,9 @@ export class AuthService {
 
 	async login(authLoginDto: AuthLoginDto, @Res() res) {
 		const user = await this.validateUser(authLoginDto, res);
-	
 		const payload = { username: user.name, email: user.email};
 		const access_token = this.jwtService.sign(payload);
 		await this.usersService.updateAccessToken(user.email, access_token);
-		// res.cookie('token', access_token);
 		return {access_token: access_token};
 	  }
 
@@ -33,7 +31,7 @@ export class AuthService {
 		if (!validPass) throw new UnauthorizedException();
 
 		if (user.auth2f === true)
-			res.redirect("http://localhost:8080/verif");
+			res.redirect("http://" + process.env.HOST + ":8080/verif");
 
 		return user;
 	}
@@ -46,22 +44,21 @@ export class AuthService {
 				throw new NotAcceptableException('User Already Exist !');
 			const user = await this.usersService.createUser42(data);
 			const payload = { username: user.name, email: user.email};
-			res.redirect("http://localhost:8080/");
+			res.redirect("http://" + process.env.HOST + ":8080/");
 			return {access_token: this.jwtService.sign(payload)};
 		}
 		if (user.auth2f === true)
 		{
 			const payload = { username: user.name, email: user.email};
-			res.redirect("http://localhost:8080/verif");
+			res.redirect("http://" + process.env.HOST + ":8080/verif");
 			return {access_token: this.jwtService.sign(payload)};
 		}
 		else
 		{
 			const payload = { username: user.name, email: user.email};
-			res.redirect("http://localhost:8080/");
+			res.redirect("http://" + process.env.HOST + ":8080/");
 			return {access_token: this.jwtService.sign(payload)};
 		}
-		//to do redirect to front home page
 	}
 
 	async generate2FASecret(user: User){

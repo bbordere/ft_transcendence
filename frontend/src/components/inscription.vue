@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import router from '../router'
 
 const props = defineProps({show: Boolean})
 const email = ref('')
@@ -7,20 +8,24 @@ const pseudo = ref('')
 const password = ref('')
 
 async function register(){
-const res = await fetch("http://localhost:3000/auth/register",
-            {
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: email.value,
-                    name: pseudo.value,
-                    password: password.value
+const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/register",
+		{
+			credentials: 'include',
+			mode: "cors",
+			method: 'post',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				email: email.value,
+				name: pseudo.value,
+				password: password.value
 
-                })
-            })
-		}
+			})
+		})
+	if (res.status === 201)
+		router.push('/');
+}
 
 
 </script>

@@ -82,7 +82,7 @@
 	}
 
 	async function sendCode(code: string){
-		const res = await fetch("http://localhost:3000/auth/2fa/verify",
+		const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/verify",
 			{
 				method: 'POST',
 				credentials: 'include',
@@ -164,6 +164,10 @@
 			-webkit-appearance: none;
 			margin: 0;
 		}
+
+		input[type="number"] {
+ 			-moz-appearance: textfield;
+		}
 	
 		.text-red{
 			color: rgb(172, 42, 42);
@@ -190,7 +194,8 @@
 				margin-left: 0rem;
 				margin-right: 0rem;
 			}
-	}
+		}
+
 		.shakeAnimation{
 			animation: shake 0.2s ease-in-out 0s 2;
 		}

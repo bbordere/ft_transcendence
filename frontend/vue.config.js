@@ -7,6 +7,6 @@ module.exports = {
 		disableHostCheck: true,
 		// End of fix
 		progress: false,
-		// proxy: 'http://localhost:3000/user'	  }
+	 }
 	}
   };
