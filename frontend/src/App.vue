@@ -114,4 +114,9 @@ footer .copyright {
 	align-items: center;
 }
 
+nav {
+	position: relative;
+	z-index: 999999;
+}
+
 </style>
