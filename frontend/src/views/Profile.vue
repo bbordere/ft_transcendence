@@ -44,15 +44,17 @@ export default{
 
 <style>
 	.container{
+		height: 100vh;
+		width: 100vw;
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
+		justify-content: center;
 		align-items: center;
 	}
 
 	.profileCard{
 		width: 80%;
-		margin: auto;
+		/* margin: auto; */
 	}
 	
 	.subCard{

@@ -113,9 +113,8 @@ import router from '@/router';
 }
 
 .code{
-	width: 50%;
 	margin-left: 30px;
-	height: 70%;
+	aspect-ratio: 1;
 }
 
 card-button{
