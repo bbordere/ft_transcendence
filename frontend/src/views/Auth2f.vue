@@ -8,7 +8,7 @@
 				<img v-else src="@/assets/img/lock.png" class="code">
 				<div class="info-box">
 					<button class="card-button" v-if="!generated" @click="generate2fa">ACTIVATE</button>
-					<button class="card-button" v-else-if="activated === false">ENABLE</button>
+					<button class="card-button" v-else-if="activated === false" @click="enable2fa">ENABLE</button>
 					<button class="card-button" v-else>DISABLE</button>
 				</div>
 				<!-- <img src="@/../../backend/qrcode/bastien.bordereau@gmail.com.png" class="code"> -->
@@ -48,6 +48,12 @@ import router from '@/router';
 
 			generate2fa(){
 				router.push('/auth/2fa/generate')
+			},
+
+			enable2fa(){
+				// router.push('/auth/2fa/enable')
+				router.push({path:'/auth/2fa/enable',
+							 params: {'verify': 0}});
 			},
 		},
 		async mounted(){
