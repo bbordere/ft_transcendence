@@ -6,7 +6,6 @@ import { User } from 'src/user/user.entity';
 import { AuthLogin42Dto } from './dtos/auth42.dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
-import { FortyTwoUser } from './strategies/42.stategy';
 
 @Injectable()
 export class AuthService {

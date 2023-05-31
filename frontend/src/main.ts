@@ -17,7 +17,7 @@ async function isLogged() {
 library.add(faGear, faRightFromBracket);
 const app = createApp(App)
 router.beforeEach(async (to, from, next) => {
-	const clearPages: RouteRecordName[] = ["/auth", "/auth/42/login", "/auth/login"]
+	const clearPages: RouteRecordName[] = ["/auth", "/auth/42/login", "/auth/login", "/auth/2fa/verif"]
 	if (clearPages.includes(to.path))
 		next();
 	else{

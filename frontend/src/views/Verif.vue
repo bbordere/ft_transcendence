@@ -29,11 +29,15 @@
 
 	import router from '@/router';
 	import { ref } from 'vue';
+	import { useRoute } from 'vue-router';
 	let status = ref("");
 	
 	let codeArr: string[] = ["", "", "", "", "", ""];
 	let inputData: string[] | undefined;
-	
+
+	const route = useRoute();
+	console.log(route.query.plan);
+
 	function isNumeric(str: string){
 		const isNumeric = /^[0-9]+$/.test(str);
 		return (isNumeric);
@@ -82,7 +86,7 @@
 	}
 
 	async function sendCode(code: string){
-		const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/verify",
+		const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/" + route.query.plan,
 			{
 				method: 'POST',
 				credentials: 'include',
@@ -95,7 +99,7 @@
 			})
 			status.value = await (await res.blob()).text();
 			if (status.value === "Success")
-				delay(2000).then(any=>{router.push('/');});
+				delay(1000).then(any=>{router.push(route.query.plan === 'verify' ? '/' : '/profile');});
 		}
 	
 	function onPaste(event: Event) {

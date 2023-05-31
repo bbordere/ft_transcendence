@@ -4,13 +4,6 @@ import { Strategy } from 'passport-42';
 import { AuthService } from '../auth.service';
 import { AuthLogin42Dto } from '../dtos/auth42.dto';
 
-export interface FortyTwoUser {
-	id: number,
-	name: string,
-	email: string
-	pictureLink: string
-}
-
 @Injectable()
 export class FortyTwoStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {

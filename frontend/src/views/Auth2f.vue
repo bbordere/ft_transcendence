@@ -9,7 +9,6 @@
 				<div class="info-box">
 					<button class="card-button" v-if="!generated" @click="generate2fa">ACTIVATE</button>
 					<button class="card-button" v-else-if="activated === false" @click="enable2fa">ENABLE</button>
-					<button class="card-button" v-else>DISABLE</button>
 				</div>
 				<!-- <img src="@/../../backend/qrcode/bastien.bordereau@gmail.com.png" class="code"> -->
 			</div>
@@ -27,7 +26,7 @@ import router from '@/router';
 
 	export default{
 		data(){
-			return {user: Promise<any>, "activated": false, "generated": false, blur: ref(true), path: ""};
+			return {user: Promise<any>, "activated": false, "generated": false, blur: ref(true),};
 		},
 		methods:{
 			getStatus: async(vm: any) => {
@@ -51,18 +50,15 @@ import router from '@/router';
 			},
 
 			enable2fa(){
-				// router.push('/auth/2fa/enable')
-				router.push({path:'/auth/2fa/enable',
-							 params: {'verify': 0}});
+				router.push({path:'/auth/2fa/verif',
+							query: { plan: 'on' }});
 			},
 		},
 		async mounted(){
 			await this.getUser(this);
 			await this.getStatus(this);
-			this.path = "../../../../backend/qrcode/" + this.user.email + ".png";
 			console.log("GENERATED = " + this.generated);
 			console.log("ACTIVATED = " + this.activated);
-			console.log("PATH: " + this.path);
 		}
 	}
 </script>

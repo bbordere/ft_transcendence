@@ -4,6 +4,7 @@ import { AuthLoginDto } from './dtos/auth.dto';
 import { UserService } from 'src/user/user.service';
 import { AuthGuard42 } from './guards/42-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Auth2fGuard } from './guards/tfa-auth.guard';
 import { Request, Response } from 'express';
 import { toFile } from 'qrcode';
 import { createReadStream } from 'fs';
@@ -19,6 +20,7 @@ export class AuthController {
 	@Get('logout')
 	async logout(@Res({ passthrough: true }) res: Response){
 		res.cookie('access_token', '', {expires: new Date()});
+		res.cookie('auth2f_token', '', {expires: new Date()});
 		res.redirect("http://" + process.env.HOST + ":8080/auth");
 	}
 
@@ -30,8 +32,10 @@ export class AuthController {
 	@UseGuards(AuthGuard42)
 	async generateToken(@Res({passthrough: true}) res: Response, @Req() req: any){
 		const tokens: string = await this.authService.getTokenByUser(req.user);
-		if (req.user.auth2f)
-			res.redirect("http://" + process.env.HOST + ":8080/verif");
+		if (req.user.auth2f){
+			res.cookie('auth2f_token', tokens, {httpOnly: true, sameSite: "lax"});
+			res.redirect("http://" + process.env.HOST + ":8080/auth/2fa/verif?plan=verify");
+		}
 		else {
 			res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
 			res.redirect("http://" + process.env.HOST + ":8080/");
@@ -70,22 +74,25 @@ export class AuthController {
 
 	@Post('2fa/on')
 	@UseGuards(JwtAuthGuard)
-	async enable2fa(@Req() req, @Body() body) {
-		const isCodeValid = this.authService.isValidCode(req.user.user, body.code);
-		if (!isCodeValid)
-			throw new UnauthorizedException('Wrong authentication code');
-		await this.userService.enable2fa(req.user.user.id);
-		return ("success");
+	async enable2fa(@Req() req, @Body() body, @Res() res) {
+		if (this.authService.isValidCode(req.user.user, body.code)){
+			this.userService.enable2fa(req.user.user.id)
+			return (res.send("Success"));
+		}
+		else
+			return (res.send("Failure"));
 	}
 
 	@Post('2fa/off')
 	@UseGuards(JwtAuthGuard)
-	async disable2fa(@Req() req, @Body() body) {
-		const isCodeValid = this.authService.isValidCode(req.user.user, body.code);
-		if (!isCodeValid)
-			throw new UnauthorizedException('Wrong authentication code');
-		await this.userService.disable2fa(req.user.user.id);
-		return ("success");
+	async disable2fa(@Req() req, @Body() body, @Res() res) {
+		if (this.authService.isValidCode(req.user.user, body.code)){
+			this.userService.disable2fa(req.user.user.id)
+			res.cookie('auth2f_token', '', {expires: new Date()});
+			return (res.send("Success"));
+		}
+		else
+			return (res.send("Failure"));
 	}
 
 	@Get('2fa/qrcode')
@@ -96,7 +103,7 @@ export class AuthController {
 	}
 	
 	@Post('2fa/verify')
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(Auth2fGuard)
 	async verify2fa(@Req() req: any, @Body() body, @Res() res){
 		if (this.authService.isValidCode(req.user.user, body.code)){
 			const tokens: string = await this.authService.getTokenByUser(req.user.user);
