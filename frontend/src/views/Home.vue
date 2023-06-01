@@ -4,6 +4,9 @@
 <template>
 	<div class="home_body">
 		<div class="home_content">
+			<div class="header">
+				<label>ENTETE</label>
+			</div>
 			<div class="left_column">
 				<div class="play_button">
 					<router-link to="/pong">jouer</router-link>	
@@ -29,6 +32,7 @@
 
 <style>
 
+
 .home_body {
 	width: 100vw;
 	height: 100vh;
@@ -45,29 +49,35 @@
 	gap: 8%;
 }
 
+.header {
+	display: flex;
+	height: 10%;
+	width: 100%;
+	background: #D9D9D9;
+	border: 3px solid #BC0002;
+	border-radius: 25px;
+}
+
 .left_column {
-	height: 100%;
-	width: 20%;
 	display: flex;
 	flex-direction: column;
-	gap: 20%;
+	gap: 4%;
 }
 
 .play_button {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	margin-top: 20%;
-	height: 10%;
-	width: 150%;
+	height: 25%;
+	width: 175%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
-	border-radius: 20px;
+	border-radius: 25px;
 }
 
 .match_historic {
-	height: 70%;
-	width: 200%;
+	height: 75%;
+	width: 175%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
@@ -75,36 +85,35 @@
 
 .chat {
 	height: 100%;
-	width: 50%;
+	width: 45%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: space-around;
+	justify-content: center;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
 
 .right_column {
-	height: 100%;
-	width: 10%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	gap: 4%;
 }
 
 .friend_list {
-	height: 70%;
-	width: 200%;
+	height: 66%;
+	width: 175%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
 
 .join_panel {
-	height: 30%;
-	width: 200%;
+	height: 33%;
+	width: 175%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
