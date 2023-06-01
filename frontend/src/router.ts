@@ -7,6 +7,7 @@ import pong from '@/views/pong.vue'
 import auth2f from '@/views/Auth2f.vue'
 import notFound from '@/views/NotFound.vue'
 
+import chat from '@/views/Chat.vue';
 
 export default createRouter({
   history: createWebHistory(),
@@ -72,9 +73,15 @@ export default createRouter({
 		}
 	},
 	{
+<<<<<<< HEAD
 		path: '/:pathMatch(.*)',
 		name: 'PageNotFound',
 		component: notFound
 	}
+=======
+		path: '/chat',
+		component: chat,
+	},
+>>>>>>> 594585a2b100f4f04673d59d15ff3424c97cf363
   ],
 })
