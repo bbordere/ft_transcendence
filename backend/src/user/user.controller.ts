@@ -19,33 +19,7 @@ export class UserController {
 	getUsers(){
 		return (this.userService.getAllUsers());
 	}
-
-	@Post('upload')
-	@UseInterceptors(FileInterceptor('file', {dest: './avatars',
-	// 	filename: function (req, file, cb) {
-	// 		console.log(file);
-	// 	cb(null, file.fieldname + '-' + Date.now())
-	//   }
-	}))
-	uploadFile(@UploadedFile() file: Express.Multer.File) {
-		console.log(file);
-		return (file);
-	}
 	
-	
-	@Post('/avatar/update')
-	@UseInterceptors(FileInterceptor('file', {storage: diskStorage({destination: join(process.cwd(), '/')})}))
-	@UseGuards(JwtAuthGuard)
-	updateAvatar(@Req() req){
-
-	}
-
-	@Get('/avatar/default')
-	getDefaultAvatar(@Res() res: Response, @Req() req){
-		const file = createReadStream(join(process.cwd(), 'avatars/default.jpg'));
-		file.pipe(res)
-	}
-
 	@Get('/me')
 	@UseGuards(JwtAuthGuard)
 	me(@Req() req){

@@ -1,27 +1,48 @@
 <template>
-	    <v-file-input accept="image/*" 
-                label="Select file"
-                prepend-icon="photo"
-                multiple chips color="pink"
-                v-model="file"
-                @change="addFile">
-		</v-file-input>
+	<div class="container-upload">
+		<div>
+			<hr/>
+			<h2>Change Avatar</h2>
+			<label>
+				<input type="file" @change="handleFileUpload( $event )"/>
+			</label>
+			<br>
+			<button @click="addFile">Submit</button>
+		</div>
+	</div>
 </template>
 
 <script lang="ts">
-	export default{
-		data: () => ({
-			file: [],
-			readers: [],
-		}),
-		methods:{
-			addFile(){
+
+	export default {
+		data(){
+			return {
+				file: ''
+			}
+		},
+		
+		methods: {
+			handleFileUpload( event ){
+				this.file = event.target.files[0];
+			},
+			
+			submitFile(){
+				let formData = new FormData();
+				
+				formData.append('file', this.file);
 				console.log(this.file);
+			},
+			async addFile(){
+				console.log(this.file)
+				let formData = new FormData();
+				formData.append("file", this.file);
+				const res = await fetch("http://localhost:3000/avatar/update",
+				{
+					method: "post",
+					credentials: 'include',
+					body: formData,
+				})
 			}
 		}
 	}
 </script>
-
-<style>
-
-</style>

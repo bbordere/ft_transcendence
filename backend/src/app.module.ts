@@ -7,6 +7,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ChatGateway } from './chat/chat.gateway';
 import { AppService } from './app.service';
+import { AvatarModule } from './avatar/avatar.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AppService } from './app.service';
 		UserModule,
 		AuthModule,
 		ServeStaticModule.forRoot({rootPath: join(__dirname, '..', 'qrcode'), serveRoot: '/qrcode',}),
+		AvatarModule,
 	],
   controllers: [AppController],
   providers: [AppService, ChatGateway]

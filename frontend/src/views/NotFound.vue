@@ -1,3 +1,7 @@
 <template>
-	NOT FOUND
+NOT FOUND
 </template>
+
+<script>
+
+</script>

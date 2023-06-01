@@ -5,13 +5,7 @@
 		  <div class="buttons">
 			  2fA<Switch/>
 			<button>Change Username</button>
-			<button>Change Profile Picture</button>
-            <v-file-input accept="image/*" 
-                label="Select files"
-                prepend-icon="photo"
-                multiple chips color="pink"
-                v-model="files"
-                @change="addFile"></v-file-input>
+			<FileUpload></FileUpload>
 		  </div>
 		</div>
 	  </div>
@@ -19,26 +13,18 @@
   
 <script lang="ts">
 	import Switch from '@/components/switch.vue';
+	import FileUpload from '@/components/FileUpload.vue'
 
 	export default{
 		components: {
 			Switch,
+			FileUpload
 		},
 		data: () => ({
 			files: [],
 			readers: [],
 		}),
 		methods:{
-			async addFile(){
-				console.log(this.files[0])
-				let formData = new FormData();
-				formData.append("file", this.files[0], "tst");
-				const res = await fetch("http://localhost:3000/user/upload",
-				{
-					method: "post",
-					body: formData,
-				})
-			}
 		}
 	}
 </script>
