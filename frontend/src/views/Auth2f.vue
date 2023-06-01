@@ -50,8 +50,7 @@ import router from '@/router';
 			},
 
 			enable2fa(){
-				router.push({path:'/auth/2fa/verif',
-							query: { plan: 'on' }});
+				router.push({path:'/auth/2fa/verif', query: { plan: 'on' }});
 			},
 		},
 		async mounted(){

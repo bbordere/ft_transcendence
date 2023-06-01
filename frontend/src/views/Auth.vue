@@ -28,6 +28,9 @@ async function login(){
 	status.value = res.status;
 	if (res.status === 201)
 		router.push('/');
+	else if (res.status === 207)
+		router.push({path:'/auth/2fa/verif', query: { plan: 'verify' }});	console.log(from.fullPath);
+		// :8080/auth/2fa/verif?plan=verify")
 }
 
 </script>

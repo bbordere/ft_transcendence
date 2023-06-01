@@ -13,6 +13,10 @@
 		return (str === "true");
 	}
 
+	function delay(ms: number) {
+    	return new Promise( resolve => setTimeout(resolve, ms) );
+	}
+
 	export default{
 		data() {
 			return {checkbox: false};
@@ -20,13 +24,13 @@
 		methods: {
 			clickAction() {
 				if (!this.checkbox){
-					router.push('/auth/2fa/home');
+					this.checkbox = !this.checkbox;
+					delay(500).then(any=>{router.push('/auth/2fa/home');});
 				}
 				else{
-					router.push({path:'/auth/2fa/off',
-							query: { plan: 'off' }});
+					this.checkbox = !this.checkbox; 
+					delay(500).then(any=>{router.push({path:'/auth/2fa/off',query: { plan: 'off' }});});
 				}
-				this.checkbox = !this.checkbox;
 			},
 
 			getStatus: async(vm: any) => {

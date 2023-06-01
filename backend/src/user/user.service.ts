@@ -19,6 +19,7 @@ export class UserService {
 			throw new NotAcceptableException('User Already Exist !');
 		const newUser = await this.usersRepository.create(user);
 		await this.usersRepository.save(newUser);
+		this.updatePictureLink(user.email);
 		return newUser;
 	}
 
@@ -65,6 +66,12 @@ export class UserService {
 	async updateAccessToken(email: string, token: string){
 		const user = await this.getByEmail(email);
 		user.accessToken = token;
+		this.usersRepository.save(user);
+	}
+
+	async updatePictureLink(email: string, link: string = "http://" + process.env.HOST + ":3000/user/avatar/default"){
+		const user = await this.getByEmail(email);
+		user.pictureLink = link;
 		this.usersRepository.save(user);
 	}
 }

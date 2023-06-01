@@ -28,10 +28,6 @@ export class AuthService {
 		const validPass = await user.validatePassword(password)
 
 		if (!validPass) throw new UnauthorizedException();
-
-		if (user.auth2f === true)
-			res.redirect("http://" + process.env.HOST + ":8080/verif");
-
 		return user;
 	}
 

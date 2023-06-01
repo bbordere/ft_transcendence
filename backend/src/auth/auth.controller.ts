@@ -44,12 +44,24 @@ export class AuthController {
 
 	@Post('/login')
 	async login(@Req() req: Request, @Body() authLoginDto: AuthLoginDto, @Res({passthrough: true}) res: Response) {
-		const tokens = await this.authService.login(authLoginDto, res);
-		res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
-		res.statusCode = 201;
+		try{
+			const tokens = await this.authService.login(authLoginDto, res);
+			const user = await this.userService.getByEmail(authLoginDto.email);
+			if (user.auth2f){
+				res.cookie('auth2f_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
+				res.statusCode = 207;
+			}
+			else {
+				res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
+				res.statusCode = 201;
+			}
+		}
+		catch{
+
+		}
 	}
 
-	@Post()
+	@Get()
 	@UseGuards(JwtAuthGuard)
 	async checkLoginStatus(){
 		return ({ "statusCode": 200});
