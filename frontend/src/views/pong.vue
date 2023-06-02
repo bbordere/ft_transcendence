@@ -1,4 +1,79 @@
-<script setup>
+<script>
+import io from 'socket.io-client';
+import { onMounted } from 'vue';
+
+export default{
+	mounted() {
+
+    const socket = io('http://localhost:3000');
+
+    socket.on('gameJoined', (data) => {
+		const playerId = data.playerId;
+		console.log(`Vous avez rejoint le jeu. Votre identifiant de joueur est : ${playerId}`);
+      
+      // Tu peux ajouter ici le code pour initialiser le jeu du client
+    });
+
+    socket.on('playerJoined', (data) => {
+		const playerId = data.playerId;
+		console.log(`Un nouveau joueur a rejoint le jeu. Identifiant du joueur : ${playerId}`);
+      
+      // Tu peux ajouter ici le code pour gérer l'affichage du nouveau joueur dans le jeu
+    });
+
+    socket.on('disconnect', () => {
+     	console.log('Vous avez été déconnecté du jeu.');
+      
+      // Tu peux ajouter ici le code pour gérer la déconnexion du joueur
+    });
+
+    socket.emit('joinGame');
+
+
+
+
+
+
+	const canvas = document.getElementById('pongCanvas');
+    const ctx = canvas.getContext('2d');
+	var x = canvas.width/2;
+	var y = canvas.height/2;
+	var dx = 1;
+	var dy = 1;
+	var ballRadius = 10;
+
+	function drawBall() {
+		ctx.beginPath();
+		ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+		ctx.fillStyle = "#0095DD";
+		ctx.fill();
+		ctx.closePath();
+	}
+
+	function drawPong() {
+    	// Efface le contenu précédent du canvas
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		drawBall();
+		if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+    	    dx = -dx;
+    	}
+   		if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+        	dy = -dy;
+    	}
+		x+=dx;
+		y+=dy;
+	}
+
+	function gameLoop() {
+      // Appelle la fonction de rendu pour mettre à jour le canvas
+      drawPong();
+
+      // Appelle la boucle de rendu à la prochaine frame
+      requestAnimationFrame(gameLoop);
+    }
+	gameLoop();
+  }
+}
 
 </script>
 
@@ -15,6 +90,7 @@
 					<label>timer</label>
 				</div>
 				<div class="pong_screen">
+					<canvas id="pongCanvas"></canvas>
 				</div>
 				<div class="button_panel">
 					<div class="reaction_panel">
@@ -23,6 +99,7 @@
 						<button id="reaction_3">pleure</button>
 						<button id="reaction_4">poignet de main</button>
 					</div>
+
 					<div class="forgive_button">
 						<router-link to="/">abbandoner</router-link>
 					</div>
@@ -93,8 +170,11 @@
 	width: 100%;
 	aspect-ratio: 4/3;
 
-	background: #D9D9D9;
-	border: 3px solid #BC0002;
+}
+#pong {
+	width: 100ss%;
+	height: 100%;
+	background: black;
 	border-radius: 20px;
 }
 
