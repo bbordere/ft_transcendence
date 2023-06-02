@@ -62,9 +62,5 @@ export default createRouter({
 			window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/generate";
 		}
 	},
-	{
-		path: '/chat',
-		component: chat,
-	},
   ],
 })
