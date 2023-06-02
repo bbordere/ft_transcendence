@@ -1,12 +1,13 @@
 <script setup lang="ts">
+	import image from "@/components/image.vue"
 </script>
 
 <template>
+	<header class="header">
+		<img class="logo" src="../assets/img/logo.png" alt="logo 42">
+	</header>
 	<div class="home_body">
 		<div class="home_content">
-			<div class="header">
-				<label>ENTETE</label>
-			</div>
 			<div class="left_column">
 				<div class="play_button">
 					<router-link to="/pong">jouer</router-link>	
@@ -34,12 +35,13 @@
 
 
 .home_body {
-	width: 100vw;
-	height: 100vh;
+	width: 95vw;
+	height: 90vh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
+
 .home_content {
 	display: flex;
 	height: 80%;
@@ -47,15 +49,23 @@
 	align-items: center;
 	justify-content: center;
 	gap: 8%;
+	padding-left: 5%;
 }
 
 .header {
 	display: flex;
-	height: 10%;
 	width: 100%;
-	background: #D9D9D9;
+	height: 85px;
+	border-bottom: 2px solid #BC0002;
+	background: #036280;
+}
+
+header .logo{
+	display: flex;
 	border: 3px solid #BC0002;
-	border-radius: 25px;
+	background: #ffffff;
+	border-radius: 290px;
+	margin-left: 50px;
 }
 
 .left_column {

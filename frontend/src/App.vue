@@ -44,6 +44,11 @@ body {
 												#c4e8f6e0 var(--d));
   background-size: calc(var(--d)/var(--sinus)) 100%;
   animation: AnimationName 10s linear infinite reverse;
+  overflow: scroll;
+}
+
+body::-webkit-scrollbar{
+	display: none;
 }
 
 @keyframes AnimationName {
