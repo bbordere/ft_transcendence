@@ -131,13 +131,19 @@ export class AuthController {
 	getStatus(@Req() req: any){
 		return (req.user.user.auth2f);
 	}
-
+	
 	@Get('2fa/completeStatus')
 	@UseGuards(JwtAuthGuard)
 	getGenStatus(@Req() req: any){
 		return ({"activated": req.user.user.auth2f, "generated": req.user.user.auth2fSecret != ""});
 	}
-
+	
+	@Post('/refresh')
+	@UseGuards(JwtAuthGuard)
+	async refreshToken(@Req() req, @Res({passthrough: true}) res: Response){
+		const tokens: string = await this.authService.getTokenByUser(req["user"]);
+		res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
+	}
 
 	// @Get('/signin')
 	// async loginPage()

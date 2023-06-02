@@ -1,19 +1,21 @@
-import { BadRequestException, Controller, Get, PipeTransform, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, PipeTransform, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createReadStream } from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { UserService } from 'src/user/user.service';
 
 @Controller('avatar')
 export class AvatarController {
+	constructor(private readonly userService: UserService){}
 	@Post('/update')
 	@UseInterceptors(FileInterceptor('file', {
 		storage: diskStorage({
 			destination: join(process.cwd(), './avatars'),
 			filename: (req, file, callback) => {
-				const name = "avatar_" + req["user"]["user"]["email"];
+				const name = "avatar_" + req["user"]["user"]["id"];
 				const extension =  "." + file.mimetype.toString().replace("image/", "");
 				callback(null, name + extension);
 				},
@@ -25,20 +27,30 @@ export class AvatarController {
 				callback(null, true);
 			},
 			limits: {
-				fileSize: Math.pow(1024, 5) // 1MB
+				fileSize: Math.pow(1024, 5)
 			}
 		}),
 	)
 	@UseGuards(JwtAuthGuard)
-	updateAvatar(@UploadedFile() file: Express.Multer.File) {
+	async updateAvatar(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
 		//TO DO UPDATE PICTURE LINK
-		console.log(file);
-		return (file);
+		// console.log(file.filename);
+		// return (file);
+		// console.log()
+		console.log(process.env.HOST);
+		this.userService.updatePictureLink(req["user"]["user"]["email"], "http://" + process.env.HOST + ":3000/avatar/" + file.filename);
 	}
-
+	
 	@Get('/default')
 	getDefaultAvatar(@Res() res: Response, @Req() req){
 		const file = createReadStream(join(process.cwd(), 'avatars/default.jpg'));
 		file.pipe(res)
+	}
+	
+	@Get('/:file')
+	@UseGuards(JwtAuthGuard)
+	getIdAvatar(@Res() res: Response, @Req() req, @Param('file') file: string){
+		const fileStream = createReadStream(join(process.cwd(), 'avatars/' + file));
+		fileStream.pipe(res)
 	}
 }

@@ -4,28 +4,36 @@
 		  <div class="title">Settings</div>
 		  <div class="buttons">
 			  2fA<Switch/>
-			<button>Change Username</button>
+			  
+			<button @click="showModal = true">Change Username</button>
+			<Teleport to="body">
+				<transition name="slide-fade" mode="out-in">
+					<ChangeUsernameModal v-show="showModal" @close-modal="showModal = false"></ChangeUsernameModal>
+				</transition>
+			</Teleport>
 			<FileUpload></FileUpload>
+			<!-- <ChangeUsernameModal></ChangeUsernameModal> -->
 		  </div>
 		</div>
 	  </div>
-  </template>
+</template>
   
 <script lang="ts">
 	import Switch from '@/components/switch.vue';
 	import FileUpload from '@/components/FileUpload.vue'
+	import ChangeUsernameModal from '@/components/ChangeUsernameModal.vue'
+
 
 	export default{
 		components: {
 			Switch,
-			FileUpload
+			FileUpload,
+			ChangeUsernameModal
 		},
-		data: () => ({
-			files: [],
-			readers: [],
-		}),
-		methods:{
-		}
+		data(){
+			return ({showModal: false});
+		},
+		methods:{}
 	}
 </script>
   

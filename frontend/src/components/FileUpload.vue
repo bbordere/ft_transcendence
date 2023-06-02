@@ -33,10 +33,9 @@
 				console.log(this.file);
 			},
 			async addFile(){
-				console.log(this.file)
 				let formData = new FormData();
 				formData.append("file", this.file);
-				const res = await fetch("http://localhost:3000/avatar/update",
+				const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/avatar/update",
 				{
 					method: "post",
 					credentials: 'include',

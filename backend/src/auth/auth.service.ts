@@ -72,16 +72,8 @@ export class AuthService {
 		return (authenticator.verify({token: code, secret: user.auth2fSecret}));
 	}
 
-
-	async getTokenByMail(email: string): Promise<string> {
-		const user = await this.usersService.getByEmail(email);
-		const payload = { username: user.name, email: user.email};
-		const token: string = this.jwtService.sign(payload);
-		return (token);
-	  }
-	
 	async getTokenByUser(user: User): Promise<string> {
-		const payload = { username: user.name, email: user.email};
+		const payload = { id: user.id, email: user.email};
 		const token: string = this.jwtService.sign(payload);
 		return (token);
 	}
