@@ -9,7 +9,9 @@
     "socket.io": "^4.6.2",
     "socket.io-client": "^4.6.2",
     "v-click-outside": "^3.2.0",
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "vue-class-component": "^8.0.0-rc.1",
+    "vue-property-decorator": "^10.0.0-rc.3"
   },
   "devDependencies": {
     "@types/node": "^20.2.5"
