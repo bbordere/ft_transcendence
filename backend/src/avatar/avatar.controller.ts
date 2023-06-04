@@ -37,7 +37,6 @@ export class AvatarController {
 		// console.log(file.filename);
 		// return (file);
 		// console.log()
-		console.log(process.env.HOST);
 		this.userService.updatePictureLink(req["user"]["user"]["email"], "http://" + process.env.HOST + ":3000/avatar/" + file.filename);
 	}
 	

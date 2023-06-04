@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { AuthLoginDto } from 'src/auth/dtos/auth.dto';
 import { AuthLogin42Dto } from 'src/auth/dtos/auth42.dto';
+import { StatsDetail } from 'src/stats/stats.entity';
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,7 @@ export class UserService {
 		if (await this.getByEmail(user.email) != null || await this.getByName(user.name) != null )
 			throw new NotAcceptableException('User Already Exist !');
 		const newUser = await this.usersRepository.create(user);
+		newUser.stats = new StatsDetail();
 		await this.usersRepository.save(newUser);
 		this.updatePictureLink(user.email);
 		return newUser;
@@ -27,6 +29,7 @@ export class UserService {
 	async createUser42(data: AuthLogin42Dto): Promise<User> {
 		data.password = Math.random().toString(36).slice(-8);
 		const user = await this.usersRepository.create(data);
+		user.stats = new StatsDetail();
 		await this.usersRepository.save(user);
 		return user;
 	}
@@ -61,12 +64,6 @@ export class UserService {
 	async disable2fa(id: number){
 		const user = await this.getById(id);
 		user.auth2f = false;
-		this.usersRepository.save(user);
-	}
-
-	async updateAccessToken(email: string, token: string){
-		const user = await this.getByEmail(email);
-		user.accessToken = token;
 		this.usersRepository.save(user);
 	}
 

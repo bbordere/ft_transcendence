@@ -1,10 +1,12 @@
 <script lang="ts">
 
 import ProfileCard from '@/components/profilCard.vue';
+import StatsPanel from '@/components/StatsPanel.vue'
 
 export default{
 	components: {
-		ProfileCard
+		ProfileCard,
+		StatsPanel
   },
 	data: function(){
 		return {user: Object};
@@ -34,8 +36,8 @@ export default{
 			<div class="matchHistory">
 				MATCH
 			</div>
-			<div class="buttonBox">
-				STATS
+			<div class="statsPanel">
+				<StatsPanel></StatsPanel>
 			</div>
 		</div>
 	</div>
@@ -49,6 +51,7 @@ export default{
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
+		gap: 8%;
 		align-items: center;
 	}
 
@@ -60,19 +63,20 @@ export default{
 	.subCard{
 		display: flex;
 		flex-direction: row;
-		height: 500px;
+		flex-basis: 80%;
 		width: 80%;
-		margin-top: 45px;
 		justify-content: space-between;
 	}
 
 	.matchHistory{
 		width: 40%;
+		border-radius: 50px;
 		background-color: aliceblue;
 	}
 
-	.buttonBox{
+	.statsPanel{
 		width: 55%;
 		background-color: aliceblue;
+		border-radius: 50px;
 	}
 </style>

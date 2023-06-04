@@ -8,6 +8,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faGear, faRightFromBracket } from '@fortawesome/free-solid-svg-icons'
 import { createVuetify } from 'vuetify'
+import VueApexCharts from "vue3-apexcharts";
 
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
@@ -44,5 +45,6 @@ const vuetify = createVuetify({
   })
 
 app.component('font-awesome-icon', FontAwesomeIcon)
+app.component("apexchart", VueApexCharts);
 app.config.globalProperties.$redirect = (page) => {router.push(page)}
 app.use(vuetify).use(router).mount('#app')

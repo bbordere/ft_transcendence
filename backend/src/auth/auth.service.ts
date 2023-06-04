@@ -15,7 +15,6 @@ export class AuthService {
 		const user = await this.validateUser(authLoginDto, res);
 		const payload = { username: user.name, email: user.email};
 		const access_token = this.jwtService.sign(payload);
-		await this.usersService.updateAccessToken(user.email, access_token);
 		return {access_token: access_token};
 	  }
 
@@ -58,7 +57,6 @@ export class AuthService {
 
 	async generate2FASecret(user: User){
 		const secret = authenticator.generateSecret();
-		console.log(user);
 		const otpAuthUrl = authenticator.keyuri(user.email, "ft_transcendence", secret);
 		await this.usersService.set2faSecret(secret, user.id);
 		return {secret, otpAuthUrl: otpAuthUrl};
