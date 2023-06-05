@@ -1,17 +1,14 @@
 <script setup lang="ts">
-	import image from "@/components/image.vue"
+	import Head from '../components/head.vue'
 </script>
 
 <template>
-	<header class="header">
-		<img class="logo" src="../assets/img/logo.png" alt="logo 42">
-	</header>
+
+	<Head />
 	<div class="home_body">
 		<div class="home_content">
 			<div class="left_column">
-				<div class="play_button">
-					<router-link to="/pong">jouer</router-link>	
-				</div>
+				<router-link class="play_button" to="/pong">jouer</router-link>	
 				<div class="match_historic">
 					<label>macht_historic</label>
 				</div>
@@ -33,11 +30,10 @@
 
 <style>
 
-
 .home_body {
+	display: flex;
 	width: 95vw;
 	height: 90vh;
-	display: flex;
 	align-items: center;
 	justify-content: center;
 }
@@ -50,22 +46,6 @@
 	justify-content: center;
 	gap: 8%;
 	padding-left: 5%;
-}
-
-.header {
-	display: flex;
-	width: 100%;
-	height: 85px;
-	border-bottom: 2px solid #BC0002;
-	background: #036280;
-}
-
-header .logo{
-	display: flex;
-	border: 3px solid #BC0002;
-	background: #ffffff;
-	border-radius: 290px;
-	margin-left: 50px;
 }
 
 .left_column {
@@ -86,6 +66,7 @@ header .logo{
 }
 
 .match_historic {
+	display: flex;
 	height: 75%;
 	width: 175%;
 	background: #D9D9D9;
@@ -94,9 +75,9 @@ header .logo{
 }
 
 .chat {
+	display: flex;
 	height: 100%;
 	width: 45%;
-	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
@@ -114,6 +95,7 @@ header .logo{
 }
 
 .friend_list {
+	display: flex;
 	height: 66%;
 	width: 175%;
 	background: #D9D9D9;
@@ -122,6 +104,7 @@ header .logo{
 }
 
 .join_panel {
+	display: flex;
 	height: 33%;
 	width: 175%;
 	background: #D9D9D9;
