@@ -21,4 +21,13 @@ export class StatsService {
 			loadRelationIds: true
 		});
 	}
+
+	async getUserStats(statsId: number){
+		return await this.statsRepository.findOne({
+			where: {
+				id: statsId
+			},
+			loadRelationIds: true
+		});
+	}
 }

@@ -64,21 +64,23 @@ export default{
 	components:{
 		WinCharts
 	},
+	props: ["username"],
 	data(){
 		return {stats: "", dataLoaded: false};
 	},
 
 	methods:{
 		async getStats(){
-			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/stats/me", {credentials: 'include'})
+			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/stats/" + this.username, {credentials: 'include'})
 			const text = await res.text();
 			const data = await JSON.parse(text);
 			this.stats = data;
 			this.dataLoaded = true;
 		},
 	},
-	async mounted(){
-		await this.getStats();
+	mounted(){
+		this.getStats();
+		console.log(this.username);
 	},
 }
 

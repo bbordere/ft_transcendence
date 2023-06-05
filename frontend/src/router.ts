@@ -28,6 +28,10 @@ export default createRouter({
 		component: profile
 	},
 	{
+		path: '/profile/me',
+		component: profile
+	},
+	{
 		path: '/pong',
 		component: pong
 	},

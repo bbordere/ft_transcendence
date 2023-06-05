@@ -1,16 +1,17 @@
 <script lang="ts">
 
-import Image from '@/components/image.vue'
+import Avatar from '@/components/Avatar.vue'
 import ModalSettings from '@/components/ModalSettings.vue';
 import BlueButton from './BlueButton.vue';
 import router from '../router';
 
 export default{
 	components: {
-		Image,
+		Avatar,
 		ModalSettings,
 		BlueButton
 	},
+	props: ["editable", "username"],
 	data(){
 		return ({user: "", showModal: false});
 	},
@@ -19,13 +20,14 @@ export default{
 			router.push("/auth/logout");
 		},
 		getUser(){
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'})
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.username, {credentials: 'include'})
 			.then(res => res.json())
 			.then(data => {this.user = data;});
 		}
 	},
 	beforeMount(){
-        this.getUser();
+		this.getUser();
+		console.log(this.username);
     },
 }
 
@@ -33,7 +35,7 @@ export default{
 
 <template>
 	<div class="card">
-		<Image :path="user.pictureLink" ></Image>
+		<Avatar :editable="editable" :path="user.pictureLink" @updated="getUser" ></Avatar>
 		<div class="userInfos">
 			<h1>{{ user.name }}</h1>
 		</div>
@@ -43,8 +45,8 @@ export default{
 					<ModalSettings v-show="showModal" @close-modal="showModal = false" @updated="getUser"></ModalSettings>
 				</transition>
 			</Teleport>
-			<BlueButton text="Parametres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
-			<BlueButton text="Deconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
+			<BlueButton  v-if="editable != 0" text="Parametres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
+			<BlueButton  v-if="editable != 0" text="Deconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
 		</div>
 	</div>
 

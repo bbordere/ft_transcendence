@@ -11,8 +11,13 @@ import { StatsDetail } from 'src/stats/stats.entity';
 export class UserService {
 	constructor(@InjectRepository(User) private usersRepository: Repository<User>) {}
 
-	getAllUsers(){
-		return (this.usersRepository.find());
+	getAllUsers(): Promise<string[]>{
+		// return (this.usersRepository.find({select: {name: true}}));
+		const names = this.usersRepository
+		.createQueryBuilder('entity')
+		.select('entity.name', 'name')
+		.getRawMany();
+		return names.then(names => names.map((res) => res.name))
 	}
 
 	async createUser(user: AuthLoginDto): Promise<User> {
