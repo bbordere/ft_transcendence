@@ -42,7 +42,6 @@ header .profile {
 	font-size: 150%;
 	align-items: center;
 	justify-content: center;
-	cursor: pointer;
 	text-decoration: none;
 	color: black;
 }
