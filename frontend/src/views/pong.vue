@@ -1,8 +1,9 @@
-<script setup>
-
+<script setup lang="ts">
+	import Head from '../components/head.vue'
 </script>
 
 <template>
+	<Head />
 	<div class="pong_body">
 		<div class="pong_content">
 			<div class="left_column">

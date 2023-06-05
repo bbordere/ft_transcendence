@@ -1,19 +1,18 @@
 <template>
 	<div class="chart">
-        <apexchart type="donut" :options="chartOptions" :series="series"></apexchart>
+		<div v-if="show">
+			<apexchart type="donut" :options="chartOptions" :series="getSerie()"></apexchart>
+		</div>
     </div>
 </template>
 
 <script lang="ts">
 
 export default{
+	props: ["wins", "looses", "show"],
 	data(){
 		return {
 			chartOptions: {
-				chart: {
-					parentHeightOffset: 0,
-					parentWidthOffset: 0,
-				},
 				legend: {
 					position: 'right',
 					show: false
@@ -34,9 +33,16 @@ export default{
 					breakpoint: 480,
 				}],
 				colors:['#00A300', '#D22B2B'],
-		},
-		series: [15, 9],
+			},
 		};
+	},
+	methods:{
+		getSerie(){
+			return [this.wins, this.looses];
+		}
+	},
+	mounted(){
+
 	}
 }
 

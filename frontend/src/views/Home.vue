@@ -1,13 +1,14 @@
 <script setup lang="ts">
+	import Head from '../components/head.vue'
 </script>
 
 <template>
+
+	<Head />
 	<div class="home_body">
 		<div class="home_content">
 			<div class="left_column">
-				<div class="play_button">
-					<router-link to="/pong">jouer</router-link>	
-				</div>
+				<router-link class="play_button" to="/pong">jouer</router-link>	
 				<div class="match_historic">
 					<label>macht_historic</label>
 				</div>
@@ -30,12 +31,13 @@
 <style>
 
 .home_body {
-	width: 100vw;
-	height: 100vh;
 	display: flex;
+	width: 95vw;
+	height: 90vh;
 	align-items: center;
 	justify-content: center;
 }
+
 .home_content {
 	display: flex;
 	height: 80%;
@@ -43,68 +45,68 @@
 	align-items: center;
 	justify-content: center;
 	gap: 8%;
+	padding-left: 5%;
 }
 
 .left_column {
-	height: 100%;
-	width: 20%;
 	display: flex;
 	flex-direction: column;
-	gap: 20%;
+	gap: 4%;
 }
 
 .play_button {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	margin-top: 20%;
-	height: 10%;
-	width: 150%;
+	height: 25%;
+	width: 175%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
-	border-radius: 20px;
+	border-radius: 25px;
 }
 
 .match_historic {
-	height: 70%;
-	width: 200%;
+	display: flex;
+	height: 75%;
+	width: 175%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
 
 .chat {
-	height: 100%;
-	width: 50%;
 	display: flex;
+	height: 100%;
+	width: 45%;
 	flex-direction: column;
 	align-items: center;
-	justify-content: space-around;
+	justify-content: center;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
 
 .right_column {
-	height: 100%;
-	width: 10%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	gap: 4%;
 }
 
 .friend_list {
-	height: 70%;
-	width: 200%;
+	display: flex;
+	height: 66%;
+	width: 175%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
 
 .join_panel {
-	height: 30%;
-	width: 200%;
+	display: flex;
+	height: 33%;
+	width: 175%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;

@@ -1,9 +1,13 @@
 <template>
-	<div class="modal-overlay" @click="$emit('close-modal')">
+	<div class="modal-overlay" @click="closeModal">
 	  <div class="modal-username" @click.stop>
 		<div class="title">Change Username</div>
 		<input v-model="username">
 		<button @click="changeUsername">Change Username</button>
+		<div class="msgStatus">
+			{{ statusMsg }}
+		</div>
+
 	  </div>
 	</div>
 </template>
@@ -18,24 +22,41 @@
 		  FileUpload,
 	  },
 	  data: () => ({
-		username: ""
+		username: "", statusMsg: ""
 	  }),
 	  methods:{
-		  async changeUsername(){
-		  const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/setname",
-		  {
-			  method: 'POST',
-			  credentials: 'include',
-			  headers: {
-				  'Content-Type': 'application/json'
-			  },
-			  body: JSON.stringify({
-				username: this.username,
-			  })
-		  })
-		  }
-	  },
-  }
+		closeModal(){
+			this.statusMsg = "";
+			this.$emit('close-modal')
+		},
+		handleResponse(res: Response){
+			if (res.status != 201)
+				this.statusMsg = "Nom d'utilisateur deja prit !";
+			else{
+				this.$emit('updated')
+				this.statusMsg = "Nom d'utilisateur change !";
+			}
+		},
+
+		changeUsername(){
+			if (!this.username)
+				return;
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/setname",
+			{
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					username: this.username,
+				})
+			})
+			.then(res => this.handleResponse(res));
+			// .then(send => this.$emit('updated'))
+		}
+	},
+}
 </script>
 
 <style scoped>

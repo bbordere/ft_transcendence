@@ -70,7 +70,7 @@ export class UserService {
 	async updatePictureLink(email: string, link: string = "http://" + process.env.HOST + ":3000/avatar/default"){
 		const user = await this.getByEmail(email);
 		user.pictureLink = link;
-		this.usersRepository.save(user);
+		await this.usersRepository.save(user);
 	}
 
 	async updateUsername(email: string, username: string){
@@ -78,8 +78,7 @@ export class UserService {
 		if (await this.getByName(username) != null)
 			return (false);
 		user.name = username;
-		this.usersRepository.save(user);
-		await fetch("http://localhost:3000/auth/refresh",{method: 'POST', credentials: 'include'});
+		await this.usersRepository.save(user);
 		return (true);
 	}
 }

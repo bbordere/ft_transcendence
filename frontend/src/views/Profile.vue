@@ -11,18 +11,6 @@ export default{
 	data: function(){
 		return {user: Object};
 	},
-
-	methods:{
-		getUser: async(vm: any) => {
-			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
-			const user = await res.json();
-			vm.user = user;
-		}
-	},
-
-	beforeMount(){
-        this.getUser(this);
-      },
 }
 
 </script>
@@ -30,7 +18,7 @@ export default{
 <template>
 	<div class="container">
 		<div class="profileCard">
-			<ProfileCard :user="this.user"/>
+			<ProfileCard/>
 		</div>
 		<div class="subCard">
 			<div class="matchHistory">
@@ -57,7 +45,6 @@ export default{
 
 	.profileCard{
 		width: 80%;
-		/* margin: auto; */
 	}
 	
 	.subCard{

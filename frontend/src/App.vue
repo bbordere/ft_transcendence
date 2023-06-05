@@ -5,11 +5,11 @@
 <template>
 
 <body>
-	<nav>
+	<!-- <nav>
    	 <router-link to="/">Home</router-link> | <router-link to="/verif">Verif</router-link> | 
 		<router-link to="/auth">Auth</router-link> | <router-link to="/profile">profil</router-link> | 
-		<router-link to="/pong">pong</router-link> | <router-link to="/chat">Chat</router-link>
-  	</nav>
+		<router-link to="/pong">pong</router-link>
+  	</nav> -->
   	<main>
   	  <router-view />
   	</main>	
@@ -44,6 +44,11 @@ body {
 												#c4e8f6e0 var(--d));
   background-size: calc(var(--d)/var(--sinus)) 100%;
   animation: AnimationName 10s linear infinite reverse;
+  overflow: scroll;
+}
+
+body::-webkit-scrollbar{
+	display: none;
 }
 
 @keyframes AnimationName {

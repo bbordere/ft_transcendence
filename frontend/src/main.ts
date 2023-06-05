@@ -6,7 +6,7 @@ import router from './router'
 import type { RouteRecordName } from 'vue-router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faGear, faRightFromBracket } from '@fortawesome/free-solid-svg-icons'
+import { faGear, faRightFromBracket, faPen, faLock } from '@fortawesome/free-solid-svg-icons'
 import { createVuetify } from 'vuetify'
 import VueApexCharts from "vue3-apexcharts";
 
@@ -25,7 +25,7 @@ async function isOn2FA() {
 	return ((res.status != 401));	
 }
 
-library.add(faGear, faRightFromBracket);
+library.add(faGear, faRightFromBracket, faPen, faLock);
 const app = createApp(App)
 router.beforeEach(async (to, from, next) => {
 	const clearPages: RouteRecordName[] = ["/auth", "/auth/42/login", "/auth/login", "/auth/2fa/verif"]

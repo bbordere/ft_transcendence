@@ -7,6 +7,12 @@ export class StatsDetail{
 	id: number
 
 	@Column({ default: 0})
+	wins: number
+
+	@Column({ default: 0})
+	looses: number
+
+	@Column({ default: 0})
 	mmr: number
 
 	@Column({ default: 0})

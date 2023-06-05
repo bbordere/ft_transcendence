@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Get, Param, PipeTransform, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { createReadStream } from 'fs';
 import { diskStorage } from 'multer';
@@ -15,8 +15,9 @@ export class AvatarController {
 		storage: diskStorage({
 			destination: join(process.cwd(), './avatars'),
 			filename: (req, file, callback) => {
-				const name = "avatar_" + req["user"]["user"]["id"];
-				const extension =  "." + file.mimetype.toString().replace("image/", "");
+				const infos: string[] = file.originalname.split('.');
+				const name = "avatar_" + req["user"]["user"]["id"] + "_" + infos[0];
+				const extension =  "." + infos[1];
 				callback(null, name + extension);
 				},
 			}),
@@ -33,11 +34,8 @@ export class AvatarController {
 	)
 	@UseGuards(JwtAuthGuard)
 	async updateAvatar(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
-		//TO DO UPDATE PICTURE LINK
-		// console.log(file.filename);
-		// return (file);
-		// console.log()
-		this.userService.updatePictureLink(req["user"]["user"]["email"], "http://" + process.env.HOST + ":3000/avatar/" + file.filename);
+		await this.userService.updatePictureLink(req["user"]["user"]["email"], "http://" + process.env.HOST + ":3000/avatar/" + file.filename);
+		return (true);
 	}
 	
 	@Get('/default')

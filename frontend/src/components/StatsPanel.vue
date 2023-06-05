@@ -2,19 +2,23 @@
 	<div class="panel">
 		<div class="left-panel">
 			<div class="centered-panel-item">
-				<WinCharts></WinCharts>
+				<div v-if="dataLoaded && (stats.wins + stats.looses)">
+					<WinCharts :wins="stats.wins" :looses="stats.looses" :show="dataLoaded"></WinCharts>
+				</div>
+				<div v-else>
+					PAS DE STATS
+				</div>
 			</div>
 			<div class="centered-panel-item">
 				<div class="titleRank">Ranking Stats</div>
 				<div class="split-stats">
 					<div class="rank-stat">
 						<h5>Classement</h5>
-						1110 mmr
-					
+						{{ stats.mmr }} mmr					
 					</div>
 					<div class="rank-stat">
 						<h5>Score Moyen</h5>
-						5.4 pts
+						{{ stats.meanScore }} pts
 					</div>
 				</div>
 			</div>
@@ -54,10 +58,6 @@
 
 <script lang="ts">
 
-type Stats = {
-
-};
-
 import WinCharts from './WinCharts.vue';
 
 export default{
@@ -65,18 +65,21 @@ export default{
 		WinCharts
 	},
 	data(){
-		return {stats: ""};
+		return {stats: "", dataLoaded: false};
 	},
 
 	methods:{
 		async getStats(){
-			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/stats/me", {credentials: 'include'});
-			this.stats = JSON.parse(await res.text());
-		}
-	},
-	mounted(){
-			this.getStats();
+			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/stats/me", {credentials: 'include'})
+			const text = await res.text();
+			const data = await JSON.parse(text);
+			this.stats = data;
+			this.dataLoaded = true;
 		},
+	},
+	async mounted(){
+		await this.getStats();
+	},
 }
 
 </script>

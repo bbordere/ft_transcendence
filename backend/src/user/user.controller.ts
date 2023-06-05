@@ -1,4 +1,5 @@
-import { Body, ConsoleLogger, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, ConsoleLogger, Controller, Get, Param, Post, Req, Res, UseGuards,} from '@nestjs/common';
+import { Response } from 'express';
 import { UserService } from './user.service';
 import { AuthLoginDto } from 'src/auth/dtos/auth.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
@@ -29,10 +30,12 @@ export class UserController {
 	
 	@Post('/setname')
 	@UseGuards(JwtAuthGuard)
-	setUsername(@Req() req, @Body() body){
-		if (!this.userService.updateUsername(req["user"]["user"]["email"], body["username"]))
-			return (false);
-		return (true)
+	async setUsername(@Req() req, @Body() body, @Res() res: Response){
+		if (! await this.userService.updateUsername(req["user"]["user"]["email"], body["username"]))
+			res.statusCode = 403;
+		else
+			res.statusCode = 201;
+		res.send();
 	}
 
 
