@@ -19,12 +19,6 @@ async function isLogged() {
 	return ((res.status != 401));
 }
 
-async function isOn2FA() {
-	const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2f", {method: "get", credentials: "include"});
-	console.log(res.status);
-	return ((res.status != 401));	
-}
-
 library.add(faGear, faRightFromBracket, faPen, faLock);
 const app = createApp(App)
 router.beforeEach(async (to, from, next) => {
