@@ -1,4 +1,4 @@
-<!-- <template>
+<template>
 	<div class="container-upload">
 		<div>
 			<h2>Change Avatar</h2>
@@ -37,15 +37,13 @@
 			}
 		}
 	}
-</script> -->
+</script>
 
-<template>
+<!-- <template>
 	<div>
 	  <div class="image-container">
-		<!-- Afficher votre photo ici -->
 		<img :src="photoUrl" alt="Photo" />
   
-		<!-- Bouton de téléchargement -->
 		<label for="file-upload" class="upload-button">
 		  Changer de photo
 		</label>
@@ -92,4 +90,4 @@
 	border: none;
 	border-radius: 4px;
   }
-  </style>
+  </style> -->
