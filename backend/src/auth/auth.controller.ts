@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Req, UnauthorizedException, UseGuards, Redirect, Res, HttpCode } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, UseGuards, Res, } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dtos/auth.dto';
 import { UserService } from 'src/user/user.service';
@@ -44,12 +44,24 @@ export class AuthController {
 
 	@Post('/login')
 	async login(@Req() req: Request, @Body() authLoginDto: AuthLoginDto, @Res({passthrough: true}) res: Response) {
-		const tokens = await this.authService.login(authLoginDto, res);
-		res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
-		res.statusCode = 201;
+		try{
+			const tokens = await this.authService.login(authLoginDto, res);
+			const user = await this.userService.getByEmail(authLoginDto.email);
+			if (user.auth2f){
+				res.cookie('auth2f_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
+				res.statusCode = 207;
+			}
+			else {
+				res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
+				res.statusCode = 201;
+			}
+		}
+		catch{
+
+		}
 	}
 
-	@Post()
+	@Get()
 	@UseGuards(JwtAuthGuard)
 	async checkLoginStatus(){
 		return ({ "statusCode": 200});
@@ -119,13 +131,19 @@ export class AuthController {
 	getStatus(@Req() req: any){
 		return (req.user.user.auth2f);
 	}
-
+	
 	@Get('2fa/completeStatus')
 	@UseGuards(JwtAuthGuard)
 	getGenStatus(@Req() req: any){
 		return ({"activated": req.user.user.auth2f, "generated": req.user.user.auth2fSecret != ""});
 	}
-
+	
+	@Post('/refresh')
+	@UseGuards(JwtAuthGuard)
+	async refreshToken(@Req() req, @Res({passthrough: true}) res: Response){
+		const tokens: string = await this.authService.getTokenByUser(req["user"]);
+		res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
+	}
 
 	// @Get('/signin')
 	// async loginPage()

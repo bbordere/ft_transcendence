@@ -30,13 +30,22 @@
 	import router from '@/router';
 	import { ref } from 'vue';
 	import { useRoute } from 'vue-router';
+	
+	const route = useRoute();
+	const plans: string[] = ["on", "verify", "off"];
+	const curPlan = route.query.plan?.toString()
+	if (curPlan === undefined){
+		router.push('/invalidParams');
+	}
+	else if (!plans.includes(curPlan)){
+		router.push('/invalidParams');
+	}
+
 	let status = ref("");
 	
 	let codeArr: string[] = ["", "", "", "", "", ""];
 	let inputData: string[] | undefined;
 
-	const route = useRoute();
-	console.log(route.query.plan);
 
 	function isNumeric(str: string){
 		const isNumeric = /^[0-9]+$/.test(str);

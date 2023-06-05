@@ -15,7 +15,6 @@ export class AuthService {
 		const user = await this.validateUser(authLoginDto, res);
 		const payload = { username: user.name, email: user.email};
 		const access_token = this.jwtService.sign(payload);
-		await this.usersService.updateAccessToken(user.email, access_token);
 		return {access_token: access_token};
 	  }
 
@@ -28,10 +27,6 @@ export class AuthService {
 		const validPass = await user.validatePassword(password)
 
 		if (!validPass) throw new UnauthorizedException();
-
-		if (user.auth2f === true)
-			res.redirect("http://" + process.env.HOST + ":8080/verif");
-
 		return user;
 	}
 
@@ -62,7 +57,6 @@ export class AuthService {
 
 	async generate2FASecret(user: User){
 		const secret = authenticator.generateSecret();
-		console.log(user);
 		const otpAuthUrl = authenticator.keyuri(user.email, "ft_transcendence", secret);
 		await this.usersService.set2faSecret(secret, user.id);
 		return {secret, otpAuthUrl: otpAuthUrl};
@@ -76,16 +70,8 @@ export class AuthService {
 		return (authenticator.verify({token: code, secret: user.auth2fSecret}));
 	}
 
-
-	async getTokenByMail(email: string): Promise<string> {
-		const user = await this.usersService.getByEmail(email);
-		const payload = { username: user.name, email: user.email};
-		const token: string = this.jwtService.sign(payload);
-		return (token);
-	  }
-	
 	async getTokenByUser(user: User): Promise<string> {
-		const payload = { username: user.name, email: user.email};
+		const payload = { id: user.id, email: user.email};
 		const token: string = this.jwtService.sign(payload);
 		return (token);
 	}
