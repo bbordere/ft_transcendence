@@ -4,6 +4,7 @@ import Avatar from '@/components/Avatar.vue'
 import ModalSettings from '@/components/ModalSettings.vue';
 import BlueButton from './BlueButton.vue';
 import router from '../router';
+import { useNotification } from "@kyvg/vue3-notification";
 
 export default{
 	components: {
@@ -23,11 +24,20 @@ export default{
 			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.username, {credentials: 'include'})
 			.then(res => res.json())
 			.then(data => {this.user = data;});
+		},
+		failure(){
+			const notification = useNotification()
+			notification.notify({
+				title: "Erreur",
+				text: "Mauvais format d'image !",
+				type: 'error',
+				group: 'notif-center'
+			});
 		}
+
 	},
 	beforeMount(){
 		this.getUser();
-		console.log(this.username);
     },
 }
 
@@ -35,7 +45,7 @@ export default{
 
 <template>
 	<div class="card">
-		<Avatar :editable="editable" :path="user.pictureLink" @updated="getUser" ></Avatar>
+		<Avatar :editable="editable" :path="user.avatarLink" @updated="getUser" @failure="failure" ></Avatar>
 		<div class="userInfos">
 			<h1>{{ user.name }}</h1>
 		</div>
@@ -45,8 +55,13 @@ export default{
 					<ModalSettings v-show="showModal" @close-modal="showModal = false" @updated="getUser"></ModalSettings>
 				</transition>
 			</Teleport>
-			<BlueButton  v-if="editable != 0" text="Parametres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
-			<BlueButton  v-if="editable != 0" text="Deconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
+			<div v-if="editable != 0"> 
+				<BlueButton text="Parametres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
+				<BlueButton  text="Deconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
+			</div>
+			<div v-else>
+				<BlueButton text="Ajouter en ami " icon="fa-solid fa-user-group"></BlueButton>
+			</div>
 		</div>
 	</div>
 

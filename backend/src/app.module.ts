@@ -10,6 +10,8 @@ import { AppService } from './app.service';
 import { AvatarModule } from './avatar/avatar.module';
 import { StatsController } from './stats/stats.controller';
 import { StatsModule } from './stats/stats.module';
+import { MatchController } from './match/match.controller';
+import { MatchModule } from './match/match.module';
 
 @Module({
   imports: [
@@ -19,8 +21,9 @@ import { StatsModule } from './stats/stats.module';
 		ServeStaticModule.forRoot({rootPath: join(__dirname, '..', 'qrcode'), serveRoot: '/qrcode',}),
 		AvatarModule,
 		StatsModule,
+		MatchModule,
 	],
-  controllers: [AppController, StatsController],
+  controllers: [AppController, StatsController, MatchController],
   providers: [AppService, ChatGateway]
 })
 export class AppModule {}

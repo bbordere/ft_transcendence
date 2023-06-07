@@ -50,4 +50,15 @@ export class AvatarController {
 		const fileStream = createReadStream(join(process.cwd(), 'avatars/' + file));
 		fileStream.pipe(res)
 	}
+
+	@Get('/user/:name')
+	async getUserAvatar(@Res() res: Response, @Req() req, @Param('name') name: string){
+		const user = await this.userService.getByName(name);
+		if (!user)
+			res.statusCode = 404;
+		else{
+			const fileStream = createReadStream(join(process.cwd(), 'avatars/' + user.avatarLink.split('/').at(-1)));
+			fileStream.pipe(res)
+		}
+	}
 }

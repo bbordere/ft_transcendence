@@ -24,10 +24,9 @@
 			</div>
 		</div>
 		<div class="right-panel">
-			<div class="centered-panel-item">
+			<div class="stat-panel-item">
 				<h3>General Stats</h3>
 				<div class="list-stats">
-					<hr/>
 					<h5>Nb Points Gagnes</h5>
 					{{ this.stats["winPoints"] }}
 					<h5>Nb Points Perdus</h5>
@@ -48,10 +47,9 @@
 					<h5>Nb Emotes Envoyes</h5>
 					{{ this.stats["totalEmotes"] }}
 					<h5>Nb Channel Joined</h5>
-					<!-- {{ this.stats["loosePoints"] }}  NOT IMPLEMENTED YET-->
+					{{  }}  NOT IMPLEMENTED YET
 				</div>
 			</div>
-
 		</div>
 	</div>
 </template>
@@ -80,7 +78,6 @@ export default{
 	},
 	mounted(){
 		this.getStats();
-		console.log(this.username);
 	},
 }
 
@@ -107,14 +104,25 @@ export default{
 
 .centered-panel-item {
 	margin: 10px;
-	background-color: rgba(34, 158, 230, 0.103);;
+	background-color: rgba(34, 158, 230, 0.103);
 	border-radius: 50px;
 	display: flex;
-	flex-basis: 100%;
+	height: 100%;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	flex-flow: column wrap;
+}
+
+.stat-panel-item {
+	margin: 10px;
+	background-color: rgba(34, 158, 230, 0.103);
+	border-radius: 50px;
+	display: flex;
+	height: 95%;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 
 .titleRank{
@@ -135,7 +143,6 @@ export default{
 	width: 80%;
 	flex-basis: 50%;
 	border-radius: 20px;
-	/* background-color: rgb(160, 160, 160); */
 	flex-direction: row;
 	justify-content: space-around;
 	align-items: center;
@@ -143,6 +150,18 @@ export default{
 
 h5{
 	margin: 0;
+	flex: 1;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.list-stats::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.list-stats {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 .rank-stat{
@@ -151,6 +170,8 @@ h5{
 
 .list-stats {
 	text-align: center;
+	overflow-y: auto;
+	height: 70%;
 }
 
 
