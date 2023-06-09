@@ -13,7 +13,7 @@
 	<notifications position="top center" group="notif-center" max="2"/>
 	<notifications position="top right" group="friend"/>
   	<main>
-  	  <router-view />
+  	  <router-view :key="$route.fullPath"/>
   	</main>	
 </body>
 

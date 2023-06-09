@@ -22,11 +22,13 @@ export class AuthService {
 		const { email, password } = authLoginDto;
 
 		const user = await this.usersService.getByEmail(email);
-		if (!user) throw new NotAcceptableException('User not found');
+		if (!user)
+			throw new NotAcceptableException('User not found');
 
 		const validPass = await user.validatePassword(password)
 
-		if (!validPass) throw new UnauthorizedException();
+		if (!validPass)
+			throw new UnauthorizedException();
 		return user;
 	}
 

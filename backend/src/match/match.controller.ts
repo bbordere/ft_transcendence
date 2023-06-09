@@ -4,10 +4,12 @@ import { MatchDto } from './match.dto';
 import { UserService } from 'src/user/user.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Request } from 'express';
+import { StatsService } from 'src/stats/stats.service';
 
 @Controller('match')
 export class MatchController {
-	constructor(private readonly matchService: MatchService, private readonly userService: UserService) {}
+	constructor(private readonly matchService: MatchService, private readonly userService: UserService,
+				private readonly statsService: StatsService) {}
 
 	@Get()
 	async getAllMatch(){
@@ -16,7 +18,7 @@ export class MatchController {
 
 	@Post()
 	async createMatch(@Body() body: MatchDto){
-		return await this.matchService.createMatch(body, this.userService);
+		return await this.matchService.createMatch(body, this.userService, this.statsService);
 	}
 
 	@UseGuards(JwtAuthGuard)

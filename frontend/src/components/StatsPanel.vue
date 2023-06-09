@@ -150,7 +150,6 @@ export default{
 
 h5{
 	margin: 0;
-	flex: 1;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

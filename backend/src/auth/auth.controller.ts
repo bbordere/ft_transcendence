@@ -9,6 +9,7 @@ import { Request, Response } from 'express';
 import { toFile } from 'qrcode';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import { error } from 'console';
 
 @Controller('auth')
 export class AuthController {
@@ -44,20 +45,15 @@ export class AuthController {
 
 	@Post('/login')
 	async login(@Req() req: Request, @Body() authLoginDto: AuthLoginDto, @Res({passthrough: true}) res: Response) {
-		try{
-			const tokens = await this.authService.login(authLoginDto, res);
-			const user = await this.userService.getByEmail(authLoginDto.email);
-			if (user.auth2f){
-				res.cookie('auth2f_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
-				res.statusCode = 207;
-			}
-			else {
-				res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
-				res.statusCode = 201;
-			}
+		const tokens = await this.authService.login(authLoginDto, res);
+		const user = await this.userService.getByEmail(authLoginDto.email);
+		if (user.auth2f){
+			res.cookie('auth2f_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
+			res.statusCode = 207;
 		}
-		catch{
-
+		else {
+			res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
+			res.statusCode = 201;
 		}
 	}
 
@@ -144,46 +140,4 @@ export class AuthController {
 		const tokens: string = await this.authService.getTokenByUser(req["user"]);
 		res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
 	}
-
-	// @Get('/signin')
-	// async loginPage()
-	// {
-	// 	return '<form action="" method="post" class="form-example">\
-	// 			<div class="form-example">\
-	// 			<label for="name">Enter your email: </label>\
-	// 			<input type="text" name="email" id="email" required>\
-	// 			</div>\
-	// 			\
-	// 			<div class="form-example">\
-	// 			<label for="email">Enter your pass: </label>\
-	// 			<input type="text" name="password" id="password" required>\
-	// 			</div>\
-	// 			<div class="form-example">\
-	// 			<input type="submit" value="Login" formaction="login">\
-	// 			</div>\
-  	// 	</form>';
-	// }
-
-	// @Get('/register')
-	// async registerPage()
-	// {
-	// 	return '<form action="" method="post" class="form-example">\
-	// 			<div class="form-example">\
-	// 			<label for="name">Enter your email: </label>\
-	// 			<input type="text" name="email" id="name" required>\
-	// 			</div>\
-	// 			\
-	// 			<label for="name">Enter your name: </label>\
-	// 			<input type="text" name="name" id="name" required>\
-	// 			</div>\
-	// 			\
-	// 			<div class="form-example">\
-	// 			<label for="pass">Enter your pass: </label>\
-	// 			<input type="text" name="password" id="password" required>\
-	// 			</div>\
-	// 			<div class="form-example">\
-	// 			<input type="submit" value="Register" formaction="register">\
-	// 			</div>\
-  	// 	</form>';	
-	// }
 }

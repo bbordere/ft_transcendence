@@ -1,7 +1,7 @@
 <template>
 	<div class="match-card">
 		<div class="player-card">
-			<img class="avatar-match" :src="'http://localhost:3000/avatar/user/' + matchObject.player1.name"/>
+			<img class="avatar-match" :src="'http://localhost:3000/avatar/user/' + matchObject.player1.name" @click="redirecToProfil"/>
 			{{ matchObject.player1.name }}
 		</div>
 		<div class="score-card">
@@ -19,16 +19,23 @@
 			</div>
 		</div>
 		<div class="player-card">
-			<img class="avatar-match" :src="'http://localhost:3000/avatar/user/' + matchObject.player2.name"/>
+			<img class="avatar-match" :src="'http://localhost:3000/avatar/user/' + matchObject.player2.name" @click="redirecToProfil"/>
 			{{ matchObject.player2.name }}
 		</div>
 	</div>
 </template>
 	
 <script lang="ts">
+	import router from '@/router';
 	export default{
-		props: ["matchObject"]
-
+		props: ["matchObject"],
+		methods:{
+			redirecToProfil(e: Event){
+				const src = (e.target as HTMLImageElement).src;
+				const username = src.split('/').at(-1);
+				router.push({path:'/profile',query: { user: username }});
+			}
+		},
 	}
 </script>
 	
@@ -67,15 +74,20 @@
 	width: 20%;
 	aspect-ratio: 1;
 	border: 2px solid #b5dbdb;
+	transition: background-color 0.5s ease;
+}
+
+.avatar-match:hover{
+	opacity: 0.5;
 }
 
 @media (max-width: 950px) {
 	.player-card{
 		justify-content: center;
 	}
-  .avatar-match {
+	.avatar-match {
 	display: none;
-  }
+	}
 }
 
 .score-text{

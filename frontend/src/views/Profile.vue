@@ -16,35 +16,38 @@ export default{
 	data(){
 		return {username: "", dataLoaded: false};
 	},
-	beforeMount() {
-		let names: String[];
-		let exist: boolean;
-		let user: string;
-		const route = useRoute();
-		if (!route.query["user"]){
-			router.push('/profile/me');
-			this.username = "me";
-			this.dataLoaded = true;
-			return;
-		}
-		fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/")
-			.then(res => res.json())
-			.then(data => {names = data})
-			.then(getUser => {user = route.query["user"]})
-			.then(verif => {exist = names.includes(user) || user === "me"})
-			.then(redirect => {
-				if (!exist)
-				router.push('/invalidParams');
-				else
-				this.username = user;
-				this.dataLoaded = true;
-			})
-	},
 	methods:{
 		getEditableStatus(){
 			return (this.username === "me");
+		},
+		getUser(){
+			let names: String[];
+			let exist: boolean;
+			let user: string;
+			const route = useRoute();
+			if (!route.query["user"]){
+				router.push('/profile/me');
+				this.username = "me";
+				this.dataLoaded = true;
+				return;
+			}
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/")
+			.then(res => res.json())
+			.then(data => {names = data})
+			.then(() => {user = route.query["user"]})
+			.then(() => {exist = names.includes(user) || user === "me"})
+			.then(() => {
+				if (!exist)
+					router.push('/invalidParams');
+				else
+					this.username = user;
+				this.dataLoaded = true;
+			})
 		}
-	}
+	},
+	beforeMount() {
+		this.getUser();
+	},
 }
 
 </script>

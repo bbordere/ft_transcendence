@@ -37,7 +37,7 @@
 		changeUsername(){
 			if (!this.username)
 				return;
-			if (!this.username.match(/^[a-zA-Z0-9]{1,20}$/)) {
+			if (!this.username.match(/^[\p{L}\p{N}_]+$/u)) {
 				this.$emit('bad-format');
 				return;
 			}
@@ -53,7 +53,6 @@
 				})
 			})
 			.then(res => this.handleResponse(res));
-			// .then(send => this.$emit('updated'))
 		}
 	},
 }

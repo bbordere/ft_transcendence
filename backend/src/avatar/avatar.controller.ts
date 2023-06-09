@@ -1,9 +1,9 @@
 import { BadRequestException, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { createReadStream } from 'fs';
+import { createReadStream, existsSync } from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
-import { Response } from 'express';
+import e, { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UserService } from 'src/user/user.service';
 
@@ -41,14 +41,20 @@ export class AvatarController {
 	@Get('/default')
 	getDefaultAvatar(@Res() res: Response, @Req() req){
 		const file = createReadStream(join(process.cwd(), 'avatars/default.jpg'));
-		file.pipe(res)
+		file.pipe(res);
 	}
 	
 	@Get('/:file')
 	@UseGuards(JwtAuthGuard)
 	getIdAvatar(@Res() res: Response, @Req() req, @Param('file') file: string){
-		const fileStream = createReadStream(join(process.cwd(), 'avatars/' + file));
-		fileStream.pipe(res)
+		const path = join(process.cwd(), 'avatars/' + file);
+		if (!existsSync(path)){
+			res.sendStatus(404);
+		}
+		else{
+			const fileStream = createReadStream(path);
+			fileStream.pipe(res);
+		}
 	}
 
 	@Get('/user/:name')
@@ -56,9 +62,14 @@ export class AvatarController {
 		const user = await this.userService.getByName(name);
 		if (!user)
 			res.statusCode = 404;
-		else{
-			const fileStream = createReadStream(join(process.cwd(), 'avatars/' + user.avatarLink.split('/').at(-1)));
-			fileStream.pipe(res)
+		else {
+			const path = join(process.cwd(), 'avatars/' + user.avatarLink.split('/').at(-1));
+			let fileStream;
+			if (!existsSync(path))
+				fileStream = createReadStream(join(process.cwd(), 'avatars/default.jpg'));
+			else
+				fileStream = createReadStream(path);
+			fileStream.pipe(res);
 		}
 	}
 }

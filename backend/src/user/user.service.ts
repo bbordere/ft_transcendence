@@ -1,5 +1,5 @@
 
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
@@ -22,8 +22,10 @@ export class UserService {
 
 	async createUser(user: AuthLoginDto): Promise<User> {
 		
-		if (await this.getByEmail(user.email) != null || await this.getByName(user.name) != null )
+		if (await this.getByEmail(user.email) != null)
 			throw new NotAcceptableException('User Already Exist !');
+		if (await this.getByName(user.name) != null)
+			throw new BadRequestException('Username');
 		const newUser = await this.usersRepository.create(user);
 		newUser.stats = new StatsDetail();
 		await this.usersRepository.save(newUser);
@@ -32,6 +34,9 @@ export class UserService {
 	}
 
 	async createUser42(data: AuthLogin42Dto): Promise<User> {
+		let i: number = 1;
+		while(await this.getByName(data.name) != null)
+			data.name += i++;
 		data.password = Math.random().toString(36).slice(-8);
 		const user = await this.usersRepository.create(data);
 		user.stats = new StatsDetail();
@@ -85,5 +90,9 @@ export class UserService {
 		user.name = username;
 		await this.usersRepository.save(user);
 		return (true);
+	}
+
+	async saveUser(user: User){
+		this.usersRepository.save(user);
 	}
 }

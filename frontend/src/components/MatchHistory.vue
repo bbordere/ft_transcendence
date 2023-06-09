@@ -22,7 +22,7 @@
 		mounted() {
 			fetch("http://" + import.meta.env.VITE_HOST + ":3000/match/" + this.username, {credentials: "include"})
 			.then(res => res.json())
-			.then(res => {this.matches = res})
+			.then(res => {this.matches = res});
 		},
 	}
 </script>
@@ -50,7 +50,6 @@
 }
 
 .match{
-	flex: 1;
 	margin-top: 5%;
 	margin-bottom: 5%;
 }
