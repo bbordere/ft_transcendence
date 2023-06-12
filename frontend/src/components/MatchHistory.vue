@@ -1,10 +1,13 @@
 <template>
 
-	<div class="history">
+	<div class="history" v-if="matches.length">
 		<div class="history-title">Historique de Match</div>
 		<div class="matches">
 			<Match v-for="match in matches" class="match" :match-object="match"></Match >
 		</div>
+	</div>
+	<div v-else class="no-match">
+		Pas de matchs joues ! 
 	</div>
 
 </template>
@@ -19,10 +22,21 @@
 		data() {
 			return {matches: ""}
 		},
+
+		methods:{
+			getUser(){
+				fetch("http://" + import.meta.env.VITE_HOST + ":3000/match/" + this.username, {credentials: "include"})
+				.then(res => res.json())
+				.then(res => {this.matches = res});
+			}
+		},
 		mounted() {
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/match/" + this.username, {credentials: "include"})
-			.then(res => res.json())
-			.then(res => {this.matches = res});
+			this.getUser();
+		},
+		watch: {
+			username: function(){
+				console.log("LOG PARENT");
+			}
 		},
 	}
 </script>
@@ -31,6 +45,18 @@
 
 .history-title{
 
+}
+
+.no-match{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: rgba(34, 158, 230, 0.103);
+	border-radius: 50px;
+	height: 96%;
+	width: 96%;
+	margin-top: 2%;
+	margin-left: 2%;
 }
 
 .matches{

@@ -23,7 +23,7 @@ export default{
 		getUser(){
 			let names: String[];
 			let exist: boolean;
-			let user: string;
+			let username: string;
 			const route = useRoute();
 			if (!route.query["user"]){
 				router.push('/profile/me');
@@ -34,16 +34,16 @@ export default{
 			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/")
 			.then(res => res.json())
 			.then(data => {names = data})
-			.then(() => {user = route.query["user"]})
-			.then(() => {exist = names.includes(user) || user === "me"})
+			.then(() => {username = route.query["user"]})
+			.then(() => {exist = names.includes(username) || username === "me"})
 			.then(() => {
 				if (!exist)
 					router.push('/invalidParams');
 				else
-					this.username = user;
+					this.username = username;
 				this.dataLoaded = true;
 			})
-		}
+		},
 	},
 	beforeMount() {
 		this.getUser();

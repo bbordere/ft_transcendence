@@ -23,7 +23,8 @@ export default{
 		getUser(){
 			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.username, {credentials: 'include'})
 			.then(res => res.json())
-			.then(data => {this.user = data;});
+			.then(data => {this.user = data;})
+			.then(() => this.$emit('update', this.user.name));
 		},
 		failure(){
 			const notification = useNotification()

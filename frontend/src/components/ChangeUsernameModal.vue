@@ -2,7 +2,7 @@
 	<div class="modal-overlay" @click="closeModal">
 	  <div class="modal-username" @click.stop>
 		<div class="title">Change Username</div>
-		<input ref="input" type="text" v-model="username" pattern="^[a-zA-Z0-9]{1,20}$" maxlength="20" placeholder="Saisissez un pseudo">
+		<input ref="input" type="text" v-model="username" maxlength="20" placeholder="Saisissez un pseudo">
 		<button @click="changeUsername">Change Username</button>
 
 	  </div>
