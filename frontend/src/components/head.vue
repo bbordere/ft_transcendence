@@ -11,10 +11,11 @@
 .header {
 	display: flex;
 	width: 100%;
-	height: 80px;
+	height: 10vh;
 	border-bottom: 2px solid #BC0002;
 	background: #036280;
 	justify-content: space-between;
+	min-height: 50px;
 }
 
 header .logo {
@@ -24,14 +25,14 @@ header .logo {
 	border: 3px solid #BC0002;
 	background: #ffffff;
 	border-radius: 290px;
-	margin-left: 50px;
+	margin-left: 2.5%;
 }
 
 header .logo_42 {
 	display: flex;
-	margin-left: auto;
+	margin-left: 10%;
 	height: 100%;
-	width: 100%;
+	width: 85%;
 }
 
 header .profile {
@@ -39,7 +40,7 @@ header .profile {
 	height: 100%;
 	width: 18%;
 	background: #D9D9D9;
-	font-size: 150%;
+	font-size: 100%;
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
@@ -48,9 +49,9 @@ header .profile {
 
 header .box_img_profile {
 	display: flex;
-	width: 6%;
+	width: 5.25%;
 	height: 100%;
-	margin-left: auto;
+	margin-left: 65%;
 }
 
 header .img_profile {
@@ -58,4 +59,40 @@ header .img_profile {
 	width: 100%;
 	height: 100%;
 }
+
+@media screen and (max-width: 1000px) {
+	header .logo {
+		display: flex;
+		height: 95%;
+		width: 80%;
+	}
+
+	header .profile {
+		display: flex;
+		width: 100%;
+	}
+
+	header .box_img_profile {
+		display: flex;
+		width: 60%;
+	}
+}
+
+@media screen and (max-width: 500px) {
+	header .box_img_profile {
+		display: flex;
+		width: 100%;
+	}
+
+	header .logo {
+		display: flex;
+		height: 90%;
+		width: 100%;
+	}
+
+	.header {
+		height: 7vh;
+	}
+}
+
 </style>
