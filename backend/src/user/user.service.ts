@@ -3,9 +3,10 @@ import { BadRequestException, Injectable, NotAcceptableException } from '@nestjs
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { AuthLoginDto } from 'src/auth/dtos/auth.dto';
+import { AuthLoginDto, AuthRegisterDto } from 'src/auth/dtos/auth.dto';
 import { AuthLogin42Dto } from 'src/auth/dtos/auth42.dto';
 import { StatsDetail } from 'src/stats/stats.entity';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class UserService {
@@ -20,8 +21,13 @@ export class UserService {
 		return names.then(names => names.map((res) => res.name))
 	}
 
-	async createUser(user: AuthLoginDto): Promise<User> {
-		
+	// async createUser(user: AuthRegisterDto): Promise<User> {
+	async createUser(user: AuthRegisterDto) {
+		console.log(user);
+		const errors = await validate(user);
+		console.log(errors);
+		if (errors.length)
+			throw new BadRequestException('Bad Format');
 		if (await this.getByEmail(user.email) != null)
 			throw new NotAcceptableException('User Already Exist !');
 		if (await this.getByName(user.name) != null)
@@ -94,5 +100,12 @@ export class UserService {
 
 	async saveUser(user: User){
 		this.usersRepository.save(user);
+	}
+
+	async getEmailByUsername(username: string): Promise<string>{
+		const user = (await this.usersRepository.findOne({where: {name: username}}));
+		if (!user)
+			throw new NotAcceptableException('User not found');
+		return (user.email);
 	}
 }

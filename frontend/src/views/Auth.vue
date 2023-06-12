@@ -74,7 +74,7 @@ async function login(){
 		<span class="text">connection</span>
 		<div class="form">
 			<div class="field">
-				<input type="email" id="email" placeholder="@ email" v-model="email" />
+				<input type="email" id="email" placeholder="email / pseudo" v-model="email" />
 			</div>
 			<div class="field">
 				<input type="password" placeholder="mot de passe" v-model="password" />

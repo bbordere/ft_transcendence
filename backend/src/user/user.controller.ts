@@ -43,9 +43,4 @@ export class UserController {
 	getUserById(@Param('id') id: number){
 		return (this.userService.getById(id));
 	}
-
-	@Post()
-	async createUser(@Body() user: AuthLoginDto):Promise<any>{
-		return (this.userService.createUser(user));
-	}
 }

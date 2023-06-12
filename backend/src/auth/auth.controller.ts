@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Inject, Post, Req, UseGuards, Res, } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthLoginDto } from './dtos/auth.dto';
+import { AuthLoginDto, AuthRegisterDto } from './dtos/auth.dto';
 import { UserService } from 'src/user/user.service';
 import { AuthGuard42 } from './guards/42-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -9,7 +9,6 @@ import { Request, Response } from 'express';
 import { toFile } from 'qrcode';
 import { createReadStream } from 'fs';
 import { join } from 'path';
-import { error } from 'console';
 
 @Controller('auth')
 export class AuthController {
@@ -44,15 +43,14 @@ export class AuthController {
 	}
 
 	@Post('/login')
-	async login(@Req() req: Request, @Body() authLoginDto: AuthLoginDto, @Res({passthrough: true}) res: Response) {
-		const tokens = await this.authService.login(authLoginDto, res);
-		const user = await this.userService.getByEmail(authLoginDto.email);
-		if (user.auth2f){
-			res.cookie('auth2f_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
+	async login(@Body() authLoginDto: any, @Res({passthrough: true}) res: Response) {
+		const userObject = await this.authService.getUserObject(authLoginDto, res);
+		if (userObject.user.auth2f){
+			res.cookie('auth2f_token', userObject.tokens, {httpOnly: true, sameSite: "lax"});
 			res.statusCode = 207;
 		}
 		else {
-			res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
+			res.cookie('access_token', userObject.tokens, {httpOnly: true, sameSite: "lax"});
 			res.statusCode = 201;
 		}
 	}
@@ -64,10 +62,10 @@ export class AuthController {
 	}
 	
 	@Post('/register')
-	async register(@Req() req, @Body() authLoginDto: AuthLoginDto, @Res({passthrough: true}) res) {
-		await this.userService.createUser(authLoginDto);
-		const tokens = await this.authService.login(authLoginDto, res);
-		res.cookie('access_token', tokens.access_token, {httpOnly: true, sameSite: "lax"});
+	async register(@Body() authRegisterDto: any, @Res({passthrough: true}) res) {
+		await this.userService.createUser(new AuthRegisterDto(authRegisterDto));
+		const tokens = await this.authService.login(authRegisterDto, res);
+		res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
 		res.statusCode = 201;
 	}
 
