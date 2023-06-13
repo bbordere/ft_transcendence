@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryColumn, Generated, BeforeInsert } from "typeorm";
+import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, OneToOne } from "typeorm";
 import * as bcrypt from 'bcrypt';
+import { StatsDetail } from '../stats/stats.entity'
 
 @Entity()
 export class User{
@@ -26,19 +27,14 @@ export class User{
 	public auth2fSecret: string
 
 	@Column({ default: ""})
-	public pictureLink: string
+	public avatarLink: string
 
-	@Column({ default: ""})
-	public accessToken: string
-
-	@Column({ default: -1})
-	public rank: number
-
-	@Column({ default: 0})
-	public matchPlayed: number
-
-	@Column({ default: 0})
-	public matchWin: number
+ 	@OneToOne(() => StatsDetail, (stats: StatsDetail) => stats.id, {
+		cascade: true,
+		eager: true,
+	  })
+	@JoinColumn() 
+	public stats: StatsDetail;
 
 	@BeforeInsert()
 	async hashPassword() {
