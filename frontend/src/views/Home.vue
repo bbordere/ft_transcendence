@@ -12,7 +12,7 @@
 			<div class="chat">
 				Chat
 				<ul class="msg_chat_box">
-					<li v-for="msg in messages" :key="msg.id" :class="{ 'sent': msg.direction === 'sent', 'received': msg.direction === 'received'}">{{ msg.text }}</li>
+					<li v-for="msg in messages" :key="msg.id" :class="getMessageClass(msg)">{{ msg.text }}</li>
 				</ul>
 				<div v-if="connected">
 					<input type="text" v-model="message">
@@ -36,12 +36,12 @@
 
 <script lang="ts">
 import io from 'socket.io-client';
+import { resolveComponent } from 'vue';
 import { Vue } from 'vue-property-decorator';
 
 interface Message {
-	id: number;
 	text: string;
-	direction: 'sent' | 'received';
+	sender: number;
 }
 
 export default class ChatClient extends Vue {
@@ -49,30 +49,44 @@ export default class ChatClient extends Vue {
 	private connected: boolean = false;
 	private message: string = '';
 	private messages: Message[] = [];
+	private senderId: number = 0;
 
-	created() {
+	async mounted() {
+		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
+		const response_json = await response.json();
+		this.senderId = response_json['id'];
+		this.initSocket();
+	}
+
+	initSocket() {
 		this.socket = io('http://localhost:3000');
 		this.socket.on('connect', () => { this.connected = true; });
 		this.socket.on('disconnect', () => { this.connected = false; });
-		this.socket.on('message', (message: string) => {
-			this.messages.push({
-				id: this.messages.length + 1,
-				text: message,
-				direction: 'received',
-			});
+		this.socket.on('message', (data: {text: string, sender: number,}) => {
+			const {text, sender} = data;
+			console.log('sender: ' + sender);
+			if (sender != this.senderId) {
+				this.messages.push({
+					text: text,
+					sender: sender,
+				});
+			}
 		});
 	}
 
 	sendMessage() {
-		if (this.message) {
-			this.socket.emit('message', this.message);
+		if (this.message && this.socket) {
+			this.socket.emit('message', {text: this.message, sender: this.senderId});
 			this.messages.push({
-				id: this.messages.length + 1,
 				text: this.message,
-				direction: 'sent',
+				sender: this.senderId,
 			});
 			this.message = '';
 		}
+	}
+
+	getMessageClass(message: Message): string {
+		return (this.senderId === message.sender ? 'sent' : 'received');
 	}
 }
 </script>
