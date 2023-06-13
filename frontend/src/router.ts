@@ -80,9 +80,5 @@ export default createRouter({
 		name: 'PageNotFound',
 		component: notFound
 	},
-	{
-		path: '/chat',
-		component: chat,
-	},
   ],
 })

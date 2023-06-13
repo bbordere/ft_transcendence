@@ -1,7 +1,3 @@
-<script setup lang="ts">
-	import Head from '../components/head.vue'
-</script>
-
 <template>
 
 	<Head />
@@ -14,7 +10,17 @@
 				</div>
 			</div>
 			<div class="chat">
-				<label>chat</label>
+				Chat
+				<ul class="msg_chat_box">
+					<li v-for="msg in messages" :key="msg.id" :class="getMessageClass(msg)">{{ msg.text }}</li>
+				</ul>
+				<div v-if="connected">
+					<input type="text" v-model="message">
+					<button type="button" @click="sendMessage">Send !</button>
+				</div>
+				<div v-else>
+					<p>connecting to websocket server...</p>
+				</div>
 			</div>
 			<div class="right_column">
 				<div class="friend_list">
@@ -28,8 +34,64 @@
 	</div>
 </template>
 
-<style>
+<script lang="ts">
+import Head from '../components/head.vue'
+import io from 'socket.io-client';
+import { Vue } from 'vue-property-decorator';
 
+interface Message {
+	text: string;
+	sender: number;
+}
+
+export default class ChatClient extends Vue {
+	private socket: any = null;
+	private connected: boolean = false;
+	private message: string = '';
+	private messages: Message[] = [];
+	private senderId: number = 0;
+
+	async mounted() {
+		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
+		const response_json = await response.json();
+		this.senderId = response_json['id'];
+		this.initSocket();
+	}
+
+	initSocket() {
+		this.socket = io('http://localhost:3000');
+		this.socket.on('connect', () => { this.connected = true; });
+		this.socket.on('disconnect', () => { this.connected = false; });
+		this.socket.on('message', (data: {text: string, sender: number,}) => {
+			const {text, sender} = data;
+			console.log('sender: ' + sender);
+			if (sender != this.senderId) {
+				this.messages.push({
+					text: text,
+					sender: sender,
+				});
+			}
+		});
+	}
+
+	sendMessage() {
+		if (this.message && this.socket) {
+			this.socket.emit('message', {text: this.message, sender: this.senderId});
+			this.messages.push({
+				text: this.message,
+				sender: this.senderId,
+			});
+			this.message = '';
+		}
+	}
+
+	getMessageClass(message: Message): string {
+		return (this.senderId === message.sender ? 'sent' : 'received');
+	}
+}
+</script>
+
+<style>
 .home_body {
 	display: flex;
 	width: 95vw;
@@ -110,6 +172,22 @@
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
+}
+
+.msg_chat_box {
+	width: 100%;
+}
+
+.msg_chat_box li {
+	text-decoration: none;
+}
+
+.sent {
+	text-align: right;
+}
+
+.received {
+	text-align: left;
 }
 
 </style>
