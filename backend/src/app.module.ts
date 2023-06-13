@@ -9,6 +9,11 @@ import { ChatGateway } from './chat/chat.gateway';
 import { PongGateway } from './pong/pong.gateway';
 
 import { AppService } from './app.service';
+import { AvatarModule } from './avatar/avatar.module';
+import { StatsController } from './stats/stats.controller';
+import { StatsModule } from './stats/stats.module';
+import { MatchController } from './match/match.controller';
+import { MatchModule } from './match/match.module';
 
 @Module({
   imports: [
@@ -16,8 +21,11 @@ import { AppService } from './app.service';
 		UserModule,
 		AuthModule,
 		ServeStaticModule.forRoot({rootPath: join(__dirname, '..', 'qrcode'), serveRoot: '/qrcode',}),
+		AvatarModule,
+		StatsModule,
+		MatchModule,
 	],
-  controllers: [AppController],
+  controllers: [AppController, StatsController, MatchController],
   providers: [AppService, ChatGateway, PongGateway]
 })
 export class AppModule {}

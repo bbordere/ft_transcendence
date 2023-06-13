@@ -1,6 +1,7 @@
 <script>
 import io from 'socket.io-client';
 import { onMounted } from 'vue';
+import Head from '../components/head.vue'
 
 export default{
 	mounted() {
@@ -78,6 +79,7 @@ export default{
 </script>
 
 <template>
+	<Head />
 	<div class="pong_body">
 		<div class="pong_content">
 			<div class="left_column">

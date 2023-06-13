@@ -1,41 +1,68 @@
 <script lang="ts">
 
 import ProfileCard from '@/components/profilCard.vue';
+import StatsPanel from '@/components/StatsPanel.vue'
+import MatchHistory from '@/components/MatchHistory.vue'
+import { useRoute } from 'vue-router';
+import router from '../router';
+
 
 export default{
 	components: {
-		ProfileCard
-  },
-	data: function(){
-		return {user: Object};
+		ProfileCard,
+		StatsPanel,
+		MatchHistory
 	},
-
+	data(){
+		return {username: "", dataLoaded: false};
+	},
 	methods:{
-		getUser: async(vm: any) => {
-			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
-			const user = await res.json();
-			vm.user = user;
-		}
+		getEditableStatus(){
+			return (this.username === "me");
+		},
+		getUser(){
+			let names: String[];
+			let exist: boolean;
+			let username: string;
+			const route = useRoute();
+			if (!route.query["user"]){
+				router.push('/profile/me');
+				this.username = "me";
+				this.dataLoaded = true;
+				return;
+			}
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/")
+			.then(res => res.json())
+			.then(data => {names = data})
+			.then(() => {username = route.query["user"]})
+			.then(() => {exist = names.includes(username) || username === "me"})
+			.then(() => {
+				if (!exist)
+					router.push('/invalidParams');
+				else
+					this.username = username;
+				this.dataLoaded = true;
+			})
+		},
 	},
-
-	beforeMount(){
-        this.getUser(this);
-      },
+	beforeMount() {
+		this.getUser();
+	},
 }
 
 </script>
 
 <template>
 	<div class="container">
-		<div class="profileCard">
-			<ProfileCard :user="this.user"/>
+		<div class="profileCard" v-if="dataLoaded">
+			<ProfileCard :editable="getEditableStatus()" :username="username"/>
 		</div>
 		<div class="subCard">
-			<div class="matchHistory">
-				MATCH
+			<div class="matchHistory" v-if="dataLoaded">
+				<MatchHistory :username="username"/>
 			</div>
-			<div class="buttonBox">
-				STATS
+			<div class="statsPanel" v-if="dataLoaded">
+				<StatsPanel :username="username"></StatsPanel>
 			</div>
 		</div>
 	</div>
@@ -44,8 +71,6 @@ export default{
 
 <style>
 	.container{
-		height: 100vh;
-		width: 100vw;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -53,26 +78,29 @@ export default{
 	}
 
 	.profileCard{
+		height: 15%;
 		width: 80%;
-		/* margin: auto; */
 	}
 	
 	.subCard{
 		display: flex;
 		flex-direction: row;
-		height: 500px;
+		margin-top: 3%;
 		width: 80%;
-		margin-top: 45px;
+		height: 75%;
+		height: 60vh;
 		justify-content: space-between;
 	}
 
 	.matchHistory{
 		width: 40%;
+		border-radius: 50px;
 		background-color: aliceblue;
 	}
-
-	.buttonBox{
+	
+	.statsPanel{
 		width: 55%;
 		background-color: aliceblue;
+		border-radius: 50px;
 	}
 </style>

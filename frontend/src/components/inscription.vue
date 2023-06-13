@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '../router'
+import { useNotification } from '@kyvg/vue3-notification';
 
 const props = defineProps({show: Boolean})
 const email = ref('')
@@ -8,23 +9,47 @@ const pseudo = ref('')
 const password = ref('')
 
 async function register(){
-const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/register",
-		{
-			credentials: 'include',
-			mode: "cors",
-			method: 'post',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				email: email.value,
-				name: pseudo.value,
-				password: password.value
+	const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/register",
+	{
+		credentials: 'include',
+		mode: "cors",
+		method: 'post',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			email: email.value,
+			name: pseudo.value,
+			password: password.value
 
-			})
 		})
-	if (res.status === 201)
-		router.push('/');
+	})
+	switch (res.status) {
+		case 201:
+			router.push('/');			
+			break;
+		case 406:{
+			const notification = useNotification()
+			notification.notify({
+				title: "Email déjà utilisé ! !",
+				type: 'error',
+				group: 'notif-center'
+			});
+			break;
+		}
+		case 400:{
+			const notification = useNotification()
+			notification.notify({
+				title: "Pseudo déjà utilisé ! !",
+				type: 'error',
+				group: 'notif-center'
+			});
+			break;
+		}
+
+		default:
+			break;
+	}
 }
 
 

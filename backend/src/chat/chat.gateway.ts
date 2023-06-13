@@ -18,9 +18,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('ChatGateway');
 
-	@SubscribeMessage('msgToServer')
-	handleMessage(client: Socket, payload: string): void {
-		this.server.emit('msgToClient', payload);
+	@SubscribeMessage('message')
+	handleMessage(client: Socket, payload: string): string {
+		this.server.emit('message', payload);
+		this.logger.log(`message received: ${payload}`);
+		return (payload);
 	}
 
 	afterInit(server: Server) {

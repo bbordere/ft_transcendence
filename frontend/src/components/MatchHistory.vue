@@ -1,0 +1,94 @@
+<template>
+
+	<div class="history" v-if="matches.length">
+		<div class="history-title">Historique de Match</div>
+		<div class="matches">
+			<Match v-for="match in matches" class="match" :match-object="match"></Match >
+		</div>
+	</div>
+	<div v-else class="no-match">
+		Pas de matchs joues ! 
+	</div>
+
+</template>
+
+<script lang="ts">
+	import Match from '@/components/Match.vue'
+	export default{
+		components:{
+			Match
+		},
+		props: ["username"],
+		data() {
+			return {matches: ""}
+		},
+
+		methods:{
+			getUser(){
+				fetch("http://" + import.meta.env.VITE_HOST + ":3000/match/" + this.username, {credentials: "include"})
+				.then(res => res.json())
+				.then(res => {this.matches = res});
+			}
+		},
+		mounted() {
+			this.getUser();
+		},
+		watch: {
+			username: function(){
+				console.log("LOG PARENT");
+			}
+		},
+	}
+</script>
+
+<style>
+
+.history-title{
+
+}
+
+.no-match{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: rgba(34, 158, 230, 0.103);
+	border-radius: 50px;
+	height: 96%;
+	width: 96%;
+	margin-top: 2%;
+	margin-left: 2%;
+}
+
+.matches{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	overflow-y: auto;
+	height: 92%;
+}
+
+.history{
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	align-items: center;
+}
+
+.match{
+	margin-top: 5%;
+	margin-bottom: 5%;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.matches::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.matches {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+</style>

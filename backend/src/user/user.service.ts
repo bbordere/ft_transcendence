@@ -1,30 +1,51 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+
+import { BadRequestException, Injectable, NotAcceptableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { AuthLoginDto } from 'src/auth/dtos/auth.dto';
+import { AuthLoginDto, AuthRegisterDto } from 'src/auth/dtos/auth.dto';
 import { AuthLogin42Dto } from 'src/auth/dtos/auth42.dto';
+import { StatsDetail } from 'src/stats/stats.entity';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class UserService {
 	constructor(@InjectRepository(User) private usersRepository: Repository<User>) {}
 
-	getAllUsers(){
-		return (this.usersRepository.find());
+	getAllUsers(): Promise<string[]>{
+		// return (this.usersRepository.find({select: {name: true}}));
+		const names = this.usersRepository
+		.createQueryBuilder('entity')
+		.select('entity.name', 'name')
+		.getRawMany();
+		return names.then(names => names.map((res) => res.name))
 	}
 
-	async createUser(user: AuthLoginDto): Promise<User> {
-		
-		if (await this.getByEmail(user.email) != null || await this.getByName(user.name) != null )
+	// async createUser(user: AuthRegisterDto): Promise<User> {
+	async createUser(user: AuthRegisterDto) {
+		console.log(user);
+		const errors = await validate(user);
+		console.log(errors);
+		if (errors.length)
+			throw new BadRequestException('Bad Format');
+		if (await this.getByEmail(user.email) != null)
 			throw new NotAcceptableException('User Already Exist !');
+		if (await this.getByName(user.name) != null)
+			throw new BadRequestException('Username');
 		const newUser = await this.usersRepository.create(user);
+		newUser.stats = new StatsDetail();
 		await this.usersRepository.save(newUser);
+		this.updatePictureLink(user.email);
 		return newUser;
 	}
 
 	async createUser42(data: AuthLogin42Dto): Promise<User> {
+		let i: number = 1;
+		while(await this.getByName(data.name) != null)
+			data.name += i++;
 		data.password = Math.random().toString(36).slice(-8);
 		const user = await this.usersRepository.create(data);
+		user.stats = new StatsDetail();
 		await this.usersRepository.save(user);
 		return user;
 	}
@@ -62,9 +83,29 @@ export class UserService {
 		this.usersRepository.save(user);
 	}
 
-	async updateAccessToken(email: string, token: string){
+	async updatePictureLink(email: string, link: string = "http://" + process.env.HOST + ":3000/avatar/default.jpg"){
 		const user = await this.getByEmail(email);
-		user.accessToken = token;
+		user.avatarLink = link;
+		await this.usersRepository.save(user);
+	}
+
+	async updateUsername(email: string, username: string){
+		const user = await this.getByEmail(email);
+		if (await this.getByName(username) != null)
+			return (false);
+		user.name = username;
+		await this.usersRepository.save(user);
+		return (true);
+	}
+
+	async saveUser(user: User){
 		this.usersRepository.save(user);
+	}
+
+	async getEmailByUsername(username: string): Promise<string>{
+		const user = (await this.usersRepository.findOne({where: {name: username}}));
+		if (!user)
+			throw new NotAcceptableException('User not found');
+		return (user.email);
 	}
 }
