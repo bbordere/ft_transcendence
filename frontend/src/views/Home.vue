@@ -1,5 +1,4 @@
 <template>
-
 	<Head />
 	<div class="home_body">
 		<div class="home_content">
@@ -37,58 +36,68 @@
 <script lang="ts">
 import Head from '../components/head.vue'
 import io from 'socket.io-client';
-import { Vue } from 'vue-property-decorator';
+import { defineComponent } from 'vue';
 
 interface Message {
-	text: string;
-	sender: number;
-}
+	id: number,
+	text: string,
+	sender: number,
+};
 
-export default class ChatClient extends Vue {
-	private socket: any = null;
-	private connected: boolean = false;
-	private message: string = '';
-	private messages: Message[] = [];
-	private senderId: number = 0;
+export default defineComponent({
+	data() {
+		return {
+			socket: null as any,
+			connected: false as Boolean,
+			message: '' as string,
+			messages: [] as Message[],
+			sender: -1 as number,
+		};
+	},
 
 	async mounted() {
 		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
 		const response_json = await response.json();
-		this.senderId = response_json['id'];
-		this.initSocket();
-	}
+		this.sender = response_json['id'];
+		this.initSocket();		
+	},
 
-	initSocket() {
-		this.socket = io('http://localhost:3000');
-		this.socket.on('connect', () => { this.connected = true; });
-		this.socket.on('disconnect', () => { this.connected = false; });
-		this.socket.on('message', (data: {text: string, sender: number,}) => {
-			const {text, sender} = data;
-			console.log('sender: ' + sender);
-			if (sender != this.senderId) {
-				this.messages.push({
-					text: text,
-					sender: sender,
-				});
-			}
-		});
-	}
-
-	sendMessage() {
-		if (this.message && this.socket) {
-			this.socket.emit('message', {text: this.message, sender: this.senderId});
-			this.messages.push({
-				text: this.message,
-				sender: this.senderId,
+	methods: {
+		initSocket() {
+			this.socket = io('http://localhost:3000/');
+			this.socket.on('connect', () => { this.connected = true; });
+			this.socket.on('disconnect', () => { this.connected = false; });
+			this.socket.on('message', (data: {text: string, sender: number}) => {
+				const {text, sender} = data;
+				if (sender !== this.sender) {
+					this.messages.push({
+						id: this.messages.length + 1,
+						text: text,
+						sender: sender,
+					});
+				}
 			});
-			this.message = '';
+		},
+		sendMessage() {
+			if (this.message && this.socket) {
+				this.socket.emit('message', {text: this.message, sender: this.sender});
+				this.messages.push({
+					id: this.messages.length + 1,
+					text: this.message,
+					sender: this.sender,
+				});
+				this.message = '';
+			}
+		},
+		getMessageClass(message: Message): string {
+			return (this.sender === message.sender ? 'sent' : 'received');
 		}
+	},
+	components: {
+		Head,
 	}
+});
 
-	getMessageClass(message: Message): string {
-		return (this.senderId === message.sender ? 'sent' : 'received');
-	}
-}
 </script>
 
 <style>
