@@ -24,8 +24,8 @@ export default {
 .text-sliding{
 	display: block;
     font-size: 2em;
-    margin-top: 0.67em;
-    margin-bottom: 0.67em;
+    margin-top: 0em;
+    margin-bottom: 1em;
     margin-left: 0;
     margin-right: 0;
     font-weight: bold;
@@ -57,17 +57,17 @@ export default {
 				height: inherit;
 				background: rgb(34, 158, 230);
 				position: absolute;
-				animation: mainBlock 1s cubic-bezier(.74, .06, .4, .92) forwards;
+				animation: mainBlock 0.5s cubic-bezier(.74, .06, .4, .92) forwards;
 				display: flex;
 			}
 
 			.text-sliding {
 				color: #636363;
 				font-size: 32px;
-				-webkit-animation: mainFadeIn 1s forwards;
-				-o-animation: mainFadeIn 1s forwards;
-				animation: mainFadeIn 1s forwards;
-				animation-delay: 1s;
+				-webkit-animation: mainFadeIn 0.5s forwards;
+				-o-animation: mainFadeIn 0.5s forwards;
+				animation: mainFadeIn 0.5s forwards;
+				animation-delay: 0.5s;
 				opacity: 0;
 				display: flex;
 				align-items: baseline;
@@ -83,7 +83,7 @@ export default {
 					background: rgb(34, 158, 230);
 					-webkit-animation: load 0.6s cubic-bezier(.74, .06, .4, .92) forwards;
 					animation: popIn 0.8s cubic-bezier(.74, .06, .4, .92) forwards;
-					animation-delay: 1s;
+					animation-delay: 0.5s;
 					margin-left: 5px;
 					margin-top: -10px;
 					position: absolute;
@@ -177,14 +177,6 @@ export default {
     bottom: 13px;
 
   }
-}
-span {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 12px;
-	color: #232323;
-	font-family: 'Poppins';
 }
 
 @media (max-width: 475px) {

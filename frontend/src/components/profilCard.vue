@@ -57,8 +57,8 @@ export default{
 				</transition>
 			</Teleport>
 			<div v-if="editable != 0"> 
-				<BlueButton text="Paramètres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
-				<BlueButton  text="Déconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
+				<BlueButton class="button-profile" text="Paramètres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
+				<BlueButton class="button-profile"  text="Déconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
 			</div>
 			<div v-else>
 				<BlueButton text="Ajouter en ami " icon="fa-solid fa-user-group"></BlueButton>
@@ -101,6 +101,10 @@ export default{
 .slide-fade-leave-to .modal-container {
 	-webkit-transform: scale(1.5);
 	transform: scale(1.5);
+}
+
+.button-profile{
+	margin: 10px;
 }
 
 .buttons{

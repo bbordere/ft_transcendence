@@ -19,7 +19,7 @@ export default{
 	background-color: rgb(34, 158, 230);
 	border-radius: 10px;
 	box-shadow: rgb(37, 18, 121) 0px 4px 0px 0px;
-	padding: 15px;
+	padding: 10px;
 	background-repeat: no-repeat;
 	box-sizing: border-box;
 	color: #fff;
@@ -28,8 +28,6 @@ export default{
 	font-size: 1em;
 	transition: all .3s ease-in-out;
 	overflow: hidden;
-	margin-top: 15px;
-	margin-bottom: 15px;
 	cursor: pointer;
 }
 

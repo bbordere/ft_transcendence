@@ -3,11 +3,11 @@
 		<div class="modal-username" @click.stop>
 			<SlidingTitle text="Changer Pseudo"/>
 			<div class="username-items">
-				<div class="input-field">
-					<input class="username-field" type="text" v-model="username" maxlength="20" placeholder="Nouveau pseudo">
-					<div class="line"></div>
+				<div class="form__group">
+					<input type="text" v-model="username" class="input_username" id="name" placeholder="Nouveau Pseudo"/>
+					<label for="name" class="input_label">Nouveau Pseudo</label>
 				</div>
-				<BlueButton text="Confirmer " icon="fa-solid fa-pen" @click="changeUsername" />
+				<BlueButton text="Confirmer" icon="fa-solid fa-pen" @click="changeUsername" />
 			</div>
 	  </div>
 	</div>
@@ -42,6 +42,7 @@ export default{
 		},
 
 		changeUsername(){
+			console.log(this.username);
 			if (!this.username)
 				return;
 			if (!this.username.match(/^[\p{L}\p{N}_]+$/u)) {
@@ -69,8 +70,8 @@ export default{
 .modal-username {
 	text-align: center;
 	background-color: white;
-	height: 20%;
-	width: 60%;
+	height: 30%;
+	width: 40%;
 	margin-top: auto;
 	margin-bottom: auto;
 	padding: 60px 0;
@@ -78,34 +79,41 @@ export default{
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 }
 
 .username-items{
-	/* background-color: aquamarine; */
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	row-gap: 30px;
 	height: 70%;
 }
-
-.input-field{
-	justify-content: center;
-	align-items: center;
+.input_label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  display: block;
+  transition: all 0.3s;
+  transform: translateY(0rem);
 }
 
-.username-field{
-	width: 100%;
-	margin: auto;
+.input_username {
+	font-family: 'Poppins', sans-serif;
+	color: #333;
+	font-size: 1em;
+	border-radius: 10px;
+	background-color: rgb(255, 255, 255);
+	width: 90%;
+	display: block;
+	transition: all 0.3s;
 }
 
-.line{
-	width: 102%;
-	height: 3px;
-	position: relative;
-	top: 0;
-	background: red;
-	
+.input_username:placeholder-shown + .input_label {
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transform: translateY(-4rem);
+  transform: translateY(-4rem);
 }
+
 
 </style>

@@ -4,8 +4,10 @@
 			<SlidingTitle text="Paramètres"></SlidingTitle>
 		  	<div class="buttons-parameters">
 				<div class="tfa">
-					<font-awesome-icon icon="fa-solid fa-lock"/>
-					Authentification
+					<div class="icon-tfa">
+						<font-awesome-icon icon="fa-solid fa-lock"/>
+					</div>
+					Double Authentification
 					<Switch/>
 				</div>
 
@@ -76,7 +78,7 @@
 </script>
   
   <style scoped>
-  .modal-overlay {
+.modal-overlay {
 	position: fixed;
 	top: 0;
 	bottom: 0;
@@ -87,13 +89,13 @@
 	background-color: #242424d0;
 	transition: opacity 0.3s ease;
 	transition: all 0.3s ease;
-  }
-  
-  .modal {
+}
+
+.modal {
 	text-align: center;
 	background-color: white;
-	height: 500px;
-	width: 500px;
+	height: 55%;
+	width: 30%;
 	margin-top: auto;
 	margin-bottom: auto;
 	padding: 60px 0;
@@ -101,32 +103,43 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-  }
- 
-  .title-parameters {
+}
+
+.title-parameters {
 	font-size: 50px;
 	font-family: 'poppins'
-  }
-	.tfa{
-		display: flex;
-		flex-direction: row;
-		justify-content: space-around;
-		align-items: center;
-		font-size: 30px;
-	}
-	
-	.buttons-parameters{
-		display: flex;
-		gap: 10px;
-		flex-direction: column;
-		margin-top: 40px;
-		width: 80%;
-	}
+}
+.buttons-parameters{
+	display: flex;
+	flex-direction: column;
+	/* justify-content: center; */
+	gap: 90px;
+	flex: 1;
+	margin-top: 40px;
+	width: 80%;
+}
 
-  .buttons button{
+.buttons button{
 	margin-top: 15%;
 	margin-left: auto;
 	margin-right: auto;
 	width: 40%;
-  }
+}
+.tfa{
+	background: rgb(34, 158, 230);
+	border-radius: 10px;
+	box-shadow: rgb(37, 18, 121) 0px 4px 0px 0px;
+	padding: 10px;
+	display: flex;
+	font-family: 'Poppins';
+	font-weight: bold;
+	color: white;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	font-size: 1em;
+}
+.icon-tfa{
+	font-size: 2em;
+}
   </style>
