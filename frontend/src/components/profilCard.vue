@@ -57,8 +57,8 @@ export default{
 				</transition>
 			</Teleport>
 			<div v-if="editable != 0"> 
-				<BlueButton text="Parametres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
-				<BlueButton  text="Deconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
+				<BlueButton text="Paramètres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
+				<BlueButton  text="Déconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
 			</div>
 			<div v-else>
 				<BlueButton text="Ajouter en ami " icon="fa-solid fa-user-group"></BlueButton>

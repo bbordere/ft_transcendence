@@ -14,6 +14,8 @@ export default{
 
 .blue-button{
 	position: relative;
+	font-family: 'Poppins';
+    font-weight: bold;
 	background-color: rgb(34, 158, 230);
 	border-radius: 10px;
 	box-shadow: rgb(37, 18, 121) 0px 4px 0px 0px;

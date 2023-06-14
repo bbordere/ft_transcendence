@@ -1,5 +1,4 @@
 <template>
-
 	<Head />
 	<div class="home_body">
 		<div class="home_content">
@@ -38,6 +37,7 @@
 import Head from '../components/head.vue'
 import io from 'socket.io-client';
 import { Vue } from 'vue-property-decorator';
+
 
 interface Message {
 	text: string;

@@ -1,36 +1,43 @@
 <template>
 	<div class="modal-overlay" @click="closeModal">
-	  <div class="modal-username" @click.stop>
-		<div class="title">Change Username</div>
-		<input ref="input" type="text" v-model="username" maxlength="20" placeholder="Saisissez un pseudo">
-		<button @click="changeUsername">Change Username</button>
-
+		<div class="modal-username" @click.stop>
+			<SlidingTitle text="Changer Pseudo"/>
+			<div class="username-items">
+				<div class="input-field">
+					<input class="username-field" type="text" v-model="username" maxlength="20" placeholder="Nouveau pseudo">
+					<div class="line"></div>
+				</div>
+				<BlueButton text="Confirmer " icon="fa-solid fa-pen" @click="changeUsername" />
+			</div>
 	  </div>
 	</div>
 </template>
 
 <script lang="ts">
-  import Switch from '@/components/switch.vue';
-  import FileUpload from '@/components/FileUpload.vue'
 
-  export default{
-	  components: {
-		  Switch,
-		  FileUpload,
-	  },
-	  data: () => ({
+import SlidingTitle from './SlidingTitle.vue';
+import BlueButton from './BlueButton.vue';
+
+export default{
+	components: {
+		SlidingTitle,
+		BlueButton
+	},
+	data: () => ({
 		username: "",
-	  }),
-	  methods:{
+	}),
+	methods: {
 		closeModal(){
 			this.$emit('close-modal');
+			this.username = "";
 		},
+
 		handleResponse(res: Response){
 			if (res.status != 201)
 				this.$emit('already-exist');
-			else{
+			else {
 				this.$emit('updated');
-				this.$emit('close-modal');
+				this.closeModal();
 			}
 		},
 
@@ -62,8 +69,8 @@
 .modal-username {
 	text-align: center;
 	background-color: white;
-	height: 400px;
-	width: 800px;
+	height: 20%;
+	width: 60%;
 	margin-top: auto;
 	margin-bottom: auto;
 	padding: 60px 0;
@@ -73,16 +80,32 @@
 	align-items: center;
 }
 
- .buttons{
-	  display: flex;
-	  flex-direction: column;
-	  margin-top: 40px;
-  }
-
-.buttons button{
-  margin-top: 15%;
-  margin-left: auto;
-  margin-right: auto;
-  width: 40%;
+.username-items{
+	/* background-color: aquamarine; */
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	row-gap: 30px;
+	height: 70%;
 }
+
+.input-field{
+	justify-content: center;
+	align-items: center;
+}
+
+.username-field{
+	width: 100%;
+	margin: auto;
+}
+
+.line{
+	width: 102%;
+	height: 3px;
+	position: relative;
+	top: 0;
+	background: red;
+	
+}
+
 </style>

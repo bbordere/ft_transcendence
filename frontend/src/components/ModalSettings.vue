@@ -1,10 +1,7 @@
 <template>
 	<div class="modal-overlay" @click="$emit('close-modal')">
 		<div class="modal" @click.stop>
-			<div class="title-parameters">
-				Paramètres
-				<hr/>
-			</div>
+			<SlidingTitle text="Paramètres"></SlidingTitle>
 		  	<div class="buttons-parameters">
 				<div class="tfa">
 					<font-awesome-icon icon="fa-solid fa-lock"/>
@@ -20,9 +17,7 @@
 											@bad-format="badFormatNotif"></ChangeUsernameModal>
 					</transition>
 				</Teleport>
-				<FileUpload @updated="$emit('updated')"></FileUpload>
-
-		  	</div>
+			</div>
 		</div>
 	  </div>
 </template>
@@ -32,6 +27,7 @@
 	import FileUpload from '@/components/FileUpload.vue'
 	import ChangeUsernameModal from '@/components/ChangeUsernameModal.vue'
 	import BlueButton from './BlueButton.vue';
+	import SlidingTitle from './SlidingTitle.vue';
 	import { useNotification } from "@kyvg/vue3-notification";
 
 
@@ -41,7 +37,8 @@
 			Switch,
 			FileUpload,
 			ChangeUsernameModal,
-			BlueButton
+			BlueButton,
+			SlidingTitle
 		},
 		data(){
 			return ({showModal: false});
@@ -108,11 +105,7 @@
  
   .title-parameters {
 	font-size: 50px;
-	/* margin-top: -10px;
-	color: #e21818;
-	text-shadow: 0 1px 0 #CCCCCC, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15);
-	width: 100%;
-	font-size: 80px; */
+	font-family: 'poppins'
   }
 	.tfa{
 		display: flex;
