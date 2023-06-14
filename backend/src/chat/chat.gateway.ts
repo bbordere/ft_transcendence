@@ -20,6 +20,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('message')
 	handleMessage(client: Socket, payload: string): string {
+		// Need to push message into the database here!
 		this.server.emit('message', payload);
 		this.logger.log(`message received: ${payload}`);
 		return (payload);

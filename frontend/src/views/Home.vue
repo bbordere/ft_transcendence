@@ -10,10 +10,9 @@
 			</div>
 			<div class="chat">
 				<div v-if="showDiv">
-					Chat
 					<h2>{{ selectedChannel.name }}</h2>
 					<ul class="msg_chat_box">
-						<li v-for="msg in selectedChannel.messages" :key="msg.id" :class="getMessageClass(msg)">{{ msg.text }}</li>
+						<li v-for="msg in selectedChannel.messages" :class="getMessageClass(msg)">{{ msg.text }}</li>
 					</ul>
 					<div v-if="connected">
 						<input type="text" v-model="message">
@@ -28,15 +27,15 @@
 				<div class="friend_list">
 					<label>friend_list</label>
 					<ul>
-						<li v-for="channel in channels"><button :key="channel.id" @click="showChannel(channel.id)">{{ channel.name }}</button></li>
+						<li v-for="chan in channels"><button :key="chan.id">#{{ chan.name }}</button></li>
 					</ul>
 				</div>
 				<div class="join_panel">
 					<label>join_panel</label>
-					<label for="channel_field">Join a channel or add a friend</label>
+					<!-- <label for="channel_field">Join a channel or add a friend</label>
 					<input type="text" name="channel_field" v-model="channelName">
 					<input type="button" value="Create/Join channel" @click="createChannel(channelName)">
-					<input type="button" value="Add a friend" @click="addFriend(channelName)">
+					<input type="button" value="Add a friend" @click="addFriend(channelName)"> -->
 				</div>
 			</div>
 		</div>
@@ -50,113 +49,164 @@
 */
 
 import Head from '../components/head.vue'
-import io from 'socket.io-client';
+import io, { Socket } from 'socket.io-client';
 import { defineComponent } from 'vue';
 
 interface Message {
-	id: number,
-	text: string,
-	sender: number,
-};
+	chanId: number;
+	text: string;
+	sender: number;
+}
 
-export class Channel {
-	public id: number;
-	public name: string;
-	public messages: Message[];
-	public users: number[];
-
-	constructor(name: string, id: number) {
-		this.id = id;
-		this.messages = [];
-		this.users = [];
-		this.name = name;
-	}
-};
+interface Channel {
+	id: number;
+	name: string;
+	messages: Message[],
+}
 
 export default defineComponent({
 	data() {
 		return {
 			socket: null as any,
-			connected: false as Boolean,
-			message: '' as string,
-			messages: [] as Message[],
-			sender: -1 as number,
 			channels: [] as Channel[],
+			showDiv: true as Boolean,
+			connected: false as Boolean,
+			sender: -1 as number,
+			message: '' as string,
 			selectedChannel: {} as Channel,
-			showDiv: false as Boolean,
-		};
+		}
 	},
 
 	async mounted() {
-		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' });
-		const response_json = await response.json();
-		this.sender = response_json['id'];
-		this.initSocket();
-	},
-
-	methods: {
-		initSocket() {
+		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/list', { credentials: 'include' })).json();
+		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
+		for (let i = 0; i < channels_json.length; i++) {
+			this.channels.push({
+				id: channels_json[i]['id'],
+				name: channels_json[i]['name'],
+				messages: [],
+			});
 			this.socket = io('http://localhost:3000/');
 			this.socket.on('connect', () => { this.connected = true; });
 			this.socket.on('disconnect', () => { this.connected = false; });
-			this.socket.on('message', (data: { text: string, sender: number }) => {
-				const { text, sender } = data;
+			this.socket.on('message', (data: {chanId: number, text: string, sender: number}) => {
+				const { chanId, text, sender } = data;
 				if (sender !== this.sender) {
-					this.selectedChannel.messages.push({
-						id: this.selectedChannel.messages.length + 1,
-						text: text,
-						sender: sender,
-					});
+					const channel = this.findChannel(chanId);
+					if (channel !== null) {
+						channel.messages.push({
+							chanId: chanId,
+							text: text,
+							sender: sender,
+						});
+					}
 				}
 			});
-		},
+		}
+	},
 
+	methods: {
 		sendMessage() {
-			if (this.message && this.socket) {
-				this.socket.emit('message', { text: this.message, sender: this.sender });
-				this.selectedChannel.messages.push({
-					id: this.selectedChannel.messages.length + 1,
+			if (this.socket && this.message && this.selectedChannel.messages != undefined) {
+				const data = {
+					chanId: this.selectedChannel.id,
 					text: this.message,
 					sender: this.sender,
-				});
+				};
+				this.socket.emit('message', data);
+				this.selectedChannel.messages.push(data);
+				// Push the message into the database
 				this.message = '';
 			}
+		},
+
+		findChannel(id: number): Channel | null {
+			for (let i = 0; i < this.channels.length; i++)
+				if (this.channels[i].id === id)
+					return (this.channels[i]);
+			return (null);
 		},
 
 		getMessageClass(message: Message): string {
 			return (this.sender === message.sender ? 'sent' : 'received');
 		},
-
-		// Maybe collapse these two functions into one
-		createChannel(name: string): void {
-			name = '#' + name;
-			for (let i = 0; i < this.channels.length; i++) {
-				if (this.channels[i].name === name) {
-					if (!(this.channels[i].users.includes(this.sender))) {
-						this.channels[i].users.push(this.sender);
-					}
-					else {
-						this.selectedChannel = this.channels[i];
-					}
-					return;
-				}
-			}
-			this.channels.push(new Channel(name, this.channels.length));
-		},
-
-		addFriend(name: string): void {
-			console.log('@' + name);
-		},
-
-		showChannel(id: number): void {
-			this.showDiv = true;
-			this.selectedChannel = this.channels[id];
-		}
 	},
+
 	components: {
 		Head,
-	}
+	},
 });
+
+// interface Message {
+// 	id: number,
+// 	text: string,
+// 	sender: number,
+// };
+
+// export class Channel {
+// 	public id: number;
+// 	public name: string;
+// 	public messages: Message[];
+// 	public users: number[];
+
+// 	constructor(name: string, id: number) {
+// 		this.id = id;
+// 		this.messages = [];
+// 		this.users = [];
+// 		this.name = name;
+// 	}
+// };
+
+// export default defineComponent({
+// 	data() {
+// 		return {
+// 			socket: null as any,
+// 			connected: false as Boolean,
+// 			message: '' as string,
+// 			messages: [] as Message[],
+// 			sender: -1 as number,
+// 			channels: [] as Channel[],
+// 			selectedChannel: {} as Channel,
+// 			showDiv: false as Boolean,
+// 		};
+// 	},
+
+// 	methods: {
+
+// 		getMessageClass(message: Message): string {
+// 			return (this.sender === message.sender ? 'sent' : 'received');
+// 		},
+
+// 		// Maybe collapse these two functions into one
+// 		createChannel(name: string): void {
+// 			name = '#' + name;
+// 			for (let i = 0; i < this.channels.length; i++) {
+// 				if (this.channels[i].name === name) {
+// 					if (!(this.channels[i].users.includes(this.sender))) {
+// 						this.channels[i].users.push(this.sender);
+// 					}
+// 					else {
+// 						this.selectedChannel = this.channels[i];
+// 					}
+// 					return;
+// 				}
+// 			}
+// 			this.channels.push(new Channel(name, this.channels.length));
+// 		},
+
+// 		addFriend(name: string): void {
+// 			console.log('@' + name);
+// 		},
+
+// 		showChannel(id: number): void {
+// 			this.showDiv = true;
+// 			this.selectedChannel = this.channels[id];
+// 		}
+// 	},
+// 	components: {
+// 		Head,
+// 	}
+// });
 
 </script>
 
