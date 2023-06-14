@@ -1,9 +1,9 @@
 
-import { BadRequestException, Injectable, NotAcceptableException } from '@nestjs/common';
+import { Injectable, NotAcceptableException, ValidationError } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { AuthLoginDto, AuthRegisterDto } from 'src/auth/dtos/auth.dto';
+import { AuthRegisterDto } from 'src/auth/dtos/auth.dto';
 import { AuthLogin42Dto } from 'src/auth/dtos/auth42.dto';
 import { StatsDetail } from 'src/stats/stats.entity';
 import { validate } from 'class-validator';
@@ -11,6 +11,15 @@ import { validate } from 'class-validator';
 @Injectable()
 export class UserService {
 	constructor(@InjectRepository(User) private usersRepository: Repository<User>) {}
+
+	async getErrorMsg(errors: ValidationError[]): Promise<string>{
+		let res: string = "";
+		if (errors[0]["property"] === "email")
+			res += "Adresse Email ";
+		else if (errors[0]["property"] === "password")
+			res += "Mot de passe ";
+		return (res += "invalide !");
+	}
 
 	getAllUsers(): Promise<string[]>{
 		// return (this.usersRepository.find({select: {name: true}}));
@@ -21,17 +30,14 @@ export class UserService {
 		return names.then(names => names.map((res) => res.name))
 	}
 
-	// async createUser(user: AuthRegisterDto): Promise<User> {
-	async createUser(user: AuthRegisterDto) {
-		console.log(user);
-		const errors = await validate(user);
-		console.log(errors);
+	async createUser(user: AuthRegisterDto): Promise<User> {
+		const errors: ValidationError[] = await validate(user);
 		if (errors.length)
-			throw new BadRequestException('Bad Format');
+			throw new NotAcceptableException(await this.getErrorMsg(errors));
 		if (await this.getByEmail(user.email) != null)
-			throw new NotAcceptableException('User Already Exist !');
+			throw new NotAcceptableException('Email déjà utilisé !');
 		if (await this.getByName(user.name) != null)
-			throw new BadRequestException('Username');
+			throw new NotAcceptableException('Pseudo déjà utilisé !');
 		const newUser = await this.usersRepository.create(user);
 		newUser.stats = new StatsDetail();
 		await this.usersRepository.save(newUser);

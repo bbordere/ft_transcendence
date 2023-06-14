@@ -7,25 +7,34 @@ import { AuthLogin42Dto } from './dtos/auth42.dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import { Response } from 'express';
-import { validate } from 'class-validator';
+import { ValidationError, validate } from 'class-validator';
 
 @Injectable()
 export class AuthService {
 	constructor(private usersService: UserService, private jwtService: JwtService) {}
 
-	async getUserObject(authDto: any, res: Response){
+	async getErrorMsg(errors: ValidationError[]): Promise<string>{
+		let res: string = "";
+		if (errors[0]["property"] === "email")
+			res += "Adresse Email ";
+		else if (errors[0]["property"] === "password")
+			res += "Mot de passe ";
+		return (res += "invalide !");
+	}
+
+	async getUserObject(authDto: AuthLoginDto, res: Response){
 		if (!authDto["email"].includes("@")){
 			try {
 				const email: string = await this.usersService.getEmailByUsername(authDto["email"]);
 				authDto["email"] = email;
 			}
 			catch (error) {
-				throw new NotAcceptableException('User not found');
+				throw new NotAcceptableException('Utilisateur Introuvable !');
 			}
 		}
-		const errors = await validate(authDto);
+		const errors: ValidationError[] = await validate(new AuthLoginDto(authDto));
 		if (errors.length)
-			throw new BadRequestException('Bad Format');
+			throw new NotAcceptableException(await this.getErrorMsg(errors))
 		const tokens: string = await this.login(authDto, res);
 		const user: User = await this.usersService.getByEmail(authDto["email"]);
 		return {tokens: tokens, user: user};
@@ -42,10 +51,8 @@ export class AuthService {
 		const { email, password } = authLoginDto;
 		const user = await this.usersService.getByEmail(email);
 		if (!user)
-			throw new NotAcceptableException('User not found');
-
+			throw new NotAcceptableException('Utilisateur Introuvable !');
 		const validPass = await user.validatePassword(password)
-
 		if (!validPass)
 			throw new UnauthorizedException();
 		return user;
