@@ -27,18 +27,9 @@ export class User{
 	public auth2fSecret: string
 
 	@Column({ default: ""})
-	public pictureLink: string
+	public avatarLink: string
 
-	@Column({ default: -1})
-	public rank: number
-
-	@Column({ default: 0})
-	public matchPlayed: number
-
-	@Column({ default: 0})
-	public matchWin: number
-
-	@OneToOne(() => StatsDetail, (stats: StatsDetail) => stats.id, {
+ 	@OneToOne(() => StatsDetail, (stats: StatsDetail) => stats.id, {
 		cascade: true,
 		eager: true,
 	  })

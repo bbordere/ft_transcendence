@@ -5,12 +5,11 @@
 			<div class="title">2FA</div>
 			<div class="auth-container">
 				<img v-if="generated === true" src="http://localhost:3000/auth/2fa/qrcode" class="code" :class="[blur  ? 'blur' : ' ']" @click="toggleBlur">
-				<img v-else src="@/assets/img/lock.png" class="code">
+				<img v-else src="@/assets/img/lock.png" class="lock">
 				<div class="info-box">
-					<button class="card-button" v-if="!generated" @click="generate2fa">ACTIVATE</button>
-					<button class="card-button" v-else-if="activated === false" @click="enable2fa">ENABLE</button>
+					<BlueButton text="Activer" icon="" @click="generate2fa" v-if="!generated" class="card-button"></BlueButton>
+					<BlueButton text="Activer" icon="" @click="enable2fa" v-else-if="activated === false" class="card-button"></BlueButton>
 				</div>
-				<!-- <img src="@/../../backend/qrcode/bastien.bordereau@gmail.com.png" class="code"> -->
 			</div>
 			<div v-if="generated === true" class="message">
 				This code is strictly personal. Do not share it !
@@ -23,43 +22,42 @@
 
 import { ref } from 'vue';
 import router from '@/router';
+import BlueButton from '@/components/BlueButton.vue';
 
 	export default{
-		data(){
-			return {user: Promise<any>, "activated": false, "generated": false, blur: ref(true),};
-		},
-		methods:{
-			getStatus: async(vm: any) => {
-				const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/completeStatus", {method: "get", credentials: "include"});
-				const text = (await res.json());
-				vm.activated = text["activated"];
-				vm.generated = text["generated"];
-			},
-			getUser: async(vm: any) => {
-				const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
-				const user = await res.json();
-				vm.user = user;
-			},
-
-			toggleBlur(){
-				this.blur = !this.blur;
-			},
-
-			generate2fa(){
-				router.push('/auth/2fa/generate')
-			},
-
-			enable2fa(){
-				router.push({path:'/auth/2fa/verif', query: { plan: 'on' }});
-			},
-		},
-		async mounted(){
-			await this.getUser(this);
-			await this.getStatus(this);
-			console.log("GENERATED = " + this.generated);
-			console.log("ACTIVATED = " + this.activated);
-		}
-	}
+    data() {
+        return { user: Promise<any>, "activated": false, "generated": false, blur: ref(true), };
+    },
+    methods: {
+        getStatus: async (vm: any) => {
+            const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/completeStatus", { method: "get", credentials: "include" });
+            const text = (await res.json());
+            vm.activated = text["activated"];
+            vm.generated = text["generated"];
+        },
+        getUser: async (vm: any) => {
+            const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: "include" });
+            const user = await res.json();
+            vm.user = user;
+        },
+        toggleBlur() {
+            this.blur = !this.blur;
+        },
+        generate2fa() {
+            router.push("/auth/2fa/generate");
+        },
+        enable2fa() {
+            router.push({ path: "/auth/2fa/verif", query: { plan: "on" } });
+        },
+    },
+    async mounted() {
+        await this.getUser(this);
+        await this.getStatus(this);
+        console.log("GENERATED = " + this.generated);
+        console.log("ACTIVATED = " + this.activated);
+    },
+    components: { BlueButton }
+}
 </script>
 
 <style>
@@ -108,9 +106,8 @@ import router from '@/router';
 .info-box{
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
+	width: 30%;
+	margin-right: 10%;
 }
 
 .code{
@@ -118,44 +115,10 @@ import router from '@/router';
 	aspect-ratio: 1;
 }
 
-card-button{
-	position: relative;
-	background-color: rgb(34, 158, 230);
-	border-radius: 10px;
-	box-shadow: rgb(37, 18, 121) 0px 4px 0px 0px;
-	padding: 15px;
-	background-repeat: no-repeat;
-	box-sizing: border-box;
-	width: 154px;
-	height: 49px;
-	color: #fff;
-	border: none;
-	font-size: 20px;
-	transition: all .3s ease-in-out;
-	overflow: hidden;
-	margin-top: 15px;
-	margin-bottom: 15px;
-	cursor: pointer;
-
-}
-
-
-.card-button::before{
-	content: "";
-	background-color: rgb(255, 255, 255);
-	width: 0;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	transition: width 700ms ease-in-out;
-	display: inline-block;
-	opacity: 50%;
-}
-
-.card-button:hover::before {
-	width: 100%;
-	opacity: 50%;
+.lock{
+	margin-left: 30px;
+	aspect-ratio: 1;
+	width: 30%;
 }
 
 img { 

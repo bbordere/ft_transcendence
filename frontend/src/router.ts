@@ -28,6 +28,10 @@ export default createRouter({
 		component: profile
 	},
 	{
+		path: '/profile/me',
+		component: profile
+	},
+	{
 		path: '/pong',
 		component: pong
 	},
@@ -75,10 +79,6 @@ export default createRouter({
 		path: '/:pathMatch(.*)',
 		name: 'PageNotFound',
 		component: notFound
-	},
-	{
-		path: '/chat',
-		component: chat,
 	},
   ],
 })

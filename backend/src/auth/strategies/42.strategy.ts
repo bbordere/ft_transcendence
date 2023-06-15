@@ -15,7 +15,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
 		'id': function (obj) { return String(obj.id); },
 		'name': 'login',
 		'email': 'email',
-		'pictureLink': function (obj) { return String(obj.image.link); }
+		'avatarLink': function (obj) { return String(obj.image.link); }
 	  }
     });
   }

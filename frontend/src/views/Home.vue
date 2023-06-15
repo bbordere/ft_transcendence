@@ -1,13 +1,4 @@
-<script setup lang="ts">
-	import { ref } from 'vue'
-	import Head from '../components/head.vue'
-	import ModalAdd from '../components/ModalAdd.vue'
-
-	const showModal = ref(false)
-</script>
-
 <template>
-
 	<Head />
 	<div class="home_body">
 		<div class="home_content">
@@ -18,13 +9,29 @@
 				</div>
 			</div>
 			<div class="chat">
-				<label>chat</label>
+				<div v-if="showDiv">
+					Chat
+					<h2>{{ selectedChannel.name }}</h2>
+					<ul class="msg_chat_box">
+						<li v-for="msg in selectedChannel.messages" :key="msg.id" :class="getMessageClass(msg)">{{ msg.text }}</li>
+					</ul>
+					<div v-if="connected">
+						<input type="text" v-model="message">
+						<button type="button" @click="sendMessage">Send !</button>
+					</div>
+					<div v-else>
+						<p>connecting to websocket server...</p>
+					</div>
+				</div>
 			</div>
 
 			<div class="right_column">
 
 				<div class="friend_list">
 					<label>friend_list</label>
+					<ul>
+						<li v-for="channel in channels"><button :key="channel.id" @click="showChannel(channel.id)">{{ channel.name }}</button></li>
+					</ul>
 				</div>
 
 				<div class="join_panel">
@@ -46,16 +53,140 @@
 	</div>
 </template>
 
-<style>
+<script setup lang="ts">
+import { ref } from 'vue'
+import ModalAdd from '../components/ModalAdd.vue'
 
+const showModal = ref(false);
+</script>
+
+<script lang="ts">
+
+/*
+ 1. Will have to push the channels (and friends) in the database
+*/
+
+import Head from '../components/head.vue'
+import io from 'socket.io-client';
+import { defineComponent } from 'vue';
+
+
+interface Message {
+	id: number,
+	text: string,
+	sender: number,
+};
+
+export class Channel {
+	public id: number;
+	public name: string;
+	public messages: Message[];
+	public users: number[];
+
+	constructor(name: string, id: number) {
+		this.id = id;
+		this.messages = [];
+		this.users = [];
+		this.name = name;
+	}
+};
+
+export default defineComponent({
+	data() {
+		return {
+			socket: null as any,
+			connected: false as Boolean,
+			message: '' as string,
+			messages: [] as Message[],
+			sender: -1 as number,
+			channels: [] as Channel[],
+			selectedChannel: {} as Channel,
+			showDiv: false as Boolean,
+		};
+	},
+
+	async mounted() {
+		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' });
+		const response_json = await response.json();
+		this.sender = response_json['id'];
+		this.initSocket();
+	},
+
+	methods: {
+		initSocket() {
+			this.socket = io('http://localhost:3000/');
+			this.socket.on('connect', () => { this.connected = true; });
+			this.socket.on('disconnect', () => { this.connected = false; });
+			this.socket.on('message', (data: { text: string, sender: number }) => {
+				const { text, sender } = data;
+				if (sender !== this.sender) {
+					this.selectedChannel.messages.push({
+						id: this.selectedChannel.messages.length + 1,
+						text: text,
+						sender: sender,
+					});
+				}
+			});
+		},
+
+		sendMessage() {
+			if (this.message && this.socket) {
+				this.socket.emit('message', { text: this.message, sender: this.sender });
+				this.selectedChannel.messages.push({
+					id: this.selectedChannel.messages.length + 1,
+					text: this.message,
+					sender: this.sender,
+				});
+				this.message = '';
+			}
+		},
+
+		getMessageClass(message: Message): string {
+			return (this.sender === message.sender ? 'sent' : 'received');
+		},
+
+		// Maybe collapse these two functions into one
+		createChannel(name: string): void {
+			name = '#' + name;
+			for (let i = 0; i < this.channels.length; i++) {
+				if (this.channels[i].name === name) {
+					if (!(this.channels[i].users.includes(this.sender))) {
+						this.channels[i].users.push(this.sender);
+					}
+					else {
+						this.selectedChannel = this.channels[i];
+					}
+					return;
+				}
+			}
+			this.channels.push(new Channel(name, this.channels.length));
+		},
+
+		addFriend(name: string): void {
+			console.log('@' + name);
+		},
+
+		showChannel(id: number): void {
+			this.showDiv = true;
+			this.selectedChannel = this.channels[id];
+		}
+	},
+	components: {
+		Head,
+	}
+});
+
+</script>
+
+<style>
 .home_body {
 	display: flex;
-	width: 100vw;
+	width: 95vw;
 	height: 80vh;
 	align-items: center;
 	justify-content: center;
 	padding-top: 2%;
-	min-height: 350px;
+	min-height: 600px;
 }
 
 .home_content {
@@ -162,7 +293,7 @@
 	background-color: #42badf;
 }
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 800px) {
 	.join_panel button {
 		font-size: 65%;
 	}
@@ -178,4 +309,19 @@
 	}
 }
 
+.msg_chat_box {
+	width: 100%;
+}
+
+.msg_chat_box li {
+	text-decoration: none;
+}
+
+.sent {
+	text-align: right;
+}
+
+.received {
+	text-align: left;
+}
 </style>

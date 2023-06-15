@@ -2,14 +2,51 @@
 
 import ProfileCard from '@/components/profilCard.vue';
 import StatsPanel from '@/components/StatsPanel.vue'
+import MatchHistory from '@/components/MatchHistory.vue'
+import { useRoute } from 'vue-router';
+import router from '../router';
+
 
 export default{
 	components: {
 		ProfileCard,
-		StatsPanel
-  },
-	data: function(){
-		return {user: Object};
+		StatsPanel,
+		MatchHistory
+	},
+	data(){
+		return {username: "", dataLoaded: false};
+	},
+	methods:{
+		getEditableStatus(){
+			return (this.username === "me");
+		},
+		getUser(){
+			let names: String[];
+			let exist: boolean;
+			let username: string;
+			const route = useRoute();
+			if (!route.query["user"]){
+				router.push('/profile/me');
+				this.username = "me";
+				this.dataLoaded = true;
+				return;
+			}
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/")
+			.then(res => res.json())
+			.then(data => {names = data})
+			.then(() => {username = route.query["user"]})
+			.then(() => {exist = names.includes(username) || username === "me"})
+			.then(() => {
+				if (!exist)
+					router.push('/invalidParams');
+				else
+					this.username = username;
+				this.dataLoaded = true;
+			})
+		},
+	},
+	beforeMount() {
+		this.getUser();
 	},
 }
 
@@ -17,15 +54,15 @@ export default{
 
 <template>
 	<div class="container">
-		<div class="profileCard">
-			<ProfileCard/>
+		<div class="profileCard" v-if="dataLoaded">
+			<ProfileCard :editable="getEditableStatus()" :username="username"/>
 		</div>
 		<div class="subCard">
-			<div class="matchHistory">
-				MATCH
+			<div class="matchHistory" v-if="dataLoaded">
+				<MatchHistory :username="username"/>
 			</div>
-			<div class="statsPanel">
-				<StatsPanel></StatsPanel>
+			<div class="statsPanel" v-if="dataLoaded">
+				<StatsPanel :username="username"></StatsPanel>
 			</div>
 		</div>
 	</div>
@@ -34,24 +71,24 @@ export default{
 
 <style>
 	.container{
-		height: 100vh;
-		width: 100vw;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		gap: 8%;
 		align-items: center;
 	}
 
 	.profileCard{
+		height: 15%;
 		width: 80%;
 	}
 	
 	.subCard{
 		display: flex;
 		flex-direction: row;
-		flex-basis: 80%;
+		margin-top: 3%;
 		width: 80%;
+		height: 75%;
+		height: 60vh;
 		justify-content: space-between;
 	}
 
@@ -60,7 +97,7 @@ export default{
 		border-radius: 50px;
 		background-color: aliceblue;
 	}
-
+	
 	.statsPanel{
 		width: 55%;
 		background-color: aliceblue;

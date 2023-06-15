@@ -1,4 +1,4 @@
-import { Body, ConsoleLogger, Controller, Get, Param, Post, Req, Res, UseGuards,} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Res, UseGuards,} from '@nestjs/common';
 import { Response } from 'express';
 import { UserService } from './user.service';
 import { AuthLoginDto } from 'src/auth/dtos/auth.dto';
@@ -42,10 +42,5 @@ export class UserController {
 	@Get("/id/:id")
 	getUserById(@Param('id') id: number){
 		return (this.userService.getById(id));
-	}
-
-	@Post()
-	async createUser(@Body() user: AuthLoginDto):Promise<any>{
-		return (this.userService.createUser(user));
 	}
 }

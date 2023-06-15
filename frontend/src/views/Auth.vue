@@ -2,6 +2,7 @@
 
 import {ref} from "vue"
 import inscription from "@/components/inscription.vue"
+import { useNotification } from "@kyvg/vue3-notification";
 import router from '../router'
 
 const email = ref('')
@@ -25,12 +26,37 @@ async function login(){
 
 		})
 	})
-	status.value = res.status;
-	if (res.status === 201)
-		router.push('/');
-	else if (res.status === 207)
-		router.push({path:'/auth/2fa/verif', query: { plan: 'verify' }});	console.log(from.fullPath);
-		// :8080/auth/2fa/verif?plan=verify")
+
+	switch (res.status) {
+		case 406:{
+			const notification = useNotification()
+			console.log("TEST");
+			notification.notify({
+				title: "Utilisateur Introuvable !",
+				type: 'error',
+				group: 'notif-center'
+			});
+			break;
+		}
+		case 401:{
+			const notification = useNotification()
+			console.log("TEST");
+			notification.notify({
+				title: "Mauvais mot de passe !",
+				type: 'error',
+				group: 'notif-center'
+			});
+			break;
+		}
+		case 201:{
+			router.push('/');
+			break;
+		}
+		case 207:{
+			router.push({path:'/auth/2fa/verif', query: { plan: 'verify' }});
+			break;
+		}
+	}
 }
 
 </script>
@@ -48,7 +74,7 @@ async function login(){
 		<span class="text">connection</span>
 		<div class="form">
 			<div class="field">
-				<input type="email" id="email" placeholder="@ email" v-model="email" />
+				<input type="email" id="email" placeholder="email / pseudo" v-model="email" />
 			</div>
 			<div class="field">
 				<input type="password" placeholder="mot de passe" v-model="password" />

@@ -1,4 +1,4 @@
-import { Injectable, NotAcceptableException, UnauthorizedException, Req, Res } from '@nestjs/common';
+import { Injectable, NotAcceptableException, UnauthorizedException, Req, Res, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { AuthLoginDto } from './dtos/auth.dto';
@@ -6,27 +6,48 @@ import { User } from 'src/user/user.entity';
 import { AuthLogin42Dto } from './dtos/auth42.dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
+import { Response } from 'express';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class AuthService {
 	constructor(private usersService: UserService, private jwtService: JwtService) {}
 
-	async login(authLoginDto: AuthLoginDto, @Res() res) {
+	async getUserObject(authDto: any, res: Response){
+		if (!authDto["email"].includes("@")){
+			try {
+				const email: string = await this.usersService.getEmailByUsername(authDto["email"]);
+				authDto["email"] = email;
+			}
+			catch (error) {
+				throw new NotAcceptableException('User not found');
+			}
+		}
+		const errors = await validate(authDto);
+		if (errors.length)
+			throw new BadRequestException('Bad Format');
+		const tokens: string = await this.login(authDto, res);
+		const user: User = await this.usersService.getByEmail(authDto["email"]);
+		return {tokens: tokens, user: user};
+	}
+
+	async login(authLoginDto: any, @Res() res: Response): Promise<string> {
 		const user = await this.validateUser(authLoginDto, res);
 		const payload = { username: user.name, email: user.email};
 		const access_token = this.jwtService.sign(payload);
-		return {access_token: access_token};
+		return (access_token);
 	  }
 
 	async validateUser(authLoginDto: AuthLoginDto, @Res({ passthrough: true }) res): Promise<User> {
 		const { email, password } = authLoginDto;
-
 		const user = await this.usersService.getByEmail(email);
-		if (!user) throw new NotAcceptableException('User not found');
+		if (!user)
+			throw new NotAcceptableException('User not found');
 
 		const validPass = await user.validatePassword(password)
 
-		if (!validPass) throw new UnauthorizedException();
+		if (!validPass)
+			throw new UnauthorizedException();
 		return user;
 	}
 

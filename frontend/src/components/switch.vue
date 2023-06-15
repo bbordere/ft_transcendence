@@ -7,7 +7,8 @@
 
 <script lang="ts">
 
-	import router from '../router'
+	import { tr } from 'vuetify/locale';
+import router from '../router'
 
 	function booleanize(str: string): boolean{
 		return (str === "true");
@@ -19,10 +20,15 @@
 
 	export default{
 		data() {
-			return {checkbox: false};
+			return {checkbox: false, activated: true};
 		},
 		methods: {
-			clickAction() {
+			async clickAction() {
+				if (!this.activated){
+					console.log("NOPE");
+					return;
+				}
+				this.activated = false;
 				if (!this.checkbox){
 					this.checkbox = !this.checkbox;
 					delay(500).then(any=>{router.push('/auth/2fa/home');});
@@ -31,6 +37,8 @@
 					this.checkbox = !this.checkbox; 
 					delay(500).then(any=>{router.push({path:'/auth/2fa/off',query: { plan: 'off' }});});
 				}
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				this.activated = true;
 			},
 
 			getStatus: async(vm: any) => {

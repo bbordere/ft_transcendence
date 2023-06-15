@@ -10,14 +10,16 @@
 		<router-link to="/auth">Auth</router-link> | <router-link to="/profile">profil</router-link> | 
 		<router-link to="/pong">pong</router-link>
   	</nav> -->
+	<notifications position="top center" group="notif-center" max="2"/>
+	<notifications position="top right" group="friend"/>
   	<main>
-  	  <router-view />
+  	  <router-view :key="$route.fullPath"/>
   	</main>	
 </body>
 
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 

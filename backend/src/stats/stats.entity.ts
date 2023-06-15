@@ -15,7 +15,7 @@ export class StatsDetail{
 	@Column({ default: 0})
 	mmr: number
 
-	@Column({ default: 0})
+	@Column("decimal", { precision: 5, scale: 2, default: 0.0 })
 	meanScore: number
 
 	@Column({ default: 0})

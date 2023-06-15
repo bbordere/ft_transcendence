@@ -15,7 +15,9 @@
 				<BlueButton text="Changer Nom " icon="fa-solid fa-pen" @click="showModal = true"></BlueButton>
 				<Teleport to="body">
 					<transition name="slide-fade" mode="out-in">
-						<ChangeUsernameModal v-show="showModal" @close-modal="showModal = false" @updated="$emit('updated')"></ChangeUsernameModal>
+						<ChangeUsernameModal v-show="showModal" @close-modal="showModal = false"
+											@updated="updateNotif" @already-exist="alreadyExistNotif"
+											@bad-format="badFormatNotif"></ChangeUsernameModal>
 					</transition>
 				</Teleport>
 				<FileUpload @updated="$emit('updated')"></FileUpload>
@@ -30,6 +32,8 @@
 	import FileUpload from '@/components/FileUpload.vue'
 	import ChangeUsernameModal from '@/components/ChangeUsernameModal.vue'
 	import BlueButton from './BlueButton.vue';
+	import { useNotification } from "@kyvg/vue3-notification";
+
 
 
 	export default{
@@ -42,7 +46,35 @@
 		data(){
 			return ({showModal: false});
 		},
-		methods:{}
+		methods:{
+			updateNotif(){
+				this.$emit('updated');
+				const notification = useNotification()
+				notification.notify({
+					title: "Nom d'utilisateur changé !",
+					type: 'success',
+					group: 'notif-center'
+				});
+			},
+			alreadyExistNotif(){
+				const notification = useNotification()
+				notification.notify({
+					title: "Erreur",
+					text: "Ce nom d'utilisateur existe déjà !",
+					type: 'error',
+					group: 'notif-center'
+				});
+			},
+			badFormatNotif(){
+				const notification = useNotification()
+				notification.notify({
+					title: "Erreur",
+					text: "Veuillez entrer un format valide !",
+					type: 'error',
+					group: 'notif-center'
+				});
+			}
+		}
 	}
 </script>
   

@@ -2,11 +2,8 @@
 	<div class="modal-overlay" @click="closeModal">
 	  <div class="modal-username" @click.stop>
 		<div class="title">Change Username</div>
-		<input v-model="username">
+		<input ref="input" type="text" v-model="username" maxlength="20" placeholder="Saisissez un pseudo">
 		<button @click="changeUsername">Change Username</button>
-		<div class="msgStatus">
-			{{ statusMsg }}
-		</div>
 
 	  </div>
 	</div>
@@ -22,25 +19,28 @@
 		  FileUpload,
 	  },
 	  data: () => ({
-		username: "", statusMsg: ""
+		username: "",
 	  }),
 	  methods:{
 		closeModal(){
-			this.statusMsg = "";
-			this.$emit('close-modal')
+			this.$emit('close-modal');
 		},
 		handleResponse(res: Response){
 			if (res.status != 201)
-				this.statusMsg = "Nom d'utilisateur deja prit !";
+				this.$emit('already-exist');
 			else{
-				this.$emit('updated')
-				this.statusMsg = "Nom d'utilisateur change !";
+				this.$emit('updated');
+				this.$emit('close-modal');
 			}
 		},
 
 		changeUsername(){
 			if (!this.username)
 				return;
+			if (!this.username.match(/^[\p{L}\p{N}_]+$/u)) {
+				this.$emit('bad-format');
+				return;
+			}
 			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/setname",
 			{
 				method: 'POST',
@@ -53,7 +53,6 @@
 				})
 			})
 			.then(res => this.handleResponse(res));
-			// .then(send => this.$emit('updated'))
 		}
 	},
 }
