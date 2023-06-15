@@ -5,41 +5,62 @@ import {
 	WebSocketServer,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
-} from '@nestjs/websockets';
+  } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import { PongGame } from './pong.service';
+import { Coords } from './interface/room.interface';
+import { Req, UseGuards } from '@nestjs/common';
+import { Request } from 'express'
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+
 
 @WebSocketGateway({
 	cors: {
-		origin: true,
-	}
+	  origin: true,
+	},
 })
+
 export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() server: Server;
-
+  
+	constructor(private pongGame: PongGame) {}
+  
 	afterInit(server: any) {
-		console.log("serveur init");
+		console.log('Serveur up');
+	}
+  
+	handleConnection(client: Socket) {
+		console.log(client.handshake.headers)
+
+		console.log(`Un joueur s'est connecté : ${client.id}`);  
+		client.on('joinGame', (data: any) => {
+			console.log(`Le joueur ${client.id} a rejoint le jeu`);
+			client.emit('gameJoined', { playerId: client.id });
+			client.broadcast.emit('playerJoined', { playerId: client.id });
+		});
+	}
+  
+	handleDisconnect(client: Socket) {
+	}
+  
+	@SubscribeMessage('joinGame')
+	handleJoinGame(client: Socket, data: any) {
+		// const allCookies = cookie.parse(client.handshake.headers.cookie);
+		// console.log(cookie.parse);
+		const player = {
+			socket: client,
+			position: { x: 0, y: 0 },
+			score: 0,
+			user: "",
+			room: null,
+		};
+		console.log(player.user);
+		const room = this.pongGame.createRoom();
+		this.pongGame.joinRoom(room, player);
 	}
 
-	// Implémente les méthodes de l'interface OnGatewayConnection
-	handleConnection(client: Socket) {
-		console.log(`Un joueur s'est connecté : ${client.id}`);
-
-		// Événement lorsqu'un joueur rejoint le jeu
-		client.on('joinGame', (data: any) => {
-		  console.log(`Le joueur ${client.id} a rejoint le jeu`);
-		  
-		  // Logique pour gérer l'ajout du joueur au jeu
-		  // Par exemple, attribuer un identifiant unique au joueur, initialiser sa position, etc.
-	  
-		  // Envoyer un message de confirmation au joueur
-		  client.emit('gameJoined', { playerId: client.id });
-		  
-		  // Diffuser un message à tous les autres joueurs pour informer qu'un nouveau joueur a rejoint le jeu
-		  client.broadcast.emit('playerJoined', { playerId: client.id });
-		});	}
-  
-	// Implémente les méthodes de l'interface OnGatewayDisconnect
-	handleDisconnect(client: Socket) {
-	  // Code exécuté lorsqu'un joueur se déconnecte
+	@SubscribeMessage('ready')
+	updateBallPosition(client: Socket) {
+		console.log("gateway");
 	}
 }

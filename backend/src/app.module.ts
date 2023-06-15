@@ -14,6 +14,7 @@ import { StatsController } from './stats/stats.controller';
 import { StatsModule } from './stats/stats.module';
 import { MatchController } from './match/match.controller';
 import { MatchModule } from './match/match.module';
+import { PongGame } from './pong/pong.service';
 
 @Module({
   imports: [
@@ -26,6 +27,6 @@ import { MatchModule } from './match/match.module';
 		MatchModule,
 	],
   controllers: [AppController, StatsController, MatchController],
-  providers: [AppService, ChatGateway, PongGateway]
+  providers: [AppService, ChatGateway, PongGateway, PongGame]
 })
 export class AppModule {}
