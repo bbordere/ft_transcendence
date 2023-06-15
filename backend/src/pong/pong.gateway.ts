@@ -8,15 +8,12 @@ import {
   } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { PongGame } from './pong.service';
-import { Coords } from './interface/room.interface';
-import { Req, UseGuards } from '@nestjs/common';
-import { Request } from 'express'
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Coords, Room } from './interface/room.interface';
 
 
 @WebSocketGateway({
 	cors: {
-	  origin: true,
+	  origin: "http://localhost:8080",
 	},
 })
 
@@ -30,7 +27,7 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
   
 	handleConnection(client: Socket) {
-		console.log(client.handshake.headers)
+		console.log(client.request.headers)
 
 		console.log(`Un joueur s'est connecté : ${client.id}`);  
 		client.on('joinGame', (data: any) => {
@@ -45,22 +42,22 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   
 	@SubscribeMessage('joinGame')
 	handleJoinGame(client: Socket, data: any) {
-		// const allCookies = cookie.parse(client.handshake.headers.cookie);
-		// console.log(cookie.parse);
+		console.log("gateway");
 		const player = {
 			socket: client,
 			position: { x: 0, y: 0 },
 			score: 0,
-			user: "",
+			user: client.request.headers["playername"],
 			room: null,
 		};
 		console.log(player.user);
-		const room = this.pongGame.createRoom();
+		const room: Room = this.pongGame.createRoom();
 		this.pongGame.joinRoom(room, player);
+		this.pongGame.playGame(client, room)
+
 	}
 
 	@SubscribeMessage('ready')
-	updateBallPosition(client: Socket) {
-		console.log("gateway");
+	startGame(client: Socket) {
 	}
 }

@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Coords, Ball, Room, State } from './interface/room.interface';
+import { Coords, Ball, Mode, Room, State } from './interface/room.interface';
 
 @Injectable()
 export class PongGame {
 	private rooms = [];
 
-	createRoom() {
-		const room = {
+	createRoom(): Room {
+		const room: Room = {
 			socket: null,
-			state: 'QUEUE',
-			mode: 'STANDARD',
+			state: State.QUEUE,
+			mode: Mode.standard,
 			players: [],
 			ball: null,
 			time: 0,
@@ -47,17 +47,24 @@ export class PongGame {
 	}
 
 	resetBall(room: Room) {
-		room.ball.position.x = 300;
-		room.ball.position.y = 300;
+		room.ball.position.x = 3;
+		room.ball.position.y = 3;
+		room.ball.direction.x = 2;
+		room.ball.direction.y = 2;
 	}
 
 	updateBall(client:Socket, room: Room): any {
-		room.ball.position.x += 1;
-		room.ball.position.y += 1;
-		client.emit("ballPosition", room.ball);
+
+		var dx = room.ball.direction.x *2;
+		var dy = room.ball.direction.y *2;
+
+		room.ball.position.x += dx;
+		room.ball.position.y += dy;
+		client.emit("updateBall", room.ball);
 	}
 
 	initGame(room: Room) {
+		room.ball = new Ball();
 		this.resetBall(room);
 	}
 

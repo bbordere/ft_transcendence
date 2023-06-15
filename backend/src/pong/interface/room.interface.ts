@@ -1,12 +1,18 @@
 import { Player } from "./player.interface";
 import { Socket } from "socket.io";
 
-export interface Coords {
+export class Coords {
 	x:	number;
 	y:	number;
 }
 
-export interface Ball {
+export class Ball {
+	constructor(){
+		this.position = {x: 300, y: 300};
+		this.speed = 1;
+		this.direction  = {x: 1, y: 1};
+	}
+
 	position:	Coords;
 	speed:		number;
 	direction:	Coords;
@@ -21,13 +27,13 @@ export enum State {
 	ENDGAME
 }
 
-enum Mode {
-	standar = 0,
+export enum Mode {
+	standard = 0,
 	arcade,
 	ranked
 }
 
-export interface Room {
+export class Room {
 	socket: Socket;
 	state: State;
 	mode: Mode;

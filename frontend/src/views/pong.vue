@@ -42,8 +42,21 @@ import { onMounted } from 'vue';
 import Head from '../components/head.vue'
 
 export default {
-	mounted() {
-		const socket = io('http://localhost:3000');
+	data() {
+		return {playerName: ""};
+	},
+	methods: {
+		async getData(){
+			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
+			const user = await res.json();
+			this.playerName = user["name"];
+		}
+	},
+	async mounted() {
+		await this.getData();
+		const socket = io("http://" + import.meta.env.VITE_HOST + ":3000", {
+				extraHeaders: {"playername": this.playerName}
+		});
 
 		socket.on('gameJoined', (data) => {
 			const playerId = data.playerId;
@@ -66,31 +79,23 @@ export default {
 		socket.emit('ready');
 
 		socket.on('updateBall', (data) => {
-			console.log("oskour")
-			const x = data.x;
-			const y = data.y;
-			drawBall(x, y);
+			drawBall(data.position.x, data.position.y);
 		});
 
-		const ballRadius = 3;
+		const ballRadius = 10;
 
 
 		function drawBall(x, y) {
+			console.log(x, y)
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.beginPath();
 			ctx.arc(x, y, ballRadius, 0, Math.PI*2);
 			ctx.fillStyle = "#FFFFFF";
 			ctx.fill();
+			ctx.stroke();
 			ctx.closePath();
-		}
 
-		function gameLoop() {
-			requestAnimationFrame(gameLoop);
-			// Appelle la fonction de rendu pour mettre à jour le canvas
-			drawBall();
 		}
-
-		gameLoop();
 	}
 }
 </script>

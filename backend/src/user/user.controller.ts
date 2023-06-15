@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, Post, Req, Res, UseGuards,} from '@nestjs/common';
 import { Response } from 'express';
 import { UserService } from './user.service';
-import { AuthLoginDto } from 'src/auth/dtos/auth.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 
 @Controller('user')
@@ -37,10 +36,10 @@ export class UserController {
 			res.statusCode = 201;
 		res.send();
 	}
-
-
+	
 	@Get("/id/:id")
 	getUserById(@Param('id') id: number){
 		return (this.userService.getById(id));
 	}
+	
 }
