@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Coords, Ball, Mode, Room, State } from './interface/room.interface';
+import { Coords, Canvas, Ball, Mode, Room, State } from './interface/room.interface';
 import { Player } from './interface/player.interface';
 
 @Injectable()
@@ -15,6 +15,7 @@ export class PongGame {
 			players: [],
 			ball: null,
 			time: 0,
+			canvas: {width: 2000, height:1200}
 		};
 		this.rooms.push(room);
 		return room;
@@ -63,33 +64,39 @@ export class PongGame {
 	}
 
 	resetBall(room: Room) {
-		room.ball.position.x = 35;
-		room.ball.position.y = 38;
-		room.ball.direction.x = 2;
-		room.ball.direction.y = -2;
-		room.ball.speed = 1;
+		room.ball.radius = 20
+		room.ball.position.x = 150;
+		room.ball.position.y = 75;
+		room.ball.direction.x = -1;
+		room.ball.direction.y = 1;
+		room.ball.speed = 2;
 	}
 
-	updateBall(client:Socket,  ball: Ball): any {
-		var dx = ball.direction.x * ball.speed;
-		var dy = ball.direction.y * ball.speed;
+	updateBall(client:Socket,  room: Room): any {
 
-		if(ball.position.x + dx + 3 > 600 || ball.position.x + dx - 3 < 0) {
-			ball.speed *= -1;
-			dy -= dy;
-		}
-		if(ball.position.y + dy + 3 > 300 || ball.position.y + dy - 3 < 0) {
-			ball.speed *= -1;
-			dx -= dx;
+		const next = {
+			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
+			y: room.ball.direction.x * room.ball.speed + room.ball.radius,
 		}
 
-		ball.position.x += dx;
-		ball.position.y += dy;
-		client.emit("updateBall", ball);
+		if(room.ball.position.x + next.x > room.canvas.width
+				|| room.ball.position.x + next.x < room.ball.radius) {
+			room.ball.direction.x *= -1;
+		}
+		if(room.ball.position.y + next.y > room.canvas.height
+				|| room.ball.position.y + next.y < room.ball.radius) {
+			room.ball.direction.y *= -1;
+		}
+
+		room.ball.position.x += room.ball.direction.x * room.ball.speed;
+		room.ball.position.y += room.ball.direction.y * room.ball.speed;
+		client.emit("updateBall", room.ball);
 	}
 
 	initGame(room: Room) {
 		room.ball = new Ball();
+		room.canvas.width = 2000;
+		room.canvas.height = 1200;
 		this.resetBall(room);
 	}
 
@@ -98,8 +105,8 @@ export class PongGame {
 			setInterval(() => {
 				if (room.state !== State.QUEUE) {
 					room.state = State.PLAY;
-					this.updateBall(client, room.ball);
+					this.updateBall(client, room);
 			}
-		}, 1000);
+		}, 16);
 	}
 }

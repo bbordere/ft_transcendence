@@ -12,7 +12,7 @@
 					<label>timer</label>
 				</div>
 				<div class="pong_screen">
-					<canvas id="pongCanvas"></canvas>
+					<canvas id="pongCanvas" width="2000" height="1200"></canvas>
 				</div>
 				<div class="button_panel">
 					<div class="reaction_panel">
@@ -81,7 +81,7 @@ export default {
 			drawBall(data.position.x, data.position.y);
 		});
 
-		const ballRadius = 3;
+		const ballRadius = 20;
 
 
 		function drawBall(x, y) {
