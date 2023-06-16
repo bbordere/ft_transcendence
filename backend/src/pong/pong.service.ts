@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Coords, Ball, Mode, Room, State } from './interface/room.interface';
+import { Player } from './interface/player.interface';
 
 @Injectable()
 export class PongGame {
@@ -19,17 +20,32 @@ export class PongGame {
 		return room;
 	}
 
-	joinRoom(room, player) {
+	joinRoom(client: Socket, room: Room, player: Player): Room {
 		if (room.players.length < 2) {
 			player.room = room;
 			room.players.push(player);
 			if (room.players.length === 2) {
-				room.state = 'INIT';
-				this.initGame(room);
+				console.log("2 joueur dans la room");
+				room.state = State.INIT;
+				client.broadcast.emit("roomFull");
 			}
+			return (room);
 		} else {
 			// Gérer le cas où la salle est pleine
 		}
+	}
+
+	searchRoom(client: Socket, player: Player): Room {
+	 	for(var i: number = 0; i < this.rooms.length; i++) {
+			console.log("recherche");
+			if (this.rooms[i].state === State.QUEUE) {
+				console.log("trouver");
+				return (this.joinRoom(client, this.rooms[i], player));
+			}
+		}
+		console.log("pas trouver");
+		const room: Room = this.createRoom();
+		return (this.joinRoom(client, room, player));
 	}
 
 	leaveRoom(player) {
@@ -47,20 +63,29 @@ export class PongGame {
 	}
 
 	resetBall(room: Room) {
-		room.ball.position.x = 3;
-		room.ball.position.y = 3;
+		room.ball.position.x = 35;
+		room.ball.position.y = 38;
 		room.ball.direction.x = 2;
-		room.ball.direction.y = 2;
+		room.ball.direction.y = -2;
+		room.ball.speed = 1;
 	}
 
-	updateBall(client:Socket, room: Room): any {
+	updateBall(client:Socket,  ball: Ball): any {
+		var dx = ball.direction.x * ball.speed;
+		var dy = ball.direction.y * ball.speed;
 
-		var dx = room.ball.direction.x *2;
-		var dy = room.ball.direction.y *2;
+		if(ball.position.x + dx + 3 > 600 || ball.position.x + dx - 3 < 0) {
+			ball.speed *= -1;
+			dy -= dy;
+		}
+		if(ball.position.y + dy + 3 > 300 || ball.position.y + dy - 3 < 0) {
+			ball.speed *= -1;
+			dx -= dx;
+		}
 
-		room.ball.position.x += dx;
-		room.ball.position.y += dy;
-		client.emit("updateBall", room.ball);
+		ball.position.x += dx;
+		ball.position.y += dy;
+		client.emit("updateBall", ball);
 	}
 
 	initGame(room: Room) {
@@ -69,10 +94,12 @@ export class PongGame {
 	}
 
 	playGame(client: Socket, room: Room) {
-		this.initGame(room)
-		room.state = State.PLAY;
-		setInterval(() => {
-			this.updateBall(client, room);
-		}, 1000/16);
+			this.initGame(room)
+			setInterval(() => {
+				if (room.state !== State.QUEUE) {
+					room.state = State.PLAY;
+					this.updateBall(client, room.ball);
+			}
+		}, 1000);
 	}
 }

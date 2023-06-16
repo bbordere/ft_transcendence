@@ -76,17 +76,15 @@ export default {
 
 		const canvas = document.getElementById('pongCanvas');
 		const ctx = canvas.getContext('2d');
-		socket.emit('ready');
 
 		socket.on('updateBall', (data) => {
 			drawBall(data.position.x, data.position.y);
 		});
 
-		const ballRadius = 10;
+		const ballRadius = 3;
 
 
 		function drawBall(x, y) {
-			console.log(x, y)
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.beginPath();
 			ctx.arc(x, y, ballRadius, 0, Math.PI*2);

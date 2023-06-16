@@ -6,6 +6,6 @@ export interface Player {
 	socket: Socket;
 	position: Coords;
 	score: number;
-	user: string;
+	user: any;
 	room: Room;
 }
