@@ -53,6 +53,7 @@ export class AuthController {
 			res.cookie('access_token', userObject.tokens, {httpOnly: true, sameSite: "lax"});
 			res.statusCode = 201;
 		}
+		res.send();
 	}
 
 	@Get()

@@ -26,9 +26,9 @@ async function login(){
 
 		})
 	})
-	const response = await res.json();
 	switch (res.status) {
 		case 406:{
+			const response = await res.json();
 			const notification = useNotification()
 			notification.notify({
 				title: response["message"],

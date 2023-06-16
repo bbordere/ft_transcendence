@@ -26,7 +26,6 @@ export default{
 			let username: string;
 			const route = useRoute();
 			if (!route.query["user"]){
-				router.push('/profile/me');
 				this.username = "me";
 				this.dataLoaded = true;
 				return;
