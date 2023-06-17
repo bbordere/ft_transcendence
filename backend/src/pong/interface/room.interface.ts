@@ -14,8 +14,14 @@ export class Ball {
 	}
 
 	position:	Coords;
-	speed:		number;
 	direction:	Coords;
+	speed:		number;
+	radius:		number;
+}
+
+export class Canvas {
+	width: number;
+	height: number;
 }
 
 export enum State {
@@ -40,4 +46,5 @@ export class Room {
 	players: Array<Player>;
 	ball: Ball;
 	time: number;
+	canvas: Canvas
 }
