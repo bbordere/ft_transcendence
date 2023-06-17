@@ -64,6 +64,7 @@ export default{
 			</Teleport>
 			<div v-if="editable != 0"> 
 				<BlueButton class="button-profile" text="Paramètres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
+				<BlueButton class="button-profile" text="Paramètres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
 				<BlueButton class="button-profile"  text="Déconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
 			</div>
 			<div v-else-if="!isMyPage">
