@@ -17,7 +17,7 @@ import { Auth2fStrategy } from './strategies/tfa.strategy';
 		  imports: [ConfigModule],
 		  useFactory: async () => ({
 			secret: process.env.JWT_SECRET,
-			signOptions: { expiresIn: "60s" }
+			signOptions: { expiresIn: "3600s" }
 		  }),
 		  inject: [ConfigService],
 		}),

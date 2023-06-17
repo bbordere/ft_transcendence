@@ -12,7 +12,7 @@ export class StatsDetail{
 	@Column({ default: 0})
 	looses: number
 
-	@Column({ default: 0})
+	@Column({ default: 1000})
 	mmr: number
 
 	@Column("decimal", { precision: 5, scale: 2, default: 0.0 })
