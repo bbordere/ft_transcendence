@@ -23,9 +23,8 @@ export default{
 	background-repeat: no-repeat;
 	box-sizing: border-box;
 	color: #fff;
-	width: 100%;
+	width: 90%;
 	border: none;
-	font-size: 1em;
 	transition: all .3s ease-in-out;
 	overflow: hidden;
 	cursor: pointer;
@@ -40,7 +39,7 @@ export default{
 	top: 0;
 	left: 0;
 	transition: width 700ms ease-in-out;
-	display: inline-block;
+	/* display: inline-block; */
 	opacity: 50%;
 }
 

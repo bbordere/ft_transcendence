@@ -46,58 +46,24 @@ export default{
 	}
 }
 
-// return {
-// 			chartOptions: {
-// 				chart:{
-// 					stacked: true,
-// 					stackType: '100%'
-// 				},
-// 				legend: {
-// 					show: false
-//     			},
-// 				labels: [''],
-// 				plotOptions: {
-// 					bar: {
-//                 		horizontal: true,
-//              	 	},
-// 				},
-// 				xaxis: {
-// 					show: false,
-// 					labels: {
-// 						show: false
-// 					},
-// 					axisBorder: {
-// 						show: false
-// 					},
-// 					axisTicks: {
-// 						show: false
-// 					},
-// 					tooltip: {
-// 						enabled: false
-// 					}
-
-// 				},
-// 				// grid: {
-// 				// 	padding: {
-// 				// 		bottom: -120
-// 				// 	}
-// 				// },
-// 				responsive: [{
-// 					breakpoint: 480,
-// 				}],
-// 				colors:['#00A300', '#D22B2B'],
-// 		},
-// 		series: [{name: 'Wins', data: [15]}, {name: 'Looses', data: [11]}],
-// 		};
-
 </script>
 
 <style>
 	.chart{
 		margin-top: 20%;
 		display: flex;
-		flex: 1;
-		justify-content: center; /* Centre horizontalement les éléments enfants */
-		align-items: center; /* Centre verticalement les éléments enfants */
+		justify-content: center;
+		align-items: center;
 	}
+
+	.text-chart{
+		display: none;
+	}
+
+	@media screen and (max-width: 550px) {
+		.chart{
+			display: none;
+		}
+	}
+
 </style>

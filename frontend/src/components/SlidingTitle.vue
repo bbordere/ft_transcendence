@@ -1,5 +1,5 @@
 <template>
-	<div class="container-slinding-title">
+	<div class="container-sliding-title">
 		<div class="box-sliding">
 			<div class="title-sliding">
 				<span class="block-sliding"></span>
@@ -31,7 +31,7 @@ export default {
     font-weight: bold;
 }
 
-.container-slinding-title{
+.container-sliding-title{
 	display: flex;
 	justify-content: center;
 	align-items: center;

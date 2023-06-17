@@ -14,7 +14,7 @@ export default{
 	},
 	props: ["editable", "username"],
 	data(){
-		return ({user: "", showModal: false});
+		return ({user: "", showModal: false, isMyPage: false});
 	},
 	methods: {
 		logout(){
@@ -25,6 +25,11 @@ export default{
 			.then(res => res.json())
 			.then(data => {this.user = data;})
 			.then(() => this.$emit('update', this.user.name));
+		},
+		isMe(){
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'})
+			.then(res => res.json())
+			.then(res => {this.isMyPage = (res["name"] === this.user["name"])});
 		},
 		failure(){
 			const notification = useNotification()
@@ -39,6 +44,7 @@ export default{
 	},
 	beforeMount(){
 		this.getUser();
+		this.isMe();
     },
 }
 
@@ -60,7 +66,7 @@ export default{
 				<BlueButton class="button-profile" text="Paramètres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
 				<BlueButton class="button-profile"  text="Déconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
 			</div>
-			<div v-else>
+			<div v-else-if="!isMyPage">
 				<BlueButton text="Ajouter en ami " icon="fa-solid fa-user-group"></BlueButton>
 			</div>
 		</div>
@@ -74,7 +80,6 @@ export default{
 		justify-content: space-between;
 		padding: 2%;
 		align-items: center;
-		align-content: center;
 		background-color: aliceblue;
 		flex-direction: row;
 		border-radius: 50px;
@@ -112,6 +117,10 @@ export default{
 	justify-content: space-between;
 	align-items: center;
 	width: 15%;
+}
+
+@media screen and (max-width: 950px) {
+	
 }
 
 </style>
