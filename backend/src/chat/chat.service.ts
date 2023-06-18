@@ -29,4 +29,11 @@ export class ChatService {
 		channel.name = name;
 		return (this.channelsRepo.save(channel));
 	}
+
+	async delete(name: string) {
+		let rm = await this.getByName(name);
+		if (rm == null)
+			return ;
+		this.channelsRepo.delete({ id: rm.id });
+	}
 }

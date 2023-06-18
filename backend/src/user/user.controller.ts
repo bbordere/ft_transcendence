@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, Post, Req, Res, UseGuards,} from '@nestjs/common';
 import { Response } from 'express';
 import { UserService } from './user.service';
-import { AuthLoginDto } from 'src/auth/dtos/auth.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 
 @Controller('user')
@@ -38,9 +37,26 @@ export class UserController {
 		res.send();
 	}
 
-
 	@Get("/id/:id")
 	getUserById(@Param('id') id: number){
 		return (this.userService.getById(id));
+	}
+
+	@Post('/:userId/channels/:channelId/add')
+	async addUserToChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		await this.userService.addUserToChannel(userId, channelId);
+		return {
+			message: 'user added',
+		};
+	}
+
+	@Post('/:userId/channels/:channelId/remove')
+	async removeUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		await this.userService.removeUserFromChannel(userId, channelId);
+	}
+
+	@Get('/:userId/joinedChannels')
+	async getJoinedChannels(@Param('userId') userId: number) {
+		return (this.userService.getJoinedChannels(userId));
 	}
 }

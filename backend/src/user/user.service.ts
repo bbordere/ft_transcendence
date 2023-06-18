@@ -7,10 +7,16 @@ import { AuthLoginDto, AuthRegisterDto } from 'src/auth/dtos/auth.dto';
 import { AuthLogin42Dto } from 'src/auth/dtos/auth42.dto';
 import { StatsDetail } from 'src/stats/stats.entity';
 import { validate } from 'class-validator';
+import { Channel } from 'src/chat/chat.entity';
 
 @Injectable()
 export class UserService {
-	constructor(@InjectRepository(User) private usersRepository: Repository<User>) {}
+	constructor(
+		@InjectRepository(User)
+		private usersRepository: Repository<User>,
+		@InjectRepository(Channel)
+		private channelRepository: Repository<Channel>,
+	) {}
 
 	getAllUsers(): Promise<string[]>{
 		// return (this.usersRepository.find({select: {name: true}}));
@@ -107,5 +113,28 @@ export class UserService {
 		if (!user)
 			throw new NotAcceptableException('User not found');
 		return (user.email);
+	}
+
+	async addUserToChannel(userId: number, channelId: number) {
+		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+
+		user.channels.push(channel);
+		await this.usersRepository.save(user);
+	}
+
+	async removeUserFromChannel(userId: number, channelId: number) {
+		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+
+		user.channels = user.channels.filter((c) => c.id !== channel.id);
+		await this.usersRepository.save(user);
+	}
+
+	async getJoinedChannels(userId: number): Promise<Channel[] | null> {
+		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
+		if (!user)
+			return (null);
+		return (user.channels);
 	}
 }

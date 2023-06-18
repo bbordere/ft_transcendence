@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 
 @Controller('chat')
@@ -10,12 +10,29 @@ export class ChatController {
 		return (this.chatService.getAll());
 	}
 
+	@Get('/:name')
+	async getByName(@Param('name') name: string) {
+		if (Array.from(name)[0] != '#')
+			name = '#' + name;
+		const channel = await this.chatService.getByName(name);
+		return (channel);
+	}
+
 	@Post('/create')
 	async create(@Body('name') name: string) {
+		if (Array.from(name)[0] != '#')
+			name = '#' + name;
 		const channel = await this.chatService.create(name);
 		return {
 			message: 'channel created',
 			channel
 		};
+	}
+
+	@Post('/delete')
+	async delete(@Body('name') name: string) {
+		if (Array.from(name)[0] != '#')
+			name = '#' + name;
+		this.chatService.delete(name);
 	}
 }

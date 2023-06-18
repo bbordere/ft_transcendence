@@ -5,7 +5,6 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { ChatGateway } from './chat/chat.gateway';
 import { AppService } from './app.service';
 import { AvatarModule } from './avatar/avatar.module';
 import { StatsController } from './stats/stats.controller';
@@ -26,6 +25,6 @@ import { ChatModule } from './chat/chat.module';
 		ChatModule,
 	],
   controllers: [AppController, StatsController, MatchController],
-  providers: [AppService, ChatGateway]
+  providers: [AppService]
 })
 export class AppModule {}

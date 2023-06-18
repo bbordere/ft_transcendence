@@ -3,39 +3,49 @@
 	<div class="home_body">
 		<div class="home_content">
 			<div class="left_column">
-				<router-link class="play_button" to="/pong">jouer</router-link>
+				<router-link class="play_button" to="/pong">Jouer</router-link>
 				<div class="match_historic">
 					<label>macht_historic</label>
 				</div>
 			</div>
 			<div class="chat">
-				<div v-if="showDiv">
+				<div v-if="connected && showDiv">
 					<h2>{{ selectedChannel.name }}</h2>
 					<ul class="msg_chat_box">
 						<li v-for="msg in selectedChannel.messages" :class="getMessageClass(msg)">{{ msg.text }}</li>
 					</ul>
-					<div v-if="connected">
-						<input type="text" v-model="message">
-						<button type="button" @click="sendMessage">Send !</button>
-					</div>
-					<div v-else>
-						<p>connecting to websocket server...</p>
-					</div>
+					<input type="text" v-model="message">
+					<button type="button" @click="sendMessage()">Send !</button>
+				</div>
+				<div v-else-if="!connected">
+					<p>connecting to websocket server...</p>
 				</div>
 			</div>
+
 			<div class="right_column">
+
 				<div class="friend_list">
 					<label>friend_list</label>
 					<ul>
-						<li v-for="chan in channels"><button :key="chan.id">#{{ chan.name }}</button></li>
+						<li v-for="chan in channels"><button :key="chan.id" @click="showChannel(chan)">{{ chan.name
+						}}</button></li>
 					</ul>
 				</div>
+
 				<div class="join_panel">
-					<label>join_panel</label>
-					<!-- <label for="channel_field">Join a channel or add a friend</label>
-					<input type="text" name="channel_field" v-model="channelName">
-					<input type="button" value="Create/Join channel" @click="createChannel(channelName)">
-					<input type="button" value="Add a friend" @click="addFriend(channelName)"> -->
+					<button id="show-modal" @click="joinChannel('bonsoir')">Rejoindre</button>
+					<Teleport to="body">
+						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
+					</Teleport>
+					<button id="show-modal" @click="createChannel('bonsoir')">Channel+</button>
+					<Teleport to="body">
+						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
+					</Teleport>
+					<button id="show-modal" @click="showModal = true">Ami+</button>
+					<Teleport to="body">
+						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
+					</Teleport>
+					<button id="show-modal" @click="deleteChannel('bonsoir')">Channel-</button>
 				</div>
 			</div>
 		</div>
@@ -43,14 +53,10 @@
 </template>
 
 <script lang="ts">
-
-/*
- 1. Will have to push the channels (and friends) in the database
-*/
-
 import Head from '../components/head.vue'
-import io, { Socket } from 'socket.io-client';
+import io from 'socket.io-client';
 import { defineComponent } from 'vue';
+import ModalAdd from '../components/ModalAdd.vue';
 
 interface Message {
 	chanId: number;
@@ -64,59 +70,99 @@ interface Channel {
 	messages: Message[],
 }
 
+// Why do I have to sockets with the same id ?
+
 export default defineComponent({
 	data() {
 		return {
 			socket: null as any,
 			channels: [] as Channel[],
-			showDiv: true as Boolean,
-			connected: false as Boolean,
+			connected: true as Boolean,
 			sender: -1 as number,
 			message: '' as string,
 			selectedChannel: {} as Channel,
+			showModal: false as Boolean,
+			showDiv: false as Boolean,
 		}
 	},
 
 	async mounted() {
-		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/list', { credentials: 'include' })).json();
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
+		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/joinedChannels', { credentials: 'include' })).json();
 		for (let i = 0; i < channels_json.length; i++) {
 			this.channels.push({
 				id: channels_json[i]['id'],
 				name: channels_json[i]['name'],
-				messages: [],
-			});
-			this.socket = io('http://localhost:3000/');
-			this.socket.on('connect', () => { this.connected = true; });
-			this.socket.on('disconnect', () => { this.connected = false; });
-			this.socket.on('message', (data: {chanId: number, text: string, sender: number}) => {
-				const { chanId, text, sender } = data;
-				if (sender !== this.sender) {
-					const channel = this.findChannel(chanId);
-					if (channel !== null) {
-						channel.messages.push({
-							chanId: chanId,
-							text: text,
-							sender: sender,
-						});
-					}
-				}
+				messages: [] as Message[],
 			});
 		}
+		this.init();
 	},
 
 	methods: {
+		init() {
+			this.socket = io('http://localhost:3000/')
+			this.socket.on('connect', () => { this.connected = true; });
+			this.socket.on('disconnect', () => { this.connected = false; });
+			this.socket.on('message', (data: { chanId: number, text: string, sender: number }) => {
+				const { chanId, text, sender } = data;
+				const channel = this.findChannel(chanId);
+				channel?.messages.push({
+					chanId: chanId,
+					text: text,
+					sender: sender,
+				});
+			});
+		},
+		async createChannel(name: string) {
+			this.showModal = true;
+			const response_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/create', {
+				credentials: 'include',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					name: name
+				}),
+			})).json();
+			this.joinChannel(name);
+		},
+
 		sendMessage() {
-			if (this.socket && this.message && this.selectedChannel.messages != undefined) {
+			if (this.socket && this.message) {
 				const data = {
 					chanId: this.selectedChannel.id,
 					text: this.message,
 					sender: this.sender,
 				};
+				// this.selectedChannel.messages.push(data);
 				this.socket.emit('message', data);
-				this.selectedChannel.messages.push(data);
 				// Push the message into the database
 				this.message = '';
+			}
+		},
+
+		showChannel(chan: Channel) {
+			this.showDiv = true;
+			this.selectedChannel = chan;
+		},
+
+		async joinChannel(name: string) {
+			const channel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + name, { credentials: 'include' })).json();
+			for (let i = 0; i < this.channels.length; i++)
+				if (this.channels[i].id === channel['id'])
+					return;
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
+				credentials: 'include',
+				method: "POST",
+			});
+			if (response['ok'] === true) {
+				this.channels.push(channel);
+				this.selectedChannel = channel;
+				// Retrieve all the messages from the database
+				if (this.selectedChannel.messages === undefined)
+					this.selectedChannel.messages = [] as Message[];
 			}
 		},
 
@@ -130,83 +176,26 @@ export default defineComponent({
 		getMessageClass(message: Message): string {
 			return (this.sender === message.sender ? 'sent' : 'received');
 		},
+
+		async deleteChannel(name: string) {
+			// If only 1 user left in the channel delete it
+			const channel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + name, { credentials: 'include' })).json();
+			for (let i = 0; i < this.channels.length; i++)
+				if (this.channels[i].id === channel['id'])
+					this.channels.splice(i, 1);
+			const response_json = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/remove', { credentials: 'include', method: 'POST', });
+			if (this.selectedChannel.messages != undefined) {
+				this.selectedChannel = {} as Channel;
+				this.showDiv = false;
+			}
+		},
 	},
 
 	components: {
 		Head,
+		ModalAdd,
 	},
 });
-
-// interface Message {
-// 	id: number,
-// 	text: string,
-// 	sender: number,
-// };
-
-// export class Channel {
-// 	public id: number;
-// 	public name: string;
-// 	public messages: Message[];
-// 	public users: number[];
-
-// 	constructor(name: string, id: number) {
-// 		this.id = id;
-// 		this.messages = [];
-// 		this.users = [];
-// 		this.name = name;
-// 	}
-// };
-
-// export default defineComponent({
-// 	data() {
-// 		return {
-// 			socket: null as any,
-// 			connected: false as Boolean,
-// 			message: '' as string,
-// 			messages: [] as Message[],
-// 			sender: -1 as number,
-// 			channels: [] as Channel[],
-// 			selectedChannel: {} as Channel,
-// 			showDiv: false as Boolean,
-// 		};
-// 	},
-
-// 	methods: {
-
-// 		getMessageClass(message: Message): string {
-// 			return (this.sender === message.sender ? 'sent' : 'received');
-// 		},
-
-// 		// Maybe collapse these two functions into one
-// 		createChannel(name: string): void {
-// 			name = '#' + name;
-// 			for (let i = 0; i < this.channels.length; i++) {
-// 				if (this.channels[i].name === name) {
-// 					if (!(this.channels[i].users.includes(this.sender))) {
-// 						this.channels[i].users.push(this.sender);
-// 					}
-// 					else {
-// 						this.selectedChannel = this.channels[i];
-// 					}
-// 					return;
-// 				}
-// 			}
-// 			this.channels.push(new Channel(name, this.channels.length));
-// 		},
-
-// 		addFriend(name: string): void {
-// 			console.log('@' + name);
-// 		},
-
-// 		showChannel(id: number): void {
-// 			this.showDiv = true;
-// 			this.selectedChannel = this.channels[id];
-// 		}
-// 	},
-// 	components: {
-// 		Head,
-// 	}
-// });
 
 </script>
 
@@ -214,25 +203,27 @@ export default defineComponent({
 .home_body {
 	display: flex;
 	width: 95vw;
-	height: 90vh;
+	height: 80vh;
 	align-items: center;
 	justify-content: center;
+	padding-top: 2%;
+	min-height: 600px;
 }
 
 .home_content {
 	display: flex;
-	height: 80%;
-	width: 100%;
+	height: 100%;
 	align-items: center;
 	justify-content: center;
-	gap: 8%;
-	padding-left: 5%;
+	flex-basis: 100%;
+	gap: 6%;
 }
 
 .left_column {
 	display: flex;
 	flex-direction: column;
 	gap: 4%;
+	flex-grow: 0.2;
 }
 
 .play_button {
@@ -240,16 +231,23 @@ export default defineComponent({
 	justify-content: center;
 	align-items: center;
 	height: 25%;
-	width: 175%;
-	background: #D9D9D9;
+	width: 100%;
+	background: #036280;
 	border: 3px solid #BC0002;
 	border-radius: 25px;
+	text-decoration: none;
+	color: black;
+	font-size: 100%;
+}
+
+.play_button:hover {
+	background-color: #42badf;
 }
 
 .match_historic {
 	display: flex;
 	height: 75%;
-	width: 175%;
+	width: 100%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
@@ -273,24 +271,63 @@ export default defineComponent({
 	align-items: center;
 	justify-content: center;
 	gap: 4%;
+	flex-grow: 0.2;
 }
 
 .friend_list {
 	display: flex;
-	height: 66%;
-	width: 175%;
+	height: 65%;
+	width: 100%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
 
+.join_panel button {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+	width: 95%;
+	align-items: center;
+	justify-content: center;
+	font-size: 100%;
+	margin: 2%;
+	background-color: #036280;
+	border-radius: 10px;
+	border: none;
+	cursor: pointer;
+}
+
 .join_panel {
 	display: flex;
-	height: 33%;
-	width: 175%;
+	flex-direction: column;
+	height: 35%;
+	width: 100%;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
+	align-items: center;
+	justify-content: center;
+}
+
+.join_panel button:hover {
+	background-color: #42badf;
+}
+
+@media screen and (max-width: 800px) {
+	.join_panel button {
+		font-size: 65%;
+	}
+
+	.right_column {
+		flex-grow: 0.6;
+		margin-right: 2%;
+	}
+
+	.left_column {
+		flex-grow: 0.6;
+		margin-left: 2%;
+	}
 }
 
 .msg_chat_box {
