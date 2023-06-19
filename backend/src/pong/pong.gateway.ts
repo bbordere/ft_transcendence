@@ -28,10 +28,11 @@ export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	handleConnection(client: Socket) {
-		console.log(`Un joueur s'est connecté : ${client.id}`);  
+		console.log(`Un joueur s'est connecté : ${client.id}`);
 	}
   
 	handleDisconnect(client: Socket) {
+		client.disconnect();
 	}
   
 	@SubscribeMessage('joinGame')

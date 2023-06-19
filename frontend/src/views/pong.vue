@@ -55,7 +55,9 @@ export default {
 	async mounted() {
 		await this.getData();
 		const socket = io("http://" + import.meta.env.VITE_HOST + ":3000", {
-				extraHeaders: {"playername": this.playerName}
+				transports: ["websocket"],
+				extraHeaders: {"playername": this.playerName},
+				withCredentials: true,
 		});
 
 		socket.on('gameJoined', (data) => {
