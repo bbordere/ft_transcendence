@@ -43,7 +43,7 @@ export class AuthService {
 	async login(authLoginDto: any, @Res() res: Response): Promise<string> {
 		const user = await this.validateUser(authLoginDto, res);
 		const payload = { username: user.name, email: user.email};
-		const access_token = this.jwtService.sign(payload);
+		const access_token = this.jwtService.sign(payload, {expiresIn: '1h'});
 		return (access_token);
 	  }
 
@@ -67,19 +67,19 @@ export class AuthService {
 			const user = await this.usersService.createUser42(data);
 			const payload = { username: user.name, email: user.email};
 			res.redirect("http://" + process.env.HOST + ":8080/");
-			return {access_token: this.jwtService.sign(payload)};
+			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
 		}
 		if (user.auth2f === true)
 		{
 			const payload = { username: user.name, email: user.email};
 			res.redirect("http://" + process.env.HOST + ":8080/verif");
-			return {access_token: this.jwtService.sign(payload)};
+			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
 		}
 		else
 		{
 			const payload = { username: user.name, email: user.email};
 			res.redirect("http://" + process.env.HOST + ":8080/");
-			return {access_token: this.jwtService.sign(payload)};
+			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
 		}
 	}
 
@@ -100,7 +100,7 @@ export class AuthService {
 
 	async getTokenByUser(user: User): Promise<string> {
 		const payload = { id: user.id, email: user.email};
-		const token: string = this.jwtService.sign(payload);
+		const token: string = this.jwtService.sign(payload, {expiresIn: '1h'});
 		return (token);
 	}
 
@@ -116,4 +116,12 @@ export class AuthService {
             throw new NotAcceptableException('findOrCreate');
         }
     }
+
+	async getUserFromToken(token: string): Promise<User | undefined>{
+		if (!token)
+			return (undefined);
+		const email: string = this.jwtService.decode(token)["email"];
+		const user: User = await this.usersService.getByEmail(email);
+		return (user);
+	}
 }

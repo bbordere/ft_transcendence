@@ -93,6 +93,9 @@ export default defineComponent({
 		const response_json = await response.json();
 		this.sender = response_json['id'];
 		this.initSocket();
+
+		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
+		sessionStorage.setItem('token', await token.text());
 	},
 
 	methods: {

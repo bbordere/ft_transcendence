@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Req, Res, UseGuards,} from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 
@@ -17,7 +17,7 @@ export class UserController {
 	
 	@Get('/me')
 	@UseGuards(JwtAuthGuard)
-	me(@Req() req){
+	me(@Req() req: Request){
 		const id = req["user"]["user"]["id"];
 		return (this.userService.getById(id));
 	}

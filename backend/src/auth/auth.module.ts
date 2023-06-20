@@ -23,6 +23,7 @@ import { Auth2fStrategy } from './strategies/tfa.strategy';
 		}),
 	  ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, FortyTwoStrategy, Auth2fStrategy]
+  providers: [AuthService, JwtStrategy, FortyTwoStrategy, Auth2fStrategy],
+  exports:[AuthService]
 })
 export class AuthModule {}

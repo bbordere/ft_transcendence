@@ -28,6 +28,13 @@ export class AuthController {
 	@UseGuards(AuthGuard42)
 	login42(){}
 	
+	@Get('/token')
+	@UseGuards(JwtAuthGuard)
+	async getToken(@Req() req: Request){
+		return (this.authService.getTokenByUser(req["user"]["user"]));
+	}
+
+
 	@Get('/42/callback')
 	@UseGuards(AuthGuard42)
 	async generateToken(@Res({passthrough: true}) res: Response, @Req() req: any){
@@ -53,7 +60,7 @@ export class AuthController {
 			res.cookie('access_token', userObject.tokens, {httpOnly: true, sameSite: "lax"});
 			res.statusCode = 201;
 		}
-		res.send();
+		res.send({"token": userObject.tokens});
 	}
 
 	@Get()
