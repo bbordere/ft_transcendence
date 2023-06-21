@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Coords, Canvas, Ball, Mode, Room, State } from './interface/room.interface';
+import { Ball, Mode, Room, State } from './interface/room.interface';
 import { Player } from './interface/player.interface';
 
 @Injectable()
 export class PongGame {
 	private rooms = [];
 	private gameInterval;
+	private lastRoomId = 0;
 
-	async createRoom(client: Socket): Promise<Room> {
+	async createRoom(mode: Mode): Promise<Room> {
 		const room: Room = {
-			socket: client,
+			id: this.lastRoomId++,
 			state: State.QUEUE,
-			mode: Mode.standard,
+			mode: mode,
 			players: [],
 			ball: null,
 			time: 0,
@@ -24,11 +25,11 @@ export class PongGame {
 
 	async joinRoom(client: Socket, room: Room, player: Player): Promise<Room> {
 		if (room.players.length < 2) {
-			// player.room = room;
 			room.players.push(player);
 			if (room.players.length === 2) {
-				console.log("2 joueur dans la room", room.players);
+				console.log("2 joueur dans la room", room.id);
 				room.state = State.INIT;
+				player.roomId = room.id;
 				client.broadcast.emit("roomFull");
 			}
 			return (room);
@@ -37,16 +38,21 @@ export class PongGame {
 		}
 	}
 
-	async searchRoom(client: Socket, player: Player): Promise<Room> {
-	 	for(var i: number = 0; i < this.rooms.length; i++) {
+	async searchRoom(client: Socket, player: Player, mode: Mode): Promise<Room> {
+	 	for (var i: number = 0; i < this.rooms.length; i++) {
 			console.log("recherche");
-			if (this.rooms[i].state === State.QUEUE) {
+			if (this.rooms[i].id === player.roomId){
+				console.log("trouver");
+				return (this.joinRoom(client, this.rooms[i], player));
+			}
+			if (this.rooms[i].state === State.QUEUE && mode === this.rooms[i].state) {
 				console.log("trouver");
 				return (this.joinRoom(client, this.rooms[i], player));
 			}
 		}
 		console.log("pas trouver");
-		const room: Room = await this.createRoom(client);
+		const room: Room = await this.createRoom(mode);
+		player.roomId = room.id;
 		return (this.joinRoom(client, room, player));
 	}
 
@@ -104,12 +110,15 @@ export class PongGame {
 	async playGame(client: Socket, room: Room) {
 		await this.initGame(room);
 		client.data.gameInterval = setInterval(() => {
-			if (room.players.length === 2)
+			if (room.state === State.QUEUE){
+				client.emit('text', "QUEUEING");
+			}
+			if (room.players.length === 2 && room.state === State.INIT)
 				room.state = State.PLAY;
 			if (room.state === State.PLAY) {
 				this.updateBall(client, room);
 			}
-		}, 25);
+		}, 16);
 	}
 
 	async leaveRoomSocket(socketId: string, client: Socket){
@@ -117,8 +126,9 @@ export class PongGame {
 			// console.log("DECO", client.data.user["name"]);
 			if (room.players[0].socket.id === socketId || room.players[1].socket.id === socketId){
 				console.log("STOP INTER", client.data.user["name"]);
-				room.players = room.players.filter((element) => element.socket.id !== socketId);
+				// room.players = room.players.filter((element) => element.socket.id !== socketId);
 				clearInterval(client.data.gameInterval);
+				room.state = State.WAITING;
 			}
 			if (!room.players.length)
 				this.rooms = this.rooms.filter((el) => el !== room);
@@ -127,14 +137,18 @@ export class PongGame {
 
 	async checkDisconnection(client: Socket, room: Room){
 		const it = setInterval(() => {
-			// console.log("CHECK DECO");
-			// console.log(room.players.length === 1 && room.state === State.PLAY);
-			if (room.players.length === 1 && room.state === State.PLAY){
-				console.log("STOPPING", client.data.user["name"]);
+			console.log(room.state);
+			if (room.state === State.WAITING){
+				console.log("WAITING");
+				client.emit('text', "WAITING");
 				clearInterval(client.data.gameInterval);
-				clearInterval(it);
-				client.disconnect();
 			}
+			// if (room.players.length === 1 && room.state === State.PLAY){
+			// 	console.log("STOPPING", client.data.user["name"]);
+			// 	clearInterval(client.data.gameInterval);
+			// 	clearInterval(it);
+			// 	client.disconnect();
+			// }
 		}, 1000);
 	}
 }

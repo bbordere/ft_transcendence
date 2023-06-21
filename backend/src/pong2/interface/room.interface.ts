@@ -30,6 +30,7 @@ export enum State {
 	COOLDOWN,
 	PLAY,
 	RESET,
+	WAITING,
 	ENDGAME
 }
 
@@ -40,7 +41,7 @@ export enum Mode {
 }
 
 export class Room {
-	socket: Socket;
+	id: number;
 	state: State;
 	mode: Mode;
 	players: Array<Player>;

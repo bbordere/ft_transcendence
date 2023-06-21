@@ -6,5 +6,6 @@ export interface Player {
 	position: Coords;
 	score: number;
 	user: any;
+	roomId: number;
 	// room: Room;
 }

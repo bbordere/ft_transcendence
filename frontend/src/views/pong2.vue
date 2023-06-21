@@ -48,13 +48,23 @@ export default {
 
 	},
 	mounted() {
-		this.socket = io('http://localhost:3000/pong')
+		this.socket = io('http://localhost:3000/pong', {
+			reconnectionAttempts: 5, // Nombre maximum de tentatives de reconnexion
+			reconnectionDelay: 1000, // Délai initial entre les tentatives de reconnexion (en millisecondes)
+			reconnectionDelayMax: 5000, // Délai maximal entre les tentatives de reconnexion (en millisecondes)
+			randomizationFactor: 0.5, // Facteur de randomisation pour les délais de reconnexion
+		});
 
-		this.socket.emit('onJoinGame', sessionStorage.getItem('token'));
+		//TO DO GET MODE FROM PAGE QUERY
+		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), 0);
 
 		this.socket.on('disconnect', () => {
 			this.socket.disconnect();
 			console.log('Vous avez été déconnecté du jeu.');
+		});
+		
+		this.socket.on('reconnect', () => {
+			console.log('Vous avez été reco au jeu.');
 		});
 
 		const canvas = document.getElementById('pongCanvas');
@@ -64,18 +74,27 @@ export default {
 			drawBall(data.position.x, data.position.y);
 		});
 
+		this.socket.on('text', (data) => {
+			drawText(data);
+		});
+
 		const ballRadius = 20;
 
 
+		function drawText(text: string){
+			console.log("Text");
+			ctx.font = "200px serif";
+			ctx.fillText(text, 50, canvas.height / 2);
+			ctx.fillStyle = 'white'
+		}
+		
 		function drawBall(x, y) {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.beginPath();
 			ctx.arc(x, y, ballRadius, 0, Math.PI*2);
 			ctx.fillStyle = "#FFFFFF";
 			ctx.fill();
-			ctx.stroke();
 			ctx.closePath();
-
 		}
 		
 	},
