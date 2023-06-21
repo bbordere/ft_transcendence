@@ -57,6 +57,26 @@ export default {
 			console.log('Vous avez été déconnecté du jeu.');
 		});
 
+		const canvas = document.getElementById('pongCanvas');
+		const ctx = canvas.getContext('2d');
+
+		this.socket.on('updateBall', (data) => {
+			drawBall(data.position.x, data.position.y);
+		});
+
+		const ballRadius = 20;
+
+
+		function drawBall(x, y) {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.beginPath();
+			ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+			ctx.fillStyle = "#FFFFFF";
+			ctx.fill();
+			ctx.stroke();
+			ctx.closePath();
+
+		}
 		
 	},
 	beforeUnmount(){

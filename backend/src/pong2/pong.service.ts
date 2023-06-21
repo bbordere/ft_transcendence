@@ -102,27 +102,23 @@ export class PongGame {
 	}
 
 	async playGame(client: Socket, room: Room) {
-		await this.initGame(room)
-		this.gameInterval = setInterval(() => {
-			console.log("ON LOOP", client.data.user["name"]);
-			// if (room.state !== State.QUEUE) {
-			// 	room.state = State.PLAY;
-			// 	this.updateBall(client, room);
-			// }
-			// if (room.players.length === 1 && room.state !== State.QUEUE){
-			// 	console.log(this.gameInterval);
-			// 	clearInterval(this.gameInterval);
-			// }
-		}, 2000);
+		await this.initGame(room);
+		client.data.gameInterval = setInterval(() => {
+			if (room.players.length === 2)
+				room.state = State.PLAY;
+			if (room.state === State.PLAY) {
+				this.updateBall(client, room);
+			}
+		}, 25);
 	}
 
 	async leaveRoomSocket(socketId: string, client: Socket){
 		for (var room of this.rooms as Room[]){
-			console.log("DECO", client.data.user["name"]);
+			// console.log("DECO", client.data.user["name"]);
 			if (room.players[0].socket.id === socketId || room.players[1].socket.id === socketId){
 				console.log("STOP INTER", client.data.user["name"]);
 				room.players = room.players.filter((element) => element.socket.id !== socketId);
-				clearInterval(this.gameInterval);
+				clearInterval(client.data.gameInterval);
 			}
 			if (!room.players.length)
 				this.rooms = this.rooms.filter((el) => el !== room);
@@ -131,14 +127,14 @@ export class PongGame {
 
 	async checkDisconnection(client: Socket, room: Room){
 		const it = setInterval(() => {
-			console.log("CHECK DECO");
-			console.log(room.players.length === 1 && room.state === State.PLAY);
-			// if (room.players.length === 1 && room.state === State.PLAY){
-			// 	console.log("STOPPING", client.data.user["name"]);
-			// 	clearInterval(this.gameInterval);
-			// 	clearInterval(it);
-			// 	client.disconnect();
-			// }
-		}, 2000);
+			// console.log("CHECK DECO");
+			// console.log(room.players.length === 1 && room.state === State.PLAY);
+			if (room.players.length === 1 && room.state === State.PLAY){
+				console.log("STOPPING", client.data.user["name"]);
+				clearInterval(client.data.gameInterval);
+				clearInterval(it);
+				client.disconnect();
+			}
+		}, 1000);
 	}
 }
