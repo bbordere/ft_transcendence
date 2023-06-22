@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Ball, Mode, Room, State } from './interface/room.interface';
-import { Player } from './interface/player.interface';
+import { Player, Racket } from './interface/player.interface';
 
 @Injectable()
 export class PongGame {
@@ -63,6 +63,25 @@ export class PongGame {
 		room.ball.speed = 2;
 	}
 
+	async resetRacket(room: Room) {
+		if (room.players[0]){
+			room.players[0].racket.top_pos.x = 100;
+			room.players[0].racket.top_pos.y = 500;
+			room.players[0].racket.bot_pos.x = 100;
+			room.players[0].racket.bot_pos.x = 700;
+			room.players[0].racket.size = 200;
+			room.players[0].racket.width = 50;
+		}
+		if (room.players[1]){
+			room.players[1].racket.top_pos.x = 1900;
+			room.players[1].racket.top_pos.y = 500;
+			room.players[1].racket.bot_pos.x = 1900;
+			room.players[1].racket.bot_pos.x = 700;
+			room.players[1].racket.size = 200;
+			room.players[1].racket.width = 50;
+		}
+	}
+
 	updateBall(client:Socket,  room: Room) {
 
 		const next = {
@@ -81,7 +100,11 @@ export class PongGame {
 
 		room.ball.position.x += room.ball.direction.x * room.ball.speed;
 		room.ball.position.y += room.ball.direction.y * room.ball.speed;
-		client.emit("updateBall", room.ball);
+	}
+
+	updateGame(client: Socket, room: Room) {
+		this.updateBall(client, room);
+		client.emit("updateGame", room.ball, room.players[0].racket, room.players[1].racket);
 	}
 
 	async initGame(room: Room) {
@@ -89,6 +112,17 @@ export class PongGame {
 			room.ball = new Ball();
 			await this.resetBall(room);
 		}
+
+		if (!room.players[0].racket)
+			room.players[0].racket = new Racket()
+
+		if (room.players[1]){
+			if (!room.players[1].racket)
+				room.players[1].racket = new Racket()
+		}
+
+		if (room.players[1] && room.players[1].racket)
+			await this.resetRacket(room);
 		room.canvas.width = 2000;
 		room.canvas.height = 1200;
 	}
@@ -112,7 +146,7 @@ export class PongGame {
 					break;
 
 				case State.PLAY:
-					this.updateBall(client, room);
+					this.updateGame(client, room);
 					break;
 				
 				default:

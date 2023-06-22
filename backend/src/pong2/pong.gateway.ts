@@ -9,7 +9,7 @@ import {
 import { Socket, Server } from 'socket.io';
 import { PongGame } from './pong.service';
 import { Coords, Room } from './interface/room.interface';
-import { Player } from './interface/player.interface';
+import { Player, Racket } from './interface/player.interface';
 import { AuthService } from 'src/auth/auth.service';
 import { Mode } from 'src/pong/interface/room.interface';
 
@@ -41,10 +41,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			console.log("NEW CO")
 			player = {
 				socket: client,
-				position: { x: 0, y: 0 },
 				score: 0,
 				user: client.data.user,
-				roomId: -1
+				roomId: -1,
+				racket: undefined
 			};
 			this.playerMap.set(client.data.user["email"],player);
 		}
