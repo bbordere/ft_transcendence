@@ -1,8 +1,9 @@
-<script setup lang="ts">
-
-const props = defineProps({
-	show: Boolean
-})
+<script lang="ts">
+export default {
+	props: {
+		show: Boolean
+	}
+}
 
 </script>
 

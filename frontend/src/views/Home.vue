@@ -4,8 +4,23 @@
 		<div class="home_content">
 			<div class="left_column">
 				<router-link class="play_button" to="/pong">Jouer</router-link>	
-				<div class="match_historic">
-					<label>macht_historic</label>
+				<div class="friend_list">
+					<div class="add_friend">
+						<button id="show-modal" @click="showModal = true">Ami +</button>
+						<Teleport to="body">
+						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
+						</Teleport>
+						<button id="show-modal" @click="showModal = true">Channel +</button>
+						<Teleport to="body">
+						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
+						</Teleport>
+					</div>
+					<div class="list">
+						<div class="friends"></div>
+					</div>
+					<!-- <ul>
+						<li v-for="channel in channels"><button :key="channel.id" @click="showChannel(channel.id)">{{ channel.name }}</button></li>
+					</ul> -->
 				</div>
 			</div>
 			<div class="chat">
@@ -24,41 +39,9 @@
 					</div>
 				</div>
 			</div>
-
-			<div class="right_column">
-
-				<div class="friend_list">
-					<label>friend_list</label>
-					<ul>
-						<li v-for="channel in channels"><button :key="channel.id" @click="showChannel(channel.id)">{{ channel.name }}</button></li>
-					</ul>
-				</div>
-
-				<div class="join_panel">
-					<button id="show-modal" @click="showModal = true">Rejoindre</button>
-					<Teleport to="body">
-						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
-					</Teleport>
-					<button id="show-modal" @click="showModal = true">Channel+</button>
-					<Teleport to="body">
-						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
-					</Teleport>
-					<button id="show-modal" @click="showModal = true">Ami+</button>
-					<Teleport to="body">
-						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
-					</Teleport>
-				</div>
-			</div>
 		</div>
 	</div>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import ModalAdd from '../components/ModalAdd.vue'
-
-const showModal = ref(false);
-</script>
 
 <script lang="ts">
 
@@ -68,8 +51,8 @@ const showModal = ref(false);
 
 import Head from '../components/head.vue'
 import io from 'socket.io-client';
+import ModalAdd from '../components/ModalAdd.vue'
 import { defineComponent } from 'vue';
-
 
 interface Message {
 	id: number,
@@ -92,8 +75,13 @@ export class Channel {
 };
 
 export default defineComponent({
+	components: {
+			ModalAdd,
+			Head
+		},
 	data() {
 		return {
+			showModal: false,
 			socket: null as any,
 			connected: false as Boolean,
 			message: '' as string,
@@ -171,9 +159,6 @@ export default defineComponent({
 			this.selectedChannel = this.channels[id];
 		}
 	},
-	components: {
-		Head,
-	}
 });
 
 </script>
@@ -185,8 +170,11 @@ export default defineComponent({
 	height: 80vh;
 	align-items: center;
 	justify-content: center;
-	padding-top: 2%;
+	padding-top: 2.5%;
+	padding-left: 2.7%;
+	padding-bottom: 2%;
 	min-height: 600px;
+	min-width: 500px;
 }
 
 .home_content {
@@ -209,103 +197,105 @@ export default defineComponent({
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	height: 25%;
+	height: 20%;
 	width: 100%;
 	background: #036280;
 	border: 3px solid #BC0002;
 	border-radius: 25px;
 	text-decoration: none;
 	color: black;
-	font-size: 100%;
+	font-size: 3em;
 }
 
 .play_button:hover {
 	background-color: #42badf;
 }
 
-.match_historic {
-	display: flex;
-	height: 75%;
-	width: 100%;
-	background: #D9D9D9;
-	border: 3px solid #BC0002;
-	border-radius: 10px;
-}
-
 .chat {
 	display: flex;
-	height: 100%;
+	height: 99%;
 	width: 45%;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	background: #D9D9D9;
+	background: #F0F8FF;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
-}
-
-.right_column {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 4%;
-	flex-grow: 0.2;
 }
 
 .friend_list {
 	display: flex;
-	height: 65%;
+	flex-direction: column;
+	height: 90%;
 	width: 100%;
-	background: #D9D9D9;
+	background-color: #F0F8FF;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
 
-.join_panel button {
+.add_friend {
 	display: flex;
-	flex-direction: row;
-	height: 100%;
+	justify-content: center;
+	align-items: center;
+	padding-left: 2%;
+	padding-top: 2%;
+	height: 8%;
 	width: 95%;
+	gap: 2%;
+}
+
+.add_friend button {
+	display: flex;
+	background-color: #DBEFFC;
 	align-items: center;
 	justify-content: center;
-	font-size: 100%;
-	margin: 2%;
-	background-color: #036280;
+	height: 100%;
+	flex-grow: 1;
+	font-size: 1em;
 	border-radius: 10px;
-	border: none;
 	cursor: pointer;
 }
 
-.join_panel {
-	display: flex;
-	flex-direction: column;
-	height: 35%;
-	width: 100%;
-	background: #D9D9D9;
-	border: 3px solid #BC0002;
-	border-radius: 10px;
-	align-items: center;
-	justify-content: center;
-}
-
-.join_panel button:hover {
+.add_friend button:hover {
 	background-color: #42badf;
 }
 
-@media screen and (max-width: 800px) {
+.list {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	margin-top: 2%;
+	align-items: center;
+	background-color: red;
+}
+
+.friends {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	overflow-y: auto;
+	height: 92%;
+	background-color: black;
+}
+
+.friend {
+	margin-top: 5%;
+	margin-bottom: 5%;
+}
+
+
+@media screen and (max-width: 1150px) {
 	.join_panel button {
 		font-size: 65%;
 	}
 
-	.right_column {
-		flex-grow: 0.6;
-		margin-right: 2%;
-	}
-
 	.left_column {
 		flex-grow: 0.6;
-		margin-left: 2%;
+	}
+
+	.chat {
+		width: 50%;
 	}
 }
 
