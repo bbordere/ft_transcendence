@@ -24,6 +24,7 @@ export class Canvas {
 	height: number;
 }
 
+
 export enum State {
 	QUEUE = 0,
 	INIT,
@@ -31,7 +32,8 @@ export enum State {
 	PLAY,
 	RESET,
 	WAITING,
-	ENDGAME
+	ENDGAME,
+	FINAL
 }
 
 export enum Mode {
@@ -45,7 +47,7 @@ export class Room {
 	state: State;
 	mode: Mode;
 	players: Array<Player>;
-	ball: Ball;
+	ball: Ball = undefined;
 	time: number;
 	canvas: Canvas
 }

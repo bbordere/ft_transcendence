@@ -6,7 +6,6 @@ import { Player } from './interface/player.interface';
 @Injectable()
 export class PongGame {
 	private rooms = [];
-	private gameInterval;
 	private lastRoomId = 0;
 
 	async createRoom(mode: Mode): Promise<Room> {
@@ -27,10 +26,9 @@ export class PongGame {
 		if (room.players.length < 2) {
 			room.players.push(player);
 			if (room.players.length === 2) {
-				console.log("2 joueur dans la room", room.id);
-				room.state = State.INIT;
+				if (room.state === State.QUEUE)
+					room.state = State.INIT;
 				player.roomId = room.id;
-				client.broadcast.emit("roomFull");
 			}
 			return (room);
 		} else {
@@ -45,7 +43,7 @@ export class PongGame {
 				console.log("trouver");
 				return (this.joinRoom(client, this.rooms[i], player));
 			}
-			if (this.rooms[i].state === State.QUEUE && mode === this.rooms[i].state) {
+			if (this.rooms[i].state === State.QUEUE && mode === this.rooms[i].mode) {
 				console.log("trouver");
 				return (this.joinRoom(client, this.rooms[i], player));
 			}
@@ -55,20 +53,6 @@ export class PongGame {
 		player.roomId = room.id;
 		return (this.joinRoom(client, room, player));
 	}
-
-	// async leaveRoom(player) {
-	// 	const room = player.room;
-	// 	if (room) {
-	// 		player.room = null;
-	// 		const index = room.players.indexOf(player);
-	// 		if (index !== -1) {
-	// 			room.players.splice(index, 1);
-	// 			if (room.state === 'PLAY' && room.players.length < 2) {
-	// 				// Gérer le cas où il ne reste qu'un seul joueur dans la salle en plein jeu
-	// 			}
-	// 		}
-	// 	}
-	// }
 
 	async resetBall(room: Room) {
 		room.ball.radius = 20
@@ -101,48 +85,72 @@ export class PongGame {
 	}
 
 	async initGame(room: Room) {
-		room.ball = new Ball();
+		if (!room.ball){
+			room.ball = new Ball();
+			await this.resetBall(room);
+		}
 		room.canvas.width = 2000;
 		room.canvas.height = 1200;
-		await this.resetBall(room);
 	}
 
 	async playGame(client: Socket, room: Room) {
 		await this.initGame(room);
 		client.data.gameInterval = setInterval(() => {
-			if (room.state === State.QUEUE){
-				client.emit('text', "QUEUEING");
-			}
-			if (room.players.length === 2 && room.state === State.INIT)
-				room.state = State.PLAY;
-			if (room.state === State.PLAY) {
-				this.updateBall(client, room);
+			switch (room.state) {
+				case State.QUEUE:
+					client.emit('text', "QUEUEING");
+					break;
+				case State.INIT:{
+					if (room.players.length === 2)
+						room.state = State.COOLDOWN;
+					break;
+				}
+
+				case State.COOLDOWN:
+					// Handle cooldown
+					room.state = State.PLAY;
+					break;
+
+				case State.PLAY:
+					this.updateBall(client, room);
+					break;
+				
+				default:
+					break;
 			}
 		}, 16);
 	}
 
 	async leaveRoomSocket(socketId: string, client: Socket){
 		for (var room of this.rooms as Room[]){
-			// console.log("DECO", client.data.user["name"]);
-			if (room.players[0].socket.id === socketId || room.players[1].socket.id === socketId){
-				console.log("STOP INTER", client.data.user["name"]);
-				// room.players = room.players.filter((element) => element.socket.id !== socketId);
-				clearInterval(client.data.gameInterval);
-				room.state = State.WAITING;
+			if (room.players.length === 2){
+				if (room.players[0].socket.id === socketId || room.players[1].socket.id === socketId){
+					console.log("STOP INTER", client.data.user["name"]);
+					room.players = room.players.filter((element) => element.socket.id !== socketId);
+					room.state = State.WAITING;
+				}
 			}
-			if (!room.players.length)
-				this.rooms = this.rooms.filter((el) => el !== room);
+			else if (room.players.length === 1){
+				room.state = State.FINAL;
+			}
 		}
 	}
 
+
 	async checkDisconnection(client: Socket, room: Room){
 		const it = setInterval(() => {
-			console.log(room.state);
 			if (room.state === State.WAITING){
-				console.log("WAITING");
 				client.emit('text', "WAITING");
-				clearInterval(client.data.gameInterval);
+				if (room.players.length == 2){
+					room.state = State.INIT;
+				}
 			}
+			if (room.state === State.FINAL){
+				clearInterval(client.data.gameInterval);
+				clearInterval(it);
+				this.rooms = this.rooms.filter((el) => el !== room);
+			}
+
 			// if (room.players.length === 1 && room.state === State.PLAY){
 			// 	console.log("STOPPING", client.data.user["name"]);
 			// 	clearInterval(client.data.gameInterval);
