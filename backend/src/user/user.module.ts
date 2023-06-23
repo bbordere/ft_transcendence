@@ -5,7 +5,7 @@ import { User } from './user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StatsDetail } from 'src/stats/stats.entity';
 import { ChatModule } from 'src/chat/chat.module';
-import { Channel } from 'src/chat/chat.entity';
+import { Channel } from 'src/chat/entities/channel.entity';
 
 @Module({
   providers: [UserService],

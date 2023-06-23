@@ -1,5 +1,6 @@
 import { User } from "src/user/user.entity";
-import { Column, Entity, Generated, ManyToMany, PrimaryColumn } from "typeorm";
+import { Message } from "./message.entity";
+import { Column, Entity, Generated, ManyToMany, OneToMany, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Channel {
@@ -12,4 +13,9 @@ export class Channel {
 
 	@ManyToMany(() => User, user => user.channels)
 	users: User[];
+
+	@OneToMany(() => Message, message => message.channel, {
+		cascade: true,
+	})
+	public messages: Message[];
 };

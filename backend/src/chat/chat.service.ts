@@ -1,25 +1,31 @@
 import { Injectable } from "@nestjs/common";
-import { Channel } from "./chat.entity";
+import { Channel } from "./entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { Message } from "./entities/message.entity";
+import { User } from "src/user/user.entity";
 
 @Injectable()
 export class ChatService {
 	constructor(
 		@InjectRepository(Channel)
-		private channelsRepo: Repository<Channel>,
+		private channelRepository: Repository<Channel>,
+		@InjectRepository(Message)
+		private messageRepository: Repository<Message>,
+		@InjectRepository(User)
+		private userRepository: Repository<User>,
 	) {}
 
 	getAll(): Promise<Channel[]> {
-		return (this.channelsRepo.find());
+		return (this.channelRepository.find());
 	}
 
 	getById(id: number): Promise<Channel | null> {
-		return (this.channelsRepo.findOneBy({ id }));
+		return (this.channelRepository.findOneBy({ id }));
 	}
 
 	getByName(name: string): Promise<Channel | null> {
-		return (this.channelsRepo.findOneBy({ name }));
+		return (this.channelRepository.findOneBy({ name }));
 	}
 
 	async create(name: string): Promise<Channel | null> {
@@ -27,13 +33,30 @@ export class ChatService {
 			return (null);
 		const channel = new Channel();
 		channel.name = name;
-		return (this.channelsRepo.save(channel));
+		return (this.channelRepository.save(channel));
 	}
 
 	async delete(name: string) {
 		let rm = await this.getByName(name);
 		if (rm == null)
 			return ;
-		this.channelsRepo.delete({ id: rm.id });
+		this.channelRepository.delete({ id: rm.id });
+	}
+
+	async addMessageToChannel(msg: {channelId: number, text: string, senderId: number}) {
+		const {channelId, text, senderId} = msg;
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['messages']});
+		if (!channel)
+			throw new Error(`Channel ${channelId} not found.`);
+		const message = new Message();
+		const sender = await this.userRepository.findOne({where: {id: senderId}});
+		message.text = text;
+		message.channel = channel;
+		message.sender = sender;
+
+		const savedMessage = await this.messageRepository.save(message);
+		channel.messages.push(savedMessage);
+		await this.channelRepository.save(channel);
+		return (savedMessage);
 	}
 }

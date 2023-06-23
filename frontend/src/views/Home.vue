@@ -59,7 +59,7 @@ import { defineComponent } from 'vue';
 import ModalAdd from '../components/ModalAdd.vue';
 
 interface Message {
-	chanId: number;
+	channelId: number;
 	text: string;
 	sender: number;
 }
@@ -69,8 +69,6 @@ interface Channel {
 	name: string;
 	messages: Message[],
 }
-
-// Why do I have to sockets with the same id ?
 
 export default defineComponent({
 	data() {
@@ -89,12 +87,18 @@ export default defineComponent({
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
 		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/joinedChannels', { credentials: 'include' })).json();
+		console.log(channels_json);
 		for (let i = 0; i < channels_json.length; i++) {
-			this.channels.push({
-				id: channels_json[i]['id'],
-				name: channels_json[i]['name'],
-				messages: [] as Message[],
-			});
+			const message_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/' + channels_json[i]['id'] + '/list', { credentials: 'include' });
+			if (message_response.ok) {
+				const messages = await message_response.json();
+			}
+				
+			// this.channels.push({
+			// 	id: channels_json[i]['id'],
+			// 	name: channels_json[i]['name'],
+			// 	messages: [] as Message[],
+			// });
 		}
 		this.init();
 	},
@@ -104,11 +108,11 @@ export default defineComponent({
 			this.socket = io('http://localhost:3000/')
 			this.socket.on('connect', () => { this.connected = true; });
 			this.socket.on('disconnect', () => { this.connected = false; });
-			this.socket.on('message', (data: { chanId: number, text: string, sender: number }) => {
-				const { chanId, text, sender } = data;
-				const channel = this.findChannel(chanId);
-				channel?.messages.push({
-					chanId: chanId,
+			this.socket.on('message', (data: { channelId: number, text: string, sender: number }) => {
+				const { channelId, text, sender } = data;
+				const channel = this.findChannel(channelId);
+				channel?.messages?.push({
+					channelId: channelId,
 					text: text,
 					sender: sender,
 				});
@@ -132,20 +136,23 @@ export default defineComponent({
 		sendMessage() {
 			if (this.socket && this.message) {
 				const data = {
-					chanId: this.selectedChannel.id,
+					channelId: this.selectedChannel.id,
 					text: this.message,
 					sender: this.sender,
 				};
-				// this.selectedChannel.messages.push(data);
 				this.socket.emit('message', data);
-				// Push the message into the database
 				this.message = '';
 			}
 		},
 
-		showChannel(chan: Channel) {
+		async showChannel(chan: Channel) {
 			this.showDiv = true;
 			this.selectedChannel = chan;
+			// const response = await fetch('http://' + import.meta.env.VITE_HOST + '/message/' + chan.id + '/list', {credentials: 'include'});
+			// if (!response['ok'])
+			// 	return ;
+			// const response_json = await response.json();
+			// console.log(response.json());
 		},
 
 		async joinChannel(name: string) {

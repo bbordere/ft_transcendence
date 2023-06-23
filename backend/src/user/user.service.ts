@@ -3,11 +3,11 @@ import { BadRequestException, Injectable, NotAcceptableException } from '@nestjs
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { AuthLoginDto, AuthRegisterDto } from 'src/auth/dtos/auth.dto';
+import { AuthRegisterDto } from 'src/auth/dtos/auth.dto';
 import { AuthLogin42Dto } from 'src/auth/dtos/auth42.dto';
 import { StatsDetail } from 'src/stats/stats.entity';
 import { validate } from 'class-validator';
-import { Channel } from 'src/chat/chat.entity';
+import { Channel } from 'src/chat/entities/channel.entity';
 
 @Injectable()
 export class UserService {

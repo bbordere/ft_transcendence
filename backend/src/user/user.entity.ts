@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, OneToOne, ManyToMany, JoinTable } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { StatsDetail } from '../stats/stats.entity'
-import { Channel } from "src/chat/chat.entity";
+import { Channel } from "src/chat/entities/channel.entity";
 
 @Entity()
 export class User{

@@ -6,8 +6,9 @@ import {
 	OnGatewayConnection,
 	OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Logger, PayloadTooLargeException } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
+import { ChatService } from './chat.service';
 
 @WebSocketGateway({
 	cors: {
@@ -15,13 +16,18 @@ import { Socket, Server } from 'socket.io';
 	}
 })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+	constructor(
+		private readonly chatService: ChatService,
+	) {}
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('ChatGateway');
 
 	@SubscribeMessage('message')
-	handleMessage(client: Socket, payload: string): string {
+	handleMessage(client: Socket, payload: any) {
 		this.server.emit('message', payload);
-		this.logger.log(`message received: ${payload}`);
+		this.logger.log(`message received: ${payload['text']}`);
+		console.log(payload)
+		this.chatService.addMessageToChannel(payload)
 		return (payload);
 	}
 
