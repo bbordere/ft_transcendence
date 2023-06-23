@@ -43,20 +43,27 @@ export class ChatService {
 		this.channelRepository.delete({ id: rm.id });
 	}
 
-	async addMessageToChannel(msg: {channelId: number, text: string, senderId: number}) {
-		const {channelId, text, senderId} = msg;
+	async addMessageToChannel(msg: {channelId: number, text: string, sender: number}) {
+		const {channelId, text, sender} = msg;
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['messages']});
 		if (!channel)
 			throw new Error(`Channel ${channelId} not found.`);
 		const message = new Message();
-		const sender = await this.userRepository.findOne({where: {id: senderId}});
+		const senderUser = await this.userRepository.findOne({where: {id: sender}});
 		message.text = text;
 		message.channel = channel;
-		message.sender = sender;
+		message.sender = senderUser;
 
 		const savedMessage = await this.messageRepository.save(message);
 		channel.messages.push(savedMessage);
 		await this.channelRepository.save(channel);
 		return (savedMessage);
+	}
+
+	async getChannelMessages(channelId: number): Promise<Message[] | null> {
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['messages']});
+		if (!channel)
+			return (null);
+		return (channel.messages);
 	}
 }

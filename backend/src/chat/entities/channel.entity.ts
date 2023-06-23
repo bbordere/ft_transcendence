@@ -16,6 +16,8 @@ export class Channel {
 
 	@OneToMany(() => Message, message => message.channel, {
 		cascade: true,
+		onDelete: 'CASCADE',
+		onUpdate: 'CASCADE',
 	})
 	public messages: Message[];
 };

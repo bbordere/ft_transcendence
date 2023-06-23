@@ -10,6 +10,7 @@ export class Message {
 
 	@ManyToOne(() => Channel, {
 		nullable: false,
+		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'channel' })
 	public channel: Channel;
@@ -19,6 +20,8 @@ export class Message {
 
 	@ManyToOne(() => User, {
 		nullable: false,
+		cascade: true,
+		eager: true,
 	})
 	@JoinColumn({ name: 'sender' })
 	public sender: User;

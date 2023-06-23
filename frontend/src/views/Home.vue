@@ -45,7 +45,7 @@
 					<Teleport to="body">
 						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
 					</Teleport>
-					<button id="show-modal" @click="deleteChannel('bonsoir')">Channel-</button>
+					<button id="show-modal" @click="deleteChannel('salut')">Channel-</button>
 				</div>
 			</div>
 		</div>
@@ -70,12 +70,14 @@ interface Channel {
 	messages: Message[],
 }
 
+// Maybe store the selected channel in a cookie
+
 export default defineComponent({
 	data() {
 		return {
 			socket: null as any,
 			channels: [] as Channel[],
-			connected: true as Boolean,
+			connected: false as Boolean,
 			sender: -1 as number,
 			message: '' as string,
 			selectedChannel: {} as Channel,
@@ -87,18 +89,12 @@ export default defineComponent({
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
 		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/joinedChannels', { credentials: 'include' })).json();
-		console.log(channels_json);
 		for (let i = 0; i < channels_json.length; i++) {
-			const message_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/' + channels_json[i]['id'] + '/list', { credentials: 'include' });
-			if (message_response.ok) {
-				const messages = await message_response.json();
-			}
-				
-			// this.channels.push({
-			// 	id: channels_json[i]['id'],
-			// 	name: channels_json[i]['name'],
-			// 	messages: [] as Message[],
-			// });
+			this.channels.push({
+				id: channels_json[i]['id'],
+				name: channels_json[i]['name'],
+				messages: await this.getChannelMessages(channels_json[i]['id']),
+			});
 		}
 		this.init();
 	},
@@ -111,11 +107,13 @@ export default defineComponent({
 			this.socket.on('message', (data: { channelId: number, text: string, sender: number }) => {
 				const { channelId, text, sender } = data;
 				const channel = this.findChannel(channelId);
-				channel?.messages?.push({
-					channelId: channelId,
-					text: text,
-					sender: sender,
-				});
+				if (channel) {
+					channel.messages.push({
+						channelId: channelId,
+						text: text,
+						sender: sender,
+					});
+				}
 			});
 		},
 		async createChannel(name: string) {
@@ -148,29 +146,28 @@ export default defineComponent({
 		async showChannel(chan: Channel) {
 			this.showDiv = true;
 			this.selectedChannel = chan;
-			// const response = await fetch('http://' + import.meta.env.VITE_HOST + '/message/' + chan.id + '/list', {credentials: 'include'});
-			// if (!response['ok'])
-			// 	return ;
-			// const response_json = await response.json();
-			// console.log(response.json());
+			this.selectedChannel.messages = await this.getChannelMessages(chan.id);
 		},
 
 		async joinChannel(name: string) {
-			const channel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + name, { credentials: 'include' })).json();
-			for (let i = 0; i < this.channels.length; i++)
-				if (this.channels[i].id === channel['id'])
-					return;
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
-				credentials: 'include',
-				method: "POST",
-			});
-			if (response['ok'] === true) {
-				this.channels.push(channel);
-				this.selectedChannel = channel;
-				// Retrieve all the messages from the database
-				if (this.selectedChannel.messages === undefined)
-					this.selectedChannel.messages = [] as Message[];
+			let response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + name, { credentials: 'include' })
+			try {
+				const channel = await response.json();
+				for (let i = 0; i < this.channels.length; i++)
+					if (this.channels[i].id === channel['id'])
+						return;
+				response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
+					credentials: 'include',
+					method: "POST",
+				});
+				if (response['ok'] === true) {
+					this.channels.push(channel);
+					this.selectedChannel = channel;
+					if (this.selectedChannel.messages === undefined)
+						this.selectedChannel.messages = [] as Message[];
+				}
 			}
+			catch { }
 		},
 
 		findChannel(id: number): Channel | null {
@@ -196,6 +193,25 @@ export default defineComponent({
 				this.showDiv = false;
 			}
 		},
+
+		async getChannelMessages(channelId: number): Promise<Message[]> {
+			const message_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/' + channelId + '/list', { credentials: 'include' });
+			let messages = [] as Message[];
+			try {
+				const messages_json = await message_response.json();
+				for (let i = 0; i < messages_json.length; i++) {
+					messages.push({
+						channelId: channelId,
+						text: messages_json[i].text,
+						sender: messages_json[i].sender.id,
+					});
+				}
+				return (messages);
+			}
+			catch {
+				return ([] as Message[]);
+			}
+		}
 	},
 
 	components: {
