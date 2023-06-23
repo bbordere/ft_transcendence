@@ -117,11 +117,11 @@ export class AuthService {
         }
     }
 
-	async getUserFromToken(token: string): Promise<User | undefined>{
+	async getUserFromToken(token: string): Promise<Partial<User> | undefined>{
 		if (!token)
 			return (undefined);
 		const email: string = this.jwtService.decode(token)["email"];
 		const user: User = await this.usersService.getByEmail(email);
-		return (user);
+		return (this.usersService.getPartialUser(user));
 	}
 }

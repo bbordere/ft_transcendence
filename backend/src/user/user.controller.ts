@@ -11,20 +11,22 @@ export class UserController {
 	//TODO SEND PARTIAL USER TO NOT SEND CRITICAL VALUES
 
 	@Get()
-	getUsers(){
+	async getUsers(){
 		return (this.userService.getAllUsers());
 	}
 	
 	@Get('/me')
 	@UseGuards(JwtAuthGuard)
-	me(@Req() req: Request){
+	async me(@Req() req: Request){
 		const id = req["user"]["user"]["id"];
-		return (this.userService.getById(id));
+		const user = await this.userService.getById(id);
+		return (this.userService.getPartialUser(user));
 	}
 	
 	@Get(":name")
-	getUserByName(@Param('name') name: string){
-		return (this.userService.getByName(name));
+	async getUserByName(@Param('name') name: string){
+		const user = await this.userService.getByName(name)
+		return (this.userService.getPartialUser(user));
 	}
 	
 	@Post('/setname')
@@ -38,8 +40,9 @@ export class UserController {
 	}
 	
 	@Get("/id/:id")
-	getUserById(@Param('id') id: number){
-		return (this.userService.getById(id));
+	async getUserById(@Param('id') id: number){
+		const user = await this.userService.getById(id);
+		return (this.userService.getPartialUser(user));
 	}
 	
 }

@@ -36,66 +36,60 @@
 	</div>
 </template>
 
-<script>
+<script lang="ts">
 import io from 'socket.io-client';
-import { onMounted } from 'vue';
 import Head from '../components/head.vue'
 
 export default {
 	data() {
-		return {playerName: ""};
+		return {playerName: "", socket: io()};
 	},
 	methods: {
-		async getData(){
-			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
-			const user = await res.json();
-			this.playerName = user["name"];
-		}
+
 	},
-	async mounted() {
-		await this.getData();
-		const socket = io("http://" + import.meta.env.VITE_HOST + ":3000", {
-				transports: ["websocket"],
-				extraHeaders: {"playername": this.playerName},
-				withCredentials: true,
-		});
+	mounted() {
+		this.socket = io('http://localhost:3000/pong');
 
-		socket.on('gameJoined', (data) => {
-			const playerId = data.playerId;
-			console.log(`Vous avez rejoint le jeu. Votre identifiant de joueur est : ${playerId}`);
-		});
+		//TO DO GET MODE FROM PAGE QUERY
+		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), 0);
 
-		socket.on('playerJoined', (data) => {
-			const playerId = data.playerId;
-			console.log(`Un nouveau joueur a rejoint le jeu. Identifiant du joueur : ${playerId}`);
-		});
-
-		socket.on('disconnect', () => {
+		this.socket.on('disconnect', () => {
+			this.socket.disconnect();
 			console.log('Vous avez été déconnecté du jeu.');
 		});
-
-		socket.emit('joinGame');
-
+		
 		const canvas = document.getElementById('pongCanvas');
 		const ctx = canvas.getContext('2d');
 
-		socket.on('updateBall', (data) => {
+		this.socket.on('updateBall', (data) => {
 			drawBall(data.position.x, data.position.y);
+		});
+
+		this.socket.on('text', (data) => {
+			drawText(data);
 		});
 
 		const ballRadius = 20;
 
 
+		function drawText(text: string){
+			ctx.font = "200px serif";
+			ctx.fillText(text, 50, canvas.height / 2);
+			ctx.fillStyle = 'white'
+		}
+		
 		function drawBall(x, y) {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.beginPath();
 			ctx.arc(x, y, ballRadius, 0, Math.PI*2);
 			ctx.fillStyle = "#FFFFFF";
 			ctx.fill();
-			ctx.stroke();
 			ctx.closePath();
-
 		}
+		
+	},
+	beforeUnmount(){
+		this.socket.disconnect();
 	}
 }
 </script>
@@ -150,7 +144,7 @@ export default {
 }
 
 .pong_screen {
-	max-width: 80%;
+	max-width: 100%;
 	max-height: 80%;
 	min-width: auto;
 	width: 100%;

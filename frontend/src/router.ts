@@ -3,7 +3,7 @@ import Home from '@/views/Home.vue'
 import Verif from '@/views/Verif.vue'
 import inscription from '@/views/Auth.vue'
 import profile from '@/views/Profile.vue'
-import pong from '@/views/pong2.vue'
+import pong from '@/views/pong.vue'
 import auth2f from '@/views/Auth2f.vue'
 import notFound from '@/views/NotFound.vue'
 import chat from '@/views/Chat.vue';

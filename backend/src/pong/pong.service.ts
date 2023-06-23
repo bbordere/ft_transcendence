@@ -1,17 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Coords, Canvas, Ball, Mode, Room, State } from './interface/room.interface';
+import { Ball, Mode, Room, State } from './interface/room.interface';
 import { Player } from './interface/player.interface';
 
 @Injectable()
 export class PongGame {
 	private rooms = [];
+	private lastRoomId = 0;
 
-	createRoom(): Room {
+	async getRooms(){
+		const filteredRooms = this.rooms.map(room => {
+			const { players, ...rest } = room;
+			const filteredPlayers = players.map(({ socket, ...player }) => player);
+			return { ...rest, players: filteredPlayers };
+		  });
+		return filteredRooms;
+	}
+
+	async createRoom(mode: Mode): Promise<Room> {
 		const room: Room = {
-			socket: null,
+			id: this.lastRoomId++,
 			state: State.QUEUE,
-			mode: Mode.standard,
+			mode: mode,
 			players: [],
 			ball: null,
 			time: 0,
@@ -21,14 +31,13 @@ export class PongGame {
 		return room;
 	}
 
-	joinRoom(client: Socket, room: Room, player: Player): Room {
+	async joinRoom(client: Socket, room: Room, player: Player): Promise<Room> {
 		if (room.players.length < 2) {
-			player.room = room;
 			room.players.push(player);
 			if (room.players.length === 2) {
-				console.log("2 joueur dans la room");
-				room.state = State.INIT;
-				client.broadcast.emit("roomFull");
+				if (room.state === State.QUEUE)
+					room.state = State.INIT;
+				player.roomId = room.id;
 			}
 			return (room);
 		} else {
@@ -36,34 +45,25 @@ export class PongGame {
 		}
 	}
 
-	searchRoom(client: Socket, player: Player): Room {
-	 	for(var i: number = 0; i < this.rooms.length; i++) {
+	async searchRoom(client: Socket, player: Player, mode: Mode): Promise<Room> {
+	 	for (var i: number = 0; i < this.rooms.length; i++) {
 			console.log("recherche");
-			if (this.rooms[i].state === State.QUEUE) {
+			if (this.rooms[i].id === player.roomId){
+				console.log("trouver");
+				return (this.joinRoom(client, this.rooms[i], player));
+			}
+			if (this.rooms[i].state === State.QUEUE && mode === this.rooms[i].mode) {
 				console.log("trouver");
 				return (this.joinRoom(client, this.rooms[i], player));
 			}
 		}
 		console.log("pas trouver");
-		const room: Room = this.createRoom();
+		const room: Room = await this.createRoom(mode);
+		player.roomId = room.id;
 		return (this.joinRoom(client, room, player));
 	}
 
-	leaveRoom(player) {
-		const room = player.room;
-		if (room) {
-			player.room = null;
-			const index = room.players.indexOf(player);
-			if (index !== -1) {
-				room.players.splice(index, 1);
-				if (room.state === 'PLAY' && room.players.length < 2) {
-					// Gérer le cas où il ne reste qu'un seul joueur dans la salle en plein jeu
-				}
-			}
-		}
-	}
-
-	resetBall(room: Room) {
+	async resetBall(room: Room) {
 		room.ball.radius = 20
 		room.ball.position.x = 150;
 		room.ball.position.y = 75;
@@ -72,41 +72,93 @@ export class PongGame {
 		room.ball.speed = 2;
 	}
 
-	updateBall(client:Socket,  room: Room): any {
+	updateBall(client:Socket,  room: Room) {
 
 		const next = {
 			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
 			y: room.ball.direction.x * room.ball.speed + room.ball.radius,
 		}
-
-		if(room.ball.position.x + next.x > room.canvas.width
-				|| room.ball.position.x + next.x < room.ball.radius) {
+		if (room.ball.position.x + next.x > room.canvas.width
+				|| room.ball.position.x + next.x < (room.ball.radius * 2)) {
 			room.ball.direction.x *= -1;
 		}
-		if(room.ball.position.y + next.y > room.canvas.height
-				|| room.ball.position.y + next.y < room.ball.radius) {
+		if (room.ball.position.y + next.y > room.canvas.height
+				|| room.ball.position.y + next.y < (room.ball.radius * 2)) {
 			room.ball.direction.y *= -1;
 		}
-
 		room.ball.position.x += room.ball.direction.x * room.ball.speed;
 		room.ball.position.y += room.ball.direction.y * room.ball.speed;
 		client.emit("updateBall", room.ball);
 	}
 
-	initGame(room: Room) {
-		room.ball = new Ball();
+	async initGame(room: Room) {
+		if (!room.ball){
+			room.ball = new Ball();
+			await this.resetBall(room);
+		}
 		room.canvas.width = 2000;
 		room.canvas.height = 1200;
-		this.resetBall(room);
 	}
 
-	playGame(client: Socket, room: Room) {
-			this.initGame(room)
-			setInterval(() => {
-				if (room.state !== State.QUEUE) {
-					room.state = State.PLAY;
-					this.updateBall(client, room);
+	async playGame(client: Socket, room: Room) {
+		await this.initGame(room);
+		client.data.gameInterval = setInterval(() => {
+			if (client.disconnected){
+				clearInterval(client.data.gameInterval);
+				return;
 			}
-		}, 16);
+			switch (room.state) {
+				case State.QUEUE:
+					client.emit('text', "QUEUEING");
+					break;
+				case State.INIT:{
+					if (room.players.length === 2)
+						room.state = State.COOLDOWN;
+					break;
+				}
+
+				case State.COOLDOWN:
+					// Handle cooldown
+					room.state = State.PLAY;
+					break;
+
+				case State.PLAY:
+					this.updateBall(client, room);
+					break;
+				
+				default:
+					break;
+			}
+		}, 20);
+	}
+
+	async leaveRoomSocket(socketId: string, client: Socket){
+		for (var room of this.rooms as Room[]){
+			if (room.players.length === 2){
+				if (room.players[0].socket.id === socketId || room.players[1].socket.id === socketId){
+					room.players = room.players.filter((element) => element.socket.id !== socketId);
+					room.state = State.WAITING;
+				}
+			}
+			else if (room.players.length === 1){
+				room.state = State.FINAL;
+			}
+		}
+	}
+
+	async checkDisconnection(client: Socket, room: Room){
+		const it = setInterval(() => {
+			if (room.state === State.WAITING){
+				client.emit('text', "WAITING");
+				if (room.players.length == 2){
+					room.state = State.INIT;
+				}
+			}
+			if (room.state === State.FINAL){
+				clearInterval(client.data.gameInterval);
+				clearInterval(it);
+				this.rooms = this.rooms.filter((el) => el !== room);
+			}
+		}, 500);
 	}
 }

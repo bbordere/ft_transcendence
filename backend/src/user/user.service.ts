@@ -21,6 +21,17 @@ export class UserService {
 		return (res += "invalide !");
 	}
 
+	async getPartialUser(user: User): Promise<Partial<User>>{
+		return {
+			id: user.id,
+			email: user.email,
+			name: user.name,
+			auth2f: user.auth2f,
+			avatarLink: user.avatarLink,
+			stats: user.stats,
+		}
+	}
+
 	getAllUsers(): Promise<string[]>{
 		// return (this.usersRepository.find({select: {name: true}}));
 		const names = this.usersRepository
