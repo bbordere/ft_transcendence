@@ -21,7 +21,7 @@ export class AuthController {
 	async logout(@Res({ passthrough: true }) res: Response){
 		res.cookie('access_token', '', {expires: new Date()});
 		res.cookie('auth2f_token', '', {expires: new Date()});
-		res.redirect("http://" + process.env.HOST + ":8080/auth");
+		res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth");
 	}
 
 	@Get('/42/login')
@@ -41,11 +41,12 @@ export class AuthController {
 		const tokens: string = await this.authService.getTokenByUser(req.user);
 		if (req.user.auth2f){
 			res.cookie('auth2f_token', tokens, {httpOnly: true, sameSite: "lax"});
-			res.redirect("http://" + process.env.HOST + ":8080/auth/2fa/verif?plan=verify");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/verif?plan=verify");
+			
 		}
 		else {
 			res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
-			res.redirect("http://" + process.env.HOST + ":8080/");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/");
 		}
 	}
 
@@ -83,7 +84,7 @@ export class AuthController {
 		const { otpAuthUrl } = await this.authService.generate2FASecret(request.user.user);
 		toFile('qrcode/' + request.user.user.email + '.png', otpAuthUrl);
 		let QRCode = await this.authService.generateQrCode(otpAuthUrl);
-		res.redirect("http://" + process.env.HOST + ":8080/auth/2fa/home");
+		res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/home");
 	}
 
 	@Post('2fa/on')

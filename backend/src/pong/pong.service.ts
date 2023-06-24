@@ -5,16 +5,25 @@ import { Player } from './interface/player.interface';
 
 @Injectable()
 export class PongGame {
-	private rooms = [];
 	private lastRoomId = 0;
+	private roomsMap: Map<Mode, Room[]> = new Map();
 
-	async getRooms(){
-		const filteredRooms = this.rooms.map(room => {
+	async extractRoom(rooms: Room[]){
+		const filteredRooms = rooms.map(room => {
 			const { players, ...rest } = room;
 			const filteredPlayers = players.map(({ socket, ...player }) => player);
 			return { ...rest, players: filteredPlayers };
 		  });
 		return filteredRooms;
+	}
+
+	async getRooms(){
+		let res = [];
+		const keysArray = Array.from(this.roomsMap.keys());
+		for (var key of keysArray){
+			res.push(await this.extractRoom(this.roomsMap.get(key)));
+		}
+		return (res);
 	}
 
 	async createRoom(mode: Mode): Promise<Room> {
@@ -27,7 +36,7 @@ export class PongGame {
 			time: 0,
 			canvas: {width: 2000, height:1200}
 		};
-		this.rooms.push(room);
+		this.roomsMap.get(mode).push(room);
 		return room;
 	}
 
@@ -38,6 +47,7 @@ export class PongGame {
 				if (room.state === State.QUEUE)
 					room.state = State.INIT;
 				player.roomId = room.id;
+				client.data.room = room;
 			}
 			return (room);
 		} else {
@@ -45,22 +55,27 @@ export class PongGame {
 		}
 	}
 
+	async isInsideRoom(room: Room, player: Player): Promise<Boolean>{
+		const playerNames: string[] = room.players.map((player) => player.user.name);
+		return (playerNames.includes(player.user.name));
+	}
+
 	async searchRoom(client: Socket, player: Player, mode: Mode): Promise<Room> {
-	 	for (var i: number = 0; i < this.rooms.length; i++) {
-			console.log("recherche");
-			if (this.rooms[i].id === player.roomId){
-				console.log("trouver");
-				return (this.joinRoom(client, this.rooms[i], player));
-			}
-			if (this.rooms[i].state === State.QUEUE && mode === this.rooms[i].mode) {
-				console.log("trouver");
-				return (this.joinRoom(client, this.rooms[i], player));
+		if (this.roomsMap.get(mode)){
+			for (var room of this.roomsMap.get(mode) as Room[]){
+				if ((room.id === player.roomId && !await this.isInsideRoom(room, player)) || room.state === State.QUEUE){
+					console.log("trouver");
+					return (this.joinRoom(client, room, player));
+				}
 			}
 		}
+		else {
+			this.roomsMap.set(mode, []);
+		}
 		console.log("pas trouver");
-		const room: Room = await this.createRoom(mode);
-		player.roomId = room.id;
-		return (this.joinRoom(client, room, player));
+		const newRoom: Room = await this.createRoom(mode);
+		player.roomId = newRoom.id;
+		return (this.joinRoom(client, newRoom, player));
 	}
 
 	async resetBall(room: Room) {
@@ -73,7 +88,6 @@ export class PongGame {
 	}
 
 	updateBall(client:Socket,  room: Room) {
-
 		const next = {
 			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
 			y: room.ball.direction.x * room.ball.speed + room.ball.radius,
@@ -133,15 +147,18 @@ export class PongGame {
 	}
 
 	async leaveRoomSocket(socketId: string, client: Socket){
-		for (var room of this.rooms as Room[]){
-			if (room.players.length === 2){
-				if (room.players[0].socket.id === socketId || room.players[1].socket.id === socketId){
-					room.players = room.players.filter((element) => element.socket.id !== socketId);
-					room.state = State.WAITING;
+		const keysArray = Array.from(this.roomsMap.keys());
+		for (var key of keysArray as Mode[]){
+			for (var room of this.roomsMap.get(key) as Room[]){
+				if (room.players.length === 2){
+					if (room.players[0].socket.id === socketId || room.players[1].socket.id === socketId){
+						room.players = room.players.filter((element) => element.socket.id !== socketId);
+						room.state = State.WAITING;
+					}
 				}
-			}
-			else if (room.players.length === 1){
-				room.state = State.FINAL;
+				else if (room.players.length === 1){
+					room.state = State.FINAL;
+				}
 			}
 		}
 	}
@@ -157,7 +174,7 @@ export class PongGame {
 			if (room.state === State.FINAL){
 				clearInterval(client.data.gameInterval);
 				clearInterval(it);
-				this.rooms = this.rooms.filter((el) => el !== room);
+				this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
 			}
 		}, 500);
 	}

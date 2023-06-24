@@ -48,7 +48,7 @@ export default {
 
 	},
 	mounted() {
-		this.socket = io('http://localhost:3000/pong');
+		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");		
 
 		//TO DO GET MODE FROM PAGE QUERY
 		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), 0);

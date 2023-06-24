@@ -66,19 +66,19 @@ export class AuthService {
 				throw new NotAcceptableException('User Already Exist !');
 			const user = await this.usersService.createUser42(data);
 			const payload = { username: user.name, email: user.email};
-			res.redirect("http://" + process.env.HOST + ":8080/");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/");			
 			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
 		}
 		if (user.auth2f === true)
 		{
 			const payload = { username: user.name, email: user.email};
-			res.redirect("http://" + process.env.HOST + ":8080/verif");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/verif");
 			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
 		}
 		else
 		{
 			const payload = { username: user.name, email: user.email};
-			res.redirect("http://" + process.env.HOST + ":8080/");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/");
 			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
 		}
 	}

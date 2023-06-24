@@ -26,7 +26,6 @@ async function login(){
 
 		})
 	})
-	const tokens = await res.json();
 	switch (res.status) {
 		case 406:{
 			const response = await res.json();

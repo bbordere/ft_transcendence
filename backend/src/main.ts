@@ -11,7 +11,7 @@ async function bootstrap() {
 	//   }});
 	const app = await NestFactory.create(AppModule);
 	const allowedDomains = ["http://localhost:8080", "http://" + process.env.HOST + ":8080", "http://172.18.0.4:3000"];
-	app.enableCors({origin: allowedDomains, credentials: true});
+	app.enableCors({origin: true, credentials: true});
 	app.useGlobalPipes(
 		new ValidationPipe({
 		  exceptionFactory: (errors) => {
