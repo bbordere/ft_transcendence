@@ -1,26 +1,37 @@
-<script setup lang="ts">
+<script lang="ts">
 
-async function header_data() {
-	const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
-	const text = await response.json();
-	console.log(text);
-	const avatar = text["avatarLink"];
-	const name = text["name"];
-}
+import { defineComponent } from 'vue';
 
+export default defineComponent({
+	data() {
+		return {
+			name: '' as string,
+			avatar: '' as string,
+		};
+	},
+
+	async mounted() {
+		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' });
+		const response_json = await response.json();
+		this.name = response_json['name'];
+		this.avatar = response_json['avatarLink'];
+	},
+})
 </script>
 
 <template>
 <header class="header">
 	<router-link to="/" class="logo" ><img class="logo_42" src="../assets/img/logo.png" alt="logo 42"></router-link>
 	<div class="profile_container">
-		<router-link class="box_img_profile" @click="header_data()" to="/profile"><img class="img_profile" :src="header_data()" alt="default profile img"></router-link>
-		<router-link class="profile" to="/profile">Mon Profil</router-link>
+		<router-link class="box_img_profile" to="/profile"><img class="img_profile" v-bind:src=avatar alt="default profile img"></router-link>
+		<router-link class="profile" to="/profile">{{ name }}</router-link>
 	</div>
 </header>
 </template>
 
 <style>
+
+@import url('https://fonts.googleapis.com/css2?family=Happy+Monkey&display=swap');
 
 .profile_container {
 	display: flex;
@@ -29,6 +40,7 @@ async function header_data() {
 }
 
 .header {
+	font-family: 'Happy Monkey', cursive;
 	display: flex;
 	height: 10vh;
 	border-bottom: 2px solid #BC0002;
@@ -64,7 +76,11 @@ header .profile {
 
 header .box_img_profile {
 	display: flex;
-	justify-content: end;
+	justify-content: start;
+}
+
+.img_profile{
+	border-radius:27px 0px 0px 27px;
 }
 
 </style>

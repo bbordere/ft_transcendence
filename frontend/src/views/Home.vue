@@ -53,22 +53,16 @@
 	</div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import ModalAdd from '../components/ModalAdd.vue'
-
-const showModal = ref(false);
-</script>
-
 <script lang="ts">
 
 /*
- 1. Will have to push the channels (and friends) in the database
+1. Will have to push the channels (and friends) in the database
 */
-
-import Head from '../components/head.vue'
 import io from 'socket.io-client';
+import { ref } from 'vue'
 import { defineComponent } from 'vue';
+import Head from '../components/head.vue'
+import ModalAdd from '../components/ModalAdd.vue'
 
 
 interface Message {
@@ -92,8 +86,13 @@ export class Channel {
 };
 
 export default defineComponent({
+	components: {
+		ModalAdd: ModalAdd,
+		Head: Head,
+	},
 	data() {
 		return {
+			showModal: false,
 			socket: null as any,
 			connected: false as Boolean,
 			message: '' as string,
@@ -171,9 +170,6 @@ export default defineComponent({
 			this.selectedChannel = this.channels[id];
 		}
 	},
-	components: {
-		Head,
-	}
 });
 
 </script>
