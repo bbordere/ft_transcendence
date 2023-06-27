@@ -34,7 +34,7 @@ export class PongGame {
 			players: [],
 			ball: null,
 			time: 0,
-			canvas: {width: 2000, height:1200}
+			canvas: {width: 2000, height: 1200}
 		};
 		this.roomsMap.get(mode).push(room);
 		return room;
@@ -55,7 +55,13 @@ export class PongGame {
 		}
 	}
 
-	async isInsideRoom(room: Room, player: Player): Promise<Boolean>{
+	async isSocketInsideRoom(room: Room, socketId: string): Promise<Boolean>{
+		const playerNames: string[] = room.players.map((player) => player.socket.id);
+		console.log(playerNames);
+		return (playerNames.includes(socketId));
+	}
+
+	async isPlayerInsideRoom(room: Room, player: Player): Promise<Boolean>{
 		const playerNames: string[] = room.players.map((player) => player.user.name);
 		return (playerNames.includes(player.user.name));
 	}
@@ -63,7 +69,7 @@ export class PongGame {
 	async searchRoom(client: Socket, player: Player, mode: Mode): Promise<Room> {
 		if (this.roomsMap.get(mode)){
 			for (var room of this.roomsMap.get(mode) as Room[]){
-				if ((room.id === player.roomId && !await this.isInsideRoom(room, player)) || room.state === State.QUEUE){
+				if ((room.id === player.roomId || room.state === State.QUEUE) && !await this.isPlayerInsideRoom(room, player)){
 					console.log("trouver");
 					return (this.joinRoom(client, room, player));
 				}
@@ -150,11 +156,11 @@ export class PongGame {
 		const keysArray = Array.from(this.roomsMap.keys());
 		for (var key of keysArray as Mode[]){
 			for (var room of this.roomsMap.get(key) as Room[]){
+				if (! await this.isSocketInsideRoom(room, socketId))
+					continue;
 				if (room.players.length === 2){
-					if (room.players[0].socket.id === socketId || room.players[1].socket.id === socketId){
-						room.players = room.players.filter((element) => element.socket.id !== socketId);
-						room.state = State.WAITING;
-					}
+					room.players = room.players.filter((element) => element.socket.id !== socketId);
+					room.state = State.WAITING;
 				}
 				else if (room.players.length === 1){
 					room.state = State.FINAL;
@@ -164,17 +170,29 @@ export class PongGame {
 	}
 
 	async checkDisconnection(client: Socket, room: Room){
+		let countDown: number = 0;
 		const it = setInterval(() => {
+			console.log(countDown);
 			if (room.state === State.WAITING){
 				client.emit('text', "WAITING");
+				countDown++;
 				if (room.players.length == 2){
 					room.state = State.INIT;
+					countDown = 0;
+				}
+				if (countDown === 10){
+					room.state = State.FINAL;
 				}
 			}
 			if (room.state === State.FINAL){
+				countDown = 0;
+				this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
+				client.emit('text', "FINISHED");
 				clearInterval(client.data.gameInterval);
 				clearInterval(it);
-				this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
+			}
+			if (room.state === State.PLAY){
+				countDown = 0;
 			}
 		}, 500);
 	}

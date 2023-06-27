@@ -92,10 +92,10 @@ export class AuthController {
 	async enable2fa(@Req() req, @Body() body, @Res() res) {
 		if (this.authService.isValidCode(req.user.user, body.code)){
 			this.userService.enable2fa(req.user.user.id)
-			return (res.send("Success"));
+			return (res.send({status: "Success", token: await this.authService.getTokenByUser(req["user"]["user"])}));
 		}
 		else
-			return (res.send("Failure"));
+			return (res.send({status: "Failure", token: ""}));
 	}
 
 	@Post('2fa/off')
@@ -104,10 +104,10 @@ export class AuthController {
 		if (this.authService.isValidCode(req.user.user, body.code)){
 			this.userService.disable2fa(req.user.user.id)
 			res.cookie('auth2f_token', '', {expires: new Date()});
-			return (res.send("Success"));
+			return (res.send({status: "Success", token: this.authService.getTokenByUser(req["user"]["user"])}));
 		}
 		else
-			return (res.send("Failure"));
+			return (res.send({status: "Failure", token: ""}));
 	}
 
 	@Get('2fa/qrcode')
@@ -123,10 +123,10 @@ export class AuthController {
 		if (this.authService.isValidCode(req.user.user, body.code)){
 			const tokens: string = await this.authService.getTokenByUser(req.user.user);
 			res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
-			return (res.send("Success"));
+			return (res.send({status: "Success", token: this.authService.getTokenByUser(req["user"]["user"])}));
 		}
 		else
-			return (res.send("Failure"));
+			return (res.send({status: "Failure", token: ""}));
 	}
 
 	@Get('2fa/status')

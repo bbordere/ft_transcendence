@@ -43,7 +43,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				user: client.data.user,
 				roomId: -1
 			};
-			this.playerMap.set(client.data.user["email"],player);
+			this.playerMap.set(client.data.user["email"], player);
 		}
 		else
 			player.socket = client;

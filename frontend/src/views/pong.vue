@@ -73,6 +73,7 @@ export default {
 
 
 		function drawText(text: string){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.font = "200px serif";
 			ctx.fillText(text, 50, canvas.height / 2);
 			ctx.fillStyle = 'white'
