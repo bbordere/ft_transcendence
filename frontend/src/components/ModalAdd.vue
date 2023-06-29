@@ -11,7 +11,6 @@ export default {
 	<Transition name="slide-fade" mode="out-in">
 	<div v-if="show" class="modal_overlay" @click="$emit('close')">
 		<div class="modal" @click.stop>
-			<button @click="$emit('close')">&times;</button>
 			<div class="form">
 				<div class="field">
 					<h1>Nom du Channel</h1>
@@ -22,8 +21,7 @@ export default {
 					<input class="entry" type="password" placeholder="Champ optionnel"/>
 				</div>
 				<div class="choice">
-					<button type="button">Privé</button>
-					<button type="button">Public</button>
+					<button>Confirmer</button>
 				</div>
 			</div>
 		</div>
@@ -64,7 +62,6 @@ export default {
 	background-color: #DBEFFC;
 	height: 6%;
 	width: 6%;
-	font-size: 100%;
 	align-items: center;
 	justify-content: center;
 	border: none;
@@ -82,21 +79,23 @@ export default {
 	height: 80%;
 	flex-direction: column;
 	align-items: center;
+	padding-top: 5%;
 }
 
 .field {
 	display: flex;
 	flex-direction: column;
 	width: 70%;
-	height: 50%;
-	gap: 10%;
+	height: 70%;
+	gap: 12%;
 	align-items: center;
+	padding-top: 2%;
 }
 .entry {
 	display: flex;
 	border-radius: 20px;
 	width: 100%;
-	height: 25%;
+	height: 30%;
 	outline: none;
 	border: none;
 	text-align: center;
@@ -105,10 +104,10 @@ export default {
 
 .choice {
 	display: flex;
-	justify-content: space-around;
+	justify-content: center;
 	align-items: center;
 	width: 100%;
-	height: 15%;
+	height: 25%;
 }
 
 .choice button {
@@ -117,7 +116,7 @@ export default {
 	height: 80%;
 	background-color: #036280;;
 	border: 1px solid #000000;
-	border-radius: 360px;
+	border-radius: 20px;
 }
 
 @media screen and (max-width: 1150px) {

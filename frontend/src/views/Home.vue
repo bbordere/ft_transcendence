@@ -3,14 +3,16 @@
 	<div class="home_body">
 		<div class="home_content">
 			<div class="left_column">
-				<router-link class="play_button" to="/pong">Jouer</router-link>	
+				<router-link class="play_button" to="/pong">Jouer</router-link>
 				<div class="friend_list">
 					<div class="add_friend">
-						<button id="show-modal" @click="showModal = true">Ami +</button>
+						<button class="spe">Channel</button>
+						<button class="spe">Message</button>
+						<ButtonAdd icon="fa-solid fa-user-plus" id="show-modal" @click="showModalFriend = true"></ButtonAdd>
 						<Teleport to="body">
-						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
+						<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
 						</Teleport>
-						<button id="show-modal" @click="showModal = true">Channel +</button>
+						<ButtonAdd icon="fa-circle-plus" id="show-modal" @click="showModal = true"></ButtonAdd>
 						<Teleport to="body">
 						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
 						</Teleport>
@@ -50,9 +52,10 @@
 */
 import io from 'socket.io-client';
 import ModalAdd from '../components/ModalAdd.vue'
+import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
 import Head from '../components/head.vue'
-import ModalAdd from '../components/ModalAdd.vue'
+import ButtonAdd from '../components/ButtonAdd.vue'
 
 interface Message {
 	id: number,
@@ -76,12 +79,15 @@ export class Channel {
 
 export default defineComponent({
 	components: {
+			ButtonAdd,
+			ModalAddFriend,
 			ModalAdd,
 			Head
 		},
 	data() {
 		return {
 			showModal: false,
+			showModalFriend: false,
 			socket: null as any,
 			connected: false as Boolean,
 			message: '' as string,
@@ -207,10 +213,6 @@ export default defineComponent({
 	font-size: 3em;
 }
 
-.play_button:hover {
-	background-color: #42badf;
-}
-
 .chat {
 	display: flex;
 	height: 99%;
@@ -235,30 +237,34 @@ export default defineComponent({
 
 .add_friend {
 	display: flex;
-	justify-content: center;
 	align-items: center;
-	padding-left: 2%;
-	padding-top: 2%;
-	height: 8%;
-	width: 95%;
+	justify-content: center;
 	gap: 2%;
+	height: 7%;
+	padding-left: 3px;
+	width: 97%;
+
 }
 
-.add_friend button {
+.add_friend .spe {
 	display: flex;
-	background-color: #DBEFFC;
 	align-items: center;
 	justify-content: center;
-	height: 100%;
-	flex-grow: 1;
-	font-size: 1em;
-	border-radius: 10px;
+	color: white;
+	background-color: black;
+	height: 80%;
+	flex-shrink: 0;
+	width: 37%;
+	overflow: hidden;
+	border-radius: 20px;
+	border: none;
 	cursor: pointer;
 }
 
-.add_friend button:hover {
-	background-color: #42badf;
+.spe:hover {
+	background-color: rgb(47, 49, 49);;
 }
+
 
 .list {
 	display: flex;
@@ -274,7 +280,6 @@ export default defineComponent({
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	overflow-y: auto;
 	height: 92%;
 	background-color: black;
 }
