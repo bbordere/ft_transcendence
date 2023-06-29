@@ -15,7 +15,7 @@ export class User{
 	public name: string;
 
 	@Column({ default: ""})
-	private password: string;
+	public password: string;
 
 	@Column({ default: true})
 	public isOnline: boolean

@@ -277,7 +277,7 @@ export default defineComponent({
 	height: 100%;
 	margin-top: 2%;
 	align-items: center;
-	background-color: red;
+	background-color: rgb(255, 255, 255);
 }
 
 .friends {

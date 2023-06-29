@@ -33,7 +33,7 @@ export class StatsService {
 		});
 	}
 
-	async updateStats(match: Match, user: User, indexPlayer: number){
+	async updateStats(match: Match, user: Partial<User>, indexPlayer: number){
 		const stats: StatsDetail = await this.getUserStats(user.stats.id);
 		const opId = (indexPlayer === 1 ? 2 : 1);
 		stats.winPoints += match[`scorePlayer${indexPlayer}`];

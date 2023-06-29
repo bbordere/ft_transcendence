@@ -29,7 +29,7 @@ export class MatchController {
 
 	@Get(':name')
 	async getUserMatches(@Param('name') name: string){
-		const user = await this.userService.getByName(name);
-		return await this.matchService.getUserMatches(user);
+		const user = await this.userService.getPartialUser(await this.userService.getByName(name));
+		return (await this.matchService.getUserMatches(user));
 	}
 }
