@@ -3,9 +3,26 @@
 	<div class="home_body">
 		<div class="home_content">
 			<div class="left_column">
-				<router-link class="play_button" to="/pong">jouer</router-link>
-				<div class="match_historic">
-					<label>macht_historic</label>
+				<router-link class="play_button" to="/pong">Jouer</router-link>
+				<div class="friend_list">
+					<div class="add_friend">
+						<button class="spe">Channel</button>
+						<button class="spe">Message</button>
+						<ButtonAdd icon="fa-solid fa-user-plus" id="show-modal" @click="showModalFriend = true"></ButtonAdd>
+						<Teleport to="body">
+						<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
+						</Teleport>
+						<ButtonAdd icon="fa-circle-plus" id="show-modal" @click="showModal = true"></ButtonAdd>
+						<Teleport to="body">
+						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
+						</Teleport>
+					</div>
+					<div class="list">
+						<div class="friends"></div>
+					</div>
+					<!-- <ul>
+						<li v-for="channel in channels"><button :key="channel.id" @click="showChannel(channel.id)">{{ channel.name }}</button></li>
+					</ul> -->
 				</div>
 			</div>
 			<div class="chat">
@@ -24,21 +41,6 @@
 					</div>
 				</div>
 			</div>
-			<div class="right_column">
-				<div class="friend_list">
-					<label>friend_list</label>
-					<ul>
-						<li v-for="channel in channels"><button :key="channel.id" @click="showChannel(channel.id)">{{ channel.name }}</button></li>
-					</ul>
-				</div>
-				<div class="join_panel">
-					<label>join_panel</label>
-					<label for="channel_field">Join a channel or add a friend</label>
-					<input type="text" name="channel_field" v-model="channelName">
-					<input type="button" value="Create/Join channel" @click="createChannel(channelName)">
-					<input type="button" value="Add a friend" @click="addFriend(channelName)">
-				</div>
-			</div>
 		</div>
 	</div>
 </template>
@@ -46,12 +48,14 @@
 <script lang="ts">
 
 /*
- 1. Will have to push the channels (and friends) in the database
+1. Will have to push the channels (and friends) in the database
 */
-
-import Head from '../components/head.vue'
 import io from 'socket.io-client';
+import ModalAdd from '../components/ModalAdd.vue'
+import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
+import Head from '../components/head.vue'
+import ButtonAdd from '../components/ButtonAdd.vue'
 
 
 interface Message {
@@ -75,8 +79,16 @@ export class Channel {
 };
 
 export default defineComponent({
+	components: {
+			ButtonAdd,
+			ModalAddFriend,
+			ModalAdd,
+			Head
+		},
 	data() {
 		return {
+			showModal: false,
+			showModalFriend: false,
 			socket: null as any,
 			connected: false as Boolean,
 			message: '' as string,
@@ -157,9 +169,6 @@ export default defineComponent({
 			this.selectedChannel = this.channels[id];
 		}
 	},
-	components: {
-		Head,
-	}
 });
 
 </script>
@@ -168,83 +177,135 @@ export default defineComponent({
 .home_body {
 	display: flex;
 	width: 95vw;
-	height: 90vh;
+	height: 80vh;
 	align-items: center;
 	justify-content: center;
+	padding-top: 2.5%;
+	padding-left: 2.7%;
+	padding-bottom: 2%;
+	min-height: 600px;
+	min-width: 500px;
 }
 
 .home_content {
 	display: flex;
-	height: 80%;
-	width: 100%;
+	height: 100%;
 	align-items: center;
 	justify-content: center;
-	gap: 8%;
-	padding-left: 5%;
+	flex-basis: 100%;
+	gap: 6%;
 }
 
 .left_column {
 	display: flex;
 	flex-direction: column;
 	gap: 4%;
+	flex-grow: 0.2;
 }
 
 .play_button {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	height: 25%;
-	width: 175%;
-	background: #D9D9D9;
+	height: 20%;
+	width: 100%;
+	background: #036280;
 	border: 3px solid #BC0002;
 	border-radius: 25px;
-}
-
-.match_historic {
-	display: flex;
-	height: 75%;
-	width: 175%;
-	background: #D9D9D9;
-	border: 3px solid #BC0002;
-	border-radius: 10px;
+	text-decoration: none;
+	color: black;
+	font-size: 3em;
 }
 
 .chat {
 	display: flex;
-	height: 100%;
+	height: 99%;
 	width: 45%;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	background: #D9D9D9;
+	background: #F0F8FF;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
-}
-
-.right_column {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 4%;
 }
 
 .friend_list {
 	display: flex;
-	height: 66%;
-	width: 175%;
-	background: #D9D9D9;
+	flex-direction: column;
+	height: 90%;
+	width: 100%;
+	background-color: #F0F8FF;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
 
-.join_panel {
+.add_friend {
 	display: flex;
-	height: 33%;
-	width: 175%;
-	background: #D9D9D9;
-	border: 3px solid #BC0002;
-	border-radius: 10px;
+	align-items: center;
+	justify-content: center;
+	gap: 2%;
+	height: 7%;
+	padding-left: 3px;
+	width: 97%;
+
+}
+
+.add_friend .spe {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	background-color: black;
+	height: 80%;
+	flex-shrink: 0;
+	width: 37%;
+	overflow: hidden;
+	border-radius: 20px;
+	border: none;
+	cursor: pointer;
+}
+
+.spe:hover {
+	background-color: rgb(47, 49, 49);;
+}
+
+
+.list {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	margin-top: 2%;
+	align-items: center;
+	background-color: red;
+}
+
+.friends {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 92%;
+	background-color: black;
+}
+
+.friend {
+	margin-top: 5%;
+	margin-bottom: 5%;
+}
+
+
+@media screen and (max-width: 1150px) {
+	.join_panel button {
+		font-size: 65%;
+	}
+
+	.left_column {
+		flex-grow: 0.6;
+	}
+
+	.chat {
+		width: 50%;
+	}
 }
 
 .msg_chat_box {

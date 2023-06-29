@@ -44,7 +44,6 @@ async function register(){
 	}
 }
 
-
 </script>
 
 <template>
