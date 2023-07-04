@@ -23,30 +23,22 @@ async function register(){
 			password: password.value
 
 		})
-	})
+	});
 	switch (res.status) {
-		case 201:
+		case 201:{
 			router.push('/');			
 			break;
+		}
 		case 406:{
+			const response = await res.json();
 			const notification = useNotification()
 			notification.notify({
-				title: "Email déjà utilisé ! !",
+				title: response["message"],
 				type: 'error',
 				group: 'notif-center'
 			});
 			break;
 		}
-		case 400:{
-			const notification = useNotification()
-			notification.notify({
-				title: "Pseudo déjà utilisé ! !",
-				type: 'error',
-				group: 'notif-center'
-			});
-			break;
-		}
-
 		default:
 			break;
 	}
@@ -56,8 +48,8 @@ async function register(){
 
 <template>
 <Transition name="modal">
-    <div v-if="show" class="modal-mask">
-    	<div class="modal-container">
+    <div v-if="show" class="modal-mask" @click="$emit('close')">
+    	<div class="modal-container" @click.stop>
         	<div class="modal-body">
 				<span class="text">inscription</span>
 				<div class="form">
@@ -71,9 +63,6 @@ async function register(){
 						<input type="text" placeholder="mot de passe" v-model="password" />
 					</div>
 						<button @click="register">inscription</button>
-					</div>
-					<div>
-						<button @click="$emit('close')" >fermer</button>
 					</div>
         		</div>
     		</div>
@@ -123,7 +112,6 @@ async function register(){
 	color: #595959;
 }
 
-
 .modal-default-button {
 	float: right;
 }
@@ -142,7 +130,6 @@ async function register(){
 	transform: scale(1.5);
 }
 
-
 .form button {
 	margin: 15px 0;
 	width: 100%;
@@ -159,6 +146,7 @@ async function register(){
 	box-shadow:  4px 4px 4px #616161,
              -4px -4px 4px #eaeaea;
 }
+
 .form button:focus {
 	color: #3498db;
 	box-shadow:  4px 4px 4px #606060,
@@ -188,16 +176,19 @@ async function register(){
 	box-shadow: inset 2px 2px 5px #BABECC,
 				inset -5px -5px 10px #ffffff73;
 }
+
 .field input:focus{
 	box-shadow: inset 1px 1px 2px #BABECC,
 				inset -1px -1px 2px #ffffff73;
 }
+
 .field span {
 	position: absolute;
 	color: #595959;
 	width: 50px;
 	line-height: 50px;
 }
+
 .field label {
 	position: absolute;
 	top: 50%;
@@ -223,10 +214,12 @@ async function register(){
 	box-shadow:  4px 4px 4px #616161,
              -4px -4px 4px #eaeaea;
 }
+
 .field button:focus {
 	color: #3498db;
 	box-shadow:  4px 4px 4px #606060,
              -4px -4px 4px #c9c9c9;
 }
+
 </style>
 

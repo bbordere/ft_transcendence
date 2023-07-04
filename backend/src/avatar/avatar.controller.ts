@@ -58,18 +58,12 @@ export class AvatarController {
 	}
 
 	@Get('/user/:name')
-	async getUserAvatar(@Res() res: Response, @Req() req, @Param('name') name: string){
+	async getUserAvatar(@Res({passthrough: true}) res: Response, @Req() req, @Param('name') name: string){
 		const user = await this.userService.getByName(name);
 		if (!user)
 			res.statusCode = 404;
 		else {
-			const path = join(process.cwd(), 'avatars/' + user.avatarLink.split('/').at(-1));
-			let fileStream;
-			if (!existsSync(path))
-				fileStream = createReadStream(join(process.cwd(), 'avatars/default.jpg'));
-			else
-				fileStream = createReadStream(path);
-			fileStream.pipe(res);
+			res.redirect(user["avatarLink"]);
 		}
 	}
 }

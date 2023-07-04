@@ -49,4 +49,11 @@ export class StatsService {
 		stats.meanScore = stats.winPoints / stats.totalGames;
 		user.stats = stats;
 	}
+
+	async getUpdatedMmr(score1: number, score2: number, mmr1: number, mmr2: number): Promise<number>{
+		const expectedScore = 1 / (1 + 10 ** ((mmr2 - mmr1) / 400));
+		const result = score1 > score2 ? 1 : (score1 < score2 ? 0 : 0.5);
+		const ratingChange = 64 * (result - expectedScore);
+		return (mmr1 + ratingChange);
+	}
 }

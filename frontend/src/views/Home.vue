@@ -4,8 +4,26 @@
 		<div class="home_content">
 			<div class="left_column">
 				<router-link class="play_button" to="/pong">Jouer</router-link>
-				<div class="match_historic">
-					<label>macht_historic</label>
+				<div class="friend_list">
+					<div class="add_friend">
+						<button class="spe">Channel</button>
+						<button class="spe">Message</button>
+						<ButtonAdd icon="fa-solid fa-user-plus" id="show-modal" @click="showModalFriend = true"></ButtonAdd>
+						<Teleport to="body">
+						<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
+						</Teleport>
+						<ButtonAdd icon="fa-circle-plus" id="show-modal" @click="showModal = true"></ButtonAdd>
+						<Teleport to="body">
+						<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannel"></ModalAdd>
+						</Teleport>
+					</div>
+					<div class="list">
+						<ul>
+							<li v-for="channel in channels"><button :key="channel.id" @click="showChannel(channel)">{{ channel.name }}</button></li>
+						</ul>
+						<div class="friends"></div>
+					</div>
+					
 				</div>
 			</div>
 			<div class="chat">
@@ -21,42 +39,17 @@
 					<p>connecting to websocket server...</p>
 				</div>
 			</div>
-
-			<div class="right_column">
-
-				<div class="friend_list">
-					<label>friend_list</label>
-					<ul>
-						<li v-for="chan in channels"><button :key="chan.id" @click="showChannel(chan)">{{ chan.name
-						}}</button></li>
-					</ul>
-				</div>
-
-				<div class="join_panel">
-					<button id="show-modal" @click="joinChannel('bonsoir')">Rejoindre</button>
-					<Teleport to="body">
-						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
-					</Teleport>
-					<button id="show-modal" @click="createChannel('bonsoir')">Channel+</button>
-					<Teleport to="body">
-						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
-					</Teleport>
-					<button id="show-modal" @click="showModal = true">Ami+</button>
-					<Teleport to="body">
-						<ModalAdd :show="showModal" @close="showModal = false"></ModalAdd>
-					</Teleport>
-					<button id="show-modal" @click="deleteChannel('salut')">Channel-</button>
-				</div>
-			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import Head from '../components/head.vue'
 import io from 'socket.io-client';
+import ModalAdd from '../components/ModalAdd.vue'
+import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
-import ModalAdd from '../components/ModalAdd.vue';
+import Head from '../components/head.vue'
+import ButtonAdd from '../components/ButtonAdd.vue'
 
 interface Message {
 	channelId: number;
@@ -71,17 +64,26 @@ interface Channel {
 }
 
 // Maybe store the selected channel in a cookie
+// IMPORTANT: Need to define a valid character set for the channels names
 
 export default defineComponent({
+	components: {
+		ButtonAdd,
+		ModalAddFriend,
+		ModalAdd,
+		Head
+	},
+
 	data() {
 		return {
+			showModal: false,
+			showModalFriend: false,
 			socket: null as any,
-			channels: [] as Channel[],
 			connected: false as Boolean,
 			sender: -1 as number,
 			message: '' as string,
+			channels: [] as Channel[],
 			selectedChannel: {} as Channel,
-			showModal: false as Boolean,
 			showDiv: false as Boolean,
 		}
 	},
@@ -89,6 +91,7 @@ export default defineComponent({
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
 		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/joinedChannels', { credentials: 'include' })).json();
+		console.log(channels_json);
 		for (let i = 0; i < channels_json.length; i++) {
 			this.channels.push({
 				id: channels_json[i]['id'],
@@ -97,6 +100,8 @@ export default defineComponent({
 			});
 		}
 		this.init();
+		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
+		sessionStorage.setItem('token', await token.text());
 	},
 
 	methods: {
@@ -116,20 +121,6 @@ export default defineComponent({
 				}
 			});
 		},
-		async createChannel(name: string) {
-			this.showModal = true;
-			const response_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/create', {
-				credentials: 'include',
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					name: name
-				}),
-			})).json();
-			this.joinChannel(name);
-		},
 
 		sendMessage() {
 			if (this.socket && this.message) {
@@ -146,28 +137,20 @@ export default defineComponent({
 		async showChannel(chan: Channel) {
 			this.showDiv = true;
 			this.selectedChannel = chan;
-			this.selectedChannel.messages = await this.getChannelMessages(chan.id);
 		},
 
-		async joinChannel(name: string) {
-			let response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + name, { credentials: 'include' })
-			try {
-				const channel = await response.json();
-				for (let i = 0; i < this.channels.length; i++)
-					if (this.channels[i].id === channel['id'])
-						return;
-				response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
-					credentials: 'include',
-					method: "POST",
-				});
-				if (response['ok'] === true) {
-					this.channels.push(channel);
-					this.selectedChannel = channel;
-					if (this.selectedChannel.messages === undefined)
-						this.selectedChannel.messages = [] as Message[];
-				}
+		async joinChannel(channel: Channel) {
+			if (this.findChannel(channel.id))
+				return ;
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
+				credentials: 'include',
+				method: "POST",
+			});
+			if (response['ok'] === true) {
+				this.channels.push(channel);
+				this.selectedChannel = channel;
+				this.selectedChannel.messages = await this.getChannelMessages(channel.id);
 			}
-			catch { }
 		},
 
 		findChannel(id: number): Channel | null {
@@ -181,18 +164,18 @@ export default defineComponent({
 			return (this.sender === message.sender ? 'sent' : 'received');
 		},
 
-		async deleteChannel(name: string) {
-			// If only 1 user left in the channel delete it
-			const channel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + name, { credentials: 'include' })).json();
-			for (let i = 0; i < this.channels.length; i++)
-				if (this.channels[i].id === channel['id'])
-					this.channels.splice(i, 1);
-			const response_json = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/remove', { credentials: 'include', method: 'POST', });
-			if (this.selectedChannel.messages != undefined) {
-				this.selectedChannel = {} as Channel;
-				this.showDiv = false;
-			}
-		},
+		// async deleteChannel(name: string) {
+		// 	// If only 1 user left in the channel delete it
+		// 	const channel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + encodeURIComponent(name), { credentials: 'include' })).json();
+		// 	for (let i = 0; i < this.channels.length; i++)
+		// 		if (this.channels[i].id === channel['id'])
+		// 			this.channels.splice(i, 1);
+		// 	const response_json = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/remove', { credentials: 'include', method: 'POST', });
+		// 	if (this.selectedChannel.messages != undefined) {
+		// 		this.selectedChannel = {} as Channel;
+		// 		this.showDiv = false;
+		// 	}
+		// },
 
 		async getChannelMessages(channelId: number): Promise<Message[]> {
 			const message_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/' + channelId + '/list', { credentials: 'include' });
@@ -211,12 +194,7 @@ export default defineComponent({
 			catch {
 				return ([] as Message[]);
 			}
-		}
-	},
-
-	components: {
-		Head,
-		ModalAdd,
+		},
 	},
 });
 
@@ -229,8 +207,11 @@ export default defineComponent({
 	height: 80vh;
 	align-items: center;
 	justify-content: center;
-	padding-top: 2%;
+	padding-top: 2.5%;
+	padding-left: 2.7%;
+	padding-bottom: 2%;
 	min-height: 600px;
+	min-width: 500px;
 }
 
 .home_content {
@@ -253,103 +234,104 @@ export default defineComponent({
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	height: 25%;
+	height: 20%;
 	width: 100%;
 	background: #036280;
 	border: 3px solid #BC0002;
 	border-radius: 25px;
 	text-decoration: none;
 	color: black;
-	font-size: 100%;
-}
-
-.play_button:hover {
-	background-color: #42badf;
-}
-
-.match_historic {
-	display: flex;
-	height: 75%;
-	width: 100%;
-	background: #D9D9D9;
-	border: 3px solid #BC0002;
-	border-radius: 10px;
+	font-size: 3em;
 }
 
 .chat {
 	display: flex;
-	height: 100%;
+	height: 99%;
 	width: 45%;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	background: #D9D9D9;
+	background: #F0F8FF;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
-}
-
-.right_column {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 4%;
-	flex-grow: 0.2;
 }
 
 .friend_list {
 	display: flex;
-	height: 65%;
+	flex-direction: column;
+	height: 90%;
 	width: 100%;
-	background: #D9D9D9;
+	background-color: #F0F8FF;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
 
-.join_panel button {
+.add_friend {
 	display: flex;
-	flex-direction: row;
-	height: 100%;
-	width: 95%;
 	align-items: center;
 	justify-content: center;
-	font-size: 100%;
-	margin: 2%;
-	background-color: #036280;
-	border-radius: 10px;
+	gap: 2%;
+	height: 7%;
+	padding-left: 3px;
+	width: 97%;
+
+}
+
+.add_friend .spe {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	background-color: black;
+	height: 80%;
+	flex-shrink: 0;
+	width: 37%;
+	overflow: hidden;
+	border-radius: 20px;
 	border: none;
 	cursor: pointer;
 }
 
-.join_panel {
+.spe:hover {
+	background-color: rgb(47, 49, 49);;
+}
+
+
+.list {
 	display: flex;
 	flex-direction: column;
-	height: 35%;
 	width: 100%;
-	background: #D9D9D9;
-	border: 3px solid #BC0002;
-	border-radius: 10px;
+	height: 100%;
+	margin-top: 2%;
 	align-items: center;
-	justify-content: center;
+	background-color: red;
 }
 
-.join_panel button:hover {
-	background-color: #42badf;
+.friends {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 92%;
+	background-color: black;
 }
 
-@media screen and (max-width: 800px) {
+.friend {
+	margin-top: 5%;
+	margin-bottom: 5%;
+}
+
+
+@media screen and (max-width: 1150px) {
 	.join_panel button {
 		font-size: 65%;
 	}
 
-	.right_column {
-		flex-grow: 0.6;
-		margin-right: 2%;
-	}
-
 	.left_column {
 		flex-grow: 0.6;
-		margin-left: 2%;
+	}
+
+	.chat {
+		width: 50%;
 	}
 }
 

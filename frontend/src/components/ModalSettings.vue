@@ -1,14 +1,13 @@
 <template>
 	<div class="modal-overlay" @click="$emit('close-modal')">
 		<div class="modal" @click.stop>
-			<div class="title-parameters">
-				Paramètres
-				<hr/>
-			</div>
+			<SlidingTitle text="Paramètres"></SlidingTitle>
 		  	<div class="buttons-parameters">
 				<div class="tfa">
-					<font-awesome-icon icon="fa-solid fa-lock"/>
-					Authentification
+					<div class="icon-tfa">
+						<font-awesome-icon icon="fa-solid fa-lock"/>
+					</div>
+					Double Authentification
 					<Switch/>
 				</div>
 
@@ -20,9 +19,7 @@
 											@bad-format="badFormatNotif"></ChangeUsernameModal>
 					</transition>
 				</Teleport>
-				<FileUpload @updated="$emit('updated')"></FileUpload>
-
-		  	</div>
+			</div>
 		</div>
 	  </div>
 </template>
@@ -32,6 +29,7 @@
 	import FileUpload from '@/components/FileUpload.vue'
 	import ChangeUsernameModal from '@/components/ChangeUsernameModal.vue'
 	import BlueButton from './BlueButton.vue';
+	import SlidingTitle from './SlidingTitle.vue';
 	import { useNotification } from "@kyvg/vue3-notification";
 
 
@@ -41,7 +39,8 @@
 			Switch,
 			FileUpload,
 			ChangeUsernameModal,
-			BlueButton
+			BlueButton,
+			SlidingTitle
 		},
 		data(){
 			return ({showModal: false});
@@ -79,7 +78,7 @@
 </script>
   
   <style scoped>
-  .modal-overlay {
+.modal-overlay {
 	position: fixed;
 	top: 0;
 	bottom: 0;
@@ -90,13 +89,13 @@
 	background-color: #242424d0;
 	transition: opacity 0.3s ease;
 	transition: all 0.3s ease;
-  }
-  
-  .modal {
+}
+
+.modal {
 	text-align: center;
 	background-color: white;
-	height: 500px;
-	width: 500px;
+	height: 55%;
+	width: 30%;
 	margin-top: auto;
 	margin-bottom: auto;
 	padding: 60px 0;
@@ -104,36 +103,43 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-  }
- 
-  .title-parameters {
-	font-size: 50px;
-	/* margin-top: -10px;
-	color: #e21818;
-	text-shadow: 0 1px 0 #CCCCCC, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15);
-	width: 100%;
-	font-size: 80px; */
-  }
-	.tfa{
-		display: flex;
-		flex-direction: row;
-		justify-content: space-around;
-		align-items: center;
-		font-size: 30px;
-	}
-	
-	.buttons-parameters{
-		display: flex;
-		gap: 10px;
-		flex-direction: column;
-		margin-top: 40px;
-		width: 80%;
-	}
+}
 
-  .buttons button{
+.title-parameters {
+	font-size: 50px;
+	font-family: 'poppins'
+}
+.buttons-parameters{
+	display: flex;
+	flex-direction: column;
+	/* justify-content: center; */
+	gap: 90px;
+	flex: 1;
+	margin-top: 40px;
+	width: 80%;
+}
+
+.buttons button{
 	margin-top: 15%;
 	margin-left: auto;
 	margin-right: auto;
 	width: 40%;
-  }
+}
+.tfa{
+	background: rgb(34, 158, 230);
+	border-radius: 10px;
+	box-shadow: rgb(37, 18, 121) 0px 4px 0px 0px;
+	padding: 10px;
+	display: flex;
+	font-family: 'Poppins';
+	font-weight: bold;
+	color: white;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	font-size: 1em;
+}
+.icon-tfa{
+	font-size: 2em;
+}
   </style>

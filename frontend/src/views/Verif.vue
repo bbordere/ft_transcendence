@@ -106,9 +106,12 @@
 					code: code,
 				})
 			})
-			status.value = await (await res.blob()).text();
-			if (status.value === "Success")
+			const json = await res.json();
+			status.value = json["status"];
+			if (status.value === "Success"){
+				sessionStorage.setItem('tokens', json["token"]);	
 				delay(1000).then(any=>{router.push(route.query.plan === 'verify' ? '/' : '/profile');});
+			}
 		}
 	
 	function onPaste(event: Event) {

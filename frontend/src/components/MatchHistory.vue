@@ -73,6 +73,7 @@
 	width: 100%;
 	height: 100%;
 	align-items: center;
+	justify-content: center;
 }
 
 .match{
@@ -83,6 +84,15 @@
 /* Hide scrollbar for Chrome, Safari and Opera */
 .matches::-webkit-scrollbar {
   display: none;
+}
+
+@media screen and (max-width: 950px) {
+	.matches{
+		width: 100%;
+	}
+	.history-title{
+		font-size: 70%;
+	}
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
