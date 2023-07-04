@@ -5,17 +5,13 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { ChatGateway } from './chat/chat.gateway';
-
 import { AppService } from './app.service';
 import { AvatarModule } from './avatar/avatar.module';
 import { StatsController } from './stats/stats.controller';
 import { StatsModule } from './stats/stats.module';
 import { MatchController } from './match/match.controller';
 import { MatchModule } from './match/match.module';
-import { PongGame } from './pong/pong.service';
-import { PongModule } from './pong/pong.module';
-import { FriendModule } from './friend/friend.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -26,11 +22,10 @@ import { FriendModule } from './friend/friend.module';
 		AvatarModule,
 		StatsModule,
 		MatchModule,
-		PongModule,
-		FriendModule,
+		ChatModule,
 	],
   controllers: [AppController, StatsController, MatchController],
-  providers: [AppService, ChatGateway, PongGame]
+  providers: [AppService]
 })
 export class AppModule {}
 
