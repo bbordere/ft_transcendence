@@ -1,6 +1,11 @@
 import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 
 export class AuthLoginDto {
+	constructor(body){
+		this.email = body["email"];
+		this.password = body["password"];
+	}
+
 	@IsEmail()
 	@IsNotEmpty()
 	email: string;

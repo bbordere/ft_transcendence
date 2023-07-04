@@ -14,20 +14,19 @@ export default{
 
 .blue-button{
 	position: relative;
+	font-family: 'Poppins';
+    font-weight: bold;
 	background-color: rgb(34, 158, 230);
 	border-radius: 10px;
 	box-shadow: rgb(37, 18, 121) 0px 4px 0px 0px;
-	padding: 15px;
+	padding: 10px;
 	background-repeat: no-repeat;
 	box-sizing: border-box;
 	color: #fff;
-	width: 100%;
+	width: 90%;
 	border: none;
-	font-size: 1em;
 	transition: all .3s ease-in-out;
 	overflow: hidden;
-	margin-top: 15px;
-	margin-bottom: 15px;
 	cursor: pointer;
 }
 
@@ -40,7 +39,7 @@ export default{
 	top: 0;
 	left: 0;
 	transition: width 700ms ease-in-out;
-	display: inline-block;
+	/* display: inline-block; */
 	opacity: 50%;
 }
 

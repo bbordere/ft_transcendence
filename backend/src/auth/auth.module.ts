@@ -17,12 +17,13 @@ import { Auth2fStrategy } from './strategies/tfa.strategy';
 		  imports: [ConfigModule],
 		  useFactory: async () => ({
 			secret: process.env.JWT_SECRET,
-			signOptions: { expiresIn: "21600s" }
+			signOptions: { expiresIn: "14400s" }
 		  }),
 		  inject: [ConfigService],
 		}),
 	  ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, FortyTwoStrategy, Auth2fStrategy]
+  providers: [AuthService, JwtStrategy, FortyTwoStrategy, Auth2fStrategy],
+  exports:[AuthService]
 })
 export class AuthModule {}

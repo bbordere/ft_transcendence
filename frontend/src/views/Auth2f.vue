@@ -4,7 +4,7 @@
 		<div class="auth-card">
 			<div class="title">2FA</div>
 			<div class="auth-container">
-				<img v-if="generated === true" src="http://localhost:3000/auth/2fa/qrcode" class="code" :class="[blur  ? 'blur' : ' ']" @click="toggleBlur">
+				<img v-if="generated === true" :src="getUrl()" class="code" :class="[blur  ? 'blur' : ' ']" @click="toggleBlur">
 				<img v-else src="@/assets/img/lock.png" class="lock">
 				<div class="info-box">
 					<BlueButton text="Activer" icon="" @click="generate2fa" v-if="!generated" class="card-button"></BlueButton>
@@ -49,6 +49,9 @@ import BlueButton from '@/components/BlueButton.vue';
         enable2fa() {
             router.push({ path: "/auth/2fa/verif", query: { plan: "on" } });
         },
+		getUrl(){
+			return ("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/qrcode")
+		}
     },
     async mounted() {
         await this.getUser(this);
