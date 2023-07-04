@@ -1,9 +1,47 @@
 <script lang="ts">
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent ({
+	data() {
+		return ({
+			channel_name: '' as string,
+			channel_password: '' as string,
+		});
+	},
+	
 	props: {
-		show: Boolean
-	}
-}
+		show: Boolean,
+	},
+
+	methods: {
+		async addChannel() {
+			if (this.channel_name === '')
+				return ;
+			if (Array.from(this.channel_name)[0] === '#')
+				this.channel_name.split('#').join('');
+			const response_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/create', {
+				credentials: 'include',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					name: this.channel_name,
+				}),
+			})).json();
+			if (response_json['channel'] !== null)
+				this.$emit('newChannel', response_json['channel']);
+			else {
+				let response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + encodeURIComponent(this.channel_name), { credentials: 'include' });
+				let channel = await (response.json());
+				this.$emit('newChannel', channel);
+			}
+			this.$emit('close');
+			this.channel_name = '';
+			this.channel_password = '';
+		}
+	},
+});
 
 </script>
 
@@ -14,14 +52,14 @@ export default {
 			<div class="form">
 				<div class="field">
 					<h1>Nom du Channel</h1>
-					<input class="entry" type="text" placeholder="Mon Channel"/>
+					<input v-model="channel_name" class="entry" type="text" placeholder="Mon Channel"/>
 				</div>
 				<div class="field">
 					<h1>Mot de Passe</h1>
-					<input class="entry" type="password" placeholder="Champ optionnel"/>
+					<input class="entry" type="password" placeholder="Champ optionnel" v-model="channel_password"/>
 				</div>
 				<div class="choice">
-					<button>Confirmer</button>
+					<button @click="addChannel()">Confirmer</button>
 				</div>
 			</div>
 		</div>

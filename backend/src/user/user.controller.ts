@@ -38,11 +38,28 @@ export class UserController {
 			res.statusCode = 201;
 		res.send();
 	}
-	
+
 	@Get("/id/:id")
 	async getUserById(@Param('id') id: number){
 		const user = await this.userService.getById(id);
 		return (this.userService.getPartialUser(user));
 	}
-	
+
+	@Post('/:userId/channels/:channelId/add')
+	async addUserToChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		await this.userService.addUserToChannel(userId, channelId);
+		return {
+			message: 'user added',
+		};
+	}
+
+	@Post('/:userId/channels/:channelId/remove')
+	async removeUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		await this.userService.removeUserFromChannel(userId, channelId);
+	}
+
+	@Get('/:userId/joinedChannels')
+	async getJoinedChannels(@Param('userId') userId: number) {
+		return (this.userService.getJoinedChannels(userId));
+	}
 }
