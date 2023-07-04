@@ -26,13 +26,12 @@ async function login(){
 
 		})
 	})
-
 	switch (res.status) {
 		case 406:{
+			const response = await res.json();
 			const notification = useNotification()
-			console.log("TEST");
 			notification.notify({
-				title: "Utilisateur Introuvable !",
+				title: response["message"],
 				type: 'error',
 				group: 'notif-center'
 			});
@@ -40,7 +39,6 @@ async function login(){
 		}
 		case 401:{
 			const notification = useNotification()
-			console.log("TEST");
 			notification.notify({
 				title: "Mauvais mot de passe !",
 				type: 'error',

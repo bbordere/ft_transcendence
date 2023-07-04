@@ -1,16 +1,17 @@
 <template>
 	<div class="match-card">
 		<div class="player-card">
-			<img class="avatar-match" :src="'http://localhost:3000/avatar/user/' + matchObject.player1.name" @click="redirecToProfil"/>
+			
+			<img class="avatar-match" :src="getAvatarUrl(matchObject.player1.name)" @click="redirecToProfil"/>
 			{{ matchObject.player1.name }}
 		</div>
 		<div class="score-card">
 			<div class="score-text">
-				<div class="score1" :class="[matchObject.scorePlayer1 > matchObject.scorePlayer2 ? 'text-green' : 'text-red']">
+				<div :class="[matchObject.scorePlayer1 > matchObject.scorePlayer2 ? 'text-green' : 'text-red']">
 					{{ matchObject.scorePlayer1 }}
 				</div>
 				-
-				<div class="score2" :class="[matchObject.scorePlayer1 < matchObject.scorePlayer2 ? 'text-green' : 'text-red']">
+				<div :class="[matchObject.scorePlayer1 < matchObject.scorePlayer2 ? 'text-green' : 'text-red']">
 					{{ matchObject.scorePlayer2 }}
 				</div>
 			</div>
@@ -19,7 +20,7 @@
 			</div>
 		</div>
 		<div class="player-card">
-			<img class="avatar-match" :src="'http://localhost:3000/avatar/user/' + matchObject.player2.name" @click="redirecToProfil"/>
+			<img class="avatar-match" :src="getAvatarUrl(matchObject.player2.name)" @click="redirecToProfil"/>
 			{{ matchObject.player2.name }}
 		</div>
 	</div>
@@ -34,6 +35,9 @@
 				const src = (e.target as HTMLImageElement).src;
 				const username = src.split('/').at(-1);
 				router.push({path:'/profile',query: { user: username }});
+			},
+			getAvatarUrl(playerName: string){
+				return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/" + playerName);
 			}
 		},
 	}
@@ -60,7 +64,7 @@
 	width: 45%;
 	border-radius: 30px;
 	/* background-color: rgb(79, 79, 187); */
-	font-size: 80%;
+	font-size: 1em;
 }
 
 .score-card{
@@ -81,12 +85,24 @@
 	opacity: 0.5;
 }
 
-@media (max-width: 950px) {
+@media screen and (max-width: 950px) {
+	.match-card{
+		height: 25%;
+	}
 	.player-card{
 		justify-content: center;
+		font-size: 70%;
+		font-weight: bold;
+	}
+	.mode{
+		margin-top: 50%;
+		font-size: 70%;
 	}
 	.avatar-match {
-	display: none;
+		display: none;
+	}
+	.score-text{
+		font-size: 70%;
 	}
 }
 

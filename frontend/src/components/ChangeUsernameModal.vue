@@ -1,40 +1,48 @@
 <template>
 	<div class="modal-overlay" @click="closeModal">
-	  <div class="modal-username" @click.stop>
-		<div class="title">Change Username</div>
-		<input ref="input" type="text" v-model="username" maxlength="20" placeholder="Saisissez un pseudo">
-		<button @click="changeUsername">Change Username</button>
-
+		<div class="modal-username" @click.stop>
+			<SlidingTitle text="Changer Pseudo"/>
+			<div class="username-items">
+				<div class="form__group">
+					<input type="text" v-model="username" class="input_username" id="name" placeholder="Nouveau Pseudo"/>
+					<label for="name" class="input_label">Nouveau Pseudo</label>
+				</div>
+				<BlueButton text="Confirmer" icon="fa-solid fa-pen" @click="changeUsername" />
+			</div>
 	  </div>
 	</div>
 </template>
 
 <script lang="ts">
-  import Switch from '@/components/switch.vue';
-  import FileUpload from '@/components/FileUpload.vue'
 
-  export default{
-	  components: {
-		  Switch,
-		  FileUpload,
-	  },
-	  data: () => ({
+import SlidingTitle from './SlidingTitle.vue';
+import BlueButton from './BlueButton.vue';
+
+export default{
+	components: {
+		SlidingTitle,
+		BlueButton
+	},
+	data: () => ({
 		username: "",
-	  }),
-	  methods:{
+	}),
+	methods: {
 		closeModal(){
 			this.$emit('close-modal');
+			this.username = "";
 		},
+
 		handleResponse(res: Response){
 			if (res.status != 201)
 				this.$emit('already-exist');
-			else{
+			else {
 				this.$emit('updated');
-				this.$emit('close-modal');
+				this.closeModal();
 			}
 		},
 
 		changeUsername(){
+			console.log(this.username);
 			if (!this.username)
 				return;
 			if (!this.username.match(/^[\p{L}\p{N}_]+$/u)) {
@@ -62,8 +70,8 @@
 .modal-username {
 	text-align: center;
 	background-color: white;
-	height: 400px;
-	width: 800px;
+	height: 30%;
+	width: 40%;
 	margin-top: auto;
 	margin-bottom: auto;
 	padding: 60px 0;
@@ -71,18 +79,41 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 }
 
- .buttons{
-	  display: flex;
-	  flex-direction: column;
-	  margin-top: 40px;
-  }
-
-.buttons button{
-  margin-top: 15%;
-  margin-left: auto;
-  margin-right: auto;
-  width: 40%;
+.username-items{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	row-gap: 30px;
+	height: 70%;
 }
+.input_label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  display: block;
+  transition: all 0.3s;
+  transform: translateY(0rem);
+}
+
+.input_username {
+	font-family: 'Poppins', sans-serif;
+	color: #333;
+	font-size: 1em;
+	border-radius: 10px;
+	background-color: rgb(255, 255, 255);
+	width: 90%;
+	display: block;
+	transition: all 0.3s;
+}
+
+.input_username:placeholder-shown + .input_label {
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transform: translateY(-4rem);
+  transform: translateY(-4rem);
+}
+
+
 </style>

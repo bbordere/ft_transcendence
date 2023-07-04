@@ -23,6 +23,8 @@ export class MatchService {
 			return;
 		await statsService.updateStats(match, match.player1, 1);
 		await statsService.updateStats(match, match.player2, 2);
+		match.player1.stats.mmr = Math.ceil(await statsService.getUpdatedMmr(match.scorePlayer1, match.scorePlayer2, match.player1.stats.mmr, match.player2.stats.mmr));
+		match.player2.stats.mmr = Math.ceil(await statsService.getUpdatedMmr(match.scorePlayer2, match.scorePlayer1, match.player2.stats.mmr, match.player1.stats.mmr));
 		await userService.saveUser(match.player1);
 		await userService.saveUser(match.player2);
 		this.matchRepository.save(match);
@@ -48,5 +50,5 @@ export class MatchService {
 			},
 			// loadRelationIds: true
 		})
-	}
+	};
 }

@@ -144,12 +144,16 @@ export default{
 	flex-basis: 50%;
 	border-radius: 20px;
 	flex-direction: row;
-	justify-content: space-around;
+	justify-content: space-between;
 	align-items: center;
 }
 
 h5{
 	margin: 0;
+}
+
+h3{
+	text-align: center;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -173,5 +177,17 @@ h5{
 	height: 70%;
 }
 
+@media screen and (max-width: 930px) {
+	h5{
+		font-size: 1.5vw;
+	}
+	h3{
+		font-size: 2vw;
+		margin-top: 0;
+	}
+	.list-stats{
+		font-size: 2vw;
+	}
+}
 
 </style>

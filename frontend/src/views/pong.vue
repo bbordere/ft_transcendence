@@ -1,7 +1,3 @@
-<script setup lang="ts">
-	import Head from '../components/head.vue'
-</script>
-
 <template>
 	<Head />
 	<div class="pong_body">
@@ -16,6 +12,7 @@
 					<label>timer</label>
 				</div>
 				<div class="pong_screen">
+					<canvas id="pongCanvas" width="2000" height="1200"></canvas>
 				</div>
 				<div class="button_panel">
 					<div class="reaction_panel">
@@ -24,6 +21,7 @@
 						<button id="reaction_3">pleure</button>
 						<button id="reaction_4">poignet de main</button>
 					</div>
+
 					<div class="forgive_button">
 						<router-link to="/">abbandoner</router-link>
 					</div>
@@ -37,6 +35,65 @@
 		</div>
 	</div>
 </template>
+
+<script lang="ts">
+import io from 'socket.io-client';
+import Head from '../components/head.vue'
+
+export default {
+	data() {
+		return {playerName: "", socket: io()};
+	},
+	methods: {
+
+	},
+	mounted() {
+		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");		
+
+		//TO DO GET MODE FROM PAGE QUERY
+		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), 0);
+
+		this.socket.on('disconnect', () => {
+			this.socket.disconnect();
+			console.log('Vous avez été déconnecté du jeu.');
+		});
+		
+		const canvas = document.getElementById('pongCanvas');
+		const ctx = canvas.getContext('2d');
+
+		this.socket.on('updateBall', (data) => {
+			drawBall(data.position.x, data.position.y);
+		});
+
+		this.socket.on('text', (data) => {
+			drawText(data);
+		});
+
+		const ballRadius = 20;
+
+
+		function drawText(text: string){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.font = "200px serif";
+			ctx.fillText(text, 50, canvas.height / 2);
+			ctx.fillStyle = 'white'
+		}
+		
+		function drawBall(x, y) {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.beginPath();
+			ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+			ctx.fillStyle = "#FFFFFF";
+			ctx.fill();
+			ctx.closePath();
+		}
+		
+	},
+	beforeUnmount(){
+		this.socket.disconnect();
+	}
+}
+</script>
 
 <style>
 
@@ -88,15 +145,17 @@
 }
 
 .pong_screen {
-	max-width: 80%;
+	max-width: 100%;
 	max-height: 80%;
 	min-width: auto;
 	width: 100%;
-	aspect-ratio: 4/3;
 
-	background: #D9D9D9;
-	border: 3px solid #BC0002;
-	border-radius: 20px;
+}
+#pongCanvas {
+	width: 100%;
+	height: 100%;
+	background: black;
+	border-radius: 5px;
 }
 
 .button_panel {

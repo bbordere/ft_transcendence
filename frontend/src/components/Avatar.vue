@@ -42,7 +42,7 @@
 		position: relative;
 		width: 15%;
 	}
-	
+
 	.image{
 		filter: drop-shadow(0 0 8px #1f81dd);
 		aspect-ratio: 1;
@@ -51,15 +51,21 @@
 		border: 2px solid #b5dbdb;
 	}
 
-.change-button {
-	position: absolute;
-	top: 15px;
-	padding: 8px;
-	right: 15px;
-	background-color: #ffffff;
-	color: #000000;
-	cursor: pointer;
-	border: none;
-	border-radius: 20px;
-  }
+	.change-button {
+		position: absolute;
+		top: 8%;
+		padding: 2%;
+		right: 8%;
+		background-color: #ffffff;
+		color: #000000;
+		cursor: pointer;
+		border: none;
+		border-radius: 20px;
+	}
+
+	@media screen and (max-width: 580px) {
+		.change-button{
+			font-size: 50%;
+		}
+	}
 </style>
