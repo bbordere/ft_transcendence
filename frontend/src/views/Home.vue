@@ -234,7 +234,7 @@ export default defineComponent({
 	flex-direction: column;
 	height: 90%;
 	width: 100%;
-	background-color: #F0F8FF;
+	background-color: #ffffff;
 	border: 3px solid #BC0002;
 	border-radius: 10px;
 }
@@ -266,7 +266,7 @@ export default defineComponent({
 }
 
 .spe:hover {
-	background-color: rgb(47, 49, 49);;
+	background-color: rgb(6, 56, 56);;
 }
 
 
