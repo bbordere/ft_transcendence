@@ -22,7 +22,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   
 	constructor(private pongGame: PongGame, private authService: AuthService) {}
   
-	async handleConnection(client: Socket) {}
+	async handleConnection(client: Socket) {
+	}
 
 	async handleDisconnect(client: Socket) {
 		// this.logger.log(`Client disconnected: ${client.id}`);

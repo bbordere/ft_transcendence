@@ -57,7 +57,6 @@ export class PongGame {
 
 	async isSocketInsideRoom(room: Room, socketId: string): Promise<Boolean>{
 		const playerNames: string[] = room.players.map((player) => player.socket.id);
-		console.log(playerNames);
 		return (playerNames.includes(socketId));
 	}
 
@@ -172,7 +171,6 @@ export class PongGame {
 	async checkDisconnection(client: Socket, room: Room){
 		let countDown: number = 0;
 		const it = setInterval(() => {
-			console.log(countDown);
 			if (room.state === State.WAITING){
 				client.emit('text', "WAITING");
 				countDown++;

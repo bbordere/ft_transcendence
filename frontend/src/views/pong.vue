@@ -39,19 +39,35 @@
 <script lang="ts">
 import io from 'socket.io-client';
 import Head from '../components/head.vue'
+import { no, ru } from 'vuetify/locale';
+import { useRoute } from 'vue-router';
 
 export default {
 	data() {
 		return {playerName: "", socket: io()};
 	},
 	methods: {
-
+		getIdMode(mode: string){
+			const modes: string[] = ["classic", "arcade", "ranked"];
+			if (!modes.includes(mode)){
+				this.$router.push('/notfound');
+				return;
+			}
+			return modes.indexOf(mode);
+		}
 	},
 	mounted() {
 		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");		
 
 		//TO DO GET MODE FROM PAGE QUERY
-		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), 0);
+		const route = useRoute();
+		const mode: string | undefined = route.query["mode"]?.toString();
+		if (!mode){
+			this.$router.push('notfound');
+			return;
+		}
+
+		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), this.getIdMode(mode));
 
 		this.socket.on('disconnect', () => {
 			this.socket.disconnect();

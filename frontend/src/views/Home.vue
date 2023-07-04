@@ -3,18 +3,23 @@
 	<div class="home_body">
 		<div class="home_content">
 			<div class="left_column">
-				<router-link class="play_button" to="/pong">Jouer</router-link>
+				<button class="play_button" @click="showModalPlay = true">Jouer</button>
+				<Teleport to="body">
+					<transition name="slide-fade" mode="out-in">
+						<PlayModal v-show="showModalPlay" @close-modal="showModalPlay = false"></PlayModal>
+					</transition>
+				</Teleport>
 				<div class="friend_list">
 					<div class="add_friend">
 						<button class="spe">Channel</button>
 						<button class="spe">Message</button>
 						<ButtonAdd icon="fa-solid fa-user-plus" id="show-modal" @click="showModalFriend = true"></ButtonAdd>
 						<Teleport to="body">
-						<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
+							<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
 						</Teleport>
-						<ButtonAdd icon="fa-circle-plus" id="show-modal" @click="showModal = true"></ButtonAdd>
+							<ButtonAdd icon="fa-circle-plus" id="show-modal" @click="showModal = true"></ButtonAdd>
 						<Teleport to="body">
-						<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannel"></ModalAdd>
+							<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannel"></ModalAdd>
 						</Teleport>
 					</div>
 					<div class="list">
@@ -50,6 +55,7 @@ import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
 import Head from '../components/head.vue'
 import ButtonAdd from '../components/ButtonAdd.vue'
+import PlayModal from '@/components/PlayModal.vue';
 
 interface Message {
 	channelId: number;
@@ -71,13 +77,15 @@ export default defineComponent({
 		ButtonAdd,
 		ModalAddFriend,
 		ModalAdd,
-		Head
+		Head,
+		PlayModal
 	},
 
 	data() {
 		return {
 			showModal: false,
 			showModalFriend: false,
+			showModalPlay: false,
 			socket: null as any,
 			connected: false as Boolean,
 			sender: -1 as number,
