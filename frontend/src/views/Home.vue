@@ -140,7 +140,7 @@ export default defineComponent({
 		},
 
 		async joinChannel(channel: Channel) {
-			if (!this.findChannel(channel.id))
+			if (this.findChannel(channel.id))
 				return ;
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
 				credentials: 'include',
