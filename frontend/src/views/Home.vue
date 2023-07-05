@@ -50,6 +50,7 @@ import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
 import Head from '../components/head.vue'
 import ButtonAdd from '../components/ButtonAdd.vue'
+import * as bcrypt from 'bcrypt';
 
 interface Message {
 	channelId: number;
@@ -61,6 +62,7 @@ interface Channel {
 	id: number;
 	name: string;
 	messages: Message[],
+	protected: boolean,
 }
 
 // Maybe store the selected channel in a cookie
@@ -91,12 +93,12 @@ export default defineComponent({
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
 		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/joinedChannels', { credentials: 'include' })).json();
-		console.log(channels_json);
 		for (let i = 0; i < channels_json.length; i++) {
 			this.channels.push({
 				id: channels_json[i]['id'],
 				name: channels_json[i]['name'],
 				messages: await this.getChannelMessages(channels_json[i]['id']),
+				protected: channels_json[i]['protected'],
 			});
 		}
 		this.init();
@@ -139,18 +141,28 @@ export default defineComponent({
 			this.selectedChannel = chan;
 		},
 
-		async joinChannel(channel: Channel) {
+		async joinChannel(channel: Channel, password: string) {
 			if (this.findChannel(channel.id))
 				return ;
+			console.log(password);
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
 				credentials: 'include',
 				method: "POST",
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					password: password,
+				}),
 			});
-			if (response['ok'] === true) {
+			const response_json = await response.json();
+			if (response_json['ok'] === true) {
 				this.channels.push(channel);
 				this.selectedChannel = channel;
 				this.selectedChannel.messages = await this.getChannelMessages(channel.id);
 			}
+			else
+				alert('Could not add user: Wrong password.');
 		},
 
 		findChannel(id: number): Channel | null {

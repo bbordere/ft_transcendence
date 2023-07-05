@@ -8,6 +8,7 @@ import { AuthLogin42Dto } from 'src/auth/dtos/auth42.dto';
 import { StatsDetail } from 'src/stats/stats.entity';
 import { validate } from 'class-validator';
 import { Channel } from 'src/chat/entities/channel.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -132,12 +133,18 @@ export class UserService {
 		return (user.email);
 	}
 
-	async addUserToChannel(userId: number, channelId: number) {
+	async addUserToChannel(userId: number, channelId: number, password: string) {
 		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
 		const channel = await this.channelRepository.findOne({where: {id: channelId}});
 
-		user.channels.push(channel);
-		await this.usersRepository.save(user);
+		if (password === undefined)
+			return ;
+		if (!channel.protected || await bcrypt.compare(password, channel.password)) {
+			user.channels.push(channel);
+			await this.usersRepository.save(user);
+		}
+		else
+			throw new Error('wrong password');
 	}
 
 	async removeUserFromChannel(userId: number, channelId: number) {

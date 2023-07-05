@@ -46,9 +46,16 @@ export class UserController {
 	}
 
 	@Post('/:userId/channels/:channelId/add')
-	async addUserToChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
-		await this.userService.addUserToChannel(userId, channelId);
+	async addUserToChannel(@Param('userId') userId: number, @Param('channelId') channelId: number, @Body('password') password: string) {
+		try {await this.userService.addUserToChannel(userId, channelId, password);}
+		catch {
+			return {
+				ok: false,
+				message: 'user not added'
+			};
+		}
 		return {
+			ok: true,
 			message: 'user added',
 		};
 	}
