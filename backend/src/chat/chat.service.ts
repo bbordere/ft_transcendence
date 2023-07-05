@@ -30,6 +30,8 @@ export class ChatService {
 	}
 
 	async create(name: string, password: string, protect: boolean): Promise<Channel | null> {
+		if (name.match('/^\s*$/'))
+			throw new Error('wrong name format.');
 		if (await this.getByName(name) !== null)
 			return (null);
 		const channel = new Channel();

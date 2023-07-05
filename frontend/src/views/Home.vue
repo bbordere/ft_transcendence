@@ -195,19 +195,6 @@ export default defineComponent({
 			return (this.sender === message.sender ? 'sent' : 'received');
 		},
 
-		// async deleteChannel(name: string) {
-		// 	// If only 1 user left in the channel delete it
-		// 	const channel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + encodeURIComponent(name), { credentials: 'include' })).json();
-		// 	for (let i = 0; i < this.channels.length; i++)
-		// 		if (this.channels[i].id === channel['id'])
-		// 			this.channels.splice(i, 1);
-		// 	const response_json = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/remove', { credentials: 'include', method: 'POST', });
-		// 	if (this.selectedChannel.messages != undefined) {
-		// 		this.selectedChannel = {} as Channel;
-		// 		this.showDiv = false;
-		// 	}
-		// },
-
 		async getChannelMessages(channelId: number): Promise<Message[]> {
 			const message_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/' + channelId + '/list', { credentials: 'include' });
 			let messages = [] as Message[];

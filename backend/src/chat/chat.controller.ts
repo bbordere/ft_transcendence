@@ -31,7 +31,9 @@ export class ChatController {
 	async create(@Body('name') name: string, @Body('password') password: string) {
 		if (Array.from(name)[0] != '#')
 			name = '#' + name;
-		const channel = await this.chatService.create(name, password, (password !== ''));
+		let channel;
+		try {channel = await this.chatService.create(name, password, (password !== ''));}
+		catch {return (null);}
 		return {
 			message: 'channel created',
 			channel

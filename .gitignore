@@ -4,3 +4,4 @@ dist/
 file.html
 backend/avatars/*
 backend/qrcode/*
+.charset_channel
