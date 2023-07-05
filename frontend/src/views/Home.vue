@@ -34,6 +34,9 @@
 					</ul>
 					<input type="text" v-model="message">
 					<button type="button" @click="sendMessage()">Send !</button>
+					<div class="channel_options">
+						<button type="button" @click="quitChannel()">Quit Channel</button>
+					</div>
 				</div>
 				<div v-else-if="!connected">
 					<p>connecting to websocket server...</p>
@@ -50,7 +53,6 @@ import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
 import Head from '../components/head.vue'
 import ButtonAdd from '../components/ButtonAdd.vue'
-import * as bcrypt from 'bcrypt';
 
 interface Message {
 	channelId: number;
@@ -144,7 +146,6 @@ export default defineComponent({
 		async joinChannel(channel: Channel, password: string) {
 			if (this.findChannel(channel.id))
 				return ;
-			console.log(password);
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
 				credentials: 'include',
 				method: "POST",
@@ -163,6 +164,24 @@ export default defineComponent({
 			}
 			else
 				alert('Could not add user: Wrong password.');
+		},
+
+		async quitChannel() {
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + this.selectedChannel.id + '/remove', {
+				credentials: 'include',
+				method: 'POST'
+			});
+			const response_json = await response.json();
+			if (response_json['ok']) {
+				for (let i = 0; i < this.channels.length; i++) {
+					if (this.channels[i].id === this.selectedChannel.id) {
+						this.channels.splice(i, 1);
+						this.selectedChannel = {} as Channel;
+						this.showDiv = false;
+						break ;
+					}
+				}
+			}
 		},
 
 		findChannel(id: number): Channel | null {
