@@ -4,7 +4,7 @@
 		<div class="pong_content">
 			<div class="left_column">
 				<div class="left_point">
-					<label>left_point</label>
+					<span id="score1"></span>
 				</div>
 			</div>
 			<div class="middle_column">
@@ -29,7 +29,7 @@
 			</div>
 			<div class="right_column">
 				<div class="right_point">
-					<label>right_point</label>
+					<span id="score2"></span>
 				</div>
 			</div>
 		</div>
@@ -37,6 +37,7 @@
 </template>
 
 <script lang="ts">
+import { ref } from 'vue'
 import io from 'socket.io-client';
 import Head from '../components/head.vue'
 
@@ -78,12 +79,19 @@ export default {
 			drawRect(racket2.top_pos.x, racket2.top_pos.y, racket2.width, racket2.size);
 		});
 
+
+		this.socket.on('updateScore', (score1, score2) => {
+  			const scoreElement1 = document.getElementById('score1');
+  			scoreElement1.textContent = score1;
+			  const scoreElement2 = document.getElementById('score2');
+  			scoreElement2.textContent = score2;
+		});
+
 		this.socket.on('text', (data) => {
 			drawText(data);
 		});
 
 		const ballRadius = 20;
-
 
 		function drawText(text: string){
 			ctx.font = "200px serif";
@@ -106,6 +114,35 @@ export default {
 			ctx.fill();
 			ctx.closePath();
 		}
+
+		var keyArrowUp: Boolean = false
+		var keyArrowDown: Boolean = false
+		document.addEventListener('keydown', (event) => {
+ 			if (event.key === "ArrowUp" && !keyArrowUp) {
+				keyArrowUp = true;
+				this.socket.emit("arrowUpdate", "arrowUp");
+				console.log("up")
+			}
+			if (event.key === "ArrowDown" && !keyArrowDown) {
+				keyArrowDown = true;
+				this.socket.emit("arrowUpdate", "arrowDown");
+				console.log("down")
+			}
+		});
+
+		document.addEventListener('keyup', (event) => {
+ 			if (event.key === "ArrowUp" && keyArrowUp) {
+				keyArrowUp = false;
+				this.socket.emit("arrowUpdate", "stopArrowUp");
+				console.log("upstop")
+			}
+			if (event.key === "ArrowDown" && keyArrowDown) {
+				keyArrowDown = false;
+				this.socket.emit("arrowUpdate", "stopArrowDown");
+
+				console.log("downstop")
+			}
+		});
 		
 	},
 	beforeUnmount(){
