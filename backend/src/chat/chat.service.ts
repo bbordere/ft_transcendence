@@ -4,6 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Message } from "./entities/message.entity";
 import { User } from "src/user/user.entity";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ChatService {
@@ -28,11 +29,13 @@ export class ChatService {
 		return (this.channelRepository.findOneBy({ name }));
 	}
 
-	async create(name: string): Promise<Channel | null> {
+	async create(name: string, password: string, protect: boolean): Promise<Channel | null> {
 		if (await this.getByName(name) !== null)
 			return (null);
 		const channel = new Channel();
 		channel.name = name;
+		channel.password = (protect ? await bcrypt.hash(password, 8) : '');
+		channel.protected = protect;
 		return (this.channelRepository.save(channel));
 	}
 

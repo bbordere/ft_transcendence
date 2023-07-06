@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
+import * as bcrypt from 'bcrypt';
 
 export default defineComponent ({
 	data() {
@@ -8,7 +9,7 @@ export default defineComponent ({
 			channel_password: '' as string,
 		});
 	},
-	
+
 	props: {
 		show: Boolean,
 	},
@@ -27,14 +28,15 @@ export default defineComponent ({
 				},
 				body: JSON.stringify({
 					name: this.channel_name,
+					password: this.channel_password,
 				}),
 			})).json();
 			if (response_json['channel'] !== null)
-				this.$emit('newChannel', response_json['channel']);
+				this.$emit('newChannel', response_json['channel'], this.channel_password);
 			else {
 				let response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + encodeURIComponent(this.channel_name), { credentials: 'include' });
 				let channel = await (response.json());
-				this.$emit('newChannel', channel);
+				this.$emit('newChannel', channel, this.channel_password);
 			}
 			this.$emit('close');
 			this.channel_name = '';

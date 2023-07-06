@@ -14,6 +14,12 @@ export class Channel {
 	@ManyToMany(() => User, user => user.channels)
 	users: User[];
 
+	@Column({ default: '', nullable: false })
+	public password: string;
+
+	@Column({ default: false, nullable: false })
+	public protected: boolean;
+
 	@OneToMany(() => Message, message => message.channel, {
 		cascade: true,
 		onDelete: 'CASCADE',
