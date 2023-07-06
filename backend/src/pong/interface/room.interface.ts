@@ -1,5 +1,4 @@
 import { Player } from "./player.interface";
-import { Socket } from "socket.io";
 
 export class Coords {
 	x:	number;

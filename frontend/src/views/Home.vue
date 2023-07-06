@@ -3,7 +3,8 @@
 	<div class="home_body">
 		<div class="home_content">
 			<div class="left_column">
-				<button class="play_button" @click="showModalPlay = true">Jouer</button>
+				<button v-if="!recoButton" class="play_button" @click="showModalPlay = true">Jouer</button>
+				<button v-else class="play_button" @click="reconnectToRoom">Reco</button>
 				<Teleport to="body">
 					<transition name="slide-fade" mode="out-in">
 						<PlayModal v-show="showModalPlay" @close-modal="showModalPlay = false"></PlayModal>
@@ -97,6 +98,8 @@ export default defineComponent({
 			channels: [] as Channel[],
 			selectedChannel: {} as Channel,
 			showDiv: false as Boolean,
+			recoButton: false as Boolean,
+			recoMode: -1 as number,
 		}
 	},
 
@@ -114,6 +117,10 @@ export default defineComponent({
 		this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
+		const hasDisconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
+		this.recoButton = hasDisconnectObject["disconnect"];
+		this.recoMode = hasDisconnectObject["mode"];
+		console.log(this.recoButton, this.recoMode);
 	},
 
 	methods: {
@@ -203,6 +210,10 @@ export default defineComponent({
 			return (this.sender === message.sender ? 'sent' : 'received');
 		},
 
+		reconnectToRoom(){
+			const mode = ["classic", "ranked", "arcade"][this.recoMode];
+			this.$router.push({ path: '/pong', query: { mode: mode }});
+		},
 		// async deleteChannel(name: string) {
 		// 	// If only 1 user left in the channel delete it
 		// 	const channel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + encodeURIComponent(name), { credentials: 'include' })).json();

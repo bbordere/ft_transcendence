@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, flatten } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Ball, Mode, Room, State } from './interface/room.interface';
 import { Player } from './interface/player.interface';
@@ -7,6 +7,7 @@ import { Player } from './interface/player.interface';
 export class PongGame {
 	private lastRoomId = 0;
 	private roomsMap: Map<Mode, Room[]> = new Map();
+	private disconnectedUsers: Map<number, string> = new Map();
 
 	async extractRoom(rooms: Room[]){
 		const filteredRooms = rooms.map(room => {
@@ -17,6 +18,17 @@ export class PongGame {
 		return filteredRooms;
 	}
 
+	async hasDisconnect(email: string): Promise<Object> {
+		let roomId: number = -1;
+		for (let [key, value] of this.disconnectedUsers.entries()) {
+			if (value === email){
+				roomId = key;
+				break;
+			}
+		}
+		return ({status: roomId !== -1, roomId: roomId});
+	}
+
 	async getRooms(){
 		let res = [];
 		const keysArray = Array.from(this.roomsMap.keys());
@@ -24,6 +36,14 @@ export class PongGame {
 			res.push(await this.extractRoom(this.roomsMap.get(key)));
 		}
 		return (res);
+	}
+
+	async getRoomById(id: number){
+		for (let [key, value] of this.roomsMap) {
+			const res = value.find(room => room.id === id);
+			if (res)
+				return (res);
+		}
 	}
 
 	async createRoom(mode: Mode): Promise<Room> {
@@ -60,9 +80,25 @@ export class PongGame {
 		return (playerNames.includes(socketId));
 	}
 
+	async isEmailInGame(email: string){//: Promise<Room | null>{
+		const keysArray = Array.from(this.roomsMap.keys());
+		for (var key of keysArray){
+			for (var room of this.roomsMap.get(key)){
+				if (this.isEmailInsideRoom(room, email))
+					return (true);
+			}
+		}
+		return (false);
+	}
+
 	async isPlayerInsideRoom(room: Room, player: Player): Promise<Boolean>{
-		const playerNames: string[] = room.players.map((player) => player.user.name);
-		return (playerNames.includes(player.user.name));
+		const playerNames: string[] = room.players.map((player) => player.user.email);
+		return (playerNames.includes(player.user.email));
+	}
+
+	async isEmailInsideRoom(room: Room, email: string): Promise<Boolean>{
+		const playerNames: string[] = room.players.map((player) => player.user.email);
+		return (playerNames.includes(email));
 	}
 
 	async searchRoom(client: Socket, player: Player, mode: Mode): Promise<Room> {
@@ -70,6 +106,8 @@ export class PongGame {
 			for (var room of this.roomsMap.get(mode) as Room[]){
 				if ((room.id === player.roomId || room.state === State.QUEUE) && !await this.isPlayerInsideRoom(room, player)){
 					console.log("trouver");
+					if (this.disconnectedUsers.get(room.id))
+						this.disconnectedUsers.delete(room.id);
 					return (this.joinRoom(client, room, player));
 				}
 			}
@@ -160,6 +198,8 @@ export class PongGame {
 				if (room.players.length === 2){
 					room.players = room.players.filter((element) => element.socket.id !== socketId);
 					room.state = State.WAITING;
+					this.disconnectedUsers.set(room.id, client.data.user.email);
+					console.log(this.disconnectedUsers);
 				}
 				else if (room.players.length === 1){
 					room.state = State.FINAL;
@@ -178,12 +218,13 @@ export class PongGame {
 					room.state = State.INIT;
 					countDown = 0;
 				}
-				if (countDown === 10){
-					room.state = State.FINAL;
-				}
+				// if (countDown === 10){
+				// 	room.state = State.FINAL;
+				// }
 			}
 			if (room.state === State.FINAL){
 				countDown = 0;
+				this.disconnectedUsers.delete(room.id);
 				this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
 				client.emit('text', "FINISHED");
 				clearInterval(client.data.gameInterval);
