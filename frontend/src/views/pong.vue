@@ -4,7 +4,7 @@
 		<div class="pong_content">
 			<div class="left_column">
 				<div class="left_point">
-					<label>left_point</label>
+					<span id="score1"></span>
 				</div>
 			</div>
 			<div class="middle_column">
@@ -29,7 +29,7 @@
 			</div>
 			<div class="right_column">
 				<div class="right_point">
-					<label>right_point</label>
+					<span id="score2"></span>
 				</div>
 			</div>
 		</div>
@@ -74,12 +74,59 @@ export default {
 			console.log('Vous avez été déconnecté du jeu.');
 		});
 		
+
+		var keyArrowUp: Boolean = false
+		var keyArrowDown: Boolean = false
+		document.addEventListener('keydown', (event) => {
+ 			if (event.key === "ArrowUp" && !keyArrowUp) {
+				keyArrowUp = true;
+				this.socket.emit("arrowUpdate", "arrowUp");
+				console.log("up")
+			}
+			if (event.key === "ArrowDown" && !keyArrowDown) {
+				keyArrowDown = true;
+				this.socket.emit("arrowUpdate", "arrowDown");
+				console.log("down")
+			}
+		});
+		document.addEventListener('keyup', (event) => {
+ 			if (event.key === "ArrowUp" && keyArrowUp) {
+				keyArrowUp = false;
+				this.socket.emit("arrowUpdate", "stopArrowUp");
+				console.log("upstop")
+			}
+			if (event.key === "ArrowDown" && keyArrowDown) {
+				keyArrowDown = false;
+				this.socket.emit("arrowUpdate", "stopArrowDown");
+				console.log("downstop")
+			}
+		});
+
+		this.socket.on('updateScore', (score1, score2) => {
+  			const scoreElement1 = document.getElementById('score1');
+			const scoreElement2 = document.getElementById('score2');
+  			scoreElement1.textContent = score1;
+  			scoreElement2.textContent = score2;
+		});
+
 		const canvas = document.getElementById('pongCanvas');
 		const ctx = canvas.getContext('2d');
 
-		this.socket.on('updateBall', (data) => {
-			drawBall(data.position.x, data.position.y);
+		this.socket.on('updateGame', (ball, racket1, racket2) => {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			drawBall(ball.position.x, ball.position.y);
+			// console.log(racket2.top_pos);
+			drawRect(racket1.top_pos.x, racket1.top_pos.y, racket1.width, racket1.size);
+			drawRect(racket2.top_pos.x, racket2.top_pos.y, racket2.width, racket2.size);
 		});
+
+		function drawRect(x: Number, y: Number, width: Number, size: Number) {
+			ctx.beginPath();
+			ctx.rect(x, y, width, size);
+			ctx.fillStyle = "#FFFFFF";
+			ctx.fill();
+			ctx.closePath();
+		}
 
 		this.socket.on('text', (data) => {
 			drawText(data);
@@ -95,8 +142,7 @@ export default {
 			ctx.fillStyle = 'white'
 		}
 		
-		function drawBall(x, y) {
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+		function drawBall(x: Number, y: Number) {
 			ctx.beginPath();
 			ctx.arc(x, y, ballRadius, 0, Math.PI*2);
 			ctx.fillStyle = "#FFFFFF";
