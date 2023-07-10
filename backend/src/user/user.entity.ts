@@ -1,6 +1,7 @@
-import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, OneToOne } from "typeorm";
+import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, OneToOne, ManyToMany, JoinTable } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { StatsDetail } from '../stats/stats.entity'
+import { Channel } from "src/chat/entities/channel.entity";
 
 @Entity()
 export class User{
@@ -15,7 +16,7 @@ export class User{
 	public name: string;
 
 	@Column({ default: ""})
-	private password: string;
+	public password: string;
 
 	@Column({ default: true})
 	public isOnline: boolean
@@ -35,6 +36,10 @@ export class User{
 	  })
 	@JoinColumn() 
 	public stats: StatsDetail;
+
+	@ManyToMany(() => Channel)
+	@JoinTable()
+	public channels: Channel[];
 
 	@BeforeInsert()
 	async hashPassword() {

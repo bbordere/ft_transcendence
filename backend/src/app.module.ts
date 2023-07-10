@@ -5,16 +5,14 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { ChatGateway } from './chat/chat.gateway';
-import { PongGateway } from './pong2/pong.gateway';
-
 import { AppService } from './app.service';
 import { AvatarModule } from './avatar/avatar.module';
 import { StatsController } from './stats/stats.controller';
 import { StatsModule } from './stats/stats.module';
 import { MatchController } from './match/match.controller';
 import { MatchModule } from './match/match.module';
-import { PongGame } from './pong2/pong.service';
+import { ChatModule } from './chat/chat.module';
+import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [
@@ -25,8 +23,11 @@ import { PongGame } from './pong2/pong.service';
 		AvatarModule,
 		StatsModule,
 		MatchModule,
+		ChatModule,
+		PongModule
 	],
   controllers: [AppController, StatsController, MatchController],
-  providers: [AppService, ChatGateway, PongGateway, PongGame]
+  providers: [AppService]
 })
 export class AppModule {}
+

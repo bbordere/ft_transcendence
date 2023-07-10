@@ -8,10 +8,10 @@ export class Match{
 	id: number
 
 	@ManyToOne(() => User, (player1: User) => player1.id, {cascade: true, eager: true})
-	player1: User;
+	player1: Partial<User>;
 	
-	@ManyToOne(() => User, (player2: User) => player2.id, {cascade: true, eager: true})
-	player2: User;
+	@ManyToOne(() => User, (player2: User) => player2.id, {cascade: true, eager: true,})
+	player2: Partial<User>;
 
 	@Column({ default: 0})
 	scorePlayer1: number;

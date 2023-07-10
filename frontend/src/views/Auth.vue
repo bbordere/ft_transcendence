@@ -26,7 +26,6 @@ async function login(){
 
 		})
 	})
-	const tokens = await res.json();
 	switch (res.status) {
 		case 406:{
 			const response = await res.json();
@@ -52,7 +51,6 @@ async function login(){
 			break;
 		}
 		case 207:{
-			// sessionStorage.setItem('tokens', tokens.token); // TO DO NEXT 2FA
 			router.push({path:'/auth/2fa/verif', query: { plan: 'verify' }});
 			break;
 		}

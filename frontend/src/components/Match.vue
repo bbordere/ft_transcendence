@@ -1,7 +1,8 @@
 <template>
 	<div class="match-card">
 		<div class="player-card">
-			<img class="avatar-match" :src="'http://localhost:3000/avatar/user/' + matchObject.player1.name" @click="redirecToProfil"/>
+			
+			<img class="avatar-match" :src="getAvatarUrl(matchObject.player1.name)" @click="redirecToProfil"/>
 			{{ matchObject.player1.name }}
 		</div>
 		<div class="score-card">
@@ -19,7 +20,7 @@
 			</div>
 		</div>
 		<div class="player-card">
-			<img class="avatar-match" :src="'http://localhost:3000/avatar/user/' + matchObject.player2.name" @click="redirecToProfil"/>
+			<img class="avatar-match" :src="getAvatarUrl(matchObject.player2.name)" @click="redirecToProfil"/>
 			{{ matchObject.player2.name }}
 		</div>
 	</div>
@@ -34,6 +35,9 @@
 				const src = (e.target as HTMLImageElement).src;
 				const username = src.split('/').at(-1);
 				router.push({path:'/profile',query: { user: username }});
+			},
+			getAvatarUrl(playerName: string){
+				return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/" + playerName);
 			}
 		},
 	}

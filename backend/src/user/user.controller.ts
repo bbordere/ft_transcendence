@@ -11,20 +11,22 @@ export class UserController {
 	//TODO SEND PARTIAL USER TO NOT SEND CRITICAL VALUES
 
 	@Get()
-	getUsers(){
+	async getUsers(){
 		return (this.userService.getAllUsers());
 	}
 	
 	@Get('/me')
 	@UseGuards(JwtAuthGuard)
-	me(@Req() req: Request){
+	async me(@Req() req: Request){
 		const id = req["user"]["user"]["id"];
-		return (this.userService.getById(id));
+		const user = await this.userService.getById(id);
+		return (this.userService.getPartialUser(user));
 	}
 	
 	@Get(":name")
-	getUserByName(@Param('name') name: string){
-		return (this.userService.getByName(name));
+	async getUserByName(@Param('name') name: string){
+		const user = await this.userService.getByName(name)
+		return (this.userService.getPartialUser(user));
 	}
 	
 	@Post('/setname')
@@ -36,10 +38,45 @@ export class UserController {
 			res.statusCode = 201;
 		res.send();
 	}
-	
+
 	@Get("/id/:id")
-	getUserById(@Param('id') id: number){
-		return (this.userService.getById(id));
+	async getUserById(@Param('id') id: number){
+		const user = await this.userService.getById(id);
+		return (this.userService.getPartialUser(user));
 	}
-	
+
+	@Post('/:userId/channels/:channelId/add')
+	async addUserToChannel(@Param('userId') userId: number, @Param('channelId') channelId: number, @Body('password') password: string) {
+		try {await this.userService.addUserToChannel(userId, channelId, password);}
+		catch {
+			return {
+				ok: false,
+				message: 'user not added'
+			};
+		}
+		return {
+			ok: true,
+			message: 'user added',
+		};
+	}
+
+	@Post('/:userId/channels/:channelId/remove')
+	async removeUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		try {await this.userService.removeUserFromChannel(userId, channelId);}
+		catch {
+			return {
+				message: 'failed to remove user from channel',
+				ok: false,
+			};
+		}
+		return {
+			message: 'user sucessfully removed from channel',
+			ok: true,
+		};
+	}
+
+	@Get('/:userId/joinedChannels')
+	async getJoinedChannels(@Param('userId') userId: number) {
+		return (this.userService.getJoinedChannels(userId));
+	}
 }

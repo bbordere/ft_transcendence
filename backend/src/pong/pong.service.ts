@@ -1,34 +1,73 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, flatten } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Coords, Canvas, Ball, Mode, Room, State } from './interface/room.interface';
+import { Ball, Mode, Room, State } from './interface/room.interface';
 import { Player } from './interface/player.interface';
 
 @Injectable()
 export class PongGame {
-	private rooms = [];
+	private lastRoomId = 0;
+	private roomsMap: Map<Mode, Room[]> = new Map();
+	private disconnectedUsers: Map<number, string> = new Map();
 
-	createRoom(): Room {
+	async extractRoom(rooms: Room[]){
+		const filteredRooms = rooms.map(room => {
+			const { players, ...rest } = room;
+			const filteredPlayers = players.map(({ socket, ...player }) => player);
+			return { ...rest, players: filteredPlayers };
+		  });
+		return filteredRooms;
+	}
+
+	async hasDisconnect(email: string): Promise<Object> {
+		let roomId: number = -1;
+		for (let [key, value] of this.disconnectedUsers.entries()) {
+			if (value === email){
+				roomId = key;
+				break;
+			}
+		}
+		return ({status: roomId !== -1, roomId: roomId});
+	}
+
+	async getRooms(){
+		let res = [];
+		const keysArray = Array.from(this.roomsMap.keys());
+		for (var key of keysArray){
+			res.push(await this.extractRoom(this.roomsMap.get(key)));
+		}
+		return (res);
+	}
+
+	async getRoomById(id: number){
+		for (let [key, value] of this.roomsMap) {
+			const res = value.find(room => room.id === id);
+			if (res)
+				return (res);
+		}
+	}
+
+	async createRoom(mode: Mode): Promise<Room> {
 		const room: Room = {
-			socket: null,
+			id: this.lastRoomId++,
 			state: State.QUEUE,
-			mode: Mode.standard,
+			mode: mode,
 			players: [],
 			ball: null,
 			time: 0,
-			canvas: {width: 2000, height:1200}
+			canvas: {width: 2000, height: 1200}
 		};
-		this.rooms.push(room);
+		this.roomsMap.get(mode).push(room);
 		return room;
 	}
 
-	joinRoom(client: Socket, room: Room, player: Player): Room {
+	async joinRoom(client: Socket, room: Room, player: Player): Promise<Room> {
 		if (room.players.length < 2) {
-			player.room = room;
 			room.players.push(player);
 			if (room.players.length === 2) {
-				console.log("2 joueur dans la room");
-				room.state = State.INIT;
-				client.broadcast.emit("roomFull");
+				if (room.state === State.QUEUE)
+					room.state = State.INIT;
+				player.roomId = room.id;
+				client.data.room = room;
 			}
 			return (room);
 		} else {
@@ -36,34 +75,53 @@ export class PongGame {
 		}
 	}
 
-	searchRoom(client: Socket, player: Player): Room {
-	 	for(var i: number = 0; i < this.rooms.length; i++) {
-			console.log("recherche");
-			if (this.rooms[i].state === State.QUEUE) {
-				console.log("trouver");
-				return (this.joinRoom(client, this.rooms[i], player));
-			}
-		}
-		console.log("pas trouver");
-		const room: Room = this.createRoom();
-		return (this.joinRoom(client, room, player));
+	async isSocketInsideRoom(room: Room, socketId: string): Promise<Boolean>{
+		const playerNames: string[] = room.players.map((player) => player.socket.id);
+		return (playerNames.includes(socketId));
 	}
 
-	leaveRoom(player) {
-		const room = player.room;
-		if (room) {
-			player.room = null;
-			const index = room.players.indexOf(player);
-			if (index !== -1) {
-				room.players.splice(index, 1);
-				if (room.state === 'PLAY' && room.players.length < 2) {
-					// Gérer le cas où il ne reste qu'un seul joueur dans la salle en plein jeu
+	async isEmailInGame(email: string){//: Promise<Room | null>{
+		const keysArray = Array.from(this.roomsMap.keys());
+		for (var key of keysArray){
+			for (var room of this.roomsMap.get(key)){
+				if (this.isEmailInsideRoom(room, email))
+					return (true);
+			}
+		}
+		return (false);
+	}
+
+	async isPlayerInsideRoom(room: Room, player: Player): Promise<Boolean>{
+		const playerNames: string[] = room.players.map((player) => player.user.email);
+		return (playerNames.includes(player.user.email));
+	}
+
+	async isEmailInsideRoom(room: Room, email: string): Promise<Boolean>{
+		const playerNames: string[] = room.players.map((player) => player.user.email);
+		return (playerNames.includes(email));
+	}
+
+	async searchRoom(client: Socket, player: Player, mode: Mode): Promise<Room> {
+		if (this.roomsMap.get(mode)){
+			for (var room of this.roomsMap.get(mode) as Room[]){
+				if ((room.id === player.roomId || room.state === State.QUEUE) && !await this.isPlayerInsideRoom(room, player)){
+					console.log("trouver");
+					if (this.disconnectedUsers.get(room.id))
+						this.disconnectedUsers.delete(room.id);
+					return (this.joinRoom(client, room, player));
 				}
 			}
 		}
+		else {
+			this.roomsMap.set(mode, []);
+		}
+		console.log("pas trouver");
+		const newRoom: Room = await this.createRoom(mode);
+		player.roomId = newRoom.id;
+		return (this.joinRoom(client, newRoom, player));
 	}
 
-	resetBall(room: Room) {
+	async resetBall(room: Room) {
 		room.ball.radius = 20
 		room.ball.position.x = 150;
 		room.ball.position.y = 75;
@@ -72,41 +130,109 @@ export class PongGame {
 		room.ball.speed = 2;
 	}
 
-	updateBall(client:Socket,  room: Room): any {
-
+	updateBall(client:Socket,  room: Room) {
 		const next = {
 			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
 			y: room.ball.direction.x * room.ball.speed + room.ball.radius,
 		}
-
-		if(room.ball.position.x + next.x > room.canvas.width
-				|| room.ball.position.x + next.x < room.ball.radius) {
+		if (room.ball.position.x + next.x > room.canvas.width
+				|| room.ball.position.x + next.x < (room.ball.radius * 2)) {
 			room.ball.direction.x *= -1;
 		}
-		if(room.ball.position.y + next.y > room.canvas.height
-				|| room.ball.position.y + next.y < room.ball.radius) {
+		if (room.ball.position.y + next.y > room.canvas.height
+				|| room.ball.position.y + next.y < (room.ball.radius * 2)) {
 			room.ball.direction.y *= -1;
 		}
-
 		room.ball.position.x += room.ball.direction.x * room.ball.speed;
 		room.ball.position.y += room.ball.direction.y * room.ball.speed;
 		client.emit("updateBall", room.ball);
 	}
 
-	initGame(room: Room) {
-		room.ball = new Ball();
+	async initGame(room: Room) {
+		if (!room.ball){
+			room.ball = new Ball();
+			await this.resetBall(room);
+		}
 		room.canvas.width = 2000;
 		room.canvas.height = 1200;
-		this.resetBall(room);
 	}
 
-	playGame(client: Socket, room: Room) {
-			this.initGame(room)
-			setInterval(() => {
-				if (room.state !== State.QUEUE) {
-					room.state = State.PLAY;
-					this.updateBall(client, room);
+	async playGame(client: Socket, room: Room) {
+		await this.initGame(room);
+		client.data.gameInterval = setInterval(() => {
+			if (client.disconnected){
+				clearInterval(client.data.gameInterval);
+				return;
 			}
-		}, 16);
+			switch (room.state) {
+				case State.QUEUE:
+					client.emit('text', "QUEUEING");
+					break;
+				case State.INIT:{
+					if (room.players.length === 2)
+						room.state = State.COOLDOWN;
+					break;
+				}
+
+				case State.COOLDOWN:
+					// Handle cooldown
+					room.state = State.PLAY;
+					break;
+
+				case State.PLAY:
+					this.updateBall(client, room);
+					break;
+				
+				default:
+					break;
+			}
+		}, 20);
+	}
+
+	async leaveRoomSocket(socketId: string, client: Socket){
+		const keysArray = Array.from(this.roomsMap.keys());
+		for (var key of keysArray as Mode[]){
+			for (var room of this.roomsMap.get(key) as Room[]){
+				if (! await this.isSocketInsideRoom(room, socketId))
+					continue;
+				if (room.players.length === 2){
+					room.players = room.players.filter((element) => element.socket.id !== socketId);
+					room.state = State.WAITING;
+					this.disconnectedUsers.set(room.id, client.data.user.email);
+					console.log(this.disconnectedUsers);
+				}
+				else if (room.players.length === 1){
+					room.state = State.FINAL;
+				}
+			}
+		}
+	}
+
+	async checkDisconnection(client: Socket, room: Room){
+		let countDown: number = 0;
+		const it = setInterval(() => {
+			if (room.state === State.WAITING){
+				client.emit('text', "WAITING");
+				countDown++;
+				if (room.players.length == 2){
+					room.state = State.INIT;
+					countDown = 0;
+				}
+				// if (countDown === 10){
+				// 	room.state = State.FINAL;
+				// }
+			}
+			if (room.state === State.FINAL){
+				countDown = 0;
+				this.disconnectedUsers.delete(room.id);
+				this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
+				client.emit('text', "FINISHED");
+				clearInterval(client.data.gameInterval);
+				clearInterval(it);
+			}
+			if (room.state === State.PLAY){
+				countDown = 0;
+			}
+		}, 500);
 	}
 }

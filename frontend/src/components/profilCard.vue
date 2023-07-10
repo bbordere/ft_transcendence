@@ -2,15 +2,19 @@
 
 import Avatar from '@/components/Avatar.vue'
 import ModalSettings from '@/components/ModalSettings.vue';
+import ChangeUsernameModal from './ChangeUsernameModal.vue';
 import BlueButton from './BlueButton.vue';
 import router from '../router';
 import { useNotification } from "@kyvg/vue3-notification";
+import Switch from './switch.vue';
 
 export default{
 	components: {
 		Avatar,
 		ModalSettings,
-		BlueButton
+		BlueButton,
+		ChangeUsernameModal,
+		Switch,
 	},
 	props: ["editable", "username"],
 	data(){
@@ -39,7 +43,34 @@ export default{
 				type: 'error',
 				group: 'notif-center'
 			});
-		}
+		},
+		updateNotif(){
+				this.getUser();
+				const notification = useNotification()
+				notification.notify({
+					title: "Nom d'utilisateur changé !",
+					type: 'success',
+					group: 'notif-center'
+				});
+			},
+			alreadyExistNotif(){
+				const notification = useNotification()
+				notification.notify({
+					title: "Erreur",
+					text: "Ce nom d'utilisateur existe déjà !",
+					type: 'error',
+					group: 'notif-center'
+				});
+			},
+			badFormatNotif(){
+				const notification = useNotification()
+				notification.notify({
+					title: "Erreur",
+					text: "Veuillez entrer un format valide !",
+					type: 'error',
+					group: 'notif-center'
+				});
+			}
 
 	},
 	beforeMount(){
@@ -59,13 +90,22 @@ export default{
 		<div class="buttons">
 			<Teleport to="body">
 				<transition name="slide-fade" mode="out-in">
-					<ModalSettings v-show="showModal" @close-modal="showModal = false" @updated="getUser"></ModalSettings>
+					<ChangeUsernameModal v-show="showModal" @close-modal="showModal = false"
+											@updated="updateNotif" @already-exist="alreadyExistNotif"
+											@bad-format="badFormatNotif">
+					</ChangeUsernameModal>
 				</transition>
 			</Teleport>
-			<div v-if="editable != 0"> 
-				<BlueButton class="button-profile" text="Paramètres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
-				<BlueButton class="button-profile" text="Paramètres" icon="fa-solid fa-gear" @click="showModal = true"></BlueButton>
-				<BlueButton class="button-profile"  text="Déconnection" icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
+			<div class="buttons-items" v-if="editable != 0"> 
+				<BlueButton class="button-profile" text="Changer Nom " icon="fa-solid fa-pen" @click="showModal = true"></BlueButton>
+				<div class="tfa">
+						<div class="tfa-extra">
+							<font-awesome-icon icon="fa-solid fa-lock"/>
+							2FA
+						</div>
+						<Switch/>
+				</div>
+				<BlueButton class="button-profile"  text="Déconnection " icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
 			</div>
 			<div v-else-if="!isMyPage">
 				<BlueButton text="Ajouter en ami " icon="fa-solid fa-user-group"></BlueButton>
@@ -115,13 +155,40 @@ export default{
 
 .buttons{
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
 	width: 15%;
 }
 
-@media screen and (max-width: 950px) {
-	
+.tfa {
+	background: rgb(34, 158, 230);
+	border-radius: 10px;
+	box-shadow: rgb(37, 18, 121) 0px 4px 0px 0px;
+	padding: 10px;
+	margin: 10px;
+	display: flex;
+	font-family: 'Poppins';
+	font-weight: bold;
+	color: white;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	font-size: 1em;
+}
+
+.tfa-extra{
+	display: flex;
+	gap: 30px;
+	align-items: center;
+}
+
+@media (max-width: 500px) {
+	.tfa-extra{
+		display: none;
+	}
+}
+
+.buttons-items {
+	display: flex;
+	flex-direction: column;
 }
 
 </style>

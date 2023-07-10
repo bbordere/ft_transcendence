@@ -9,7 +9,7 @@
 				</div>
 				<BlueButton text="Confirmer" icon="fa-solid fa-pen" @click="changeUsername" />
 			</div>
-	  </div>
+		</div>
 	</div>
 </template>
 
@@ -67,6 +67,19 @@ export default{
 </script>
 
 <style scoped>
+
+.modal-overlay {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	background-color: #242424d0;
+	transition: opacity 0.3s ease;
+	transition: all 0.3s ease;
+}
 .modal-username {
 	text-align: center;
 	background-color: white;

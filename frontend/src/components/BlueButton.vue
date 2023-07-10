@@ -1,5 +1,9 @@
 <template>
-	<button class="blue-button"><font-awesome-icon :icon="this.icon"/> {{ this.text }}</button>
+	<button class="blue-button"><font-awesome-icon :icon="this.icon"/>
+	<div class="blue-button-text"> 
+		{{ this.text }}
+	</div>
+	</button>
 </template>
 
 <script lang="ts">
@@ -16,6 +20,7 @@ export default{
 	position: relative;
 	font-family: 'Poppins';
     font-weight: bold;
+	font-size: 0.8em;
 	background-color: rgb(34, 158, 230);
 	border-radius: 10px;
 	box-shadow: rgb(37, 18, 121) 0px 4px 0px 0px;
@@ -23,10 +28,11 @@ export default{
 	background-repeat: no-repeat;
 	box-sizing: border-box;
 	color: #fff;
-	width: 90%;
+	/* width: 100%; */
 	border: none;
 	transition: all .3s ease-in-out;
-	overflow: hidden;
+	/* overflow: hidden; */
+	overflow-wrap: anywhere;
 	cursor: pointer;
 }
 
@@ -39,13 +45,24 @@ export default{
 	top: 0;
 	left: 0;
 	transition: width 700ms ease-in-out;
-	/* display: inline-block; */
 	opacity: 50%;
 }
 
 .blue-button:hover::before {
 	width: 100%;
 	opacity: 50%;
+}
+
+@media screen and (max-width: 930px) {
+	.blue-button-text{
+		font-size: 1.4vw;
+	}
+}
+
+@media screen and (max-width: 500px) {
+	.blue-button-text{
+		display: none;
+	}
 }
 
 </style>

@@ -36,66 +36,77 @@
 	</div>
 </template>
 
-<script>
+<script lang="ts">
 import io from 'socket.io-client';
-import { onMounted } from 'vue';
 import Head from '../components/head.vue'
+import { no, ru } from 'vuetify/locale';
+import { useRoute } from 'vue-router';
 
 export default {
 	data() {
-		return {playerName: ""};
+		return {playerName: "", socket: io()};
 	},
 	methods: {
-		async getData(){
-			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'});
-			const user = await res.json();
-			this.playerName = user["name"];
+		getIdMode(mode: string){
+			const modes: string[] = ["classic", "arcade", "ranked"];
+			if (!modes.includes(mode)){
+				this.$router.push('/notfound');
+				return;
+			}
+			return modes.indexOf(mode);
 		}
 	},
-	async mounted() {
-		await this.getData();
-		const socket = io("http://" + import.meta.env.VITE_HOST + ":3000", {
-				transports: ["websocket"],
-				extraHeaders: {"playername": this.playerName},
-				withCredentials: true,
-		});
+	mounted() {
+		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");		
 
-		socket.on('gameJoined', (data) => {
-			const playerId = data.playerId;
-			console.log(`Vous avez rejoint le jeu. Votre identifiant de joueur est : ${playerId}`);
-		});
+		//TO DO GET MODE FROM PAGE QUERY
+		const route = useRoute();
+		const mode: string | undefined = route.query["mode"]?.toString();
+		if (!mode){
+			this.$router.push('notfound');
+			return;
+		}
 
-		socket.on('playerJoined', (data) => {
-			const playerId = data.playerId;
-			console.log(`Un nouveau joueur a rejoint le jeu. Identifiant du joueur : ${playerId}`);
-		});
+		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), this.getIdMode(mode));
 
-		socket.on('disconnect', () => {
+		this.socket.on('disconnect', () => {
+			this.socket.disconnect();
 			console.log('Vous avez été déconnecté du jeu.');
 		});
-
-		socket.emit('joinGame');
-
+		
 		const canvas = document.getElementById('pongCanvas');
 		const ctx = canvas.getContext('2d');
 
-		socket.on('updateBall', (data) => {
+		this.socket.on('updateBall', (data) => {
 			drawBall(data.position.x, data.position.y);
+		});
+
+		this.socket.on('text', (data) => {
+			drawText(data);
 		});
 
 		const ballRadius = 20;
 
 
+		function drawText(text: string){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.font = "200px serif";
+			ctx.fillText(text, 50, canvas.height / 2);
+			ctx.fillStyle = 'white'
+		}
+		
 		function drawBall(x, y) {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.beginPath();
 			ctx.arc(x, y, ballRadius, 0, Math.PI*2);
 			ctx.fillStyle = "#FFFFFF";
 			ctx.fill();
-			ctx.stroke();
 			ctx.closePath();
-
 		}
+		
+	},
+	beforeUnmount(){
+		this.socket.disconnect();
 	}
 }
 </script>
@@ -150,7 +161,7 @@ export default {
 }
 
 .pong_screen {
-	max-width: 80%;
+	max-width: 100%;
 	max-height: 80%;
 	min-width: auto;
 	width: 100%;

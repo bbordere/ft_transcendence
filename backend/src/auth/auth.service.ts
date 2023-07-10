@@ -66,19 +66,19 @@ export class AuthService {
 				throw new NotAcceptableException('User Already Exist !');
 			const user = await this.usersService.createUser42(data);
 			const payload = { username: user.name, email: user.email};
-			res.redirect("http://" + process.env.HOST + ":8080/");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/");			
 			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
 		}
 		if (user.auth2f === true)
 		{
 			const payload = { username: user.name, email: user.email};
-			res.redirect("http://" + process.env.HOST + ":8080/verif");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/verif");
 			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
 		}
 		else
 		{
 			const payload = { username: user.name, email: user.email};
-			res.redirect("http://" + process.env.HOST + ":8080/");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/");
 			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
 		}
 	}
@@ -117,11 +117,11 @@ export class AuthService {
         }
     }
 
-	async getUserFromToken(token: string): Promise<User | undefined>{
+	async getUserFromToken(token: string): Promise<Partial<User> | undefined>{
 		if (!token)
 			return (undefined);
 		const email: string = this.jwtService.decode(token)["email"];
 		const user: User = await this.usersService.getByEmail(email);
-		return (user);
+		return (this.usersService.getPartialUser(user));
 	}
 }
