@@ -19,6 +19,6 @@ export class Racket {
 	}
 	top_pos: Coords;
 	bot_pos: Coords;
-	size: Number;
-	width: Number;
+	size: number;
+	width: number;
 }
