@@ -117,7 +117,7 @@ export default {
 			drawBall(ball.position.x, ball.position.y);
 			// console.log(racket2.top_pos);
 			drawRect(racket1.top_pos.x, racket1.top_pos.y, racket1.width, racket1.size);
-			drawRect(racket2.top_pos.x, racket2.top_pos.y, racket2.width, racket2.size);
+			drawRect(racket2.top_pos.x - racket1.width, racket2.top_pos.y, racket2.width, racket2.size);
 		});
 
 		function drawRect(x: Number, y: Number, width: Number, size: Number) {
