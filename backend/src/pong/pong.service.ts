@@ -136,13 +136,13 @@ export class PongGame {
 		room.ball.position.x = 1000;
 		room.ball.position.y = 600;
 		room.ball.direction.x = (Math.random() * 2 - 1);
-		(room.ball.direction.x % 0.5 == 0) ? room.ball.direction.x * 4 : 1;
-		(room.ball.direction.x > 1.1) ? room.ball.direction.x / 2 : 1;
-		room.ball.direction.y = (Math.random() * 2 - 1) / 2;
+		while (room.ball.direction.x < 0.5 && room.ball.direction.x > -0.5)
+			room.ball.direction.x = (Math.random() * 2 - 1);
+		room.ball.direction.y = (Math.random() - 0.5);
 		room.ball.speed = 5;
 	}
 
-	async resetRacket(room: Room) {
+	async resetRacket(room: Room, keyUp: boolean, keyDown: boolean) {
 		if (room.players[0]){
 			room.players[0].racket.top_pos.x = 100;
 			room.players[0].racket.top_pos.y = 500;
@@ -159,27 +159,29 @@ export class PongGame {
 			room.players[1].racket.size = 200;
 			room.players[1].racket.width = 50;
 		}
+		keyUp = false;
+		keyDown = false;
 	}
 
-	async updateRacket(client: Socket, room: Room, key: any) {
+	async updateRacket(client: Socket, room: Room, keyUp: boolean, keyDown: boolean) {
 		if (client === room.players[0].socket) {
-			if (key === "arrowUp") {
+			if (keyUp) {
 				if (room.players[0].racket.top_pos.y > 10)
 				room.players[0].racket.top_pos.y -= 10;
 				room.players[0].racket.bot_pos.y -= 10;
 			}
-			else if (key === "arrowDown") {
+			if (keyDown) {
 				if (room.players[0].racket.top_pos.y < 990)
 				room.players[0].racket.top_pos.y += 10;
 				room.players[0].racket.bot_pos.y += 10;
 			}
 		} else if (client === room.players[1].socket) {
-			if (key === "arrowUp") {
+			if (keyUp) {
 				if (room.players[1].racket.top_pos.y > 10)
 				room.players[1].racket.top_pos.y -= 10;
 				room.players[1].racket.bot_pos.y -= 10;
 			}
-			else if (key === "arrowDown") {
+			if (keyDown) {
 				if (room.players[1].racket.top_pos.y < 990)
 				room.players[1].racket.top_pos.y += 10;
 				room.players[1].racket.bot_pos.y += 10;
@@ -187,7 +189,28 @@ export class PongGame {
 		}
 	}
 
-	updateBall(client:Socket,  room: Room) {
+	racketBallCollision(room: Room, racket: Racket) {
+		room.ball.direction.x *= -1;
+		room.ball.speed++;
+		if (room.ball.position.y > racket.top_pos.y && room.ball.position.y < racket.top_pos.y + racket.size / 8)
+			room.ball.direction.y = -0.5;
+		else if (room.ball.position.y > racket.top_pos.y + racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 2 * racket.size / 8)
+			room.ball.direction.y = -0.375
+		else if (room.ball.position.y > racket.top_pos.y + 2 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 3 * racket.size / 8)
+			room.ball.direction.y = -0.25
+		else if (room.ball.position.y > racket.top_pos.y + 3 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 4 * racket.size / 8)
+			room.ball.direction.y = -0.125
+		else if (room.ball.position.y > racket.top_pos.y + 4 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 5 * racket.size / 8)
+			room.ball.direction.y = 0.125
+		else if (room.ball.position.y > racket.top_pos.y + 5 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 6 * racket.size / 8)
+			room.ball.direction.y = 0.25
+		else if (room.ball.position.y > racket.top_pos.y + 6 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 7 * racket.size / 8)
+			room.ball.direction.y = 0.375
+		else if (room.ball.position.y > racket.top_pos.y + 7 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + racket.size)
+			room.ball.direction.y = 0.5;
+	}
+
+	updateBall(client:Socket, room: Room, keyUp: boolean, keyDown: boolean) {
 		const next = {
 			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
 			y: room.ball.direction.x * room.ball.speed + room.ball.radius,
@@ -201,6 +224,7 @@ export class PongGame {
 			// }
 			client.emit("updateScore", room.players[0].score, room.players[1].score)
 			this.resetBall(room);
+			this.resetRacket(room, keyUp, keyDown);
 		}
 		
 		if (room.ball.position.x + next.x < room.ball.radius) {
@@ -211,6 +235,7 @@ export class PongGame {
 			// }
 			client.emit("updateScore", room.players[1].score, room.players[0].score)
 			this.resetBall(room);
+			this.resetRacket(room, keyUp, keyDown);
 		}
 
 		if (room.ball.position.y + next.y > room.canvas.height
@@ -218,24 +243,21 @@ export class PongGame {
 			room.ball.direction.y *= -1;
 		}
 
-		if (room.ball.position.x + next.x <= room.players[0].racket.top_pos.x
-				+ room.players[0].racket.width && room.ball.position.y + next.y 
-				<= room.players[0].racket.bot_pos.y && room.ball.position.y + next.y
-				>= room.players[0].racket.top_pos.y)
+		if (room.ball.position.x + next.x <= room.players[0].racket.top_pos.x + room.players[0].racket.width
+					&& room.ball.position.x + next.x >= room.players[0].racket.top_pos.x
+					&& room.ball.position.y + next.y <= room.players[0].racket.bot_pos.y + room.ball.radius
+					&& room.ball.position.y + next.y >= room.players[0].racket.top_pos.y - room.ball.radius)
 		{
-			room.ball.direction.x *= -1;
-			room.ball.direction.y = (Math.random() * 2 - 1)
-			room.ball.speed++;
+			this.racketBallCollision(room, room.players[0].racket)
 		}
 
 		if (room.ball.position.x + next.x >= room.players[1].racket.top_pos.x
-			+ room.players[1].racket.width && room.ball.position.y + next.y 
-			<= room.players[1].racket.bot_pos.y && room.ball.position.y + next.y 
-			>= room.players[1].racket.top_pos.y)
+					&& room.ball.position.x + next.x <= room.players[1].racket.top_pos.x + room.players[1].racket.width
+					&& room.ball.position.y + next.y <= room.players[1].racket.bot_pos.y + room.ball.radius
+					&& room.ball.position.y + next.y >= room.players[1].racket.top_pos.y - room.ball.radius)
 		{
-			room.ball.direction.x *= -1;
-			room.ball.direction.y = (Math.random() * 2 - 1)
-			room.ball.speed++;
+			this.racketBallCollision(room, room.players[1].racket)
+
 		}
 
 
@@ -243,15 +265,15 @@ export class PongGame {
 		room.ball.position.y += room.ball.direction.y * room.ball.speed;
 	}
 
-	updateGame(client: Socket, room: Room, key: any) {
-		this.updateBall(client, room);
-		this.updateRacket(client, room, key);
+	updateGame(client: Socket, room: Room, keyUp: boolean, keyDown: boolean) {
+		this.updateBall(client, room, keyUp, keyDown);
+		this.updateRacket(client, room, keyUp, keyDown);
 		client.emit("updateGame", room.ball, room.players[0].racket, room.players[1].racket);
 	}
 
 
 
-	async initGame(room: Room) {
+	async initGame(room: Room, keyUp:boolean, keyDown: boolean) {
 		if (!room.ball){
 			room.ball = new Ball();
 			await this.resetBall(room);
@@ -266,7 +288,7 @@ export class PongGame {
 		}
 
 		if (room.players[1] && room.players[1].racket)
-			await this.resetRacket(room);
+			await this.resetRacket(room, keyUp, keyDown);
 		room.canvas.width = 2000;
 		room.canvas.height = 1200;
 	}
@@ -274,16 +296,24 @@ export class PongGame {
 	async startTimer(room: Room){
 		room.time = 0;
 		const it = setInterval(() => {room.time++;}, 1000);
-		setTimeout(() => {room.state = State.ENDGAME; clearInterval(it);}, 20 * 1000);
+		setTimeout(() => {room.state = State.ENDGAME; clearInterval(it);}, 180 * 1000);
 	}
 
 	async playGame(client: Socket, room: Room) {
-		await this.initGame(room);
-		var key: any;
+		var keyUp: boolean = false;
+		var keyDown: boolean = false;
+		await this.initGame(room, keyUp, keyDown);
 		client.on('arrowUpdate', (data) => {
-			key = data;
+			if (data === "arrowUp")
+				keyUp = true;
+			else if (data === "stopArrowUp")
+				keyUp = false;
+			if (data === "arrowDown")
+				keyDown = true;
+			else if (data === "stopArrowDown")
+				keyDown = false;
 		});
-		this.startTimer(room);
+		// this.startTimer(room); // Timer for time gamemode
 		client.data.gameInterval = setInterval(() => {
 			if (client.disconnected){
 				clearInterval(client.data.gameInterval);
@@ -304,14 +334,14 @@ export class PongGame {
 					room.state = State.PLAY;
 					break;
 					
-					case State.PLAY:
-						this.updateGame(client, room, key);
-							break;
-							
+						
 				case State.ENDGAME:
 					clearInterval(client.data.gameInterval);
 					client.emit('text', "ENDGAME");
 					this.endGame(room);
+
+				case State.PLAY:
+					this.updateGame(client, room, keyUp, keyDown);
 					break;
 				
 				default:
