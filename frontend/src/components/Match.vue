@@ -7,11 +7,11 @@
 		</div>
 		<div class="score-card">
 			<div class="score-text">
-				<div :class="[matchObject.scorePlayer1 > matchObject.scorePlayer2 ? 'text-green' : 'text-red']">
+				<div :class="getColorClass(1)">
 					{{ matchObject.scorePlayer1 }}
 				</div>
 				-
-				<div :class="[matchObject.scorePlayer1 < matchObject.scorePlayer2 ? 'text-green' : 'text-red']">
+				<div :class="getColorClass(2)">
 					{{ matchObject.scorePlayer2 }}
 				</div>
 			</div>
@@ -38,6 +38,18 @@
 			},
 			getAvatarUrl(playerName: string){
 				return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/" + playerName);
+			},
+			getColorClass(playerId: number){
+				if (this.matchObject["scorePlayer" + playerId] === "ABD" || this.matchObject["scorePlayer" + playerId] < 0){
+					this.matchObject["scorePlayer" + playerId] = "ABD";
+					return ("text-red");
+				}
+				else if (this.matchObject["scorePlayer" + playerId] === this.matchObject["scorePlayer" + (playerId ^ 3)])
+					return ("text-blue");
+				else if (this.matchObject["scorePlayer" + playerId] < this.matchObject["scorePlayer" + (playerId ^ 3)])
+					return ("text-red");
+				else
+					return ("text-green");
 			}
 		},
 	}
@@ -118,6 +130,10 @@
 
 .text-green{
 	color: green;
+}
+
+.text-blue{
+	color: blue;
 }
 
 </style>

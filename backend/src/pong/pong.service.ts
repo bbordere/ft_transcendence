@@ -375,6 +375,7 @@ export class PongGame {
 	async checkDisconnection(client: Socket, room: Room){
 		let countDown: number = 0;
 		const it = setInterval(() => {
+			console.log(room.players.map((player) => (player.user["name"] + " " + player.score)));
 			if (room.state === State.WAITING){
 				client.emit('text', "WAITING");
 				countDown++;
@@ -408,15 +409,17 @@ export class PongGame {
 		const modes: string[] = ["classic", "arcade", "ranked"];
 		const matchDto: MatchDto = {player1Id: room.players[0].user["id"], player2Id: room.players[1].user["id"],
 									scorePlayer1: room.players[0].score, scorePlayer2: room.players[1].score,
-									mode: modes[room.mode]}
+									mode: modes[room.mode], discoId: -1}
 		const discoEmail: string = this.disconnectedUsers.get(room.id);
 		if (discoEmail && room.players[0].user["email"] === discoEmail)
-			matchDto.scorePlayer1 = -matchDto.scorePlayer1;
+			matchDto.discoId = matchDto.player1Id;
 		else if (discoEmail && room.players[1].user["email"] === discoEmail)
-			matchDto.scorePlayer2 = -matchDto.scorePlayer2;
+			matchDto.discoId = matchDto.player2Id;
 		if (!this.matchHandlingQueue.some((value) => JSON.stringify(value) === JSON.stringify(matchDto)	)){
 			this.matchHandlingQueue.push(matchDto);
 		}
+		room.players[0].score = 0;
+		room.players[1].score = 0;
 		setTimeout(function(){room.state = State.FINAL}, 5000);
 	}
 

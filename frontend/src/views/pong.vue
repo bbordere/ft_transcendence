@@ -39,7 +39,6 @@
 <script lang="ts">
 import io from 'socket.io-client';
 import Head from '../components/head.vue'
-import { no, ru } from 'vuetify/locale';
 import { useRoute } from 'vue-router';
 
 export default {

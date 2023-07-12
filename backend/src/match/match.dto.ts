@@ -15,4 +15,7 @@ export class MatchDto {
 
 	@IsNotEmpty()
 	mode: string
+
+	@IsNumber()
+	discoId: number = -1;
 }
