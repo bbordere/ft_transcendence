@@ -8,17 +8,11 @@ import { StatsService } from 'src/stats/stats.service';
 
 @Controller('match')
 export class MatchController {
-	constructor(private readonly matchService: MatchService, private readonly userService: UserService,
-				private readonly statsService: StatsService) {}
+	constructor(private readonly matchService: MatchService, private readonly userService: UserService) {}
 
 	@Get()
 	async getAllMatch(){
 		return await this.matchService.getAllMatches();
-	}
-
-	@Post()
-	async createMatch(@Body() body: MatchDto){
-		return await this.matchService.createMatch(body, this.userService, this.statsService);
 	}
 
 	@UseGuards(JwtAuthGuard)

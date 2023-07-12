@@ -1,13 +1,20 @@
-import { Injectable, flatten } from '@nestjs/common';
+import { Injectable, } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Ball, Mode, Room, State } from './interface/room.interface';
 import { Player, Racket } from './interface/player.interface';
+import { MatchService } from 'src/match/match.service';
+import { UserService } from 'src/user/user.service';
+import { MatchDto } from 'src/match/match.dto';
 
 @Injectable()
 export class PongGame {
+
+	constructor(private matchService: MatchService){};
+
 	private lastRoomId = 0;
 	private roomsMap: Map<Mode, Room[]> = new Map();
 	private disconnectedUsers: Map<number, string> = new Map();
+	private matchHandlingQueue: Array<MatchDto> = new Array();
 
 	async extractRoom(rooms: Room[]){
 		const filteredRooms = rooms.map(room => {
@@ -71,6 +78,9 @@ export class PongGame {
 			}
 			return (room);
 		} else {
+			player.roomId = room.id;
+			client.data.room = room;
+			return (room);
 			// Gérer le cas où la salle est pleine
 		}
 	}
@@ -80,7 +90,7 @@ export class PongGame {
 		return (playerNames.includes(socketId));
 	}
 
-	async isEmailInGame(email: string){//: Promise<Room | null>{
+	async isEmailInGame(email: string): Promise<Boolean>{
 		const keysArray = Array.from(this.roomsMap.keys());
 		for (var key of keysArray){
 			for (var room of this.roomsMap.get(key)){
@@ -93,7 +103,7 @@ export class PongGame {
 
 	async isPlayerInsideRoom(room: Room, player: Player): Promise<Boolean>{
 		const playerNames: string[] = room.players.map((player) => player.user.email);
-		return (playerNames.includes(player.user.email));
+		return (playerNames.includes(player.user.email) && room.players.length === 1);
 	}
 
 	async isEmailInsideRoom(room: Room, email: string): Promise<Boolean>{
@@ -185,18 +195,21 @@ export class PongGame {
 
 		if (room.ball.position.x + next.x > room.canvas.width) {
 			room.players[0].score++;
-			if (room.players[0].score == 7) {
-				;//fonction fin de partie
-			}
+			// if (room.players[0].score == 2) {
+			// 	room.state = State.ENDGAME;
+			// 	//fonction fin de partie
+			// }
 			client.emit("updateScore", room.players[0].score, room.players[1].score)
 			this.resetBall(room);
 		}
-
+		
 		if (room.ball.position.x + next.x < room.ball.radius) {
 			room.players[1].score++;
-			if (room.players[1].score == 7) {
-				;//fonction fin de partie
-			}
+			// if (room.players[1].score == 2) {
+			// 	room.state = State.ENDGAME;
+			// 	//fonction fin de partie
+			// }
+			client.emit("updateScore", room.players[1].score, room.players[0].score)
 			this.resetBall(room);
 		}
 
@@ -211,7 +224,7 @@ export class PongGame {
 				>= room.players[0].racket.top_pos.y)
 		{
 			room.ball.direction.x *= -1;
-			room.ball.direction.y = (Math.random() * 2 - 1) / 2
+			room.ball.direction.y = (Math.random() * 2 - 1)
 			room.ball.speed++;
 		}
 
@@ -221,7 +234,7 @@ export class PongGame {
 			>= room.players[1].racket.top_pos.y)
 		{
 			room.ball.direction.x *= -1;
-			room.ball.direction.y = (Math.random() * 2 - 1) / 2
+			room.ball.direction.y = (Math.random() * 2 - 1)
 			room.ball.speed++;
 		}
 
@@ -258,12 +271,19 @@ export class PongGame {
 		room.canvas.height = 1200;
 	}
 
+	async startTimer(room: Room){
+		room.time = 0;
+		const it = setInterval(() => {room.time++;}, 1000);
+		setTimeout(() => {room.state = State.ENDGAME; clearInterval(it);}, 20 * 1000);
+	}
+
 	async playGame(client: Socket, room: Room) {
 		await this.initGame(room);
 		var key: any;
 		client.on('arrowUpdate', (data) => {
 			key = data;
 		});
+		this.startTimer(room);
 		client.data.gameInterval = setInterval(() => {
 			if (client.disconnected){
 				clearInterval(client.data.gameInterval);
@@ -273,19 +293,25 @@ export class PongGame {
 				case State.QUEUE:
 					client.emit('text', "QUEUEING");
 					break;
-				case State.INIT:{
-					if (room.players.length === 2)
+					case State.INIT:{
+						if (room.players.length === 2)
 						room.state = State.COOLDOWN;
-					break;
-				}
-
+						break;
+					}
+					
 				case State.COOLDOWN:
 					// Handle cooldown
 					room.state = State.PLAY;
 					break;
-
-				case State.PLAY:
-					this.updateGame(client, room, key);
+					
+					case State.PLAY:
+						this.updateGame(client, room, key);
+							break;
+							
+				case State.ENDGAME:
+					clearInterval(client.data.gameInterval);
+					client.emit('text', "ENDGAME");
+					this.endGame(room);
 					break;
 				
 				default:
@@ -301,10 +327,13 @@ export class PongGame {
 				if (! await this.isSocketInsideRoom(room, socketId))
 					continue;
 				if (room.players.length === 2){
-					room.players = room.players.filter((element) => element.socket.id !== socketId);
 					room.state = State.WAITING;
-					this.disconnectedUsers.set(room.id, client.data.user.email);
-					console.log(this.disconnectedUsers);
+					if (this.disconnectedUsers.get(room.id)){
+						room.state = State.FINAL;
+						this.endGame(room);
+					}
+					else
+						this.disconnectedUsers.set(room.id, client.data.user.email);
 				}
 				else if (room.players.length === 1){
 					room.state = State.FINAL;
@@ -319,16 +348,20 @@ export class PongGame {
 			if (room.state === State.WAITING){
 				client.emit('text', "WAITING");
 				countDown++;
-				if (room.players.length == 2){
+				if (this.disconnectedUsers.get(room.id) === undefined){
 					room.state = State.INIT;
 					countDown = 0;
 				}
-				// if (countDown === 10){
-				// 	room.state = State.FINAL;
-				// }
+				if (countDown === 10){
+					this.endGame(room);
+					room.state = State.FINAL;
+				}
 			}
 			if (room.state === State.FINAL){
 				countDown = 0;
+				const dto: MatchDto = this.matchHandlingQueue.shift();
+				if (dto)
+					this.matchService.createMatch(dto);
 				this.disconnectedUsers.delete(room.id);
 				this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
 				client.emit('text', "FINISHED");
@@ -340,4 +373,21 @@ export class PongGame {
 			}
 		}, 500);
 	}
+
+	endGame(room: Room){
+		const modes: string[] = ["classic", "arcade", "ranked"];
+		const matchDto: MatchDto = {player1Id: room.players[0].user["id"], player2Id: room.players[1].user["id"],
+									scorePlayer1: room.players[0].score, scorePlayer2: room.players[1].score,
+									mode: modes[room.mode]}
+		const discoEmail: string = this.disconnectedUsers.get(room.id);
+		if (discoEmail && room.players[0].user["email"] === discoEmail)
+			matchDto.scorePlayer1 = -matchDto.scorePlayer1;
+		else if (discoEmail && room.players[1].user["email"] === discoEmail)
+			matchDto.scorePlayer2 = -matchDto.scorePlayer2;
+		if (!this.matchHandlingQueue.some((value) => JSON.stringify(value) === JSON.stringify(matchDto)	)){
+			this.matchHandlingQueue.push(matchDto);
+		}
+		setTimeout(function(){room.state = State.FINAL}, 5000);
+	}
+
 }

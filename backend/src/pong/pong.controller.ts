@@ -16,7 +16,6 @@ export class PongController {
 	@Get('/status')
 	@UseGuards(JwtAuthGuard)
 	async getStatus(@Req() req){
-		console.log("REQ");
 		const user: User = req["user"]["user"];
 		const statusObject = await this.pongService.hasDisconnect(user["email"]);
 		const room: Room = await this.pongService.getRoomById(statusObject["roomId"]);

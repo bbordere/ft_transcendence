@@ -125,7 +125,7 @@ export default defineComponent({
 
 	methods: {
 		init() {
-			this.socket = io('http://localhost:3000/')
+			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/')
 			this.socket.on('connect', () => { this.connected = true; });
 			this.socket.on('disconnect', () => { this.connected = false; });
 			this.socket.on('message', (data: { channelId: number, text: string, sender: number }) => {

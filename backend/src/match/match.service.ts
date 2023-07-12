@@ -9,7 +9,7 @@ import { StatsService } from 'src/stats/stats.service';
 
 @Injectable()
 export class MatchService {
-	constructor(@InjectRepository(Match) private matchRepository: Repository<Match>) {}
+	constructor(@InjectRepository(Match) private matchRepository: Repository<Match>, private userService: UserService, private statsService: StatsService) {}
 
 	async filterMatchesEntry(matches: Match[]){
 		const test = matches.map((match) => {
@@ -30,21 +30,27 @@ export class MatchService {
 		return (await this.filterMatchesEntry(matches));
 	}
 
-	async createMatch(matchDto: MatchDto, userService: UserService, statsService: StatsService){
+	async createMatch(matchDto: MatchDto, isRanked: boolean = false){
 		const match = this.matchRepository.create(matchDto);
-		match.player1 =  await userService.getPartialUser(await userService.getById(matchDto.player1Id));
-		match.player2 = await userService.getPartialUser(await userService.getById(matchDto.player2Id));
+		match.player1 =  await this.userService.getPartialUser(await this.userService.getById(matchDto.player1Id));
+		match.player2 = await this.userService.getPartialUser(await this.userService.getById(matchDto.player2Id));
 		if (!match.player1 || !match.player2)
 			return;
-		await statsService.updateStats(match, match.player1, 1);
-		await statsService.updateStats(match, match.player2, 2);
-		match.player1.stats.mmr = Math.ceil(await statsService.getUpdatedMmr(match.scorePlayer1, match.scorePlayer2, match.player1.stats.mmr, match.player2.stats.mmr));
-		match.player2.stats.mmr = Math.ceil(await statsService.getUpdatedMmr(match.scorePlayer2, match.scorePlayer1, match.player2.stats.mmr, match.player1.stats.mmr));
-		await userService.saveUser(match.player1);
-		await userService.saveUser(match.player2);
-		await this.matchRepository.save(match);
+		await this.statsService.updateStats(match, match.player1, 1);
+		await this.statsService.updateStats(match, match.player2, 2);
+		if (isRanked){
+			match.player1.stats.mmr = Math.ceil(await this.statsService.getUpdatedMmr(match.scorePlayer1, match.scorePlayer2, match.player1.stats.mmr, match.player2.stats.mmr));
+			match.player2.stats.mmr = Math.ceil(await this.statsService.getUpdatedMmr(match.scorePlayer2, match.scorePlayer1, match.player2.stats.mmr, match.player1.stats.mmr));
+		}
+		if (match.scorePlayer1 < 0)
+			match.scorePlayer1 = -match.scorePlayer1;
+		else if (match.scorePlayer2 < 0)
+			match.scorePlayer1 = -match.scorePlayer2;
+		this.userService.saveUser(match.player1);
+		this.userService.saveUser(match.player2);
+		this.matchRepository.save(match);
 	}
-
+	
 	async getMyMatches(req: Request){
 		const user = req["user"]["user"];
 		const matches: Match[] = await this.matchRepository.find({

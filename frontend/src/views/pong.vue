@@ -59,7 +59,6 @@ export default {
 	mounted() {
 		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");		
 
-		//TO DO GET MODE FROM PAGE QUERY
 		const route = useRoute();
 		const mode: string | undefined = route.query["mode"]?.toString();
 		if (!mode){

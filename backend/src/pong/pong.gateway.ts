@@ -22,8 +22,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   
 	constructor(private pongGame: PongGame, private authService: AuthService) {}
   
-	async handleConnection(client: Socket) {
-	}
+	async handleConnection(client: Socket) {}
 
 	async handleDisconnect(client: Socket) {
 		// this.logger.log(`Client disconnected: ${client.id}`);
@@ -49,8 +48,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		else
 			player.socket = client;
 		const room: Room = await this.pongGame.searchRoom(client, player, parseInt(data[1]));
-		await this.pongGame.playGame(client, room)
-		await this.pongGame.checkDisconnection(client, room);
+		this.pongGame.playGame(client, room)
+		this.pongGame.checkDisconnection(client, room);
 	}
 }
 
