@@ -2,9 +2,29 @@
 export default {
 	props: {
 		show: Boolean
+	},
+	data() {
+		return {
+			username: '' as string,
+			sender: -1 as number,
+		}
+	},
+	methods: {
+		async addUser() {
+			this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
+			console.log(this.sender);
+			console.log(this.username);
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/friend/add',{
+				credentials: 'include',
+				method: 'POST',
+				body: JSON.stringify({
+					username: this.username,
+					sender: this.sender,
+				})
+			})
+		}
 	}
 }
-
 </script>
 
 <template>
@@ -15,8 +35,8 @@ export default {
 					Nom de l'ami
 				</div>
 				<div class="non">
-					<input class="entry_friend" type="text" placeholder="Username">
-					<button>Ajouter</button>
+					<input class="entry_friend" type="text" placeholder="Username" v-model="username">
+					<button v-on:click="addUser">Ajouter</button>
 				</div>
 		</div>
 	</div>

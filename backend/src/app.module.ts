@@ -12,6 +12,7 @@ import { StatsModule } from './stats/stats.module';
 import { MatchController } from './match/match.controller';
 import { MatchModule } from './match/match.module';
 import { ChatModule } from './chat/chat.module';
+import { FriendModule } from './friend/friend.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ChatModule } from './chat/chat.module';
 		StatsModule,
 		MatchModule,
 		ChatModule,
+		FriendModule,
 	],
   controllers: [AppController, StatsController, MatchController],
   providers: [AppService]
