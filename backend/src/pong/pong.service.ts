@@ -9,12 +9,24 @@ import { MatchDto } from 'src/match/match.dto';
 @Injectable()
 export class PongGame {
 
-	constructor(private matchService: MatchService){};
+	constructor(private matchService: MatchService){
+		setInterval(() => {
+			const keysArray = Array.from(this.roomsMap.keys());
+			for (var key of keysArray as Mode[]){
+				for (var room of this.roomsMap.get(key) as Room[]){
+					if (!this.checkedRooms.has(room)){
+						this.checkRoom(room);
+						this.checkedRooms.add(room);
+					}
+				}
+			}
+		}, 200)
+	};
 
 	private lastRoomId = 0;
 	private roomsMap: Map<Mode, Room[]> = new Map();
 	private disconnectedUsers: Map<number, string> = new Map();
-	private matchHandlingQueue: Array<MatchDto> = new Array();
+	private checkedRooms: Set<Room> = new Set();
 
 	async extractRoom(rooms: Room[]){
 		const filteredRooms = rooms.map(room => {
@@ -61,7 +73,9 @@ export class PongGame {
 			players: [],
 			ball: null,
 			time: 0,
-			canvas: {width: 2000, height: 1200}
+			canvas: {width: 2000, height: 1200},
+			timerInterval: null,
+			timerTimeout: null,
 		};
 		this.roomsMap.get(mode).push(room);
 		return room;
@@ -218,24 +232,28 @@ export class PongGame {
 
 		if (room.ball.position.x + next.x > room.canvas.width) {
 			room.players[0].score++;
-			// if (room.players[0].score == 2) {
-			// 	room.state = State.ENDGAME;
-			// 	//fonction fin de partie
-			// }
-			client.emit("updateScore", room.players[0].score, room.players[1].score)
+			if (room.mode === Mode.ranked && room.players[0].score == 7) {
+				room.state = State.ENDGAME;
+				return;
+				//fonction fin de partie
+			}
 			this.resetBall(room);
 			this.resetRacket(room, keyUp, keyDown);
+			room.state = State.COOLDOWN;
+			return;
 		}
 		
 		if (room.ball.position.x + next.x < room.ball.radius) {
 			room.players[1].score++;
-			// if (room.players[1].score == 2) {
-			// 	room.state = State.ENDGAME;
-			// 	//fonction fin de partie
-			// }
-			client.emit("updateScore", room.players[1].score, room.players[0].score)
+			if (room.mode === Mode.ranked && room.players[1].score == 7) {
+				room.state = State.ENDGAME;
+				return;
+				//fonction fin de partie
+				}
 			this.resetBall(room);
 			this.resetRacket(room, keyUp, keyDown);
+			room.state = State.COOLDOWN;
+			return;
 		}
 
 		if (room.ball.position.y + next.y > room.canvas.height
@@ -279,10 +297,12 @@ export class PongGame {
 			await this.resetBall(room);
 		}
 
+		room.players[0].score = 0;
 		if (!room.players[0].racket)
-			room.players[0].racket = new Racket()
-
+		room.players[0].racket = new Racket()
+		
 		if (room.players[1]){
+			room.players[1].score = 0;
 			if (!room.players[1].racket)
 				room.players[1].racket = new Racket()
 		}
@@ -293,10 +313,28 @@ export class PongGame {
 		room.canvas.height = 1200;
 	}
 
+	formatTime(total: number): string{
+		const minutes = Math.floor(total / 60);
+		const seconds = total % 60;	  
+		const formattedMinutes = String(minutes).padStart(2, "0");
+		const formattedSeconds = String(seconds).padStart(2, "0");
+		return `${formattedMinutes}:${formattedSeconds}`;
+	}
+
 	async startTimer(room: Room){
-		room.time = 0;
-		const it = setInterval(() => {room.time++;}, 1000);
-		setTimeout(() => {room.state = State.ENDGAME; clearInterval(it);}, 10 * 1000);
+		if (room.players.length != 2 || room.mode === Mode.ranked)
+			return;
+		room.timerInterval = setInterval(() => {
+			room.time++;
+			room.players[0].socket.emit('time', this.formatTime(room.time));
+			console.log(room.time);
+			console.log((180 - room.time));
+			room.players[1].socket.emit('time', this.formatTime(room.time));
+		}, 1000);
+		room.timerTimeout = setTimeout(() => {
+			room.state = State.ENDGAME;
+			clearInterval(room.timerInterval);
+		}, (180 - room.time) * 1000);
 	}
 
 	async playGame(client: Socket, room: Room) {
@@ -313,7 +351,8 @@ export class PongGame {
 			else if (data === "stopArrowDown")
 				keyDown = false;
 		});
-		// this.startTimer(room); // Timer for time gamemode
+		this.startTimer(room); // Timer for time gamemode
+		let cooldown: number = 0;
 		client.data.gameInterval = setInterval(() => {
 			if (client.disconnected){
 				clearInterval(client.data.gameInterval);
@@ -323,24 +362,34 @@ export class PongGame {
 				case State.QUEUE:
 					client.emit('text', "QUEUEING");
 					break;
-					case State.INIT:{
-						if (room.players.length === 2)
+				case State.INIT:{
+					if (room.players.length === 2)
 						room.state = State.COOLDOWN;
-						break;
-					}
+					break;
+				}
 					
 				case State.COOLDOWN:
-					// Handle cooldown
-					room.state = State.PLAY;
+					client.emit("updateScore", room.players[0].score, room.players[1].score)
+					client.emit("updateGame", room.ball, room.players[0].racket, room.players[1].racket);
+					clearInterval(room.timerInterval);
+					clearTimeout(room.timerTimeout);
+					if (cooldown < 75){
+						cooldown++
+					}
+					else {
+						cooldown = 0;
+						room.state = State.PLAY;
+						this.startTimer(room);
+					}
 					break;
-					
-						
+				
 				case State.ENDGAME:
 					clearInterval(client.data.gameInterval);
 					client.emit('text', "ENDGAME");
-					this.endGame(room);
+					break;
 
 				case State.PLAY:
+					cooldown = 0;
 					this.updateGame(client, room, keyUp, keyDown);
 					break;
 				
@@ -360,7 +409,6 @@ export class PongGame {
 					room.state = State.WAITING;
 					if (this.disconnectedUsers.get(room.id)){
 						room.state = State.FINAL;
-						this.endGame(room);
 					}
 					else
 						this.disconnectedUsers.set(room.id, client.data.user.email);
@@ -372,31 +420,46 @@ export class PongGame {
 		}
 	}
 
-	async checkDisconnection(client: Socket, room: Room){
+	async checkRoom(room: Room){
 		let countDown: number = 0;
 		const it = setInterval(() => {
-			console.log(room.players.map((player) => (player.user["name"] + " " + player.score)));
+			console.log("CHECK");
+			if (room.players.length != 2)
+				return;
 			if (room.state === State.WAITING){
-				client.emit('text', "WAITING");
+				if (room.timerInterval){
+					clearInterval(room.timerInterval);
+					clearTimeout(room.timerTimeout);
+					room.timerInterval = null;
+				}
+				room.players[0].socket.emit('text', "WAITING");
+				if (room.players[1])
+					room.players[1].socket.emit('text', "WAITING");
 				countDown++;
 				if (this.disconnectedUsers.get(room.id) === undefined){
 					room.state = State.INIT;
 					countDown = 0;
 				}
 				if (countDown === 10){
-					this.endGame(room);
 					room.state = State.FINAL;
 				}
 			}
+			if (room.state === State.ENDGAME)
+				room.state = State.FINAL;
 			if (room.state === State.FINAL){
 				countDown = 0;
-				const dto: MatchDto = this.matchHandlingQueue.shift();
-				if (dto)
-					this.matchService.createMatch(dto);
+				this.endGame(room);
 				this.disconnectedUsers.delete(room.id);
 				this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
-				client.emit('text', "FINISHED");
-				clearInterval(client.data.gameInterval);
+
+				room.players[0].socket.emit('text', "FINISHED");
+				clearInterval(room.players[0].socket.data.gameInterval);
+
+				if (room.players[1]){
+					room.players[1].socket.emit('text', "FINISHED");
+					clearInterval(room.players[1].socket.data.gameInterval);
+				}
+
 				clearInterval(it);
 			}
 			if (room.state === State.PLAY){
@@ -406,6 +469,8 @@ export class PongGame {
 	}
 
 	endGame(room: Room){
+		if (room.players.length != 2)
+			return;
 		const modes: string[] = ["classic", "arcade", "ranked"];
 		const matchDto: MatchDto = {player1Id: room.players[0].user["id"], player2Id: room.players[1].user["id"],
 									scorePlayer1: room.players[0].score, scorePlayer2: room.players[1].score,
@@ -415,11 +480,7 @@ export class PongGame {
 			matchDto.discoId = matchDto.player1Id;
 		else if (discoEmail && room.players[1].user["email"] === discoEmail)
 			matchDto.discoId = matchDto.player2Id;
-		if (!this.matchHandlingQueue.some((value) => JSON.stringify(value) === JSON.stringify(matchDto)	)){
-			this.matchHandlingQueue.push(matchDto);
-		}
-		room.players[0].score = 0;
-		room.players[1].score = 0;
+		this.matchService.createMatch(matchDto);
 		setTimeout(function(){room.state = State.FINAL}, 5000);
 	}
 

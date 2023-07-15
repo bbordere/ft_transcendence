@@ -4,12 +4,12 @@
 		<div class="pong_content">
 			<div class="left_column">
 				<div class="left_point">
-					<span id="score1"></span>
+					<span id="score1">{{score1}}</span>
 				</div>
 			</div>
 			<div class="middle_column">
 				<div class="timer">
-					<label>timer</label>
+					<label>{{timer}}</label>
 				</div>
 				<div class="pong_screen">
 					<canvas id="pongCanvas" width="2000" height="1200"></canvas>
@@ -29,7 +29,7 @@
 			</div>
 			<div class="right_column">
 				<div class="right_point">
-					<span id="score2"></span>
+					<span id="score2">{{score2}}</span>
 				</div>
 			</div>
 		</div>
@@ -43,7 +43,7 @@ import { useRoute } from 'vue-router';
 
 export default {
 	data() {
-		return {playerName: "", socket: io()};
+		return {playerName: "", socket: io(), timer: "", score1: 0, score2: 0};
 	},
 	methods: {
 		getIdMode(mode: string){
@@ -101,10 +101,8 @@ export default {
 		});
 
 		this.socket.on('updateScore', (score1, score2) => {
-  			const scoreElement1 = document.getElementById('score1');
-			const scoreElement2 = document.getElementById('score2');
-  			scoreElement1.textContent = score1;
-  			scoreElement2.textContent = score2;
+			this.score1 = score1;
+			this.score2 = score2;
 		});
 
 		const canvas = document.getElementById('pongCanvas');
@@ -128,6 +126,10 @@ export default {
 
 		this.socket.on('text', (data) => {
 			drawText(data);
+		});
+
+		this.socket.on('time', (time) => {
+			this.timer = time;
 		});
 
 		const ballRadius = 20;

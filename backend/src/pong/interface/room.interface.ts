@@ -48,6 +48,7 @@ export class Room {
 	players: Array<Player>;
 	ball: Ball = undefined;
 	time: number;
-	timerIntervcal: NodeJS.Timeout;
+	timerInterval: NodeJS.Timeout;
+	timerTimeout: NodeJS.Timeout;
 	canvas: Canvas
 }
