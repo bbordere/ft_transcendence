@@ -36,10 +36,6 @@ export class MatchService {
 		match.player2 = await this.userService.getPartialUser(await this.userService.getById(matchDto.player2Id));
 		if (!match.player1 || !match.player2)
 			return;
-		if (matchDto.discoId === matchDto.player1Id)
-			match.scorePlayer1 = -match.scorePlayer1;
-		else if (matchDto.discoId === matchDto.player2Id)
-			match.scorePlayer2 = -match.scorePlayer2;
 		await this.statsService.updateStats(match, match.player1, 1, matchDto.discoId);
 		await this.statsService.updateStats(match, match.player2, 2, matchDto.discoId);
 		if (isRanked){
@@ -48,6 +44,10 @@ export class MatchService {
 		}
 		this.userService.saveUser(match.player1);
 		this.userService.saveUser(match.player2);
+		if (matchDto.discoId === matchDto.player1Id)
+			match.scorePlayer1 = -match.scorePlayer1;
+		else if (matchDto.discoId === matchDto.player2Id)
+			match.scorePlayer2 = -match.scorePlayer2;
 		this.matchRepository.save(match);
 	}
 	

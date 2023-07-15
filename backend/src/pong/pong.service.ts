@@ -296,7 +296,7 @@ export class PongGame {
 	async startTimer(room: Room){
 		room.time = 0;
 		const it = setInterval(() => {room.time++;}, 1000);
-		setTimeout(() => {room.state = State.ENDGAME; clearInterval(it);}, 180 * 1000);
+		setTimeout(() => {room.state = State.ENDGAME; clearInterval(it);}, 10 * 1000);
 	}
 
 	async playGame(client: Socket, room: Room) {
