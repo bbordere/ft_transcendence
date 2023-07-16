@@ -1,6 +1,6 @@
 <template>
 	<div class="play-modal-overlay" @click="$emit('close-modal')">
-		<div class="modal">
+		<div class="modal" @click.stop>
 			<div class="play-modal-title">Choix du mode de jeu</div>
 			<div class="buttons-play-modal">
 				<BlueButton class="button-play-modal" text="Classique" @click="goToPong('classic')"></BlueButton>

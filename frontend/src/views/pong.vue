@@ -43,7 +43,7 @@ import { useRoute } from 'vue-router';
 
 export default {
 	data() {
-		return {playerName: "", socket: io(), timer: "", score1: 0, score2: 0};
+		return {playerName: "", socket: io(), timer: "00:00", score1: 0, score2: 0};
 	},
 	methods: {
 		getIdMode(mode: string){

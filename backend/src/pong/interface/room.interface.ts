@@ -50,5 +50,7 @@ export class Room {
 	time: number;
 	timerInterval: NodeJS.Timeout;
 	timerTimeout: NodeJS.Timeout;
-	canvas: Canvas
+	gameInterval: NodeJS.Timeout;
+	canvas: Canvas;
+	isFinished: boolean;
 }

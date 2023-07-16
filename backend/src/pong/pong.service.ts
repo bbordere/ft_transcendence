@@ -3,7 +3,6 @@ import { Socket } from 'socket.io';
 import { Ball, Mode, Room, State } from './interface/room.interface';
 import { Player, Racket } from './interface/player.interface';
 import { MatchService } from 'src/match/match.service';
-import { UserService } from 'src/user/user.service';
 import { MatchDto } from 'src/match/match.dto';
 
 @Injectable()
@@ -30,7 +29,7 @@ export class PongGame {
 
 	async extractRoom(rooms: Room[]){
 		const filteredRooms = rooms.map(room => {
-			const { players, ...rest } = room;
+			const { players, timerInterval, timerTimeout, gameInterval, ...rest } = room;
 			const filteredPlayers = players.map(({ socket, ...player }) => player);
 			return { ...rest, players: filteredPlayers };
 		  });
@@ -76,6 +75,8 @@ export class PongGame {
 			canvas: {width: 2000, height: 1200},
 			timerInterval: null,
 			timerTimeout: null,
+			gameInterval: null,
+			isFinished: false,
 		};
 		this.roomsMap.get(mode).push(room);
 		return room;
@@ -232,7 +233,7 @@ export class PongGame {
 
 		if (room.ball.position.x + next.x > room.canvas.width) {
 			room.players[0].score++;
-			if (room.mode === Mode.ranked && room.players[0].score == 7) {
+			if (room.mode === Mode.ranked && room.players[0].score == 456) {
 				room.state = State.ENDGAME;
 				return;
 				//fonction fin de partie
@@ -245,11 +246,11 @@ export class PongGame {
 		
 		if (room.ball.position.x + next.x < room.ball.radius) {
 			room.players[1].score++;
-			if (room.mode === Mode.ranked && room.players[1].score == 7) {
+			if (room.mode === Mode.ranked && room.players[1].score == 456) {
 				room.state = State.ENDGAME;
 				return;
 				//fonction fin de partie
-				}
+			}
 			this.resetBall(room);
 			this.resetRacket(room, keyUp, keyDown);
 			room.state = State.COOLDOWN;
@@ -283,9 +284,9 @@ export class PongGame {
 		room.ball.position.y += room.ball.direction.y * room.ball.speed;
 	}
 
-	updateGame(client: Socket, room: Room, keyUp: boolean, keyDown: boolean) {
-		this.updateBall(client, room, keyUp, keyDown);
-		this.updateRacket(client, room, keyUp, keyDown);
+	updateGame(client: Socket, room: Room) {
+		this.updateBall(client, room, client.data.keyUp, client.data.keyDown);
+		this.updateRacket(client, room, client.data.keyUp, client.data.keyDown);
 		client.emit("updateGame", room.ball, room.players[0].racket, room.players[1].racket);
 	}
 
@@ -299,7 +300,7 @@ export class PongGame {
 
 		room.players[0].score = 0;
 		if (!room.players[0].racket)
-		room.players[0].racket = new Racket()
+			room.players[0].racket = new Racket()
 		
 		if (room.players[1]){
 			room.players[1].score = 0;
@@ -322,25 +323,72 @@ export class PongGame {
 	}
 
 	async startTimer(room: Room){
-		if (room.players.length != 2 || room.mode === Mode.ranked)
+		if (room.players.length != 2)
 			return;
 		room.timerInterval = setInterval(() => {
 			room.time++;
 			room.players[0].socket.emit('time', this.formatTime(room.time));
-			console.log(room.time);
-			console.log((180 - room.time));
 			room.players[1].socket.emit('time', this.formatTime(room.time));
 		}, 1000);
-		room.timerTimeout = setTimeout(() => {
-			room.state = State.ENDGAME;
-			clearInterval(room.timerInterval);
-		}, (180 - room.time) * 1000);
+		if (room.mode !== Mode.ranked){
+			room.timerTimeout = setTimeout(() => {
+				room.state = State.ENDGAME;
+				clearInterval(room.timerInterval);
+			}, (181 - room.time) * 1000);
+		}
+
 	}
 
-	async playGame(client: Socket, room: Room) {
+	async playGame(room: Room){
+		console.log("GAME STARTED");
+		await this.initGame(room, false, false);
+		this.startTimer(room);
+		let cooldown: number = 0;
+		room.gameInterval = setInterval(() => {
+			switch (room.state) {
+				case State.INIT: {
+					room.state = State.COOLDOWN;
+				}
+				break;
+
+				case State.COOLDOWN: {
+					this.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
+					this.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket);
+					if (room.timerInterval){
+						clearInterval(room.timerInterval);
+						clearTimeout(room.timerTimeout);
+					}
+					if (cooldown < 120)
+						cooldown++;
+					else {
+						cooldown = 0;
+						room.state = State.PLAY;
+						this.startTimer(room);
+					}
+				}
+				break;
+
+				case State.ENDGAME: {
+					clearInterval(room.gameInterval);
+					clearInterval(room.timerInterval);
+					this.emitToPlayers(room, 'text', "ENDGAME");
+				}
+				break;
+
+				case State.PLAY: {
+					cooldown = 0;
+					this.updateGame(room.players[0].socket, room);
+					this.updateGame(room.players[1].socket, room);
+				}
+				break;
+
+			}
+		}, 20)
+	}
+
+	async keyHandling(client: Socket, room: Room) {
 		var keyUp: boolean = false;
 		var keyDown: boolean = false;
-		await this.initGame(room, keyUp, keyDown);
 		client.on('arrowUpdate', (data) => {
 			if (data === "arrowUp")
 				keyUp = true;
@@ -351,52 +399,13 @@ export class PongGame {
 			else if (data === "stopArrowDown")
 				keyDown = false;
 		});
-		this.startTimer(room); // Timer for time gamemode
-		let cooldown: number = 0;
-		client.data.gameInterval = setInterval(() => {
-			if (client.disconnected){
-				clearInterval(client.data.gameInterval);
-				return;
-			}
-			switch (room.state) {
-				case State.QUEUE:
-					client.emit('text', "QUEUEING");
-					break;
-				case State.INIT:{
-					if (room.players.length === 2)
-						room.state = State.COOLDOWN;
-					break;
-				}
-					
-				case State.COOLDOWN:
-					client.emit("updateScore", room.players[0].score, room.players[1].score)
-					client.emit("updateGame", room.ball, room.players[0].racket, room.players[1].racket);
-					clearInterval(room.timerInterval);
-					clearTimeout(room.timerTimeout);
-					if (cooldown < 75){
-						cooldown++
-					}
-					else {
-						cooldown = 0;
-						room.state = State.PLAY;
-						this.startTimer(room);
-					}
-					break;
-				
-				case State.ENDGAME:
-					clearInterval(client.data.gameInterval);
-					client.emit('text', "ENDGAME");
-					break;
 
-				case State.PLAY:
-					cooldown = 0;
-					this.updateGame(client, room, keyUp, keyDown);
-					break;
-				
-				default:
-					break;
-			}
-		}, 20);
+		const it = setInterval(() => {
+			if (room.isFinished)
+				clearInterval(it);
+			client.data.keyDown = keyDown;
+			client.data.keyUp = keyUp;
+		}, 20)
 	}
 
 	async leaveRoomSocket(socketId: string, client: Socket){
@@ -408,7 +417,7 @@ export class PongGame {
 				if (room.players.length === 2){
 					room.state = State.WAITING;
 					if (this.disconnectedUsers.get(room.id)){
-						room.state = State.FINAL;
+						room.state = State.ENDGAME;
 					}
 					else
 						this.disconnectedUsers.set(room.id, client.data.user.email);
@@ -420,52 +429,76 @@ export class PongGame {
 		}
 	}
 
+	async emitToPlayers(room: Room, event: string, ...args: any[]){
+		room.players[0].socket.emit(event, ...args);
+		if (room.players[1])
+			room.players[1].socket.emit(event, ...args);
+	}
+
 	async checkRoom(room: Room){
 		let countDown: number = 0;
+		let isStarted: boolean = false;
 		const it = setInterval(() => {
-			console.log("CHECK");
-			if (room.players.length != 2)
-				return;
-			if (room.state === State.WAITING){
-				if (room.timerInterval){
-					clearInterval(room.timerInterval);
-					clearTimeout(room.timerTimeout);
-					room.timerInterval = null;
+			if (!isStarted && room.players.length === 2){
+				isStarted = true;
+				this.playGame(room);
+			}
+			switch (room.state) {
+				case State.WAITING: {
+					if (room.timerInterval){
+						clearInterval(room.timerInterval);
+						clearTimeout(room.timerTimeout);
+						room.timerInterval = null;
+					}
+
+					this.emitToPlayers(room, 'text', 'WAITING');
+					countDown++;
+					if (this.disconnectedUsers.get(room.id) === undefined){
+						room.state = State.INIT;
+						countDown = 0;
+					}
+					if (countDown === 200){
+						room.state = State.ENDGAME;
+					}
 				}
-				room.players[0].socket.emit('text', "WAITING");
-				if (room.players[1])
-					room.players[1].socket.emit('text', "WAITING");
-				countDown++;
-				if (this.disconnectedUsers.get(room.id) === undefined){
-					room.state = State.INIT;
+				break;
+
+				case State.ENDGAME: {
+					if (countDown < 200)
+						countDown++
+					else
+						this.endGame(room);
+				}
+				break;
+
+				case State.FINAL: {
+					countDown = 0;
+					this.disconnectedUsers.delete(room.id);
+					this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
+					this.emitToPlayers(room, 'text', "FINISHED");
+					clearInterval(room.players[0].socket.data.gameInterval);
+					if (room.players[1]){
+						clearInterval(room.players[1].socket.data.gameInterval);
+					}
+					clearInterval(it);
+					room.isFinished = true;
+				}
+				break;
+
+				case State.PLAY: {
 					countDown = 0;
 				}
-				if (countDown === 10){
-					room.state = State.FINAL;
+				break;
+
+				case State.QUEUE: {
+					this.emitToPlayers(room, 'text', "QUEUEING");
 				}
-			}
-			if (room.state === State.ENDGAME)
-				room.state = State.FINAL;
-			if (room.state === State.FINAL){
-				countDown = 0;
-				this.endGame(room);
-				this.disconnectedUsers.delete(room.id);
-				this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
+				break;
 
-				room.players[0].socket.emit('text', "FINISHED");
-				clearInterval(room.players[0].socket.data.gameInterval);
-
-				if (room.players[1]){
-					room.players[1].socket.emit('text', "FINISHED");
-					clearInterval(room.players[1].socket.data.gameInterval);
-				}
-
-				clearInterval(it);
+				default:
+					break;
 			}
-			if (room.state === State.PLAY){
-				countDown = 0;
-			}
-		}, 500);
+		}, 20);
 	}
 
 	endGame(room: Room){
@@ -480,8 +513,8 @@ export class PongGame {
 			matchDto.discoId = matchDto.player1Id;
 		else if (discoEmail && room.players[1].user["email"] === discoEmail)
 			matchDto.discoId = matchDto.player2Id;
-		this.matchService.createMatch(matchDto);
-		setTimeout(function(){room.state = State.FINAL}, 5000);
+		this.matchService.createMatch(matchDto, room.mode === Mode.ranked);
+		room.state = State.FINAL;
 	}
 
 }

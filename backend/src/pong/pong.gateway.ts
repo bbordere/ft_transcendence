@@ -48,8 +48,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		else
 			player.socket = client;
 		const room: Room = await this.pongGame.searchRoom(client, player, parseInt(data[1]));
-		this.pongGame.playGame(client, room)
-		// this.pongGame.checkRoom(client, room);
+		this.pongGame.keyHandling(client, room)
 	}
 }
 
