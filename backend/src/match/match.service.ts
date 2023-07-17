@@ -36,18 +36,16 @@ export class MatchService {
 		match.player2 = await this.userService.getPartialUser(await this.userService.getById(matchDto.player2Id));
 		if (!match.player1 || !match.player2)
 			return;
-		await this.statsService.updateStats(match, match.player1, 1, matchDto.discoId);
-		await this.statsService.updateStats(match, match.player2, 2, matchDto.discoId);
-		if (isRanked){
-			match.player1.stats.mmr = Math.ceil(await this.statsService.getUpdatedMmr(match.scorePlayer1, match.scorePlayer2, match.player1.stats.mmr, match.player2.stats.mmr));
-			match.player2.stats.mmr = Math.ceil(await this.statsService.getUpdatedMmr(match.scorePlayer2, match.scorePlayer1, match.player2.stats.mmr, match.player1.stats.mmr));
+		await this.statsService.updateStats(match, match.player1, 1, matchDto.leaverId);
+		await this.statsService.updateStats(match, match.player2, 2, matchDto.leaverId);
+		if (isRanked && match.scorePlayer1 !== match.scorePlayer2){
+			const tempScore1 = (match.leaverId === match.player1.id ? 0 : match.scorePlayer1);
+			const tempScore2 = (match.leaverId === match.player2.id ? 0 : match.scorePlayer2);
+			match.player1.stats.mmr = Math.ceil(await this.statsService.getUpdatedMmr(tempScore1, tempScore2, match.player1.stats.mmr, match.player2.stats.mmr));
+			match.player2.stats.mmr = Math.ceil(await this.statsService.getUpdatedMmr(tempScore2, tempScore1, match.player2.stats.mmr, match.player1.stats.mmr));
 		}
 		this.userService.saveUser(match.player1);
 		this.userService.saveUser(match.player2);
-		if (matchDto.discoId === matchDto.player1Id)
-			match.scorePlayer1 = -match.scorePlayer1;
-		else if (matchDto.discoId === matchDto.player2Id)
-			match.scorePlayer2 = -match.scorePlayer2;
 		this.matchRepository.save(match);
 	}
 	

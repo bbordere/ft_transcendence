@@ -17,5 +17,5 @@ export class MatchDto {
 	mode: string
 
 	@IsNumber()
-	discoId: number = -1;
+	leaverId: number = -1;
 }

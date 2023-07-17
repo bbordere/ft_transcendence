@@ -21,4 +21,7 @@ export class Match{
 
 	@Column({ default: "" })
 	mode: string;
+
+	@Column({ default: -1 })
+	leaverId: number;
 }

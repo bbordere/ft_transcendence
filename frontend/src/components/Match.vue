@@ -40,7 +40,7 @@
 				return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/" + playerName);
 			},
 			getColorClass(playerId: number){
-				if (this.matchObject["scorePlayer" + playerId] === "ABD" || this.matchObject["scorePlayer" + playerId] < 0){
+				if (this.matchObject["scorePlayer" + playerId] === "ABD" || this.matchObject["leaverId"] === this.matchObject["player" + playerId]["id"]){
 					this.matchObject["scorePlayer" + playerId] = "ABD";
 					return ("text-red");
 				}

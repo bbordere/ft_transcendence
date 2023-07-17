@@ -120,7 +120,12 @@ export default defineComponent({
 		const hasDisconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
 		this.recoButton = hasDisconnectObject["disconnect"];
 		this.recoMode = hasDisconnectObject["mode"];
-		console.log(this.recoButton, this.recoMode);
+		setTimeout(async () => {
+			const hasDisconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
+			this.recoButton = hasDisconnectObject["disconnect"];
+			this.recoMode = hasDisconnectObject["mode"];
+			console.log("RECHECK", this.recoButton, this.recoMode);
+		}, 4000);
 	},
 
 	methods: {

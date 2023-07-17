@@ -33,7 +33,7 @@ export class StatsService {
 		});
 	}
 
-	async updateStats(match: Match, user: Partial<User>, indexPlayer: number, discoId: number){
+	async updateStats(match: Match, user: Partial<User>, indexPlayer: number, leaverId: number){
 		const stats: StatsDetail = await this.getUserStats(user.stats.id);
 		const opId = indexPlayer ^ 3;
 		stats.winPoints += match[`scorePlayer${indexPlayer}`];
@@ -42,7 +42,7 @@ export class StatsService {
 		const isClassic: boolean = match["mode"] === "classic";
 		isClassic ? stats.totalClassicGames += 1 : stats.friendDuel += 1;
 		stats.totalGames = stats.totalClassicGames + stats.friendDuel;
-		if (match[`scorePlayer${indexPlayer}`] > match[`scorePlayer${opId}`] || match['player' + opId].id === discoId)
+		if ((match[`scorePlayer${indexPlayer}`] > match[`scorePlayer${opId}`] && user.id !== leaverId) || match['player' + opId].id === leaverId)
 			stats.wins += 1;
 		else
 			stats.looses += 1;

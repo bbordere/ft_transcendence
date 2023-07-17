@@ -225,7 +225,7 @@ export class PongGame {
 			room.ball.direction.y = 0.5;
 	}
 
-	updateBall(client:Socket, room: Room, keyUp: boolean, keyDown: boolean) {
+	updateBall(client: Socket, room: Room, keyUp: boolean, keyDown: boolean) {
 		const next = {
 			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
 			y: room.ball.direction.x * room.ball.speed + room.ball.radius,
@@ -233,7 +233,7 @@ export class PongGame {
 
 		if (room.ball.position.x + next.x > room.canvas.width) {
 			room.players[0].score++;
-			if (room.mode === Mode.ranked && room.players[0].score == 456) {
+			if (room.mode === Mode.ranked && room.players[0].score == 7) {
 				room.state = State.ENDGAME;
 				return;
 				//fonction fin de partie
@@ -246,7 +246,7 @@ export class PongGame {
 		
 		if (room.ball.position.x + next.x < room.ball.radius) {
 			room.players[1].score++;
-			if (room.mode === Mode.ranked && room.players[1].score == 456) {
+			if (room.mode === Mode.ranked && room.players[1].score == 7) {
 				room.state = State.ENDGAME;
 				return;
 				//fonction fin de partie
@@ -501,18 +501,18 @@ export class PongGame {
 		}, 20);
 	}
 
-	endGame(room: Room){
+	async endGame(room: Room){
 		if (room.players.length != 2)
 			return;
 		const modes: string[] = ["classic", "arcade", "ranked"];
 		const matchDto: MatchDto = {player1Id: room.players[0].user["id"], player2Id: room.players[1].user["id"],
 									scorePlayer1: room.players[0].score, scorePlayer2: room.players[1].score,
-									mode: modes[room.mode], discoId: -1}
-		const discoEmail: string = this.disconnectedUsers.get(room.id);
-		if (discoEmail && room.players[0].user["email"] === discoEmail)
-			matchDto.discoId = matchDto.player1Id;
-		else if (discoEmail && room.players[1].user["email"] === discoEmail)
-			matchDto.discoId = matchDto.player2Id;
+									mode: modes[room.mode], leaverId: -1}
+		const leaverEmail: string = this.disconnectedUsers.get(room.id);
+		if (leaverEmail && room.players[0].user["email"] === leaverEmail)
+			matchDto.leaverId = matchDto.player1Id;
+		else if (leaverEmail && room.players[1].user["email"] === leaverEmail)
+			matchDto.leaverId = matchDto.player2Id;
 		this.matchService.createMatch(matchDto, room.mode === Mode.ranked);
 		room.state = State.FINAL;
 	}
