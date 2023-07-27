@@ -1,7 +1,8 @@
-import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, OneToOne, ManyToMany, JoinTable } from "typeorm";
+import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, OneToOne, ManyToMany, JoinTable, OneToMany } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { StatsDetail } from '../stats/stats.entity'
 import { Channel } from "src/chat/entities/channel.entity";
+import { ChannelPerms } from "src/chat/entities/channelPerms.entity";
 
 @Entity()
 export class User{
@@ -40,6 +41,9 @@ export class User{
 	@ManyToMany(() => Channel)
 	@JoinTable()
 	public channels: Channel[];
+
+	@OneToMany(() => ChannelPerms, perms => perms.user)
+	public perms: ChannelPerms[];
 
 	@BeforeInsert()
 	async hashPassword() {
