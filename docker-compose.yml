@@ -23,17 +23,16 @@ services:
       - "5050:80"
 
   nestjs:
-    restart: always
+    restart: "no"
     depends_on:
       - postgres
     build: backend/
     ports:
       - '3000:3000'
     volumes:
-      - nest_volume:/workspace
+      - /home/whale/ft_transcendence/backend:/workspace
     env_file: nestjs.env
     container_name: nestjs
-
 
   frontend:
     env_file: nestjs.env
@@ -53,7 +52,7 @@ volumes:
     driver: local
     name: nestjs
     driver_opts:
-      device: ./backend
+      device: /home/whale/ft_transcendence/backend
       type: volume
       o: bind
   
