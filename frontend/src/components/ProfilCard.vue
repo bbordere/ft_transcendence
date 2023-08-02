@@ -18,7 +18,7 @@ export default{
 	},
 	props: ["editable", "username"],
 	data(){
-		return ({user: "", showModal: false, isMyPage: false});
+		return ({user: "", showModal: false, isMyPage: false, windowWidth: window.innerWidth,});
 	},
 	methods: {
 		logout(){
@@ -70,10 +70,14 @@ export default{
 					type: 'error',
 					group: 'notif-center'
 				});
-			}
+			},
+			handleResize() {
+				this.windowWidth = window.innerWidth;
+			},
 
 	},
 	beforeMount(){
+		window.addEventListener('resize', this.handleResize);
 		this.getUser();
 		this.isMe();
     },
@@ -97,7 +101,7 @@ export default{
 				</transition>
 			</Teleport>
 			<div class="buttons-items" v-if="editable != 0"> 
-				<BlueButton class="button-profile" text="Changer Nom " icon="fa-solid fa-pen" @click="showModal = true"></BlueButton>
+				<BlueButton class="button-profile" text="Changer Nom " icon="fa-solid fa-pen" :display-text="windowWidth >= 930" @click="showModal = true"></BlueButton>
 				<div class="tfa">
 						<div class="tfa-extra">
 							<font-awesome-icon icon="fa-solid fa-lock"/>
@@ -105,10 +109,10 @@ export default{
 						</div>
 						<Switch/>
 				</div>
-				<BlueButton class="button-profile"  text="Déconnection " icon="fa-solid fa-right-from-bracket" @click="logout"></BlueButton>
+				<BlueButton class="button-profile"  text="Déconnection " icon="fa-solid fa-right-from-bracket" @click="logout" :display-text="windowWidth >= 930"></BlueButton>
 			</div>
 			<div v-else-if="!isMyPage">
-				<BlueButton text="Ajouter en ami " icon="fa-solid fa-user-group"></BlueButton>
+				<BlueButton text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 930" ></BlueButton>
 			</div>
 		</div>
 	</div>
@@ -183,6 +187,9 @@ export default{
 @media (max-width: 500px) {
 	.tfa-extra{
 		display: none;
+	}
+	.buttons {
+		
 	}
 }
 

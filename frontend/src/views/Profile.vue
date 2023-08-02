@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import ProfileCard from '@/components/profilCard.vue';
+import ProfileCard from '@/components/ProfilCard.vue';
 import StatsPanel from '@/components/StatsPanel.vue'
 import MatchHistory from '@/components/MatchHistory.vue'
 import { useRoute } from 'vue-router';

@@ -25,7 +25,6 @@ import router from '../router'
 		methods: {
 			async clickAction() {
 				if (!this.activated){
-					console.log("NOPE");
 					return;
 				}
 				this.activated = false;
@@ -86,7 +85,7 @@ import router from '../router'
   height: 13px;
   width: 13px;
   left: 4px;
-  bottom: 3px;
+  bottom: 4px;
   background-color: white;
   -webkit-transition: 0.4s;
   transition: 0.4s;

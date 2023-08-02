@@ -33,11 +33,6 @@
 		mounted() {
 			this.getUser();
 		},
-		watch: {
-			username: function(){
-				console.log("LOG PARENT");
-			}
-		},
 	}
 </script>
 
@@ -91,7 +86,7 @@
 		width: 100%;
 	}
 	.history-title{
-		font-size: 70%;
+		font-size: 2vw;
 	}
 }
 

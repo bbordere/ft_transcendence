@@ -100,6 +100,7 @@
 @media screen and (max-width: 950px) {
 	.match-card{
 		height: 25%;
+		font-size: 2.5vw;
 	}
 	.player-card{
 		justify-content: center;
@@ -107,14 +108,14 @@
 		font-weight: bold;
 	}
 	.mode{
-		margin-top: 50%;
-		font-size: 70%;
+		margin-top: 1px;
+		font-size: 1.7vw;
 	}
 	.avatar-match {
 		display: none;
 	}
 	.score-text{
-		font-size: 70%;
+		font-size: 1.9vw;
 	}
 }
 
