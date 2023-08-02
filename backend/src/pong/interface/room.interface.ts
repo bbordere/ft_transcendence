@@ -1,4 +1,5 @@
 import { Player } from "./player.interface";
+import { Powerup } from "./powerup.interface";
 
 export class Coords {
 	x:	number;
@@ -23,7 +24,6 @@ export class Canvas {
 	height: number;
 }
 
-
 export enum State {
 	QUEUE = 0,
 	INIT,
@@ -36,9 +36,9 @@ export enum State {
 }
 
 export enum Mode {
-	standard = 0,
-	arcade,
-	ranked
+	DEFAULT = 0,
+	ARCADE,
+	RANKED
 }
 
 export class Room {
@@ -53,4 +53,5 @@ export class Room {
 	gameInterval: NodeJS.Timeout;
 	canvas: Canvas;
 	isFinished: boolean;
+	powerups: Array<Powerup>;
 }

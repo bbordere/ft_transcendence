@@ -40,6 +40,7 @@
 import io from 'socket.io-client';
 import Head from '../components/head.vue'
 import { useRoute } from 'vue-router';
+import { it } from 'vuetify/locale';
 
 export default {
 	data() {
@@ -79,24 +80,20 @@ export default {
  			if (event.key === "ArrowUp" && !keyArrowUp) {
 				keyArrowUp = true;
 				this.socket.emit("arrowUpdate", "arrowUp");
-				console.log("up")
 			}
 			if (event.key === "ArrowDown" && !keyArrowDown) {
 				keyArrowDown = true;
 				this.socket.emit("arrowUpdate", "arrowDown");
-				console.log("down")
 			}
 		});
 		document.addEventListener('keyup', (event) => {
  			if (event.key === "ArrowUp" && keyArrowUp) {
 				keyArrowUp = false;
 				this.socket.emit("arrowUpdate", "stopArrowUp");
-				console.log("upstop")
 			}
 			if (event.key === "ArrowDown" && keyArrowDown) {
 				keyArrowDown = false;
 				this.socket.emit("arrowUpdate", "stopArrowDown");
-				console.log("downstop")
 			}
 		});
 
@@ -108,18 +105,33 @@ export default {
 		const canvas = document.getElementById('pongCanvas');
 		const ctx = canvas.getContext('2d');
 
-		this.socket.on('updateGame', (ball, racket1, racket2) => {
+		this.socket.on('updateGame', (ball, racket1, racket2, powerups) => {
+
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			drawBall(ball.position.x, ball.position.y);
-			// console.log(racket2.top_pos);
-			drawRect(racket1.top_pos.x, racket1.top_pos.y, racket1.width, racket1.size);
-			drawRect(racket2.top_pos.x - racket1.width, racket2.top_pos.y, racket2.width, racket2.size);
+
+			drawRect(racket1.pos.x, racket1.pos.y, racket1.width, racket1.size, "#FFFFFF");
+			drawRect(racket2.pos.x, racket2.pos.y, racket2.width, racket2.size, "#FFFFFF");
+
+			if (powerups){
+				for (var item of powerups){
+					drawRect(item.pos.x, item.pos.y, item.radius, item.radius, item.color);
+				}
+			}
+
+			drawCircle(ball.position.x, ball.position.y, ballRadius, "#2A52EB");
+
+			ctx.beginPath();
+			ctx.lineWidth = 5;
+			ctx.moveTo(canvas.width / 2, 0);
+			ctx.lineTo(canvas.width / 2, canvas.height); // Vous pouvez ajuster la longueur de la ligne ici
+			ctx.strokeStyle = "red";
+			ctx.stroke();
 		});
 
-		function drawRect(x: Number, y: Number, width: Number, size: Number) {
+		function drawRect(x: Number, y: Number, width: Number, size: Number, color: string) {
 			ctx.beginPath();
 			ctx.rect(x, y, width, size);
-			ctx.fillStyle = "#FFFFFF";
+			ctx.fillStyle = color;
 			ctx.fill();
 			ctx.closePath();
 		}
@@ -134,7 +146,6 @@ export default {
 
 		const ballRadius = 20;
 
-
 		function drawText(text: string){
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.font = "200px serif";
@@ -142,10 +153,10 @@ export default {
 			ctx.fillStyle = 'white'
 		}
 		
-		function drawBall(x: Number, y: Number) {
+		function drawCircle(x: Number, y: Number, radius: number, color: string) {
 			ctx.beginPath();
-			ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-			ctx.fillStyle = "#FFFFFF";
+			ctx.arc(x, y, radius, 0, Math.PI*2);
+			ctx.fillStyle = color;
 			ctx.fill();
 			ctx.closePath();
 		}

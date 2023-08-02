@@ -1,9 +1,12 @@
 import { Injectable, } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Ball, Mode, Room, State } from './interface/room.interface';
-import { Player, Racket } from './interface/player.interface';
+import { Player } from './interface/player.interface';
+import { Racket } from './interface/racket.interface';
 import { MatchService } from 'src/match/match.service';
 import { MatchDto } from 'src/match/match.dto';
+import { Certificate } from 'crypto';
+import { Powerup } from './interface/powerup.interface';
 
 @Injectable()
 export class PongGame {
@@ -77,6 +80,7 @@ export class PongGame {
 			timerTimeout: null,
 			gameInterval: null,
 			isFinished: false,
+			powerups: [],
 		};
 		this.roomsMap.get(mode).push(room);
 		return room;
@@ -147,7 +151,7 @@ export class PongGame {
 	}
 
 	async resetBall(room: Room) {
-		room.ball.radius = 20
+		room.ball.radius = 20;
 		room.ball.position.x = 1000;
 		room.ball.position.y = 600;
 		room.ball.direction.x = (Math.random() * 2 - 1);
@@ -159,18 +163,14 @@ export class PongGame {
 
 	async resetRacket(room: Room, keyUp: boolean, keyDown: boolean) {
 		if (room.players[0]){
-			room.players[0].racket.top_pos.x = 100;
-			room.players[0].racket.top_pos.y = 500;
-			room.players[0].racket.bot_pos.x = 100;
-			room.players[0].racket.bot_pos.y = 700;
+			room.players[0].racket.pos.x = 100;
+			room.players[0].racket.pos.y = 500;
 			room.players[0].racket.size = 200;
 			room.players[0].racket.width = 50;
 		}
 		if (room.players[1]){
-			room.players[1].racket.top_pos.x = 1900;
-			room.players[1].racket.top_pos.y = 500;
-			room.players[1].racket.bot_pos.x = 1900;
-			room.players[1].racket.bot_pos.y = 700;
+			room.players[1].racket.pos.x = 1850;
+			room.players[1].racket.pos.y = 500;
 			room.players[1].racket.size = 200;
 			room.players[1].racket.width = 50;
 		}
@@ -178,65 +178,81 @@ export class PongGame {
 		keyDown = false;
 	}
 
+	racketHandling(racket: Racket, room: Room, dy: number){
+		let canMove: Boolean = ((dy > 0 && racket.pos.y + racket.size < room.canvas.height - 10) || (dy < 0 && racket.pos.y > 10));
+		racket.pos.y += dy * Number(canMove);
+	}
+
+	getRacketDirection(keyUp: Boolean, keyDown: Boolean): number {
+		return (keyUp && !keyDown ? -1 : keyDown && !keyUp ? 1 : 0);
+	}
+
 	async updateRacket(client: Socket, room: Room, keyUp: boolean, keyDown: boolean) {
 		if (client === room.players[0].socket) {
-			if (keyUp) {
-				if (room.players[0].racket.top_pos.y > 10)
-				room.players[0].racket.top_pos.y -= 10;
-				room.players[0].racket.bot_pos.y -= 10;
-			}
-			if (keyDown) {
-				if (room.players[0].racket.top_pos.y < 990)
-				room.players[0].racket.top_pos.y += 10;
-				room.players[0].racket.bot_pos.y += 10;
-			}
+			this.racketHandling(room.players[0].racket, room, this.getRacketDirection(keyUp, keyDown) * 15);
 		} else if (client === room.players[1].socket) {
-			if (keyUp) {
-				if (room.players[1].racket.top_pos.y > 10)
-				room.players[1].racket.top_pos.y -= 10;
-				room.players[1].racket.bot_pos.y -= 10;
-			}
-			if (keyDown) {
-				if (room.players[1].racket.top_pos.y < 990)
-				room.players[1].racket.top_pos.y += 10;
-				room.players[1].racket.bot_pos.y += 10;
-			}
+			this.racketHandling(room.players[1].racket, room, this.getRacketDirection(keyUp, keyDown) * 15);
 		}
 	}
 
 	racketBallCollision(room: Room, racket: Racket) {
+		const offset = (room.ball.position.y + room.ball.radius - racket.pos.y) / (racket.size + room.ball.radius)
+		const angle = 0.25 * Math.PI * (2 * offset - 1);
 		room.ball.direction.x *= -1;
-		room.ball.speed++;
-		if (room.ball.position.y > racket.top_pos.y && room.ball.position.y < racket.top_pos.y + racket.size / 8)
-			room.ball.direction.y = -0.5;
-		else if (room.ball.position.y > racket.top_pos.y + racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 2 * racket.size / 8)
-			room.ball.direction.y = -0.375
-		else if (room.ball.position.y > racket.top_pos.y + 2 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 3 * racket.size / 8)
-			room.ball.direction.y = -0.25
-		else if (room.ball.position.y > racket.top_pos.y + 3 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 4 * racket.size / 8)
-			room.ball.direction.y = -0.125
-		else if (room.ball.position.y > racket.top_pos.y + 4 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 5 * racket.size / 8)
-			room.ball.direction.y = 0.125
-		else if (room.ball.position.y > racket.top_pos.y + 5 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 6 * racket.size / 8)
-			room.ball.direction.y = 0.25
-		else if (room.ball.position.y > racket.top_pos.y + 6 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + 7 * racket.size / 8)
-			room.ball.direction.y = 0.375
-		else if (room.ball.position.y > racket.top_pos.y + 7 * racket.size / 8 &&  room.ball.position.y < racket.top_pos.y + racket.size)
-			room.ball.direction.y = 0.5;
+		room.ball.direction.y = Math.sin(angle);
+		if (room.ball.speed != 15)
+			room.ball.speed = Math.min(room.ball.speed += 0.5, 10);
 	}
 
-	updateBall(client: Socket, room: Room, keyUp: boolean, keyDown: boolean) {
+	hasRacketIntersect(ball: Ball, racket: Racket): Boolean{
+		const distX = Math.abs(ball.position.x - racket.pos.x - racket.width / 2);
+		const distY = Math.abs(ball.position.y - racket.pos.y - racket.size / 2);
+		if (distX > (racket.width / 2 + ball.radius))
+			return (false);
+		if (distY > (racket.size / 2 + ball.radius))
+			return (false);
+		if (distX <= (racket.width / 2))
+			return (true);
+		if (distY <= (racket.size / 2))
+			return (true);
+		const dx = distX - racket.width / 2;
+		const dy = distY - racket.size / 2;
+		return (dx * dx + dy * dy <= ball.radius * ball.radius);
+	}
+
+	hasPowerupIntersect(ball: Ball, powerup: Powerup): Boolean{
+		const distX = Math.abs(ball.position.x - powerup.pos.x - powerup.radius / 2);
+		const distY = Math.abs(ball.position.y - powerup.pos.y - powerup.radius / 2);
+		if (distX > (powerup.radius / 2 + ball.radius))
+			return (false);
+		if (distY > (powerup.radius / 2 + ball.radius))
+			return (false);
+		if (distX <= (powerup.radius / 2))
+			return (true);
+		if (distY <= (powerup.radius / 2))
+			return (true);
+		const dx = distX - powerup.radius / 2;
+		const dy = distY - powerup.radius / 2;
+		return (dx * dx + dy * dy <= ball.radius * ball.radius);
+	}
+
+	updateBall(room: Room, keyUp: boolean, keyDown: boolean) {
 		const next = {
 			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
 			y: room.ball.direction.x * room.ball.speed + room.ball.radius,
 		}
+		
+		let indexPlayer = -1;
+		if (room.ball.position.x + next.x > room.canvas.width)
+			indexPlayer = 0;
+		else if (room.ball.position.x + next.x < room.ball.radius)
+			indexPlayer = 1;
 
-		if (room.ball.position.x + next.x > room.canvas.width) {
-			room.players[0].score++;
-			if (room.mode === Mode.ranked && room.players[0].score == 7) {
+		if (indexPlayer != -1){
+			room.players[indexPlayer].score++;
+			if (room.mode === Mode.RANKED && room.players[0].score == 7) {
 				room.state = State.ENDGAME;
 				return;
-				//fonction fin de partie
 			}
 			this.resetBall(room);
 			this.resetRacket(room, keyUp, keyDown);
@@ -244,53 +260,68 @@ export class PongGame {
 			return;
 		}
 		
-		if (room.ball.position.x + next.x < room.ball.radius) {
-			room.players[1].score++;
-			if (room.mode === Mode.ranked && room.players[1].score == 7) {
-				room.state = State.ENDGAME;
-				return;
-				//fonction fin de partie
-			}
-			this.resetBall(room);
-			this.resetRacket(room, keyUp, keyDown);
-			room.state = State.COOLDOWN;
-			return;
+		if (room.ball.position.y + next.y >= room.canvas.height
+			|| room.ball.position.y + next.y <= room.ball.radius * 2) {
+				room.ball.direction.y *= -1;
 		}
-
-		if (room.ball.position.y + next.y > room.canvas.height
-				|| room.ball.position.y + next.y < room.ball.radius) {
-			room.ball.direction.y *= -1;
-		}
-
-		if (room.ball.position.x + next.x <= room.players[0].racket.top_pos.x + room.players[0].racket.width
-					&& room.ball.position.x + next.x >= room.players[0].racket.top_pos.x
-					&& room.ball.position.y + next.y <= room.players[0].racket.bot_pos.y + room.ball.radius
-					&& room.ball.position.y + next.y >= room.players[0].racket.top_pos.y - room.ball.radius)
-		{
+			
+		if (this.hasRacketIntersect(room.ball, room.players[0].racket))
 			this.racketBallCollision(room, room.players[0].racket)
-		}
 
-		if (room.ball.position.x + next.x >= room.players[1].racket.top_pos.x
-					&& room.ball.position.x + next.x <= room.players[1].racket.top_pos.x + room.players[1].racket.width
-					&& room.ball.position.y + next.y <= room.players[1].racket.bot_pos.y + room.ball.radius
-					&& room.ball.position.y + next.y >= room.players[1].racket.top_pos.y - room.ball.radius)
-		{
+		else if (this.hasRacketIntersect(room.ball, room.players[1].racket))
 			this.racketBallCollision(room, room.players[1].racket)
-
-		}
-
 
 		room.ball.position.x += room.ball.direction.x * room.ball.speed;
 		room.ball.position.y += room.ball.direction.y * room.ball.speed;
 	}
 
-	updateGame(client: Socket, room: Room) {
-		this.updateBall(client, room, client.data.keyUp, client.data.keyDown);
-		this.updateRacket(client, room, client.data.keyUp, client.data.keyDown);
-		client.emit("updateGame", room.ball, room.players[0].racket, room.players[1].racket);
+	activatePowerup(powerup: Powerup, room: Room){
+		powerup.activatedBy = Number(room.ball.direction.x < 0);
+		console.log("ACTIVATE " + powerup.name + " BY " + powerup.activatedBy);
+		switch (powerup.name) {
+			case "Big paddle": {
+				room.players[powerup.activatedBy].racket.pos.y -= 70;
+				room.players[powerup.activatedBy].racket.size += 140;
+				setTimeout(() => {
+					room.players[powerup.activatedBy].racket.size = 200;
+				}, 10000)
+			}
+			break;
+			case "Little paddle": {
+				room.players[Number(!Boolean(powerup.activatedBy))].racket.pos.y += 70;
+				room.players[Number(!Boolean(powerup.activatedBy))].racket.size -= 140;
+				setTimeout(() => {
+					room.players[powerup.activatedBy].racket.size = 200;
+				}, 10000)
+			}
+			break;
+			case "Speedy ball": {
+				const oldSpeed = room.ball.speed;
+				room.ball.speed = 15;
+				setTimeout(() => {
+					if (room.ball.speed === 15)
+						room.ball.speed = oldSpeed;
+				}, 5000)
+			}
+			break;
+		}
 	}
 
+	powerupsHandling(room: Room){
+		for (let i = 0; i < room.powerups.length; i++){
+			if (this.hasPowerupIntersect(room.ball, room.powerups[i])){
+				this.activatePowerup(room.powerups[i], room);
+				room.powerups.splice(i, 1);
+			}
+		}
+	}
 
+	updateGame(client: Socket, room: Room) {
+		this.updateBall(room, client.data.keyUp, client.data.keyDown);
+		this.updateRacket(client, room, client.data.keyUp, client.data.keyDown);
+		this.powerupsHandling(room);
+		client.emit("updateGame", room.ball, room.players[0].racket, room.players[1].racket, room.powerups);
+	}
 
 	async initGame(room: Room, keyUp:boolean, keyDown: boolean) {
 		if (!room.ball){
@@ -330,7 +361,7 @@ export class PongGame {
 			room.players[0].socket.emit('time', this.formatTime(room.time));
 			room.players[1].socket.emit('time', this.formatTime(room.time));
 		}, 1000);
-		if (room.mode !== Mode.ranked){
+		if (room.mode !== Mode.RANKED){
 			room.timerTimeout = setTimeout(() => {
 				room.state = State.ENDGAME;
 				clearInterval(room.timerInterval);
@@ -339,10 +370,43 @@ export class PongGame {
 
 	}
 
+	randInt(min: number, max: number): number {
+		return Math.floor(Math.random() * (max - min + 1) + min)
+	}
+
+	generatePowerup(room: Room): Powerup{
+		const possibilities = [{name:"Big paddle", color: "#9400D3"},
+								{name:"Little paddle", color: "#B8FFF4"}, 
+								{name:"Speedy ball", color: "#006400"}];
+		const choice = possibilities[this.randInt(0, 2)];
+		const res: Powerup = {
+			name: choice.name,
+			activatedBy: -1,
+			pos: {x: this.randInt(400, room.canvas.width - 400),
+				y: this.randInt(200, room.canvas.height - 200)},
+			radius: 60,
+			color: choice.color,
+		}
+		return (res);
+	}
+
+	async powerupsInit(room: Room) {
+		if (room.mode != Mode.ARCADE)
+			return;
+		const it = setInterval(() => {
+			if (room.state === State.FINAL)
+				clearInterval(it);
+			if (room.time % 30 === 15){
+				room.powerups.push(this.generatePowerup(room));
+			}
+		}, 1000)
+	}
+
 	async playGame(room: Room){
 		console.log("GAME STARTED");
 		await this.initGame(room, false, false);
 		this.startTimer(room);
+		await this.powerupsInit(room);
 		let cooldown: number = 0;
 		room.gameInterval = setInterval(() => {
 			switch (room.state) {
@@ -352,8 +416,9 @@ export class PongGame {
 				break;
 
 				case State.COOLDOWN: {
+					room.powerups = [];
 					this.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
-					this.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket);
+					this.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, room.powerups);
 					if (room.timerInterval){
 						clearInterval(room.timerInterval);
 						clearTimeout(room.timerTimeout);
@@ -412,7 +477,7 @@ export class PongGame {
 		const keysArray = Array.from(this.roomsMap.keys());
 		for (var key of keysArray as Mode[]){
 			for (var room of this.roomsMap.get(key) as Room[]){
-				if (! await this.isSocketInsideRoom(room, socketId))
+				if (!await this.isSocketInsideRoom(room, socketId))
 					continue;
 				if (room.players.length === 2){
 					room.state = State.WAITING;
@@ -513,7 +578,7 @@ export class PongGame {
 			matchDto.leaverId = matchDto.player1Id;
 		else if (leaverEmail && room.players[1].user["email"] === leaverEmail)
 			matchDto.leaverId = matchDto.player2Id;
-		this.matchService.createMatch(matchDto, room.mode === Mode.ranked);
+		this.matchService.createMatch(matchDto, room.mode === Mode.RANKED);
 		room.state = State.FINAL;
 	}
 
