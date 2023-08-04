@@ -3,7 +3,7 @@
 	<div class="pong_body">
 		<div class="pong_content">
 			<div class="left_column">
-				<PongPlayerCard v-if="dataLoaded" :id="player1Id"></PongPlayerCard>
+				<PongPlayerCard v-if="dataLoaded" :id="player1Id" side="0" :emote="emote1.emoji"></PongPlayerCard>
 				<div class="left_point">
 					<span id="score1">{{score1}}</span>
 				</div>
@@ -17,10 +17,14 @@
 				</div>
 				<div class="button_panel">
 					<div class="reaction_panel">
-						<button id="reaction_1">rire</button>
+						<Emote emoji="🤣" :socket="socket"></Emote>
+						<Emote emoji="😬" :socket="socket"></Emote>
+						<Emote emoji="😭" :socket="socket"></Emote>
+						<Emote emoji="🤝" :socket="socket"></Emote>
+						<!-- <button id="reaction_1">rire</button>
 						<button id="reaction_2">stresse</button>
 						<button id="reaction_3">pleure</button>
-						<button id="reaction_4">poignet de main</button>
+						<button id="reaction_4">poignet de main</button> -->
 					</div>
 
 					<div class="forgive_button">
@@ -29,7 +33,7 @@
 				</div>
 			</div>
 			<div class="right_column">
-				<PongPlayerCard v-if="dataLoaded && player2Id.length !== 0" :id="player2Id"></PongPlayerCard>
+				<PongPlayerCard v-if="dataLoaded && player2Id.length !== 0" :id="player2Id" side="1" :emote="emote2.emoji"></PongPlayerCard>
 				<div class="right_point">
 					<span id="score2">{{score2}}</span>
 				</div>
@@ -43,13 +47,30 @@ import io from 'socket.io-client';
 import Head from '../components/head.vue'
 import { useRoute } from 'vue-router';
 import PongPlayerCard from '@/components/PongPlayerCard.vue';
+import Emote from '@/components/Emote.vue'
+
+interface emote{
+	emoji: string,
+	protected: Boolean,
+}
 
 export default {
 	data() {
-		return {player1Id: "", player2Id: "", dataLoaded: false, socket: io(), timer: "00:00", score1: 0, score2: 0};
+		return {player1Id: "",
+				player2Id: "",
+				dataLoaded: false,
+				socket: io(),
+				timer: "00:00",
+				score1: 0,
+				score2: 0,
+				emote1: {} as emote,
+				emote2: {} as emote,
+			};
 	},
 	components: {
 		PongPlayerCard,
+		Emote,
+		// Head,
 	},
 	methods: {
 		getIdMode(mode: string){
@@ -59,9 +80,22 @@ export default {
 				return;
 			}
 			return modes.indexOf(mode);
+		},
+
+		emoteHandling(side: number, emoji: string){
+			let emote = side === 1 ? this.emote1 : this.emote2 ;
+			if (emote.protected)
+				return;
+			emote.protected = true;
+			emote.emoji = emoji;
+			setTimeout(() => {
+				emote.emoji = "";
+				emote.protected = false;
+			}, 4000);
 		}
 	},
 	mounted() {
+		
 		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");		
 
 		const route = useRoute();
@@ -154,6 +188,14 @@ export default {
 
 		this.socket.on('time', (time) => {
 			this.timer = time;
+		});
+
+		this.socket.on('emote', (player, emoji) => {
+			if (player == 0)
+				this.emoteHandling(1, emoji);
+			else
+				this.emoteHandling(2, emoji);
+			console.log(this.emote1, this.emote2);
 		});
 
 		const ballRadius = 20;
@@ -249,6 +291,14 @@ export default {
 	width: 100%;
 	align-items: center;
 	justify-content: space-between;
+}
+
+.reaction_panel {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	gap: 20px;
+	align-items: center;
 }
 
 </style>

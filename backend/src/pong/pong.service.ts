@@ -247,7 +247,7 @@ export class PongGame {
 		const possibilities = [{name:"Grande Raquette", color: "#1A2E61", effect: Effect.BIG_PADDLE},
 								{name:"Petite Raquette", color: "#B38ED3", effect: Effect.LIL_PADDLE}, 
 								{name:"Balle Rapide", color: "#F44E1A", effect: Effect.SPEEDY_BALL}];
-		const choice = possibilities[this.randInt(2, 2)];
+		const choice = possibilities[this.randInt(0, 2)];
 		const res: Powerup = {
 			name: choice.name,
 			effect: choice.effect,

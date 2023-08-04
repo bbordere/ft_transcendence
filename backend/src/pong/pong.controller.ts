@@ -9,20 +9,20 @@ import { RoomService } from './room.service';
 export class PongController {
 	constructor(private pongService: PongGame, private roomService: RoomService) {}
 	
-	// @Get()
-	// async getAllRooms(){
-	// 	return await this.roomService.getRooms();
-	// }
+	@Get()
+	async getAllRooms(){
+		return await this.roomService.getRooms();
+	}
 
-	// @Get('/status')
-	// @UseGuards(JwtAuthGuard)
-	// async getStatus(@Req() req){
-	// 	const user: User = req["user"]["user"];
-	// 	const statusObject = await this.roomService.hasDisconnect(user["email"]);
-	// 	const room: Room = await this.roomService.getRoomById(statusObject["roomId"]);
-	// 	if (room)
-	// 		return {disconnect: statusObject["status"], mode: room.mode};
-	// 	else
-	// 		return {disconnect: false, mode: -1};
-	// }
+	@Get('/status')
+	@UseGuards(JwtAuthGuard)
+	async getStatus(@Req() req){
+		const user: User = req["user"]["user"];
+		const statusObject = await this.roomService.hasDisconnect(user["email"]);
+		const room: Room = await this.roomService.getRoomById(statusObject["roomId"]);
+		if (room)
+			return {disconnect: statusObject["status"], mode: room.mode};
+		else
+			return {disconnect: false, mode: -1};
+	}
 }

@@ -13,7 +13,8 @@ export abstract class PongConstants{
 	static readonly BIG_PAD_VALUE: number = 70;
 	static readonly LIL_PAD_VALUE: number = 70;
 
-	static readonly SPEED_BALL_POWERUP: number = 60;
+	static readonly SPEED_BALL_POWERUP: number = 200;
+
 
 	static readonly BIG_PADDLE_DURATION: number = 15000;
 	static readonly LIL_PADDLE_DURATION: number = 15000;

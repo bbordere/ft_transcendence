@@ -200,6 +200,7 @@ export class RoomService {
 		return (this.disconnectedUsers.get(roomId) !== undefined);
 	}
 
+
 	finalGame(room: Room){
 		this.disconnectedUsers.delete(room.id);
 		this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
@@ -209,6 +210,14 @@ export class RoomService {
 			clearInterval(room.players[1].socket.data.gameInterval);
 		}
 		room.isFinished = true;
+	}
+
+	getRoomFromSocket(client: Socket): Room {
+		for (var room of this.checkedRooms) {
+			const sockets = room.players.map((player) => {return player.socket;});
+			if (sockets.includes(client))
+				return room
+		}
 	}
 
 }
