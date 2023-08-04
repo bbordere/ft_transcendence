@@ -11,12 +11,14 @@ export class Ball {
 		this.position = {x: 300, y: 300};
 		this.speed = 1;
 		this.direction  = {x: 1, y: 1};
+		this.lastHit = -1;
 	}
 
 	position:	Coords;
 	direction:	Coords;
 	speed:		number;
 	radius:		number;
+	lastHit: number;
 }
 
 export class Canvas {

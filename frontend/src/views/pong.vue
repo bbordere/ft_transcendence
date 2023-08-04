@@ -3,6 +3,7 @@
 	<div class="pong_body">
 		<div class="pong_content">
 			<div class="left_column">
+				<PongPlayerCard v-if="dataLoaded" :id="player1Id"></PongPlayerCard>
 				<div class="left_point">
 					<span id="score1">{{score1}}</span>
 				</div>
@@ -28,6 +29,7 @@
 				</div>
 			</div>
 			<div class="right_column">
+				<PongPlayerCard v-if="dataLoaded && player2Id.length !== 0" :id="player2Id"></PongPlayerCard>
 				<div class="right_point">
 					<span id="score2">{{score2}}</span>
 				</div>
@@ -40,11 +42,14 @@
 import io from 'socket.io-client';
 import Head from '../components/head.vue'
 import { useRoute } from 'vue-router';
-import { it } from 'vuetify/locale';
+import PongPlayerCard from '@/components/PongPlayerCard.vue';
 
 export default {
 	data() {
-		return {playerName: "", socket: io(), timer: "00:00", score1: 0, score2: 0};
+		return {player1Id: "", player2Id: "", dataLoaded: false, socket: io(), timer: "00:00", score1: 0, score2: 0};
+	},
+	components: {
+		PongPlayerCard,
 	},
 	methods: {
 		getIdMode(mode: string){
@@ -73,6 +78,13 @@ export default {
 			console.log('Vous avez été déconnecté du jeu.');
 		});
 		
+		this.socket.on('ids', (player1: string, player2: string) => {
+			this.player1Id = player1;
+			this.player2Id = player2;
+			this.dataLoaded = true;
+			console.log(this.player2Id.length);
+		});
+
 
 		var keyArrowUp: Boolean = false
 		var keyArrowDown: Boolean = false
@@ -118,14 +130,14 @@ export default {
 				}
 			}
 
-			drawCircle(ball.position.x, ball.position.y, ballRadius, "#2A52EB");
+			drawCircle(ball.position.x, ball.position.y, ballRadius, ball.speed === 30 ? "#F44E1A" : "#2A52EB");
 
-			ctx.beginPath();
-			ctx.lineWidth = 5;
-			ctx.moveTo(canvas.width / 2, 0);
-			ctx.lineTo(canvas.width / 2, canvas.height); // Vous pouvez ajuster la longueur de la ligne ici
-			ctx.strokeStyle = "red";
-			ctx.stroke();
+			// ctx.beginPath();
+			// ctx.lineWidth = 5;
+			// ctx.moveTo(canvas.width / 2, 0);
+			// ctx.lineTo(canvas.width / 2, canvas.height); // Vous pouvez ajuster la longueur de la ligne ici
+			// ctx.strokeStyle = "red";
+			// ctx.stroke();
 		});
 
 		function drawRect(x: Number, y: Number, width: Number, size: Number, color: string) {
@@ -164,6 +176,7 @@ export default {
 	},
 	beforeUnmount(){
 		this.socket.disconnect();
+		this.dataLoaded = false;
 	}
 }
 </script>
@@ -183,26 +196,25 @@ export default {
 	width: 90%;
 	display: flex;
 	flex-direction: row;
-	justify-content: space-around;
-
-
+	justify-content: center;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 20px;
 }
 
-.left_column {
+.left_column, .right_column {
 	height: 100%;
-	width: 10%;
+	width: 15%;
 	display: flex;
+	flex-direction: column;
 	align-items: center;
+	gap: 40px;
 	justify-content: center;
-
 }
 
 .middle_column {
 	height: 100%;
-	width: 65%;
+	width: 70%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -237,15 +249,6 @@ export default {
 	width: 100%;
 	align-items: center;
 	justify-content: space-between;
-}
-
-.right_column {
-	height: 100%;
-	width: 10%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
 }
 
 </style>

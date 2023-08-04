@@ -1,32 +1,31 @@
 import {
 	SubscribeMessage,
 	WebSocketGateway,
-	OnGatewayInit,
 	WebSocketServer,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
   } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { PongGame } from './pong.service';
-import { Coords, Room } from './interface/room.interface';
-import { Player } from './interface/player.interface';
 import { AuthService } from 'src/auth/auth.service';
-import { Mode } from 'src/pong/interface/room.interface';
+import { RoomService } from './room.service';
+import { GameService } from './game.service';
+import { Player } from './interface/player.interface';
+import { Room } from './interface/room.interface';
 
 @WebSocketGateway({namespace: '/pong'})
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() server: Server;
 	private playerMap: Map<string, Player> = new Map<string, Player>;
 
-	// private logger: Logger = new Logger('PongGateway');
+	// // private logger: Logger = new Logger('PongGateway');
   
-	constructor(private pongGame: PongGame, private authService: AuthService) {}
+	constructor(private gameService: GameService, private authService: AuthService, private roomService: RoomService) {}
   
 	async handleConnection(client: Socket) {}
 
 	async handleDisconnect(client: Socket) {
 		// this.logger.log(`Client disconnected: ${client.id}`);
-		await this.pongGame.leaveRoomSocket(client.id, client);
+		await this.roomService.leaveRoomSocket(client.id, client);
 		clearInterval(client.data.gameInterval);
 		client.disconnect();
 	}
@@ -48,8 +47,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 		else
 			player.socket = client;
-		const room: Room = await this.pongGame.searchRoom(client, player, parseInt(data[1]));
-		this.pongGame.keyHandling(client, room)
+		const room: Room = await this.roomService.searchRoom(client, player, parseInt(data[1]));
+		this.gameService.keyHandling(client, room)
 	}
 }
 
