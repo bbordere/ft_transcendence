@@ -17,18 +17,14 @@
 				</div>
 				<div class="button_panel">
 					<div class="reaction_panel">
-						<Emote emoji="🤣" :socket="socket"></Emote>
-						<Emote emoji="😬" :socket="socket"></Emote>
-						<Emote emoji="😭" :socket="socket"></Emote>
-						<Emote emoji="🤝" :socket="socket"></Emote>
-						<!-- <button id="reaction_1">rire</button>
-						<button id="reaction_2">stresse</button>
-						<button id="reaction_3">pleure</button>
-						<button id="reaction_4">poignet de main</button> -->
+						<EmoteButton emoji="🤣" :socket="socket"></EmoteButton>
+						<EmoteButton emoji="😬" :socket="socket"></EmoteButton>
+						<EmoteButton emoji="😭" :socket="socket"></EmoteButton>
+						<EmoteButton emoji="🤝" :socket="socket"></EmoteButton>
 					</div>
 
 					<div class="forgive_button">
-						<router-link to="/">abbandoner</router-link>
+						<router-link to="/">Quitter la partie</router-link>
 					</div>
 				</div>
 			</div>
@@ -47,11 +43,12 @@ import io from 'socket.io-client';
 import Head from '../components/head.vue'
 import { useRoute } from 'vue-router';
 import PongPlayerCard from '@/components/PongPlayerCard.vue';
-import Emote from '@/components/Emote.vue'
+import EmoteButton from '@/components/EmoteButton.vue'
 
 interface emote{
 	emoji: string,
-	protected: Boolean,
+	changed: Boolean,
+	timeout: ReturnType<typeof setTimeout>,
 }
 
 export default {
@@ -63,13 +60,14 @@ export default {
 				timer: "00:00",
 				score1: 0,
 				score2: 0,
-				emote1: {} as emote,
-				emote2: {} as emote,
+				emote1: {emoji: ''} as emote,
+				emote2: {emoji: ''} as emote,
+				sprites: [new Image(), new Image(), new Image()] as Array<HTMLImageElement>,
 			};
 	},
 	components: {
 		PongPlayerCard,
-		Emote,
+		EmoteButton,
 		// Head,
 	},
 	methods: {
@@ -84,20 +82,94 @@ export default {
 
 		emoteHandling(side: number, emoji: string){
 			let emote = side === 1 ? this.emote1 : this.emote2 ;
-			if (emote.protected)
-				return;
-			emote.protected = true;
-			emote.emoji = emoji;
-			setTimeout(() => {
+			if (emote.emoji !== ''){
+				if (!emote.changed){
+					emote.emoji = '';
+					emote.changed = true;
+					setTimeout(() => {
+						emote.emoji = emoji;
+						emote.changed = false;
+					}, 500)
+				}
+			}
+			else
+				emote.emoji = emoji;
+			if (emote.timeout)
+				clearTimeout(emote.timeout);			
+			emote.timeout = setTimeout(() => {
 				emote.emoji = "";
-				emote.protected = false;
-			}, 4000);
-		}
+			}, 2000);
+		},
+
+		async loadImage(path: string): Promise<HTMLImageElement> {
+  			return new Promise(r => { let i = new Image(); i.onload = (() => r(i)); i.src = path; });
+		},
+
+		async spritesInit(){
+			this.sprites[0] = await this.loadImage("/powerups/big_pad.png");
+			this.sprites[1] = await this.loadImage("/powerups/lil_pad.png");
+			this.sprites[2] = await this.loadImage("/powerups/speed.png");
+		},
+
+		initKeyHandler(){
+			var keyArrowUp: Boolean = false
+			var keyArrowDown: Boolean = false
+			document.addEventListener('keydown', (event) => {
+				if (event.key === "ArrowUp" && !keyArrowUp) {
+					keyArrowUp = true;
+					this.socket.emit("arrowUpdate", "arrowUp");
+				}
+				if (event.key === "ArrowDown" && !keyArrowDown) {
+					keyArrowDown = true;
+					this.socket.emit("arrowUpdate", "arrowDown");
+				}
+			});
+			document.addEventListener('keyup', (event) => {
+				if (event.key === "ArrowUp" && keyArrowUp) {
+					keyArrowUp = false;
+					this.socket.emit("arrowUpdate", "stopArrowUp");
+				}
+				if (event.key === "ArrowDown" && keyArrowDown) {
+					keyArrowDown = false;
+					this.socket.emit("arrowUpdate", "stopArrowDown");
+				}
+			});
+		},
+
+		drawRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, size: number, color: string) {
+			ctx.beginPath();
+			ctx.rect(x, y, width, size);
+			ctx.fillStyle = color;
+			ctx.fill();
+			ctx.closePath();
+		},
+
+		drawText(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, text: string){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.font = "200px serif";
+			ctx.fillText(text, 50, canvas.height / 2);
+			ctx.fillStyle = 'white'
+		},
+
+		drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
+			ctx.beginPath();
+			ctx.arc(x, y, radius, 0, Math.PI*2);
+			ctx.fillStyle = color;
+			ctx.fill();
+			ctx.closePath();
+		},
+
+		drawPowerups(ctx: CanvasRenderingContext2D, powerups: any){
+			if (!powerups)
+				return;
+			for (var item of powerups){
+				ctx.drawImage(this.sprites[item.effect], item.pos.x, item.pos.y, item.radius, item.radius);
+			}
+		},
 	},
 	mounted() {
-		
-		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");		
 
+		const ballRadius = 20;
 		const route = useRoute();
 		const mode: string | undefined = route.query["mode"]?.toString();
 		if (!mode){
@@ -105,7 +177,18 @@ export default {
 			return;
 		}
 
+		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");	
 		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), this.getIdMode(mode));
+	
+		this.spritesInit();
+		this.initKeyHandler();
+
+		const canvas = <HTMLCanvasElement> document.getElementById('pongCanvas');
+		if (!canvas)
+			return; // ERROR HANDLING
+		const ctx = canvas.getContext('2d');
+		if (!ctx)
+			return; // ERROR HANDLING
 
 		this.socket.on('disconnect', () => {
 			this.socket.disconnect();
@@ -116,31 +199,6 @@ export default {
 			this.player1Id = player1;
 			this.player2Id = player2;
 			this.dataLoaded = true;
-			console.log(this.player2Id.length);
-		});
-
-
-		var keyArrowUp: Boolean = false
-		var keyArrowDown: Boolean = false
-		document.addEventListener('keydown', (event) => {
- 			if (event.key === "ArrowUp" && !keyArrowUp) {
-				keyArrowUp = true;
-				this.socket.emit("arrowUpdate", "arrowUp");
-			}
-			if (event.key === "ArrowDown" && !keyArrowDown) {
-				keyArrowDown = true;
-				this.socket.emit("arrowUpdate", "arrowDown");
-			}
-		});
-		document.addEventListener('keyup', (event) => {
- 			if (event.key === "ArrowUp" && keyArrowUp) {
-				keyArrowUp = false;
-				this.socket.emit("arrowUpdate", "stopArrowUp");
-			}
-			if (event.key === "ArrowDown" && keyArrowDown) {
-				keyArrowDown = false;
-				this.socket.emit("arrowUpdate", "stopArrowDown");
-			}
 		});
 
 		this.socket.on('updateScore', (score1, score2) => {
@@ -148,42 +206,16 @@ export default {
 			this.score2 = score2;
 		});
 
-		const canvas = document.getElementById('pongCanvas');
-		const ctx = canvas.getContext('2d');
-
 		this.socket.on('updateGame', (ball, racket1, racket2, powerups) => {
-
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-			drawRect(racket1.pos.x, racket1.pos.y, racket1.width, racket1.size, "#FFFFFF");
-			drawRect(racket2.pos.x, racket2.pos.y, racket2.width, racket2.size, "#FFFFFF");
-
-			if (powerups){
-				for (var item of powerups){
-					drawRect(item.pos.x, item.pos.y, item.radius, item.radius, item.color);
-				}
-			}
-
-			drawCircle(ball.position.x, ball.position.y, ballRadius, ball.speed === 30 ? "#F44E1A" : "#2A52EB");
-
-			// ctx.beginPath();
-			// ctx.lineWidth = 5;
-			// ctx.moveTo(canvas.width / 2, 0);
-			// ctx.lineTo(canvas.width / 2, canvas.height); // Vous pouvez ajuster la longueur de la ligne ici
-			// ctx.strokeStyle = "red";
-			// ctx.stroke();
+			this.drawRect(ctx, racket1.pos.x, racket1.pos.y, racket1.width, racket1.size, "#FFFFFF");
+			this.drawRect(ctx, racket2.pos.x, racket2.pos.y, racket2.width, racket2.size, "#FFFFFF");
+			this.drawPowerups(ctx, powerups);
+			this.drawCircle(ctx, ball.position.x, ball.position.y, ballRadius, ball.speed === 30 ? "#F44E1A" : "#2A52EB");
 		});
 
-		function drawRect(x: Number, y: Number, width: Number, size: Number, color: string) {
-			ctx.beginPath();
-			ctx.rect(x, y, width, size);
-			ctx.fillStyle = color;
-			ctx.fill();
-			ctx.closePath();
-		}
-
 		this.socket.on('text', (data) => {
-			drawText(data);
+			this.drawText(ctx, canvas, data);
 		});
 
 		this.socket.on('time', (time) => {
@@ -195,26 +227,7 @@ export default {
 				this.emoteHandling(1, emoji);
 			else
 				this.emoteHandling(2, emoji);
-			console.log(this.emote1, this.emote2);
-		});
-
-		const ballRadius = 20;
-
-		function drawText(text: string){
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.font = "200px serif";
-			ctx.fillText(text, 50, canvas.height / 2);
-			ctx.fillStyle = 'white'
-		}
-		
-		function drawCircle(x: Number, y: Number, radius: number, color: string) {
-			ctx.beginPath();
-			ctx.arc(x, y, radius, 0, Math.PI*2);
-			ctx.fillStyle = color;
-			ctx.fill();
-			ctx.closePath();
-		}
-		
+		});		
 	},
 	beforeUnmount(){
 		this.socket.disconnect();

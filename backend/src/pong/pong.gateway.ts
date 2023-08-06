@@ -10,8 +10,9 @@ import { AuthService } from 'src/auth/auth.service';
 import { RoomService } from './room.service';
 import { GameService } from './game.service';
 import { Player } from './interface/player.interface';
-import { Room } from './interface/room.interface';
+import { Room, State } from './interface/room.interface';
 import e from 'express';
+import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway({namespace: '/pong'})
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -19,8 +20,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	private playerMap: Map<string, Player> = new Map<string, Player>;
 
 	// // private logger: Logger = new Logger('PongGateway');
-  
-	constructor(private gameService: GameService, private authService: AuthService, private roomService: RoomService) {}
+	constructor(private readonly gameService: GameService, 
+				private readonly authService: AuthService,
+				private readonly roomService: RoomService,
+				private readonly userService: UserService) {}
   
 	async handleConnection(client: Socket) {}
 
@@ -54,8 +57,15 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('emote')
 	async handleEmote(client: Socket, emoji: string){
-		const room: Room = this.roomService.getRoomFromSocket(client);
-		if (room.players[0].socket === client)
+		// const room: Room = this.roomService.getRoomFromSocket(client);
+		const room: Room = client.data.room;
+		if (!room)
+			return;
+		// if (room.players.length !== 2)
+		// 	return;
+		client.data.user.stats.totalEmotes += 1;
+		this.userService.saveUser(client.data.user);
+		if (room.players[0] && room.players[0].socket === client)
 			this.roomService.emitToPlayers(room, "emote", 0, emoji)
 		else
 			this.roomService.emitToPlayers(room, "emote", 1, emoji)

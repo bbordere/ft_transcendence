@@ -20,7 +20,7 @@ export class PongGame {
 		while (room.ball.direction.x < 0.5 && room.ball.direction.x > -0.5)
 			room.ball.direction.x = (Math.random() * 2 - 1);
 		room.ball.direction.y = (Math.random() - 0.5);
-		room.ball.speed = 5;
+		room.ball.speed = PongConstants.MIN_BALL_SPEED;
 		room.ball.lastHit = -1;
 	}
 
@@ -118,7 +118,8 @@ export class PongGame {
 
 		if (indexPlayer != -1){
 			room.players[indexPlayer].score++;
-			if (room.mode === Mode.RANKED && room.players[0].score == PongConstants.WIN_SCORE_VALUE) {
+			if (room.mode === Mode.RANKED && room.players[indexPlayer].score == PongConstants.WIN_SCORE_VALUE) {
+				this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
 				room.state = State.ENDGAME;
 				return;
 			}
@@ -131,7 +132,6 @@ export class PongGame {
 		if (room.ball.position.y + next.y >= room.canvas.height
 			|| room.ball.position.y + next.y <= room.ball.radius * 2) {
 				room.ball.direction.y *= -1;
-			console.log(room.ball.direction.y);
 		}
 			
 		if (this.hasRacketIntersect(room.ball, room.players[0].racket))
@@ -254,7 +254,7 @@ export class PongGame {
 			activatedBy: -1,
 			pos: {x: this.randInt(400, room.canvas.width - 400),
 				y: this.randInt(200, room.canvas.height - 200)},
-			radius: 60,
+			radius: 64,
 			color: choice.color,
 		}
 		return (res);
@@ -266,7 +266,7 @@ export class PongGame {
 		const it = setInterval(() => {
 			if (room.state === State.FINAL)
 				clearInterval(it);
-			if (room.time){
+			if (room.time % 15 === 7){
 				room.powerups.push(this.generatePowerup(room));
 			}
 		}, 1000)

@@ -89,11 +89,11 @@ export class RoomService {
 	async joinRoom(client: Socket, room: Room, player: Player): Promise<Room> {
 		if (room.players.length < 2) {
 			room.players.push(player);
+			client.data.room = room;
 			if (room.players.length === 2) {
 				if (room.state === State.QUEUE)
 					room.state = State.INIT;
 				player.roomId = room.id;
-				client.data.room = room;
 			}
 			if (room.players.length === 1)
 				client.emit("ids", player.user.id, "");
@@ -210,6 +210,7 @@ export class RoomService {
 			clearInterval(room.players[1].socket.data.gameInterval);
 		}
 		room.isFinished = true;
+		this.checkedRooms.delete(room);
 	}
 
 	getRoomFromSocket(client: Socket): Room {

@@ -1,8 +1,10 @@
 <template>
 	<div class="pongPlayerCard">
-		<div class="emote">
+		<Transition name="bounce">
+			<div v-if="emote != undefined && emote != '' " class="emote" :class="[side == 0  ? 'emote-left' : 'emote-right']" >
 				{{ emote }}
-		</div>
+			</div>
+		</Transition>
 		<img :src="user.avatarLink" class="image" id="PongCardAvatar"/>
 		<div class="pongPlayerCardText">
 			{{ user.name }}
@@ -47,11 +49,36 @@ export default {
 
 .emote {
 	position: absolute;
-	margin-left: 50px;
-	margin-top: 10px;
 	z-index: 1;
 	font-size: 3vw;
 	text-align: center;
+	margin-top: 10px;
+}
+
+.emote-left {
+	margin-left: 6%;
+}
+
+.emote-right {
+	margin-right:  6%;
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 </style>
