@@ -183,7 +183,7 @@ export class RoomService {
 	endGame(room: Room){
 		if (room.players.length != 2)
 			return;
-		const modes: string[] = ["classic", "arcade", "ranked"];
+		const modes: string[] = ["Classique", "Arcade", "Classée"];
 		const matchDto: MatchDto = {player1Id: room.players[0].user["id"], player2Id: room.players[1].user["id"],
 									scorePlayer1: room.players[0].score, scorePlayer2: room.players[1].score,
 									mode: modes[room.mode], leaverId: -1}

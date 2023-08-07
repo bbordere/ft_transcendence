@@ -6,11 +6,13 @@ import { RoomService } from 'src/pong/room.service'
 import { Effect, Powerup } from './interface/powerup.interface';
 
 import { PongConstants } from './interface/constants.interface';
+import { UserService } from 'src/user/user.service';
+import { Player } from './interface/player.interface';
 
 @Injectable()
 export class PongGame {
 	
-	constructor(private roomService: RoomService,) {}
+	constructor(private roomService: RoomService, private readonly userService: UserService) {}
 
 	async resetBall(room: Room) {
 		room.ball.radius = 20;
@@ -156,6 +158,9 @@ export class PongGame {
 		powerup.activatedBy = Number(room.ball.direction.x < 0);
 		console.log("ACTIVATE " + powerup.name + " BY " + powerup.activatedBy);
 		let racket: Racket = room.players[powerup.activatedBy].racket;
+		console.log(room.players[powerup.activatedBy].user.stats);
+		room.players[powerup.activatedBy].user.stats.totalPowerups += 1;
+		this.userService.saveUser(room.players[powerup.activatedBy].user);
 		switch (powerup.effect) {
 			case Effect.BIG_PADDLE: {
 				racket.pos.y -= PongConstants.BIG_PAD_VALUE;
@@ -170,7 +175,6 @@ export class PongGame {
 				racket.pos.y += PongConstants.LIL_PAD_VALUE;
 				racket.size -= PongConstants.LIL_PAD_VALUE * 2;
 				racket.effectTimeout = setTimeout(() => {
-					console.log("RESTORE");
 					racket.size = PongConstants.RACKET_HEIGHT;
 				}, PongConstants.LIL_PADDLE_DURATION)
 			}
@@ -200,7 +204,9 @@ export class PongGame {
 		this.updateBall(room, client.data.keyUp, client.data.keyDown);
 		this.updateRacket(client, room, client.data.keyUp, client.data.keyDown);
 		this.powerupsHandling(room);
-		client.emit("updateGame", room.ball, room.players[0].racket, room.players[1].racket, room.powerups);
+		const {["effectTimeout"]: timeOut1, ...racket1} = room.players[0].racket;
+		const {["effectTimeout"]: timeOut2, ...racket2} = room.players[1].racket;
+		client.emit("updateGame", room.ball, racket1, racket2, room.powerups);
 	}
 
 	async initGame(room: Room, keyUp:boolean, keyDown: boolean) {
@@ -277,7 +283,7 @@ export class PongGame {
 		const it = setInterval(() => {
 			if (room.state === State.FINAL)
 				clearInterval(it);
-			if (room.time % 8 === 2){
+			if (room.time){
 				room.powerups.push(this.generatePowerup(room));
 			}
 		}, 1000)
