@@ -4,6 +4,7 @@ import ProfileCard from '@/components/ProfilCard.vue';
 import StatsPanel from '@/components/StatsPanel.vue'
 import MatchHistory from '@/components/MatchHistory.vue'
 import { useRoute } from 'vue-router';
+import Head from '@/components/head.vue';
 import router from '../router';
 
 
@@ -11,7 +12,8 @@ export default{
 	components: {
 		ProfileCard,
 		StatsPanel,
-		MatchHistory
+		MatchHistory,
+		Head
 	},
 	data(){
 		return {username: "", dataLoaded: false};
@@ -52,6 +54,7 @@ export default{
 </script>
 
 <template>
+	<Head></Head>
 	<div class="container">
 		<div class="profileCard" v-if="dataLoaded">
 			<ProfileCard :editable="getEditableStatus()" :username="username"/>
@@ -77,8 +80,9 @@ export default{
 	}
 
 	.profileCard{
-		height: 15%;
+		height: 10%;
 		width: 80%;
+		height: 30vh;
 	}
 	
 	.subCard{
@@ -86,8 +90,7 @@ export default{
 		flex-direction: row;
 		margin-top: 3%;
 		width: 80%;
-		height: 75%;
-		height: 60vh;
+		height: 50vh;
 		justify-content: space-between;
 	}
 

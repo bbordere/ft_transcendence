@@ -4,13 +4,15 @@
 		<div class="pong_content">
 			<div class="left_column">
 				<PongPlayerCard v-if="dataLoaded" :id="player1Id" side="0" :emote="emote1.emoji"></PongPlayerCard>
-				<div class="left_point">
-					<span id="score1">{{score1}}</span>
-				</div>
 			</div>
 			<div class="middle_column">
 				<div class="timer">
 					<label>{{timer}}</label>
+				</div>
+				<div class="scores">
+					<span id="score1">{{score1}}</span>
+					-
+					<span id="score1">{{score2}}</span>
 				</div>
 				<div class="pong_screen">
 					<canvas id="pongCanvas" width="2000" height="1200"></canvas>
@@ -30,9 +32,6 @@
 			</div>
 			<div class="right_column">
 				<PongPlayerCard v-if="dataLoaded && player2Id.length !== 0" :id="player2Id" side="1" :emote="emote2.emoji"></PongPlayerCard>
-				<div class="right_point">
-					<span id="score2">{{score2}}</span>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -68,7 +67,7 @@ export default {
 	components: {
 		PongPlayerCard,
 		EmoteButton,
-		// Head,
+		Head,
 	},
 	methods: {
 		getIdMode(mode: string){
@@ -240,18 +239,19 @@ export default {
 
 .pong_body {
 	width: 100vw;
-	height: 100vh;
+	height: 88vh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
 .pong_content {
-	height: 80%;
+	height: 90%;
 	width: 90%;
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
+	align-items: center;
 	background: #D9D9D9;
 	border: 3px solid #BC0002;
 	border-radius: 20px;
@@ -273,7 +273,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: space-around;
+	justify-content: center;
 }
 
 .timer {
@@ -282,6 +282,8 @@ export default {
 	width: 100%;
 	align-items: center;
 	justify-content: center;
+	font-size: 2em;
+	font-family: 'digital-clock-font', regular;
 }
 
 .pong_screen {
@@ -312,6 +314,23 @@ export default {
 	justify-content: center;
 	gap: 20px;
 	align-items: center;
+}
+
+@font-face{
+ font-family:'digital-clock-font';
+ src: url('./fonts/digital-7.regular.ttf');
+}
+
+.scores{
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	justify-content: center;
+	gap: 20%;
+	font-size: 3em;
+	margin-top: -35px;
+	margin-bottom: 5px;
+	font-family: 'digital-clock-font', regular;
 }
 
 </style>

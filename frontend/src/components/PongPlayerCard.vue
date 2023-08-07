@@ -31,7 +31,7 @@ export default {
 <style>
 
 #PongCardAvatar{
-	width: 50%;
+	width: 40%;
 }
 
 .pongPlayerCard {
@@ -44,7 +44,7 @@ export default {
 
 .pongPlayerCardText {
 	margin-top: 15px;
-	font-size: 1.5vw;
+	font-size: 1.3vw;
 }
 
 .emote {
