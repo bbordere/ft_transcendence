@@ -14,8 +14,8 @@ export class PongGame {
 
 	async resetBall(room: Room) {
 		room.ball.radius = 20;
-		room.ball.position.x = 1000;
-		room.ball.position.y = 600;
+		room.ball.position.x = room.canvas.width / 2;
+		room.ball.position.y = room.canvas.height / 2;
 		room.ball.direction.x = (Math.random() * 2 - 1);
 		while (room.ball.direction.x < 0.5 && room.ball.direction.x > -0.5)
 			room.ball.direction.x = (Math.random() * 2 - 1);
@@ -26,16 +26,24 @@ export class PongGame {
 
 	async resetRacket(room: Room, keyUp: boolean, keyDown: boolean) {
 		if (room.players[0]){
-			room.players[0].racket.pos.x = 100;
-			room.players[0].racket.pos.y = 500;
+			room.players[0].racket.pos.x = (PongConstants.RACKET_WIDTH);
+			room.players[0].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);
 			room.players[0].racket.size = PongConstants.RACKET_HEIGHT;
 			room.players[0].racket.width = PongConstants.RACKET_WIDTH;
+			if (room.players[0].racket.effectTimeout){
+				clearTimeout(room.players[0].racket.effectTimeout);
+				room.players[0].racket.effectTimeout = null;
+			}
 		}
 		if (room.players[1]){
-			room.players[1].racket.pos.x = 1850;
-			room.players[1].racket.pos.y = 500;
+			room.players[1].racket.pos.x = (PongConstants.CANVAS_WIDTH - (PongConstants.RACKET_WIDTH * 2));
+			room.players[1].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);
 			room.players[1].racket.size = PongConstants.RACKET_HEIGHT;
 			room.players[1].racket.width = PongConstants.RACKET_WIDTH;
+			if (room.players[1].racket.effectTimeout){
+				clearTimeout(room.players[1].racket.effectTimeout);
+				room.players[1].racket.effectTimeout = null;
+			}
 		}
 		keyUp = false;
 		keyDown = false;
@@ -65,7 +73,7 @@ export class PongGame {
 			return;
 		room.ball.lastHit = playerHit;
 		const offset = (room.ball.position.y + room.ball.radius - racket.pos.y) / (racket.size + room.ball.radius)
-		const angle = 0.25 * Math.PI * (2 * offset - 1);
+		const angle = (1 / 4) * Math.PI * (2 * offset - 1);
 		room.ball.direction.x *= -1;
 		room.ball.direction.y = Math.sin(angle);
 		if (room.ball.speed != PongConstants.SPEED_BALL_POWERUP)
@@ -147,20 +155,23 @@ export class PongGame {
 	activatePowerup(powerup: Powerup, room: Room){
 		powerup.activatedBy = Number(room.ball.direction.x < 0);
 		console.log("ACTIVATE " + powerup.name + " BY " + powerup.activatedBy);
+		let racket: Racket = room.players[powerup.activatedBy].racket;
 		switch (powerup.effect) {
 			case Effect.BIG_PADDLE: {
-				room.players[powerup.activatedBy].racket.pos.y -= PongConstants.BIG_PAD_VALUE;
-				room.players[powerup.activatedBy].racket.size += PongConstants.BIG_PAD_VALUE * 2;
-				setTimeout(() => {
-					room.players[powerup.activatedBy].racket.size = PongConstants.RACKET_HEIGHT;
+				racket.pos.y -= PongConstants.BIG_PAD_VALUE;
+				racket.size += PongConstants.BIG_PAD_VALUE * 2;
+				racket.effectTimeout = setTimeout(() => {
+					racket.size = PongConstants.RACKET_HEIGHT;
 				}, PongConstants.BIG_PADDLE_DURATION)
 			}
 			break;
 			case Effect.LIL_PADDLE: {
-				room.players[Number(!Boolean(powerup.activatedBy))].racket.pos.y += PongConstants.LIL_PAD_VALUE;
-				room.players[Number(!Boolean(powerup.activatedBy))].racket.size -= PongConstants.LIL_PAD_VALUE * 2;
-				setTimeout(() => {
-					room.players[powerup.activatedBy].racket.size = PongConstants.RACKET_HEIGHT;
+				racket = room.players[Number(!Boolean(powerup.activatedBy))].racket;
+				racket.pos.y += PongConstants.LIL_PAD_VALUE;
+				racket.size -= PongConstants.LIL_PAD_VALUE * 2;
+				racket.effectTimeout = setTimeout(() => {
+					console.log("RESTORE");
+					racket.size = PongConstants.RACKET_HEIGHT;
 				}, PongConstants.LIL_PADDLE_DURATION)
 			}
 			break;
@@ -266,7 +277,7 @@ export class PongGame {
 		const it = setInterval(() => {
 			if (room.state === State.FINAL)
 				clearInterval(it);
-			if (room.time % 15 === 7){
+			if (room.time % 8 === 2){
 				room.powerups.push(this.generatePowerup(room));
 			}
 		}, 1000)

@@ -6,9 +6,11 @@ export class Racket {
 		this.size = 0;
 		this.width = 0;
 		this.speed = 15;
+		this.effectTimeout = null;
 	}
 	pos: Coords;
 	size: number;
 	width: number;
 	speed: number;
+	effectTimeout: NodeJS.Timeout;
 }
