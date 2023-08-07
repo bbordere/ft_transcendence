@@ -7,12 +7,8 @@ import type { RouteRecordName } from 'vue-router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus, faCirclePlus} from '@fortawesome/free-solid-svg-icons'
-import { createVuetify } from 'vuetify'
 import VueApexCharts from "vue3-apexcharts";
 import Notifications from '@kyvg/vue3-notification'
-
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
 
 async function isLogged() {
 	const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth", {method: "get", credentials: "include"});
@@ -21,22 +17,15 @@ async function isLogged() {
 
 library.add(faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus, faCirclePlus);
 const app = createApp(App)
+
 router.beforeEach(async (to, from, next) => {
 	const clearPages: RouteRecordName[] = ["/auth", "/auth/42/login", "/auth/login", "/auth/2fa/verif"]
 	if (clearPages.includes(to.path))
 		next();
-	else{
+	else {
 		await isLogged() ? next() : next('/auth');
 	}
 })
-
-const vuetify = createVuetify({
-	icons: {
-		defaultSet: 'mdi',
-	  },	
-	components,
-	directives
-  })
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.component("apexchart", VueApexCharts);
