@@ -41,4 +41,4 @@ const vuetify = createVuetify({
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.component("apexchart", VueApexCharts);
 app.config.globalProperties.$redirect = (page) => {router.push(page)}
-app.use(vuetify).use(Notifications).use(router).mount('#app')
+app.use(Notifications).use(router).mount('#app')

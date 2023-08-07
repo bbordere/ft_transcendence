@@ -280,6 +280,7 @@ export default defineComponent({
 
 .left_column {
 	display: flex;
+	height: 100%;
 	flex-direction: column;
 	gap: 4%;
 	flex-grow: 0.2;

@@ -72,8 +72,8 @@
 }
 
 .match{
-	margin-top: 5%;
-	margin-bottom: 5%;
+	margin-top: 2%;
+	margin-bottom: 2%;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

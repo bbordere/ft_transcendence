@@ -78,20 +78,19 @@ export default{
 		justify-content: center;
 		align-items: center;
 	}
-
+	
 	.profileCard{
-		height: 10%;
+		margin-top: 1%;
 		width: 80%;
-		height: 30vh;
 	}
 	
 	.subCard{
 		display: flex;
 		flex-direction: row;
-		margin-top: 3%;
+		margin-top: 1%;
 		width: 80%;
-		height: 50vh;
 		justify-content: space-between;
+		height: 50vh;
 	}
 
 	.matchHistory{
@@ -101,7 +100,8 @@ export default{
 	}
 	
 	.statsPanel{
-		width: 55%;
+		flex-grow: 1;
+		margin-left: 2%;
 		background-color: aliceblue;
 		border-radius: 50px;
 	}

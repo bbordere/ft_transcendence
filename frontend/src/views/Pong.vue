@@ -38,6 +38,7 @@
 </template>
 
 <script lang="ts">
+
 import io from 'socket.io-client';
 import Head from '../components/head.vue'
 import { useRoute } from 'vue-router';
@@ -236,6 +237,14 @@ export default {
 </script>
 
 <style>
+
+.image{
+		filter: drop-shadow(0 0 8px #1f81dd);
+		aspect-ratio: 1;
+		width: 100%;
+		border-radius: 50%;
+		border: 2px solid #b5dbdb;
+}
 
 .pong_body {
 	width: 100vw;

@@ -124,6 +124,7 @@ export default{
 		display: flex;
 		justify-content: space-between;
 		padding: 2%;
+		height: 100%;
 		align-items: center;
 		background-color: aliceblue;
 		flex-direction: row;

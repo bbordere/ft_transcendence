@@ -13,7 +13,11 @@
 	<notifications position="top center" group="notif-center" max="2"/>
 	<notifications position="top right" group="friend"/>
   	<main>
-  	  <router-view :key="$route.fullPath"/>
+		<router-view :key="$route.fullPath" v-slot="{ Component }">
+			<transition name="fade">
+				<component :is="Component"/>
+			</transition>
+		</router-view>
   	</main>	
 </body>
 
