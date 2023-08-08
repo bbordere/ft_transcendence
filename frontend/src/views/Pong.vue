@@ -1,5 +1,4 @@
 <template>
-	<Head />
 	<div class="pong_body">
 		<div class="pong_content">
 			<div class="left_column">
@@ -40,7 +39,6 @@
 <script lang="ts">
 
 import io from 'socket.io-client';
-import Head from '../components/head.vue'
 import { useRoute } from 'vue-router';
 import PongPlayerCard from '@/components/PongPlayerCard.vue';
 import EmoteButton from '@/components/EmoteButton.vue'
@@ -68,7 +66,6 @@ export default {
 	components: {
 		PongPlayerCard,
 		EmoteButton,
-		Head,
 	},
 	methods: {
 		getIdMode(mode: string){

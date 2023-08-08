@@ -66,4 +66,14 @@ export class AvatarController {
 			res.redirect(user["avatarLink"]);
 		}
 	}
+
+	@Get('/user/id/:id')
+	async getUserAvatarId(@Res({passthrough: true}) res: Response, @Req() req, @Param('id') id: number){
+		const user = await this.userService.getById(id);
+		if (!user)
+			res.statusCode = 404;
+		else {
+			res.redirect(user["avatarLink"]);
+		}
+	}
 }

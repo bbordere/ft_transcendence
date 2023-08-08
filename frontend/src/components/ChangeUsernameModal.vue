@@ -42,7 +42,6 @@ export default{
 		},
 
 		changeUsername(){
-			console.log(this.username);
 			if (!this.username)
 				return;
 			if (!this.username.match(/^[\p{L}\p{N}_]+$/u)) {

@@ -1,40 +1,29 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
-
-<body>
-	<!-- <nav>
-   	 <router-link to="/">Home</router-link> | <router-link to="/verif">Verif</router-link> | 
-		<router-link to="/auth">Auth</router-link> | <router-link to="/profile">profil</router-link> | 
-		<router-link to="/pong">pong</router-link>
-  	</nav> -->
-	<notifications position="top center" group="notif-center" max="2"/>
-	<notifications position="top right" group="friend"/>
-  	<main>
-		<router-view :key="$route.fullPath" v-slot="{ Component }">
-			<transition name="fade">
-				<component :is="Component"/>
+	<body>
+		<Head :updateTimestamp="timestampRef"></Head>
+		<notifications position="top center" group="notif-center" max="2"/>
+		<notifications position="top right" group="friend"/>
+		<router-view v-slot="{ Component }">
+			<transition name="grow-in" mode="out-in">
+				<Component :key="$route.fullPath" :is="Component" @update="test"/>
 			</transition>
 		</router-view>
-  	</main>	
-</body>
 
+	</body>
 </template>
 
 <style scoped lang="scss">
 
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
+.anim-enter-from,
+.anim-leave-to {
+	opacity: 0;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.anim-enter-active,
+.anim-leave-active {
+	transition: opacity 0.3s ease-out;
 }
 
 *{
@@ -73,71 +62,80 @@ body::-webkit-scrollbar{
   }
 }
 
-header{
-	z-index: 10000;
-	position: absolute;
-	width: 100vw;
-	height: 80px;
-	left: 0px;
-	top: 0px;
-
-	border-bottom: 2px solid black;
+.grow-in-enter-from,
+.grow-in-leave-to {
+	opacity: 0;
+	transform: scale(0.3);
 }
 
-header .logo{
-	box-sizing: border-box;
-
-	width: 150px;
-	height: 80px;
-	left: 50px;
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
-
-	border: 3px solid black;
-	border-radius: 290px;
-	box-shadow: -3px -3px 7px #ffffff73,
-               2px 2px 5px rgba(94,104,121,0.288);
+.grow-in-enter-active,
+.grow-in-leave-active {
+	transition: 0.2s ease-out;
 }
 
-footer {
-	z-index: 9999;
-	position: absolute;
-	width: 100vw;
-	height: 50px;
-	bottom: 0px;
+</style>
 
-	border-top: 2px solid black;
-}
+<script setup>
 
-footer .copyright {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
+import { onMounted, ref } from 'vue'
 
-	font-family: 'Inter';
-	font-style: normal;
-	font-weight: 400;
-	font-size: 20px;
-	line-height: 24px;
-	text-align: center;
+import Head from './components/Head.vue';
 
-	color: black;
+const timestampRef = ref('me')
+
+function test(){
+	timestampRef.value = Date.now();
 }
 
 
-.verif{
-	height: 100vh;
-	width: 100vw;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-around;
-	align-items: center;
+
+</script>
+
+<style>
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
 }
 
-nav {
-	position: relative;
-	z-index: 999999;
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.3s ease-out;
 }
 
+.slide-enter-from,
+.slide-leave-to {
+	opacity: 0;
+	transform: translateX(-100%);
+}
+
+.slide-enter-active,
+.slide-leave-active {
+	transition: 0.3s ease-out;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+	opacity: 0;
+	transform: translateY(300px);
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+	transition: 0.3s ease-out;
+}
+
+
+
+
+.grow-out-enter-from,
+.grow-out-leave-to {
+	opacity: 0;
+	transform: scale(1.5);
+}
+
+.grow-out-enter-active,
+.grow-out-leave-active {
+	transition: 0.3s ease-out;
+}
 </style>

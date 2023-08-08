@@ -2,18 +2,34 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
+
 	data() {
 		return {
-			name: '' as string,
-			avatar: '' as string,
+			name: '' as string, avatar: '' as string,
 		};
 	},
 
-	async mounted() {
-		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' });
-		const response_json = await response.json();
-		this.name = response_json['name'];
-		this.avatar = response_json['avatarLink'];
+	props: ["updateTimestamp"],
+
+	methods: {
+		getInfos(){
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' })
+			.then(res => res.json())
+			.then((data) => {
+				this.name = data["name"];
+				this.avatar = data["avatarLink"];
+			})
+		},
+	},
+
+	watch: {
+		updateTimestamp() {
+			this.getInfos();
+		}
+	},
+
+	mounted() {
+		this.getInfos();
 	},
 })
 </script>
@@ -22,7 +38,9 @@ export default defineComponent({
 <header class="header">
 	<router-link to="/" class="logo" ><img class="logo_42" src="../assets/img/logo.png" alt="logo 42"></router-link>
 	<div class="profile_container">
-		<router-link class="box_img_profile" to="/profile"><img class="img_profile" v-bind:src=avatar alt="default profile img"></router-link>
+		<router-link class="box_img_profile" to="/profile">
+			<img class="img_profile" v-bind:src=avatar alt="default profile img">
+		</router-link>
 		<router-link class="profile" to="/profile">{{ name }}</router-link>
 	</div>
 </header>

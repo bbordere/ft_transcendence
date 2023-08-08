@@ -50,6 +50,7 @@ export default {
 .emote {
 	position: absolute;
 	z-index: 1;
+	/* font-size: 200%; */
 	font-size: 3vw;
 	text-align: center;
 	margin-top: 10px;

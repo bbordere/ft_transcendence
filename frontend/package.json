@@ -23,7 +23,7 @@
     "vue-class-component": "^8.0.0-rc.1",
     "vue-property-decorator": "^10.0.0-rc.3",
     "vue-router": "^4.2.1",
-    "vue3-apexcharts": "^1.4.1",
+    "vue3-apexcharts": "^1.4.1"
   },
   "devDependencies": {
     "@tsconfig/node18": "^2.0.0",

@@ -7,7 +7,6 @@
 
 <script lang="ts">
 
-	import { tr } from 'vuetify/locale';
 import router from '../router'
 
 	function booleanize(str: string): boolean{

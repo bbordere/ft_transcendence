@@ -4,7 +4,6 @@ import ProfileCard from '@/components/ProfilCard.vue';
 import StatsPanel from '@/components/StatsPanel.vue'
 import MatchHistory from '@/components/MatchHistory.vue'
 import { useRoute } from 'vue-router';
-import Head from '@/components/head.vue';
 import router from '../router';
 
 
@@ -13,20 +12,22 @@ export default{
 		ProfileCard,
 		StatsPanel,
 		MatchHistory,
-		Head
 	},
 	data(){
-		return {username: "", dataLoaded: false};
+		return {username: "", dataLoaded: false, updateTimestamp: 0 as number};
 	},
 	methods:{
+
 		getEditableStatus(){
 			return (this.username === "me");
 		},
+
 		getUser(){
 			let names: String[];
 			let exist: boolean;
 			let username: string;
 			const route = useRoute();
+			this.updateTimestamp = Date.now();
 			if (!route.query["user"]){
 				this.username = "me";
 				this.dataLoaded = true;
@@ -45,23 +46,28 @@ export default{
 				this.dataLoaded = true;
 			})
 		},
+
+		updateUsername(newUsername: string){
+			this.updateTimestamp = Date.now();
+			this.$emit('update', newUsername);
+		}
 	},
-	beforeMount() {
+	created() {
 		this.getUser();
 	},
+
 }
 
 </script>
 
 <template>
-	<Head></Head>
 	<div class="container">
 		<div class="profileCard" v-if="dataLoaded">
-			<ProfileCard :editable="getEditableStatus()" :username="username"/>
+			<ProfileCard :editable="getEditableStatus()" :username="username" @update="updateUsername"/>
 		</div>
 		<div class="subCard">
 			<div class="matchHistory" v-if="dataLoaded">
-				<MatchHistory :username="username"/>
+				<MatchHistory :username="username" :updateTimestamp="updateTimestamp"/>
 			</div>
 			<div class="statsPanel" v-if="dataLoaded">
 				<StatsPanel :username="username"></StatsPanel>
@@ -80,7 +86,7 @@ export default{
 	}
 	
 	.profileCard{
-		margin-top: 1%;
+		padding-top: 2.5%;
 		width: 80%;
 	}
 	

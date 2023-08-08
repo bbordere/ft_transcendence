@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import Home from '@/views/Home.vue'
+// import Home from '@/views/Home.vue'
 // import verif from '@/views/Verif.vue'
 // import inscription from '@/views/Auth.vue'
 // import profile from '@/views/Profile.vue'
@@ -15,8 +15,7 @@ export default createRouter({
   routes: [
     {
 		path: '/',
-		// component: () => import('@/views/Home.vue'),
-		component: Home
+		component: () => import('@/views/Home.vue'),
     },
 	{
 		path: '/verif',

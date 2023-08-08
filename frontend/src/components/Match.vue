@@ -1,8 +1,7 @@
 <template>
 	<div class="match-card">
-		<div class="player-card">
-			
-			<img class="avatar-match" :src="getAvatarUrl(matchObject.player1.name)" @click="redirecToProfil"/>
+		<div class="player-card">		
+			<img class="avatar-match" :src="getAvatarUrl(matchObject.player1.id)" @click="redirecToProfil(matchObject.player1.name)"/>
 			{{ matchObject.player1.name }}
 		</div>
 		<div class="score-card">
@@ -20,7 +19,7 @@
 			</div>
 		</div>
 		<div class="player-card">
-			<img class="avatar-match" :src="getAvatarUrl(matchObject.player2.name)" @click="redirecToProfil"/>
+			<img class="avatar-match" :src="getAvatarUrl(matchObject.player2.id)" @click="redirecToProfil(matchObject.player2.name)"/>
 			{{ matchObject.player2.name }}
 		</div>
 	</div>
@@ -29,15 +28,13 @@
 <script lang="ts">
 	import router from '@/router';
 	export default{
-		props: ["matchObject"],
+		props: ["matchObject", "updateTimestamp"],
 		methods:{
-			redirecToProfil(e: Event){
-				const src = (e.target as HTMLImageElement).src;
-				const username = src.split('/').at(-1);
-				router.push({path:'/profile',query: { user: username }});
+			redirecToProfil(name: string){
+				router.push({path:'/profile', query: { user: name }});
 			},
-			getAvatarUrl(playerName: string){
-				return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/" + playerName);
+			getAvatarUrl(id: number){
+				return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/id/" + id.toString() + "?" + this.updateTimestamp);
 			},
 			getColorClass(playerId: number){
 				if (this.matchObject["scorePlayer" + playerId] === "ABD" || this.matchObject["leaverId"] === this.matchObject["player" + playerId]["id"]){

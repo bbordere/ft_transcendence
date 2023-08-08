@@ -1,5 +1,4 @@
 <template>
-	<Head />
 	<div class="home_body">
 		<div class="home_content">
 			<div class="left_column">
@@ -57,7 +56,6 @@ import io from 'socket.io-client';
 import ModalAdd from '../components/ModalAdd.vue'
 import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
-import Head from '../components/head.vue'
 import ButtonAdd from '../components/ButtonAdd.vue'
 import PlayModal from '@/components/PlayModal.vue';
 
@@ -82,7 +80,6 @@ export default defineComponent({
 		ButtonAdd,
 		ModalAddFriend,
 		ModalAdd,
-		Head,
 		PlayModal
 	},
 
@@ -259,7 +256,7 @@ export default defineComponent({
 .home_body {
 	display: flex;
 	width: 95vw;
-	height: 80vh;
+	height: 90%;
 	align-items: center;
 	justify-content: center;
 	padding-top: 2.5%;
