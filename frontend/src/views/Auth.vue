@@ -47,7 +47,7 @@ async function login(){
 			break;
 		}
 		case 201:{
-			router.push('/');
+			router.push('/home');
 			break;
 		}
 		case 207:{

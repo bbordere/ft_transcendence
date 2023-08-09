@@ -1,9 +1,9 @@
 <template>
 	<body>
-		<Head :updateTimestamp="timestampRef"></Head>
+		<Head v-if="!$route.fullPath.includes('auth') && $route.fullPath.length !== 1" :updateTimestamp="timestampRef"></Head>
 		<notifications position="top center" group="notif-center" max="2"/>
 		<notifications position="top right" group="friend"/>
-		<router-view v-slot="{ Component }">
+		<router-view v-slot="{ Component }" appear>
 			<transition name="grow-in" mode="out-in">
 				<Component :key="$route.fullPath" :is="Component" @update="test"/>
 			</transition>
@@ -11,6 +11,20 @@
 
 	</body>
 </template>
+
+<script setup lang="ts">
+
+import { ref } from 'vue'
+
+import Head from './components/Head.vue';
+
+const timestampRef = ref('me')
+
+function test(){
+	timestampRef.value = Date.now();
+}
+
+</script>
 
 <style scoped lang="scss">
 
@@ -74,22 +88,6 @@ body::-webkit-scrollbar{
 }
 
 </style>
-
-<script setup>
-
-import { onMounted, ref } from 'vue'
-
-import Head from './components/Head.vue';
-
-const timestampRef = ref('me')
-
-function test(){
-	timestampRef.value = Date.now();
-}
-
-
-
-</script>
 
 <style>
 

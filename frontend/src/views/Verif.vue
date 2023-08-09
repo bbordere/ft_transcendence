@@ -25,7 +25,7 @@
 	
 	
 	
-	<script setup lang="ts">
+<script setup lang="ts">
 
 	import router from '@/router';
 	import { ref } from 'vue';
@@ -45,7 +45,6 @@
 	
 	let codeArr: string[] = ["", "", "", "", "", ""];
 	let inputData: string[] | undefined;
-
 
 	function isNumeric(str: string){
 		const isNumeric = /^[0-9]+$/.test(str);
@@ -110,7 +109,7 @@
 			status.value = json["status"];
 			if (status.value === "Success"){
 				sessionStorage.setItem('tokens', json["token"]);	
-				delay(1000).then(any=>{router.push(route.query.plan === 'verify' ? '/' : '/profile');});
+				delay(1000).then(any=>{router.push(route.query.plan === 'verify' ? '/home' : '/profile');});
 			}
 		}
 	
@@ -131,89 +130,89 @@
 		}
 	}
 	
-	</script>
+</script>
 	
 	
 	
-	<style>
-		@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
-		form {
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+	form {
 		display: flex;
 		flex-direction: row;
 	}
-	
-		.verify {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			width: 300px;
-			height: 150px;
-			margin: auto;
-			margin-top: auto;
-			background: rgb(255, 255, 255);
-			border-radius: 50px;
-			box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-		}
-		.verify h4 {
-			font-size: 1.25rem;
-			color: #333;
-			font-weight: 500;
-		}
-	
-		.input-field input {
-			width: 10%;
-			margin: auto;
-			border-radius: 6px;
-			margin-left: 10px;
-			margin-right: 10px;
-			outline: none;
-			font-size: 1.125rem;
-			text-align: center;
-			border: 1px solid #ddd;
-		}
-		.input-field input:focus {
-			box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
-		}
-	
-		.input-field input::-webkit-outer-spin-button,
-		.input-field input::-webkit-inner-spin-button {
-			-webkit-appearance: none;
-			margin: 0;
-		}
 
-		input[type="number"] {
- 			-moz-appearance: textfield;
-		}
-	
-		.text-red{
-			color: rgb(172, 42, 42);
-		}
-	
-		.text-green{
-			color: rgb(12, 167, 12);
-		}
+	.verify {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 300px;
+		height: 150px;
+		margin: auto;
+		margin-top: auto;
+		background: rgb(255, 255, 255);
+		border-radius: 50px;
+		box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	}
+	.verify h4 {
+		font-size: 1.25rem;
+		color: #333;
+		font-weight: 500;
+	}
 
-		@keyframes shake {
-			0% {
-				margin-left: 0rem;
-				margin-right: 0rem;
-			}
-			25% {
-				margin-left: 0.75rem;
-				margin-right: 0.75rem;
-			}
-			75% {
-				margin-left: -0.5rem;
-				margin-right: -0.5rem;
-			}
-			100% {
-				margin-left: 0rem;
-				margin-right: 0rem;
-			}
-		}
+	.input-field input {
+		width: 10%;
+		margin: auto;
+		border-radius: 6px;
+		margin-left: 10px;
+		margin-right: 10px;
+		outline: none;
+		font-size: 1.125rem;
+		text-align: center;
+		border: 1px solid #ddd;
+	}
+	.input-field input:focus {
+		box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+	}
 
-		.shakeAnimation{
-			animation: shake 0.2s ease-in-out 0s 2;
+	.input-field input::-webkit-outer-spin-button,
+	.input-field input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	input[type="number"] {
+		-moz-appearance: textfield;
+	}
+
+	.text-red{
+		color: rgb(172, 42, 42);
+	}
+
+	.text-green{
+		color: rgb(12, 167, 12);
+	}
+
+	@keyframes shake {
+		0% {
+			margin-left: 0rem;
+			margin-right: 0rem;
 		}
-	
-	</style>
+		25% {
+			margin-left: 0.75rem;
+			margin-right: 0.75rem;
+		}
+		75% {
+			margin-left: -0.5rem;
+			margin-right: -0.5rem;
+		}
+		100% {
+			margin-left: 0rem;
+			margin-right: 0rem;
+		}
+	}
+
+	.shakeAnimation{
+		animation: shake 0.2s ease-in-out 0s 2;
+	}
+
+</style>
