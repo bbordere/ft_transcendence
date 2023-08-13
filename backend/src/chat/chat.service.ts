@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { Channel } from "./entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -29,7 +29,7 @@ export class ChatService {
 		return (this.channelRepository.findOneBy({ name }));
 	}
 
-	async create(name: string, password: string, protect: boolean): Promise<Channel | null> {
+	async create(name: string, password: string, protect: boolean, creator: User): Promise<Channel | null> {
 		if (name.match('/^\s*$/'))
 			throw new Error('wrong name format.');
 		if (await this.getByName(name) !== null)
@@ -38,7 +38,9 @@ export class ChatService {
 		channel.name = name;
 		channel.password = (protect ? await bcrypt.hash(password, 8) : '');
 		channel.protected = protect;
-		return (this.channelRepository.save(channel));
+		channel.admin = creator
+		const createdChannel = await this.channelRepository.save(channel);
+		return (createdChannel);
 	}
 
 	async delete(name: string) {
@@ -52,13 +54,18 @@ export class ChatService {
 		const {channelId, text, sender} = msg;
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['messages']});
 		if (!channel)
-			throw new Error(`Channel ${channelId} not found.`);
+			return (null);
+		const senderUser = await this.userRepository.createQueryBuilder('user')
+			.leftJoinAndSelect('user.channels', 'channels')
+			.where('user.id = ' + sender)
+			.andWhere('channels.id = ' + channelId)
+			.getOne();
+		if (!senderUser)
+			return (null);
 		const message = new Message();
-		const senderUser = await this.userRepository.findOne({where: {id: sender}});
 		message.text = text;
 		message.channel = channel;
 		message.sender = senderUser;
-
 		const savedMessage = await this.messageRepository.save(message);
 		channel.messages.push(savedMessage);
 		await this.channelRepository.save(channel);
@@ -70,5 +77,12 @@ export class ChatService {
 		if (!channel)
 			return (null);
 		return (channel.messages);
+	}
+
+	async getChannelAdmin(channelId: number): Promise<User | null> {
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admin']});
+		if (!channel)
+			return (null);
+		return (channel.admin);
 	}
 }

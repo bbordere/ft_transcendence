@@ -15,4 +15,7 @@ export class MatchDto {
 
 	@IsNotEmpty()
 	mode: string
+
+	@IsNumber()
+	leaverId: number = -1;
 }

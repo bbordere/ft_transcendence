@@ -3,10 +3,23 @@
 		<div class="left-panel">
 			<div class="centered-panel-item">
 				<div v-if="dataLoaded && (stats.wins + stats.looses)">
-					<WinCharts :wins="stats.wins" :looses="stats.looses" :show="dataLoaded"></WinCharts>
+					<div v-if="windowWidth >= 700">
+						<WinCharts :wins="stats.wins" :looses="stats.looses" :show="dataLoaded"></WinCharts>
+					</div>
+					<div v-else class="small-winrate">
+						<div class="small-winrate-title">
+							Taux de victoires: {{ ((this.stats.wins * 100) /  (this.stats.wins +this.stats.looses)).toFixed(2) }}%
+						</div>
+						<div class="small-winrate-text">
+							Victoires: {{ stats.wins }}
+						</div>
+						<div class="small-winrate-text">
+							Défaites: {{ stats.looses }}
+						</div>
+					</div>
 				</div>
 				<div v-else>
-					PAS DE STATS
+					Aucune Statistiques à afficher !
 				</div>
 			</div>
 			<div class="centered-panel-item">
@@ -27,26 +40,26 @@
 			<div class="stat-panel-item">
 				<h3>General Stats</h3>
 				<div class="list-stats">
-					<h5>Nb Points Gagnes</h5>
+					<h5>Nombre de Points Gagnés</h5>
 					{{ this.stats["winPoints"] }}
-					<h5>Nb Points Perdus</h5>
+					<h5>Nombre de Points Perdus</h5>
 					{{ this.stats["loosePoints"] }}
-					<h5>Score Max</h5>
+					<h5>Score Maximal</h5>
 					{{ this.stats["highScore"] }}
-					<h5>Nb Parties Total</h5>
+					<h5>Nombre de Parties Totales</h5>
 					{{ this.stats["totalGames"] }}
-					<h5>Nb Parties Classic</h5>
+					<h5>Nombre de Parties Classiques</h5>
 					{{ this.stats["totalClassicGames"] }}
-					<h5>Nb Duel Amis</h5>
+					<h5>Nombre de Duels Amis</h5>
 					{{ this.stats["friendDuel"] }}
-					<h5>Nb Powerups Actives</h5>
+					<h5>Nombre de Powerups Activés</h5>
 					{{ this.stats["totalPowerups"] }}
 					<hr/>
-					<h5>Nb Messages Envoyes</h5>
+					<h5>Nombre de Messages Envoyés</h5>
 					{{ this.stats["totalMessages"] }}
-					<h5>Nb Emotes Envoyes</h5>
+					<h5>Nombre de Emotes Envoyes</h5>
 					{{ this.stats["totalEmotes"] }}
-					<h5>Nb Channel Joined</h5>
+					<h5>Nombre de Channel Rejoints</h5>
 					{{  }}  NOT IMPLEMENTED YET
 				</div>
 			</div>
@@ -64,7 +77,7 @@ export default{
 	},
 	props: ["username"],
 	data(){
-		return {stats: "", dataLoaded: false};
+		return {stats: Object, dataLoaded: false, windowWidth: window.innerWidth,};
 	},
 
 	methods:{
@@ -75,8 +88,12 @@ export default{
 			this.stats = data;
 			this.dataLoaded = true;
 		},
+		handleResize() {
+			this.windowWidth = window.innerWidth;
+		},
 	},
 	mounted(){
+		window.addEventListener('resize', this.handleResize);
 		this.getStats();
 	},
 }
@@ -86,6 +103,24 @@ export default{
 
 
 <style>
+
+.small-winrate{
+	/* background-color: rgb(180, 154, 206); */
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	gap: 20px;
+	text-align: center;
+}
+
+.small-winrate-title{
+	font-size: 2.3vw;
+	font-weight: bold;
+}
+
+.small-winrate-text{
+	font-size: 2vw;
+}
 
 .panel{
 	display: flex;
@@ -119,7 +154,7 @@ export default{
 	background-color: rgba(34, 158, 230, 0.103);
 	border-radius: 50px;
 	display: flex;
-	height: 95%;
+	height: 97%;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
@@ -174,10 +209,9 @@ h3{
 .list-stats {
 	text-align: center;
 	overflow-y: auto;
-	height: 70%;
 }
 
-@media screen and (max-width: 930px) {
+@media screen and (max-width: 950px) {
 	h5{
 		font-size: 1.5vw;
 	}
@@ -186,6 +220,12 @@ h3{
 		margin-top: 0;
 	}
 	.list-stats{
+		font-size: 2vw;
+	}
+	.titleRank{
+		font-size: 2.3vw;
+	}
+	.rank-stat{
 		font-size: 2vw;
 	}
 }

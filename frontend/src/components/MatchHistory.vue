@@ -3,7 +3,7 @@
 	<div class="history" v-if="matches.length">
 		<div class="history-title">Historique de Match</div>
 		<div class="matches">
-			<Match v-for="match in matches" class="match" :match-object="match"></Match >
+			<Match v-for="match in matches" class="match" :match-object="match" :update-timestamp="updateTimestamp"></Match >
 		</div>
 	</div>
 	<div v-else class="no-match">
@@ -18,7 +18,9 @@
 		components:{
 			Match
 		},
-		props: ["username"],
+
+		props: ["username", "updateTimestamp"],
+
 		data() {
 			return {matches: ""}
 		},
@@ -30,12 +32,13 @@
 				.then(res => {this.matches = res});
 			}
 		},
-		mounted() {
+		created() {
 			this.getUser();
 		},
+
 		watch: {
-			username: function(){
-				console.log("LOG PARENT");
+			updateTimestamp() {
+				this.getUser();
 			}
 		},
 	}
@@ -77,8 +80,8 @@
 }
 
 .match{
-	margin-top: 5%;
-	margin-bottom: 5%;
+	margin-top: 2%;
+	margin-bottom: 2%;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -91,7 +94,7 @@
 		width: 100%;
 	}
 	.history-title{
-		font-size: 70%;
+		font-size: 2vw;
 	}
 }
 

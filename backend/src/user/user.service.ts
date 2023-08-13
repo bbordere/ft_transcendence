@@ -122,7 +122,7 @@ export class UserService {
 		return (true);
 	}
 
-	async saveUser(user: User){
+	async saveUser(user: Partial<User>){
 		this.usersRepository.save(user);
 	}
 

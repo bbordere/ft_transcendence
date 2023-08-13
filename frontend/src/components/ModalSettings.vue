@@ -2,12 +2,11 @@
 	<div class="modal-overlay" @click="$emit('close-modal')">
 		<div class="modal" @click.stop>
 			<SlidingTitle text="Paramètres"></SlidingTitle>
-		  	<div class="buttons-parameters">
+			<div class="buttons-parameters">
 				<div class="tfa">
 					<div class="icon-tfa">
 						<font-awesome-icon icon="fa-solid fa-lock"/>
 					</div>
-					Double Authentification
 					<Switch/>
 				</div>
 
@@ -21,7 +20,7 @@
 				</Teleport>
 			</div>
 		</div>
-	  </div>
+	</div>
 </template>
   
 <script lang="ts">

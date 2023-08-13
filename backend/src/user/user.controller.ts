@@ -26,6 +26,8 @@ export class UserController {
 	@Get(":name")
 	async getUserByName(@Param('name') name: string){
 		const user = await this.userService.getByName(name)
+		if (!user)
+			return (null);
 		return (this.userService.getPartialUser(user));
 	}
 	
@@ -74,6 +76,7 @@ export class UserController {
 			ok: true,
 		};
 	}
+
 
 	@Get('/:userId/joinedChannels')
 	async getJoinedChannels(@Param('userId') userId: number) {

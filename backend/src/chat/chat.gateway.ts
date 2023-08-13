@@ -6,7 +6,7 @@ import {
 	OnGatewayConnection,
 	OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Logger, PayloadTooLargeException } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
 
@@ -26,7 +26,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleMessage(client: Socket, payload: any) {
 		this.server.emit('message', payload);
 		this.logger.log(`message received: ${payload['text']}`);
-		this.chatService.addMessageToChannel(payload)
+		this.chatService.addMessageToChannel(payload);
+		return (payload);
+	}
+
+	@SubscribeMessage('kick')
+	handleKick(client: Socket, payload: any) {
+		this.server.emit('kick', payload);
 		return (payload);
 	}
 

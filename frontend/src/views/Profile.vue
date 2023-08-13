@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import ProfileCard from '@/components/profilCard.vue';
+import ProfileCard from '@/components/ProfilCard.vue';
 import StatsPanel from '@/components/StatsPanel.vue'
 import MatchHistory from '@/components/MatchHistory.vue'
 import { useRoute } from 'vue-router';
@@ -11,20 +11,23 @@ export default{
 	components: {
 		ProfileCard,
 		StatsPanel,
-		MatchHistory
+		MatchHistory,
 	},
 	data(){
-		return {username: "", dataLoaded: false};
+		return {username: "", dataLoaded: false, updateTimestamp: 0 as number};
 	},
 	methods:{
+
 		getEditableStatus(){
 			return (this.username === "me");
 		},
+
 		getUser(){
 			let names: String[];
 			let exist: boolean;
 			let username: string;
 			const route = useRoute();
+			this.updateTimestamp = Date.now();
 			if (!route.query["user"]){
 				this.username = "me";
 				this.dataLoaded = true;
@@ -43,10 +46,16 @@ export default{
 				this.dataLoaded = true;
 			})
 		},
+
+		updateUsername(newUsername: string){
+			this.updateTimestamp = Date.now();
+			this.$emit('update', newUsername);
+		}
 	},
-	beforeMount() {
+	created() {
 		this.getUser();
 	},
+
 }
 
 </script>
@@ -54,11 +63,11 @@ export default{
 <template>
 	<div class="container">
 		<div class="profileCard" v-if="dataLoaded">
-			<ProfileCard :editable="getEditableStatus()" :username="username"/>
+			<ProfileCard :editable="getEditableStatus()" :username="username" @update="updateUsername"/>
 		</div>
 		<div class="subCard">
 			<div class="matchHistory" v-if="dataLoaded">
-				<MatchHistory :username="username"/>
+				<MatchHistory :username="username" :updateTimestamp="updateTimestamp"/>
 			</div>
 			<div class="statsPanel" v-if="dataLoaded">
 				<StatsPanel :username="username"></StatsPanel>
@@ -75,20 +84,19 @@ export default{
 		justify-content: center;
 		align-items: center;
 	}
-
+	
 	.profileCard{
-		height: 15%;
+		padding-top: 2.5%;
 		width: 80%;
 	}
 	
 	.subCard{
 		display: flex;
 		flex-direction: row;
-		margin-top: 3%;
+		margin-top: 1%;
 		width: 80%;
-		height: 75%;
-		height: 60vh;
 		justify-content: space-between;
+		height: 50vh;
 	}
 
 	.matchHistory{
@@ -98,7 +106,8 @@ export default{
 	}
 	
 	.statsPanel{
-		width: 55%;
+		flex-grow: 1;
+		margin-left: 2%;
 		background-color: aliceblue;
 		border-radius: 50px;
 	}

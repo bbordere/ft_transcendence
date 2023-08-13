@@ -2,7 +2,6 @@ import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, One
 import * as bcrypt from 'bcrypt';
 import { StatsDetail } from '../stats/stats.entity'
 import { Channel } from "src/chat/entities/channel.entity";
-import { ChannelPerms } from "src/chat/entities/channelPerms.entity";
 
 @Entity()
 export class User{
@@ -17,7 +16,7 @@ export class User{
 	public name: string;
 
 	@Column({ default: ""})
-	private password: string;
+	public password: string;
 
 	@Column({ default: true})
 	public isOnline: boolean
@@ -41,9 +40,6 @@ export class User{
 	@ManyToMany(() => Channel)
 	@JoinTable()
 	public channels: Channel[];
-
-	@OneToMany(() => ChannelPerms, perms => perms.user)
-	public perms: ChannelPerms[];
 
 	@BeforeInsert()
 	async hashPassword() {

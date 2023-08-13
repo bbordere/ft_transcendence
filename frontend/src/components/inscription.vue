@@ -26,7 +26,7 @@ async function register(){
 	});
 	switch (res.status) {
 		case 201:{
-			router.push('/');			
+			router.push('/home');			
 			break;
 		}
 		case 406:{
