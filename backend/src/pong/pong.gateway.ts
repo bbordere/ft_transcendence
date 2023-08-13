@@ -1,32 +1,35 @@
 import {
 	SubscribeMessage,
 	WebSocketGateway,
-	OnGatewayInit,
 	WebSocketServer,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
   } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { PongGame } from './pong.service';
-import { Coords, Room } from './interface/room.interface';
-import { Player } from './interface/player.interface';
 import { AuthService } from 'src/auth/auth.service';
-import { Mode } from 'src/pong/interface/room.interface';
+import { RoomService } from './room.service';
+import { GameService } from './game.service';
+import { Player } from './interface/player.interface';
+import { Room, State } from './interface/room.interface';
+import e from 'express';
+import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway({namespace: '/pong'})
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() server: Server;
 	private playerMap: Map<string, Player> = new Map<string, Player>;
 
-	// private logger: Logger = new Logger('PongGateway');
-  
-	constructor(private pongGame: PongGame, private authService: AuthService) {}
+	// // private logger: Logger = new Logger('PongGateway');
+	constructor(private readonly gameService: GameService, 
+				private readonly authService: AuthService,
+				private readonly roomService: RoomService,
+				private readonly userService: UserService) {}
   
 	async handleConnection(client: Socket) {}
 
 	async handleDisconnect(client: Socket) {
 		// this.logger.log(`Client disconnected: ${client.id}`);
-		await this.pongGame.leaveRoomSocket(client.id, client);
+		await this.roomService.leaveRoomSocket(client.id, client);
 		clearInterval(client.data.gameInterval);
 		client.disconnect();
 	}
@@ -38,18 +41,34 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		if (!player){
 			player = {
 				socket: client,
-				position: { x: 0, y: 0 },
 				score: 0,
 				user: client.data.user,
-				roomId: -1
+				roomId: -1,
+				racket: undefined,
+				nbPowerups: 0,
 			};
 			this.playerMap.set(client.data.user["email"], player);
 		}
 		else
 			player.socket = client;
-		const room: Room = await this.pongGame.searchRoom(client, player, parseInt(data[1]));
-		await this.pongGame.playGame(client, room)
-		await this.pongGame.checkDisconnection(client, room);
+		const room: Room = await this.roomService.searchRoom(client, player, parseInt(data[1]));
+		this.gameService.keyHandling(client, room)
+	}
+
+	@SubscribeMessage('emote')
+	async handleEmote(client: Socket, emoji: string){
+		// const room: Room = this.roomService.getRoomFromSocket(client);
+		const room: Room = client.data.room;
+		if (!room)
+			return;
+		// if (room.players.length !== 2)
+		// 	return;
+		client.data.user.stats.totalEmotes += 1;
+		this.userService.saveUser(client.data.user);
+		if (room.players[0] && room.players[0].socket === client)
+			this.roomService.emitToPlayers(room, "emote", 0, emoji)
+		else
+			this.roomService.emitToPlayers(room, "emote", 1, emoji)
 	}
 }
 

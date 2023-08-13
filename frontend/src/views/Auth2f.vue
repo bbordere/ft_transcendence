@@ -1,18 +1,25 @@
 <template>
-	<!-- <img src="@/../../backend/qrcode/bastien.bordereau@gmail.com.png"> -->
 	<div class="auth">
+
 		<div class="auth-card">
 			<div class="title">2FA</div>
 			<div class="auth-container">
 				<img v-if="generated === true" :src="getUrl()" class="code" :class="[blur  ? 'blur' : ' ']" @click="toggleBlur">
 				<img v-else src="@/assets/img/lock.png" class="lock">
 				<div class="info-box">
-					<BlueButton text="Activer" icon="" @click="generate2fa" v-if="!generated" class="card-button"></BlueButton>
-					<BlueButton text="Activer" icon="" @click="enable2fa" v-else-if="activated === false" class="card-button"></BlueButton>
+
+					<router-link v-if="!generated" :to="{ path: '/auth/2fa/generate'}">
+						<BlueButton text="Activer" icon="" class="card-button"></BlueButton>
+					</router-link>
+
+					<router-link v-else-if="activated === false" :to="{ path: '/auth/2fa/verif', query: { plan: 'on' }}">
+						<BlueButton text="Activer" icon="" class="card-button"></BlueButton>
+					</router-link>
+				
 				</div>
 			</div>
 			<div v-if="generated === true" class="message">
-				This code is strictly personal. Do not share it !
+				Ce code est strictement personnel ! 
 			</div>
 		</div>
 	</div>
@@ -21,10 +28,9 @@
 <script lang="ts">
 
 import { ref } from 'vue';
-import router from '@/router';
 import BlueButton from '@/components/BlueButton.vue';
 
-	export default{
+export default{
     data() {
         return { user: Promise<any>, "activated": false, "generated": false, blur: ref(true), };
     },
@@ -43,21 +49,13 @@ import BlueButton from '@/components/BlueButton.vue';
         toggleBlur() {
             this.blur = !this.blur;
         },
-        generate2fa() {
-            router.push("/auth/2fa/generate");
-        },
-        enable2fa() {
-            router.push({ path: "/auth/2fa/verif", query: { plan: "on" } });
-        },
 		getUrl(){
 			return ("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/qrcode")
 		}
     },
-    async mounted() {
-        await this.getUser(this);
-        await this.getStatus(this);
-        console.log("GENERATED = " + this.generated);
-        console.log("ACTIVATED = " + this.activated);
+    mounted() {
+        this.getUser(this);
+        this.getStatus(this);
     },
     components: { BlueButton }
 }

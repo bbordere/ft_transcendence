@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, OneToOne, ManyToMany, JoinTable } from "typeorm";
+import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, OneToOne, ManyToMany, JoinTable, OneToMany } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { StatsDetail } from '../stats/stats.entity'
 import { Channel } from "src/chat/entities/channel.entity";
@@ -16,7 +16,7 @@ export class User{
 	public name: string;
 
 	@Column({ default: ""})
-	private password: string;
+	public password: string;
 
 	@Column({ default: true})
 	public isOnline: boolean

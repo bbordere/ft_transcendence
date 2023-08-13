@@ -43,7 +43,7 @@ export class AuthService {
 	async login(authLoginDto: any, @Res() res: Response): Promise<string> {
 		const user = await this.validateUser(authLoginDto, res);
 		const payload = { username: user.name, email: user.email};
-		const access_token = this.jwtService.sign(payload, {expiresIn: '1h'});
+		const access_token = this.jwtService.sign(payload, {expiresIn: '4h'});
 		return (access_token);
 	  }
 
@@ -67,19 +67,19 @@ export class AuthService {
 			const user = await this.usersService.createUser42(data);
 			const payload = { username: user.name, email: user.email};
 			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/");			
-			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
+			return {access_token: this.jwtService.sign(payload, {expiresIn: '4h'})};
 		}
 		if (user.auth2f === true)
 		{
 			const payload = { username: user.name, email: user.email};
 			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/verif");
-			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
+			return {access_token: this.jwtService.sign(payload, {expiresIn: '4h'})};
 		}
 		else
 		{
 			const payload = { username: user.name, email: user.email};
 			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/");
-			return {access_token: this.jwtService.sign(payload, {expiresIn: '1h'})};
+			return {access_token: this.jwtService.sign(payload, {expiresIn: '4h'})};
 		}
 	}
 
@@ -100,7 +100,7 @@ export class AuthService {
 
 	async getTokenByUser(user: User): Promise<string> {
 		const payload = { id: user.id, email: user.email};
-		const token: string = this.jwtService.sign(payload, {expiresIn: '1h'});
+		const token: string = this.jwtService.sign(payload, {expiresIn: '4h'});
 		return (token);
 	}
 

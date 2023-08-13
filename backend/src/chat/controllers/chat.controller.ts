@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param } from "@nestjs/common";
-import { ChatService } from "./chat.service";
-import * as bcrypt from 'bcrypt';
+import { ChatService } from "../chat.service";
+import { User } from "src/user/user.entity";
 
 @Controller('chat')
 export class ChatController {
@@ -28,10 +28,12 @@ export class ChatController {
 	}
 
 	@Post('/create')
-	async create(@Body('name') name: string, @Body('password') password: string) {
+	async create(@Body('name') name: string, @Body('password') password: string, @Body('creator') creator: User) {
 		if (Array.from(name)[0] != '#')
 			name = '#' + name;
-		const channel = await this.chatService.create(name, password, (password !== ''));
+		let channel;
+		try {channel = await this.chatService.create(name, password, (password !== ''), creator);}
+		catch {return (null);}
 		return {
 			message: 'channel created',
 			channel
@@ -44,5 +46,10 @@ export class ChatController {
 		if (Array.from(name)[0] != '#')
 			name = '#' + name;
 		this.chatService.delete(name);
+	}
+
+	@Get('/:id/admin')
+	async getAdmin(@Param('id') id: number) {
+		return (await this.chatService.getChannelAdmin(id));
 	}
 }

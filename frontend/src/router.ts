@@ -1,84 +1,91 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '@/views/Home.vue'
-import Verif from '@/views/Verif.vue'
-import inscription from '@/views/Auth.vue'
-import profile from '@/views/Profile.vue'
-import pong from '@/views/pong.vue'
-import auth2f from '@/views/Auth2f.vue'
-import notFound from '@/views/NotFound.vue'
-import chat from '@/views/Chat.vue';
 
 export default createRouter({
   history: createWebHistory(),
   routes: [
     {
+		path: '/home',
+		component: () => import('@/views/Home.vue'),
+    },
+    {
 		path: '/',
-		component: Home,
+		redirect: "/home"
     },
-    {
-      path: '/verif',
-      component: Verif
-    },
-    {
-		path: '/auth',
-		component: inscription
+	{
+		path: '/verif',
+		component: () => import('@/views/Verif.vue'),
 	},
 	{
 		path: '/profile',
-		component: profile
-	},
-	{
-		path: '/profile/me',
-		component: profile
+		component: () => import('@/views/Profile.vue'),
 	},
 	{
 		path: '/pong',
-		component: pong
+		component: () => import('@/views/Pong.vue'),
 	},
-    {
-		path: '/auth/42/login',
-		component: inscription,
-		beforeEnter(to, from, next) {
-			window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/42/login";
-		}
-	},
-    {
-		path: '/auth/logout',
-		component: inscription,
-		beforeEnter(to, from, next) {
-			window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/logout";
-		}
-	},
+
 	{
-		path: '/auth/login',
-		component: inscription,
-		beforeEnter(to, from, next) {
-			window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/login";
-		}
+		path: '/auth',
+		component: () => import('@/views/Auth.vue'),
+		children: [
+			{
+				path: '42/login',
+				component: () => import('@/views/Auth.vue'),
+				beforeEnter(to, from, next) {
+					window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/42/login";
+				}
+			},
+			{
+				path: 'logout',
+				component: () => import('@/views/Auth.vue'),
+				beforeEnter(to, from, next) {
+					window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/logout";
+				}
+			},
+			{
+				path: 'login',
+				component: () => import('@/views/Auth.vue'),
+				beforeEnter(to, from, next) {
+					window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/login";
+				}
+			},
+		]
 	},
-	{		
-		path: '/auth/2fa/home',
-		component: auth2f,
-	},
-	{		
-		path: '/auth/2fa/off',
-		component: Verif,
-	},
+
 	{
-		path: '/auth/2fa/verif',
-		component: Verif,
+		path: '/auth/2fa',
+		children: [
+			{
+				path: 'home',
+				component: () => import('@/views/Auth2f.vue')
+			},
+			{		
+				path: 'off',
+				component: () => import('@/views/Verif.vue'),
+			},
+			{
+				path: 'verif',
+				component: () => import('@/views/Verif.vue'),
+			},
+			{
+				path: 'generate',
+				component: () => import('@/views/Auth2f.vue'),
+				beforeEnter(to, from, next) {
+					window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/generate";
+				}
+			},
+		],
 	},
-	{
-		path: '/auth/2fa/generate',
-		component: auth2f,
-		beforeEnter(to, from, next) {
-			window.location.href = "http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/generate";
-		}
-	},
+
 	{
 		path: '/:pathMatch(.*)',
+		redirect: "/notfound"
+	},
+
+	{
+		path: '/notfound',
 		name: 'PageNotFound',
-		component: notFound
+		component: () => import('@/views/NotFound.vue'),
 	},
   ],
 })

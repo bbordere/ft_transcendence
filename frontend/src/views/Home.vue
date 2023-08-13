@@ -1,20 +1,28 @@
 <template>
-	<Head />
 	<div class="home_body">
 		<div class="home_content">
 			<div class="left_column">
-				<router-link class="play_button" to="/pong">Jouer</router-link>
+				<button v-if="!recoButton" class="play_button" @click="showModalPlay = true">Jouer</button>
+				<button v-else class="play_button" @click="reconnectToRoom">Reco</button>
+				<Teleport to="body">
+					<transition name="slide-fade" mode="out-in">
+						<PlayModal v-show="showModalPlay" @close-modal="showModalPlay = false"></PlayModal>
+					</transition>
+				</Teleport>
 				<div class="friend_list">
 					<div class="add_friend">
 						<button class="spe">Channel</button>
 						<button class="spe">Message</button>
 						<ButtonAdd icon="fa-solid fa-user-plus" id="show-modal" @click="showModalFriend = true"></ButtonAdd>
 						<Teleport to="body">
-						<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
+							<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
 						</Teleport>
-						<ButtonAdd icon="fa-circle-plus" id="show-modal" @click="showModal = true"></ButtonAdd>
+							<ButtonAdd icon="fa-circle-plus" id="show-modal" @click="showModal = true"></ButtonAdd>
 						<Teleport to="body">
-						<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannel"></ModalAdd>
+							<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannel"></ModalAdd>
+						</Teleport>
+						<Teleport to="body">
+							<KickUserModal :show="showKickModal" :channelId="selectedChannel.id" @close="showKickModal = false;" @kick="notifyKick"></KickUserModal>
 						</Teleport>
 					</div>
 					<div class="list">
@@ -34,8 +42,10 @@
 					</ul>
 					<input type="text" v-model="message">
 					<button type="button" @click="sendMessage()">Send !</button>
-					<div class="channel_options">
-						<button type="button" @click="quitChannel()">Quit Channel</button>
+					<div v-if="selectedChannel.admin == sender" class="channel_options">
+						<button type="button" @click="quitChannel(sender)">Quit Channel</button>
+						<button type="button" @click="showKickModal = true">Kick User</button>
+						<button type="button" @click="banUser()">Ban User</button>
 					</div>
 				</div>
 				<div v-else-if="!connected">
@@ -51,8 +61,9 @@ import io from 'socket.io-client';
 import ModalAdd from '../components/ModalAdd.vue'
 import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
-import Head from '../components/head.vue'
 import ButtonAdd from '../components/ButtonAdd.vue'
+import PlayModal from '@/components/PlayModal.vue';
+import KickUserModal from '@/components/KickUserModal.vue';
 
 interface Message {
 	channelId: number;
@@ -63,25 +74,28 @@ interface Message {
 interface Channel {
 	id: number;
 	name: string;
+	admin: number;
 	messages: Message[],
 	protected: boolean,
 }
 
 // Maybe store the selected channel in a cookie
-// IMPORTANT: Need to define a valid character set for the channels names
 
 export default defineComponent({
 	components: {
 		ButtonAdd,
 		ModalAddFriend,
 		ModalAdd,
-		Head
+		PlayModal,
+		KickUserModal,
 	},
 
 	data() {
 		return {
 			showModal: false,
 			showModalFriend: false,
+			showModalPlay: false,
+			showKickModal: false,
 			socket: null as any,
 			connected: false as Boolean,
 			sender: -1 as number,
@@ -89,7 +103,13 @@ export default defineComponent({
 			channels: [] as Channel[],
 			selectedChannel: {} as Channel,
 			showDiv: false as Boolean,
+			recoButton: false as Boolean,
+			recoMode: -1 as number,
 		}
+	},
+
+	props: {
+		removedChannel: Number
 	},
 
 	async mounted() {
@@ -98,6 +118,7 @@ export default defineComponent({
 		for (let i = 0; i < channels_json.length; i++) {
 			this.channels.push({
 				id: channels_json[i]['id'],
+				admin: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/admin', {credentials: 'include'})).json())['id'],
 				name: channels_json[i]['name'],
 				messages: await this.getChannelMessages(channels_json[i]['id']),
 				protected: channels_json[i]['protected'],
@@ -106,22 +127,45 @@ export default defineComponent({
 		this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
+		const hasDisconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
+		this.recoButton = hasDisconnectObject["disconnect"];
+		this.recoMode = hasDisconnectObject["mode"];
+		setTimeout(async () => {
+			const hasDisconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
+			this.recoButton = hasDisconnectObject["disconnect"];
+			this.recoMode = hasDisconnectObject["mode"];
+			console.log("RECHECK", this.recoButton, this.recoMode);
+		}, 4000);
 	},
 
 	methods: {
 		init() {
-			this.socket = io('http://localhost:3000/')
+			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/')
 			this.socket.on('connect', () => { this.connected = true; });
 			this.socket.on('disconnect', () => { this.connected = false; });
 			this.socket.on('message', (data: { channelId: number, text: string, sender: number }) => {
 				const { channelId, text, sender } = data;
 				const channel = this.findChannel(channelId);
-				if (channel) {
-					channel.messages.push({
-						channelId: channelId,
-						text: text,
-						sender: sender,
-					});
+					if (channel) {
+						channel.messages.push({
+							channelId: channelId,
+							text: text,
+							sender: sender,
+						});
+					}
+			});
+			this.socket.on('kick', (data: {channelId: number, userId: number}) => {
+				const { channelId, userId } = data;
+				if (this.sender === userId) {
+					for (let i = 0; i < this.channels.length; i++) {
+						if (this.channels[i].id === this.selectedChannel.id) {
+							this.channels.splice(i, 1);
+							if (this.selectedChannel.id === channelId)
+								this.selectedChannel = {} as Channel;
+							this.showDiv = false;
+							break ;
+						}
+					}
 				}
 			});
 		},
@@ -158,16 +202,17 @@ export default defineComponent({
 			});
 			const response_json = await response.json();
 			if (response_json['ok'] === true) {
+				channel.admin = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channel.id + '/admin', {credentials: 'include'})).json())['id'];
 				this.channels.push(channel);
 				this.selectedChannel = channel;
 				this.selectedChannel.messages = await this.getChannelMessages(channel.id);
 			}
 			else
-				alert('Could not add user: Wrong password.');
+				alert('Could not add user.');
 		},
 
-		async quitChannel() {
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + this.selectedChannel.id + '/remove', {
+		async quitChannel(id: number) {
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + id + '/channels/' + this.selectedChannel.id + '/remove', {
 				credentials: 'include',
 				method: 'POST'
 			});
@@ -193,6 +238,11 @@ export default defineComponent({
 
 		getMessageClass(message: Message): string {
 			return (this.sender === message.sender ? 'sent' : 'received');
+		},
+
+		reconnectToRoom(){
+			const mode = ["classic", "ranked", "arcade"][this.recoMode];
+			this.$router.push({ path: '/pong', query: { mode: mode }});
 		},
 
 		// async deleteChannel(name: string) {
@@ -226,6 +276,10 @@ export default defineComponent({
 				return ([] as Message[]);
 			}
 		},
+
+		notifyKick(channelId: number, userId: number) {
+			this.socket.emit('kick', {channelId, userId});
+		}
 	},
 });
 
@@ -235,7 +289,7 @@ export default defineComponent({
 .home_body {
 	display: flex;
 	width: 95vw;
-	height: 80vh;
+	height: 90%;
 	align-items: center;
 	justify-content: center;
 	padding-top: 2.5%;
@@ -256,6 +310,7 @@ export default defineComponent({
 
 .left_column {
 	display: flex;
+	height: 100%;
 	flex-direction: column;
 	gap: 4%;
 	flex-grow: 0.2;
@@ -335,7 +390,7 @@ export default defineComponent({
 	height: 100%;
 	margin-top: 2%;
 	align-items: center;
-	background-color: red;
+	background-color: rgb(255, 255, 255);
 }
 
 .friends {

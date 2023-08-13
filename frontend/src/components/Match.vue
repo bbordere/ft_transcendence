@@ -1,17 +1,16 @@
 <template>
 	<div class="match-card">
-		<div class="player-card">
-			
-			<img class="avatar-match" :src="getAvatarUrl(matchObject.player1.name)" @click="redirecToProfil"/>
+		<div class="player-card">		
+			<img class="avatar-match" :src="getAvatarUrl(matchObject.player1.id)" @click="redirecToProfil(matchObject.player1.name)"/>
 			{{ matchObject.player1.name }}
 		</div>
 		<div class="score-card">
 			<div class="score-text">
-				<div :class="[matchObject.scorePlayer1 > matchObject.scorePlayer2 ? 'text-green' : 'text-red']">
+				<div :class="getColorClass(1)">
 					{{ matchObject.scorePlayer1 }}
 				</div>
 				-
-				<div :class="[matchObject.scorePlayer1 < matchObject.scorePlayer2 ? 'text-green' : 'text-red']">
+				<div :class="getColorClass(2)">
 					{{ matchObject.scorePlayer2 }}
 				</div>
 			</div>
@@ -20,7 +19,7 @@
 			</div>
 		</div>
 		<div class="player-card">
-			<img class="avatar-match" :src="getAvatarUrl(matchObject.player2.name)" @click="redirecToProfil"/>
+			<img class="avatar-match" :src="getAvatarUrl(matchObject.player2.id)" @click="redirecToProfil(matchObject.player2.name)"/>
 			{{ matchObject.player2.name }}
 		</div>
 	</div>
@@ -29,15 +28,25 @@
 <script lang="ts">
 	import router from '@/router';
 	export default{
-		props: ["matchObject"],
+		props: ["matchObject", "updateTimestamp"],
 		methods:{
-			redirecToProfil(e: Event){
-				const src = (e.target as HTMLImageElement).src;
-				const username = src.split('/').at(-1);
-				router.push({path:'/profile',query: { user: username }});
+			redirecToProfil(name: string){
+				router.push({path:'/profile', query: { user: name }});
 			},
-			getAvatarUrl(playerName: string){
-				return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/" + playerName);
+			getAvatarUrl(id: number){
+				return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/id/" + id.toString() + "?" + this.updateTimestamp);
+			},
+			getColorClass(playerId: number){
+				if (this.matchObject["scorePlayer" + playerId] === "ABD" || this.matchObject["leaverId"] === this.matchObject["player" + playerId]["id"]){
+					this.matchObject["scorePlayer" + playerId] = "ABD";
+					return ("text-red");
+				}
+				else if (this.matchObject["scorePlayer" + playerId] === this.matchObject["scorePlayer" + (playerId ^ 3)])
+					return ("text-blue");
+				else if (this.matchObject["scorePlayer" + playerId] < this.matchObject["scorePlayer" + (playerId ^ 3)])
+					return ("text-red");
+				else
+					return ("text-green");
 			}
 		},
 	}
@@ -88,6 +97,7 @@
 @media screen and (max-width: 950px) {
 	.match-card{
 		height: 25%;
+		font-size: 2.5vw;
 	}
 	.player-card{
 		justify-content: center;
@@ -95,14 +105,14 @@
 		font-weight: bold;
 	}
 	.mode{
-		margin-top: 50%;
-		font-size: 70%;
+		margin-top: 1px;
+		font-size: 1.7vw;
 	}
 	.avatar-match {
 		display: none;
 	}
 	.score-text{
-		font-size: 70%;
+		font-size: 1.9vw;
 	}
 }
 
@@ -118,6 +128,10 @@
 
 .text-green{
 	color: green;
+}
+
+.text-blue{
+	color: blue;
 }
 
 </style>

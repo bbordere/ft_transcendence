@@ -1,6 +1,6 @@
 import { User } from "src/user/user.entity";
 import { Message } from "./message.entity";
-import { Column, Entity, Generated, ManyToMany, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, Entity, Generated, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Channel {
@@ -26,4 +26,12 @@ export class Channel {
 		onUpdate: 'CASCADE',
 	})
 	public messages: Message[];
+
+	@ManyToOne(() => User, user => user.channels)
+	@JoinColumn()
+	public admin: User;
+
+	@ManyToMany(() => User)
+	@JoinTable()
+	public bannedUsers: User[];
 };

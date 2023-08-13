@@ -18,10 +18,10 @@ export default{
 					show: false
 				},
 				title: {
-					text: "Winrate",
+					text: "Taux de victoires",
 					align: 'center',
 				},
-				labels: ['Wins', 'Looses'],
+				labels: ['Victoires', 'Défaites'],
 				plotOptions: {
 					pie: {
 						startAngle: -90,

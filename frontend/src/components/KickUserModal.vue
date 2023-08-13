@@ -1,47 +1,30 @@
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, getCurrentInstance } from 'vue';
 
 export default defineComponent ({
 	data() {
 		return ({
-			channel_name: '' as string,
-			channel_password: '' as string,
+			username: '' as string,
+			channelId: -1 as number,
 		});
 	},
 
 	props: {
 		show: Boolean,
+		channelId: Number,
 	},
 
 	methods: {
-		async addChannel() {
-			if (this.channel_name === '')
+		async kickUser() {
+			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, {credentials: 'include'});
+			if (!user_resp['ok'] || this.username == '') {
+				this.$emit('close');
 				return ;
-			if (Array.from(this.channel_name)[0] === '#')
-				this.channel_name.split('#').join('');
-			const me = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', {credentials: 'include'})).json();
-			const response_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/create', {
-				credentials: 'include',
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					name: this.channel_name,
-					password: this.channel_password,
-					creator: me,
-				}),
-			})).json();
-			if (response_json['channel'] !== null)
-				this.$emit('newChannel', response_json['channel'], this.channel_password);
-			else {
-				let response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + encodeURIComponent(this.channel_name), { credentials: 'include' });
-				let channel = await (response.json());
-				this.$emit('newChannel', channel, this.channel_password);
 			}
+			const user = await user_resp.json();
+			await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/remove', {credentials: 'include', method: 'POST'});
 			this.$emit('close');
-			this.channel_name = '';
-			this.channel_password = '';
+			this.$emit('kick', this.$props.channelId, user['id']);
 		}
 	},
 });
@@ -54,15 +37,11 @@ export default defineComponent ({
 		<div class="modal" @click.stop>
 			<div class="form">
 				<div class="field">
-					<h1>Nom du Channel</h1>
-					<input v-model="channel_name" class="entry" type="text" placeholder="Mon Channel"/>
-				</div>
-				<div class="field">
-					<h1>Mot de Passe</h1>
-					<input class="entry" type="password" placeholder="Champ optionnel" v-model="channel_password"/>
+					<h1>Nom de l'utilisateur</h1>
+					<input v-model="username" class="entry" type="text" placeholder="Utilisateur"/>
 				</div>
 				<div class="choice">
-					<button @click="addChannel()">Confirmer</button>
+					<button @click="kickUser()">Confirmer</button>
 				</div>
 			</div>
 		</div>

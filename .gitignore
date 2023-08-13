@@ -5,3 +5,4 @@ file.html
 backend/avatars/*
 backend/qrcode/*
 .Identifier
+.charset_channel
