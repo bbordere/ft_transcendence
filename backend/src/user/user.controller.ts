@@ -77,6 +77,11 @@ export class UserController {
 		};
 	}
 
+	@Post('/:userId/channels/:channelId/ban')
+	async banUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		this.userService.banUserFromChannel(userId, channelId);
+	}
+
 
 	@Get('/:userId/joinedChannels')
 	async getJoinedChannels(@Param('userId') userId: number) {

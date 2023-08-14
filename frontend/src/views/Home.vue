@@ -24,6 +24,9 @@
 						<Teleport to="body">
 							<KickUserModal :show="showKickModal" :channelId="selectedChannel.id" @close="showKickModal = false;" @kick="notifyKick"></KickUserModal>
 						</Teleport>
+						<Teleport to="body">
+							<BanUserModal :show="showBanModal" :channelId="selectedChannel.id" @close="showBanModal = false;" @kick="notifyKick"></BanUserModal>
+						</Teleport>
 					</div>
 					<div class="list">
 						<ul>
@@ -42,10 +45,12 @@
 					</ul>
 					<input type="text" v-model="message">
 					<button type="button" @click="sendMessage()">Send !</button>
-					<div v-if="selectedChannel.admin == sender" class="channel_options">
+					<div class="channel_options">
 						<button type="button" @click="quitChannel(sender)">Quit Channel</button>
-						<button type="button" @click="showKickModal = true">Kick User</button>
-						<button type="button" @click="banUser()">Ban User</button>
+						<div v-if="selectedChannel.admin == sender">
+							<button type="button" @click="showKickModal = true">Kick User</button>
+							<button type="button" @click="showBanModal = true">Ban User</button>
+						</div>
 					</div>
 				</div>
 				<div v-else-if="!connected">
@@ -64,6 +69,7 @@ import { defineComponent } from 'vue';
 import ButtonAdd from '../components/ButtonAdd.vue'
 import PlayModal from '@/components/PlayModal.vue';
 import KickUserModal from '@/components/KickUserModal.vue';
+import BanUserModal from '@/components/BanUserModal.vue';
 
 interface Message {
 	channelId: number;
@@ -88,6 +94,7 @@ export default defineComponent({
 		ModalAdd,
 		PlayModal,
 		KickUserModal,
+		BanUserModal,
 	},
 
 	data() {
@@ -96,6 +103,7 @@ export default defineComponent({
 			showModalFriend: false,
 			showModalPlay: false,
 			showKickModal: false,
+			showBanModal: false,
 			socket: null as any,
 			connected: false as Boolean,
 			sender: -1 as number,
@@ -244,19 +252,6 @@ export default defineComponent({
 			const mode = ["classic", "ranked", "arcade"][this.recoMode];
 			this.$router.push({ path: '/pong', query: { mode: mode }});
 		},
-
-		// async deleteChannel(name: string) {
-		// 	// If only 1 user left in the channel delete it
-		// 	const channel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + encodeURIComponent(name), { credentials: 'include' })).json();
-		// 	for (let i = 0; i < this.channels.length; i++)
-		// 		if (this.channels[i].id === channel['id'])
-		// 			this.channels.splice(i, 1);
-		// 	const response_json = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/remove', { credentials: 'include', method: 'POST', });
-		// 	if (this.selectedChannel.messages != undefined) {
-		// 		this.selectedChannel = {} as Channel;
-		// 		this.showDiv = false;
-		// 	}
-		// },
 
 		async getChannelMessages(channelId: number): Promise<Message[]> {
 			const message_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/' + channelId + '/list', { credentials: 'include' });

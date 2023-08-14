@@ -15,14 +15,14 @@ export default defineComponent ({
 	},
 
 	methods: {
-		async kickUser() {
+		async banUser() {
 			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, {credentials: 'include'});
 			if (!user_resp['ok'] || this.username == '') {
 				this.$emit('close');
 				return ;
 			}
 			const user = await user_resp.json();
-			await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/remove', {credentials: 'include', method: 'POST'});
+			await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/ban', {credentials: 'include', method: 'POST'});
 			this.$emit('close');
 			this.$emit('kick', this.$props.channelId, user['id']);
 		}
@@ -41,7 +41,7 @@ export default defineComponent ({
 					<input v-model="username" class="entry" type="text" placeholder="Utilisateur"/>
 				</div>
 				<div class="choice">
-					<button @click="kickUser()">Confirmer</button>
+					<button @click="banUser()">Confirmer</button>
 				</div>
 			</div>
 		</div>

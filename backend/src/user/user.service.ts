@@ -135,10 +135,12 @@ export class UserService {
 
 	async addUserToChannel(userId: number, channelId: number, password: string) {
 		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['bannedUsers']});
 
 		if (password === undefined)
 			return ;
+		if (channel.bannedUsers.some(bannedUser => bannedUser.id === user.id)) 
+			throw new Error('user banned');
 		if (!channel.protected || await bcrypt.compare(password, channel.password)) {
 			user.channels.push(channel);
 			await this.usersRepository.save(user);
@@ -153,6 +155,15 @@ export class UserService {
 
 		user.channels = user.channels.filter((c) => c.id !== channel.id);
 		await this.usersRepository.save(user);
+	}
+
+	async banUserFromChannel(userId: number, channelId: number) {
+		const user = await this.usersRepository.findOne({where: {id: userId}});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['bannedUsers']});
+
+		await this.removeUserFromChannel(userId, channelId);
+		channel.bannedUsers.push(user);
+		await this.channelRepository.save(channel);
 	}
 
 	async getJoinedChannels(userId: number): Promise<Channel[] | null> {
