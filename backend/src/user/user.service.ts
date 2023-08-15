@@ -151,10 +151,19 @@ export class UserService {
 
 	async removeUserFromChannel(userId: number, channelId: number) {
 		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
-
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admin']});
+    
 		user.channels = user.channels.filter((c) => c.id !== channel.id);
-		await this.usersRepository.save(user);
+    if (user.id === channel.admin.id) {
+      const users = await this.usersRepository.createQueryBuilder('user')
+        .leftJoinAndSelect('user.channels', 'channel')
+        .where('channel.id = ' + channel.id)
+        .getMany();
+      const index = Math.floor(Math.random() * (users.length - 1));
+      channel.admin = users[index];
+      await this.channelRepository.save(channel);
+    }
+    await this.usersRepository.save(user);
 	}
 
 	async banUserFromChannel(userId: number, channelId: number) {
