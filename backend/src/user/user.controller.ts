@@ -64,13 +64,13 @@ export class UserController {
 
 	@Post('/:userId/channels/:channelId/remove')
 	async removeUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
-		try {await this.userService.removeUserFromChannel(userId, channelId);}
-		catch {
-			return {
-				message: 'failed to remove user from channel',
-				ok: false,
-			};
-		}
+		await this.userService.removeUserFromChannel(userId, channelId);
+		// catch {
+		// 	return {
+		// 		message: 'failed to remove user from channel',
+		// 		ok: false,
+		// 	};
+		// }
 		return {
 			message: 'user sucessfully removed from channel',
 			ok: true,
