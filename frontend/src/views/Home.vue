@@ -135,15 +135,19 @@ export default defineComponent({
 		this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
-		const hasDisconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
-		this.recoButton = hasDisconnectObject["disconnect"];
-		this.recoMode = hasDisconnectObject["mode"];
-		setTimeout(async () => {
-			const hasDisconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
-			this.recoButton = hasDisconnectObject["disconnect"];
-			this.recoMode = hasDisconnectObject["mode"];
-			console.log("RECHECK", this.recoButton, this.recoMode);
-		}, 4000);
+		const disconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
+		this.recoButton = disconnectObject["disconnect"];
+		this.recoMode = disconnectObject["mode"];
+		if (!this.recoButton)
+			return;
+		let timer: number = 0;
+		const it = setInterval(async () => {
+			const disconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
+			this.recoButton = disconnectObject["disconnect"];
+			timer++;
+			if (timer === 8 || !this.recoButton)
+				clearInterval(it);
+		}, 500);
 	},
 
 	methods: {
@@ -249,7 +253,7 @@ export default defineComponent({
 		},
 
 		reconnectToRoom(){
-			const mode = ["classic", "ranked", "arcade"][this.recoMode];
+			const mode = ["classic", "arcade", "ranked"][this.recoMode];
 			this.$router.push({ path: '/pong', query: { mode: mode }});
 		},
 
@@ -313,10 +317,10 @@ export default defineComponent({
 
 .play_button {
 	display: flex;
+	width: 100%;
+	height: 20%;
 	justify-content: center;
 	align-items: center;
-	height: 20%;
-	width: 100%;
 	background: #036280;
 	border: 3px solid #BC0002;
 	border-radius: 25px;
@@ -431,4 +435,5 @@ export default defineComponent({
 .received {
 	text-align: left;
 }
+
 </style>

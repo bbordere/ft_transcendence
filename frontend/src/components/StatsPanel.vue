@@ -46,12 +46,16 @@
 					{{ this.stats["loosePoints"] }}
 					<h5>Score Maximal</h5>
 					{{ this.stats["highScore"] }}
-					<h5>Nombre de Parties Totales</h5>
+					<h5>Nombre de Parties Total</h5>
 					{{ this.stats["totalGames"] }}
 					<h5>Nombre de Parties Classiques</h5>
 					{{ this.stats["totalClassicGames"] }}
+					<h5>Nombre de Parties Arcades</h5>
+					{{ this.stats["totalArcadeGames"] }}
+					<h5>Nombre de Parties Classées</h5>
+					{{ this.stats["totalRankedGames"] }}
 					<h5>Nombre de Duels Amis</h5>
-					{{ this.stats["friendDuel"] }}
+					{{ this.stats["totalFriendsDuel"] }}
 					<h5>Nombre de Powerups Activés</h5>
 					{{ this.stats["totalPowerups"] }}
 					<hr/>

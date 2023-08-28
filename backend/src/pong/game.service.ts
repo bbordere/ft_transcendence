@@ -15,7 +15,7 @@ export class GameService {
 		}, 200);
 	};
 
-	async checkRoom(room: Room){
+	checkRoom(room: Room){
 		let countDown: number = 0;
 		let isStarted: boolean = false;
 		const it = setInterval(() => {

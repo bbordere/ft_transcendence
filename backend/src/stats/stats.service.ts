@@ -36,16 +36,34 @@ export class StatsService {
 	async updateStats(match: Match, user: Partial<User>, indexPlayer: number, leaverId: number){
 		const stats: StatsDetail = await this.getUserStats(user.stats.id);
 		const opId = indexPlayer ^ 3;
+		console.log(match);
 		stats.winPoints += match[`scorePlayer${indexPlayer}`];
 		stats.loosePoints += match[`scorePlayer${opId}`];
-		stats.highScore = (match[`scorePlayer${indexPlayer}`] > stats.highScore ? match[`scorePlayer${indexPlayer}`] : stats.highScore);
-		const isClassic: boolean = match["mode"] === "classic";
-		isClassic ? stats.totalClassicGames += 1 : stats.friendDuel += 1;
-		stats.totalGames = stats.totalClassicGames + stats.friendDuel;
-		if ((match[`scorePlayer${indexPlayer}`] > match[`scorePlayer${opId}`] && user.id !== leaverId) || match['player' + opId].id === leaverId)
-			stats.wins += 1;
-		else
-			stats.looses += 1;
+		stats.highScore = Math.max(match[`scorePlayer${indexPlayer}`], stats.highScore);
+
+		const modes: string[] = ["Classique", "Arcade", "Classée"];
+		switch (match["mode"]){
+			case "Classique":
+				stats.totalClassicGames++;
+				break;
+			case "Arcade":
+				stats.totalArcadeGames++;
+				break;
+			case "Classée":
+				stats.totalRankedGames++;
+				break;
+			case "Duel":
+				stats.totalFriendsDuel++;
+				break;
+		}
+		stats.totalGames++;
+		if (match[`scorePlayer${indexPlayer}`] != match[`scorePlayer${opId}`] || leaverId != -1)
+		{
+			if ((match[`scorePlayer${indexPlayer}`] > match[`scorePlayer${opId}`] && user.id !== leaverId) || match['player' + opId].id === leaverId)
+				stats.wins += 1;
+			else
+				stats.looses += 1;
+		}
 		stats.meanScore = stats.winPoints / stats.totalGames;
 		user.stats = stats;
 	}

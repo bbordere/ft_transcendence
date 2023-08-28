@@ -192,8 +192,8 @@ export class RoomService {
 			matchDto.leaverId = matchDto.player1Id;
 		else if (leaverEmail && room.players[1].user["email"] === leaverEmail)
 			matchDto.leaverId = matchDto.player2Id;
-		this.matchService.createMatch(matchDto, room.mode === Mode.RANKED);
 		room.state = State.FINAL;
+		this.matchService.createMatch(matchDto, room.mode === Mode.RANKED).then(() => {console.log("ASYNC TEST")});
 	}
 
 	haveUserDisco(roomId: number): Boolean {

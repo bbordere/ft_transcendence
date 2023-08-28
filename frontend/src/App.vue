@@ -52,18 +52,18 @@ body {
     position: absolute;
 	height: 100vh;
 	width: 100vw;
-  --sinus:0.57357643635;
-  --d:50000px;
-  background-color: #000;
-  background: repeating-linear-gradient(35deg,	#c4e8f6e0,
-												#9ccef2e0,
-												#c4e8f6e0,
-												#509ac9e0,
-												#206fade0,
-												#c4e8f6e0 var(--d));
-  background-size: calc(var(--d)/var(--sinus)) 100%;
-  animation: AnimationName 10s linear infinite reverse;
-  overflow: scroll;
+//   --sinus:0.57357643635;
+//   --d:50000px;
+//   background-color: #000;
+//   background: repeating-linear-gradient(35deg,	#c4e8f6e0,
+// 												#9ccef2e0,
+// 												#c4e8f6e0,
+// 												#509ac9e0,
+// 												#206fade0,
+// 												#c4e8f6e0 var(--d));
+//   background-size: calc(var(--d)/var(--sinus)) 100%;
+//   animation: AnimationName 10s linear infinite reverse;
+//   overflow: scroll;
 }
 
 body::-webkit-scrollbar{

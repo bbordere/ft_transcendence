@@ -128,7 +128,7 @@ export class PongGame {
 
 		if (indexPlayer != -1){
 			room.players[indexPlayer].score++;
-			if (room.mode === Mode.RANKED && room.players[indexPlayer].score == PongConstants.WIN_SCORE_VALUE) {
+			if (room.mode === Mode.RANKED && room.players[indexPlayer].score === PongConstants.WIN_SCORE_VALUE) {
 				this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
 				room.state = State.ENDGAME;
 				return;
@@ -283,7 +283,7 @@ export class PongGame {
 		const it = setInterval(() => {
 			if (room.state === State.FINAL)
 				clearInterval(it);
-			if (room.time){
+			if (room.time % 15 === 7){
 				room.powerups.push(this.generatePowerup(room));
 			}
 		}, 1000)
