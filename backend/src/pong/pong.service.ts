@@ -14,7 +14,7 @@ export class PongGame {
 	
 	constructor(private roomService: RoomService, private readonly userService: UserService) {}
 
-	async resetBall(room: Room) {
+	resetBall(room: Room) {
 		room.ball.radius = 20;
 		room.ball.position.x = room.canvas.width / 2;
 		room.ball.position.y = room.canvas.height / 2;
@@ -26,7 +26,7 @@ export class PongGame {
 		room.ball.lastHit = -1;
 	}
 
-	async resetRacket(room: Room, keyUp: boolean, keyDown: boolean) {
+	resetRacket(room: Room, keyUp: boolean, keyDown: boolean) {
 		if (room.players[0]){
 			room.players[0].racket.pos.x = (PongConstants.RACKET_WIDTH);
 			room.players[0].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);

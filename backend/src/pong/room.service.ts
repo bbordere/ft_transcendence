@@ -174,7 +174,7 @@ export class RoomService {
 		}
 	}
 
-	async emitToPlayers(room: Room, event: string, ...args: any[]){
+	emitToPlayers(room: Room, event: string, ...args: any[]){
 		room.players[0].socket.emit(event, ...args);
 		if (room.players[1])
 			room.players[1].socket.emit(event, ...args);
