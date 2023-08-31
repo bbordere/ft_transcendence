@@ -156,9 +156,7 @@ export class PongGame {
 
 	activatePowerup(powerup: Powerup, room: Room){
 		powerup.activatedBy = Number(room.ball.direction.x < 0);
-		console.log("ACTIVATE " + powerup.name + " BY " + powerup.activatedBy);
 		let racket: Racket = room.players[powerup.activatedBy].racket;
-		console.log(room.players[powerup.activatedBy].user.stats);
 		room.players[powerup.activatedBy].user.stats.totalPowerups += 1;
 		this.userService.saveUser(room.players[powerup.activatedBy].user);
 		switch (powerup.effect) {

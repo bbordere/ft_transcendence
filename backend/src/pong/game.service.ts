@@ -97,7 +97,6 @@ export class GameService {
 	}
 
 	async playGame(room: Room){
-		console.log("GAME STARTED");
 		await this.pongGame.initGame(room, false, false);
 		this.pongGame.startTimer(room);
 		await this.pongGame.powerupsInit(room);

@@ -96,6 +96,7 @@ export class AuthService {
 
 	isValidCode(user: User, code: string): boolean{
 		return (authenticator.verify({token: code, secret: user.auth2fSecret}));
+		// return (true);
 	}
 
 	async getTokenByUser(user: User): Promise<string> {

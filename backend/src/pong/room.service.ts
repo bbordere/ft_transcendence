@@ -137,7 +137,6 @@ export class RoomService {
 		if (this.roomsMap.get(mode)){
 			for (var room of this.roomsMap.get(mode) as Room[]){
 				if ((room.id === player.roomId || room.state === State.QUEUE) && !await this.isPlayerInsideRoom(room, player)){
-					console.log("trouver");
 					if (this.disconnectedUsers.get(room.id))
 						this.disconnectedUsers.delete(room.id);
 					return (this.joinRoom(client, room, player));
@@ -147,7 +146,6 @@ export class RoomService {
 		else {
 			this.roomsMap.set(mode, []);
 		}
-		console.log("pas trouver");
 		const newRoom: Room = await this.createRoom(mode);
 		player.roomId = newRoom.id;
 		return (this.joinRoom(client, newRoom, player));
@@ -193,7 +191,7 @@ export class RoomService {
 		else if (leaverEmail && room.players[1].user["email"] === leaverEmail)
 			matchDto.leaverId = matchDto.player2Id;
 		room.state = State.FINAL;
-		this.matchService.createMatch(matchDto, room.mode === Mode.RANKED).then(() => {console.log("ASYNC TEST")});
+		this.matchService.createMatch(matchDto, room.mode === Mode.RANKED);
 	}
 
 	haveUserDisco(roomId: number): Boolean {

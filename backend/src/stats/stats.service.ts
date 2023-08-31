@@ -36,7 +36,6 @@ export class StatsService {
 	async updateStats(match: Match, user: Partial<User>, indexPlayer: number, leaverId: number){
 		const stats: StatsDetail = await this.getUserStats(user.stats.id);
 		const opId = indexPlayer ^ 3;
-		console.log(match);
 		stats.winPoints += match[`scorePlayer${indexPlayer}`];
 		stats.loosePoints += match[`scorePlayer${opId}`];
 		stats.highScore = Math.max(match[`scorePlayer${indexPlayer}`], stats.highScore);

@@ -433,4 +433,18 @@ export default defineComponent({
 	text-align: left;
 }
 
+.slide-fade-enter-from {
+	opacity: 0;
+}
+
+.slide-fade-leave-to {
+	opacity: 0;
+}
+
+.slide-fade-enter-from .modal-container,
+.slide-fade-leave-to .modal-container {
+	-webkit-transform: scale(1.5);
+	transform: scale(1.5);
+}
+
 </style>

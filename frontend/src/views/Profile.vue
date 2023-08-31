@@ -11,10 +11,10 @@ import { useNotification } from '@kyvg/vue3-notification';
 export default{
 	beforeRouteEnter(to, from, next) {
         next(() => {
-			if (!Object.keys(from.query).length)
+			if (!Object.keys(from.query).length || from.query["plan"] === undefined)
 				return
 
-			let message: string = from.query["plan"] === "on" ? "Double Authentification activé !" : "Double Authentification désactivé !"
+			let message: string = from.query["plan"] === "on" ? "Double Authentification activée !" : "Double Authentification désactivée !"
 
 			const notification = useNotification()
 			notification.notify({

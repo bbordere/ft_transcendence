@@ -49,6 +49,8 @@ interface emote{
 	timeout: ReturnType<typeof setTimeout>,
 }
 
+const TPI = 6.28;
+
 export default {
 	data() {
 		return {player1Id: "",
@@ -150,7 +152,7 @@ export default {
 
 		drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
 			ctx.beginPath();
-			ctx.arc(x, y, radius, 0, Math.PI*2);
+			ctx.arc(x, y, radius, 0, TPI);
 			ctx.fillStyle = color;
 			ctx.fill();
 			ctx.closePath();
@@ -167,6 +169,7 @@ export default {
 	mounted() {
 
 		const ballRadius = 20;
+		this.timer = "00:00";
 		const route = useRoute();
 		const mode: string | undefined = route.query["mode"]?.toString();
 		if (!mode){
@@ -297,7 +300,6 @@ export default {
 	max-height: 80%;
 	min-width: auto;
 	width: 100%;
-
 }
 #pongCanvas {
 	width: 100%;
