@@ -23,10 +23,10 @@
 				</div>
 			</div>
 			<div class="centered-panel-item">
-				<div class="titleRank">Ranking Stats</div>
+				<div class="titleRank">Classement</div>
 				<div class="split-stats">
 					<div class="rank-stat">
-						<h5>Classement</h5>
+						<h5>Côte</h5>
 						{{ stats.mmr }} mmr					
 					</div>
 					<div class="rank-stat">
@@ -38,7 +38,7 @@
 		</div>
 		<div class="right-panel">
 			<div class="stat-panel-item">
-				<h3>General Stats</h3>
+				<h3>Statistiques</h3>
 				<div class="list-stats">
 					<h5>Nombre de Points Gagnés</h5>
 					{{ this.stats["winPoints"] }}
@@ -138,6 +138,8 @@ export default{
 	width: 50%;
  	display: flex;
 	flex-direction: column;
+	font-size: clamp(0.5rem, -0.1944rem + 2.2222vw, 1.125rem);
+
 	/* border: 1px solid black; */
 }
 
@@ -166,7 +168,6 @@ export default{
 
 .titleRank{
     display: block;
-    font-size: 1.17em;
     margin-top: 1em;
     margin-bottom: 1em;
     margin-left: 0;
@@ -174,6 +175,7 @@ export default{
     font-weight: bold;
 	padding-top: 0%;
 	margin-top: 0;
+	font-size: clamp(0.6875rem, 0.1319rem + 1.7778vw, 1.1875rem);
 }
 
 .split-stats{
@@ -204,6 +206,7 @@ h3{
 .list-stats {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+  
 }
 
 .rank-stat{
@@ -215,9 +218,17 @@ h3{
 	overflow-y: auto;
 }
 
-@media screen and (max-width: 950px) {
+h5{
+	font-size: clamp(0.4375rem, -0.1875rem + 2vw, 1rem);
+}
+
+h3{
+	font-size: clamp(0.6875rem, -0.0764rem + 2.4444vw, 1.375rem);
+}
+
+
+/* @media screen and (max-width: 950px) {
 	h5{
-		font-size: 1.5vw;
 	}
 	h3{
 		font-size: 2vw;
@@ -232,6 +243,6 @@ h3{
 	.rank-stat{
 		font-size: 2vw;
 	}
-}
+} */
 
 </style>

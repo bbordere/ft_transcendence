@@ -1,6 +1,7 @@
 <template>
 	<div class="home_body">
 		<div class="home_content">
+
 			<div class="left_column">
 				<button v-if="!recoButton" class="play_button" @click="showModalPlay = true">Jouer</button>
 				<button v-else class="play_button" @click="reconnectToRoom">Reco</button>
@@ -57,6 +58,7 @@
 					<p>connecting to websocket server...</p>
 				</div>
 			</div>
+
 		</div>
 	</div>
 </template>
@@ -286,14 +288,8 @@ export default defineComponent({
 
 <style>
 .home_body {
-	display: flex;
-	width: 95vw;
 	height: 90%;
-	align-items: center;
-	justify-content: center;
-	padding-top: 2.5%;
-	padding-left: 2.7%;
-	padding-bottom: 2%;
+	padding: 2.5%;
 	min-height: 600px;
 	min-width: 500px;
 }
@@ -301,9 +297,10 @@ export default defineComponent({
 .home_content {
 	display: flex;
 	height: 100%;
+	width: 100%;
 	align-items: center;
 	justify-content: center;
-	flex-basis: 100%;
+	/* background-color: #BC0002; */
 	gap: 6%;
 }
 

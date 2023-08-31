@@ -5,9 +5,25 @@ import StatsPanel from '@/components/StatsPanel.vue'
 import MatchHistory from '@/components/MatchHistory.vue'
 import { useRoute } from 'vue-router';
 import router from '../router';
+import { useNotification } from '@kyvg/vue3-notification';
 
 
 export default{
+	beforeRouteEnter(to, from, next) {
+        next(() => {
+			if (!Object.keys(from.query).length)
+				return
+
+			let message: string = from.query["plan"] === "on" ? "Double Authentification activé !" : "Double Authentification désactivé !"
+
+			const notification = useNotification()
+			notification.notify({
+				title: message,
+				type: 'success',
+				group: 'notif-center'
+			});	
+        });
+    },
 	components: {
 		ProfileCard,
 		StatsPanel,
@@ -52,7 +68,7 @@ export default{
 			this.$emit('update', newUsername);
 		}
 	},
-	created() {
+	mounted() {
 		this.getUser();
 	},
 
