@@ -30,38 +30,42 @@
 					</div>
 					<div class="list">
 						<ul>
-							<li v-for="channel in channels"><button :key="channel.id" @click="showChannel(channel)">{{ channel.name }}</button></li>
+							<li :class="clickedChannel(channel.id)" @click="showChannel(channel)" v-for="channel in channels"><span>{{ channel.name }}</span></li>
 						</ul>
-						<div class="friends"></div>
+						<!-- <div class="friends"></div> -->
 					</div>
 					
 				</div>
 			</div>
-			<div class="chat">
-				<div v-if="connected && showDiv">
-					<h2>{{ selectedChannel.name }}</h2>
+			<div v-if="connected && showDiv" class="chat">
+				<h1>{{ selectedChannel.name }}</h1>
+				<div class="message_box">
 					<ul class="msg_chat_box">
-						<li v-for="msg in selectedChannel.messages" :class="getMessageClass(msg)">{{ msg.text }}</li>
+						<li v-for="msg in selectedChannel.messages" :class="getMessageClass(msg)"><span>{{ msg.text }}</span></li>
 					</ul>
-					<input type="text" v-model="message">
-					<button type="button" @click="sendMessage()">Send !</button>
+				</div>
+				<div class="send_container">
+					<div class="sendbox">
+						<input type="text" v-model="message">
+						<button type="button" @click="sendMessage()">&#8593;</button>
+					</div>
 					<div class="channel_options">
 						<button type="button" @click="quitChannel(sender)">Quit Channel</button>
-						<div v-if="selectedChannel.admin == sender">
-							<button type="button" @click="showKickModal = true">Kick User</button>
-							<button type="button" @click="showBanModal = true">Ban User</button>
-						</div>
+						<button v-if="selectedChannel.admin == sender" type="button" @click="showKickModal = true">Kick User</button>
+						<button v-if="selectedChannel.admin == sender" type="button" @click="showBanModal = true">Ban User</button>
 					</div>
 				</div>
-				<div v-else-if="!connected">
-					<p>connecting to websocket server...</p>
-				</div>
 			</div>
+			<div v-else-if="!connected" class="chat">
+				<p>connecting to websocket server...</p>
+			</div>
+			<div v-else-if="!showDiv" class="chat"></div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import '../assets/css/home.css';
 import io from 'socket.io-client';
 import ModalAdd from '../components/ModalAdd.vue'
 import ModalAddFriend from '../components/ModalAddFriend.vue'
@@ -274,161 +278,12 @@ export default defineComponent({
 
 		notifyKick(channelId: number, userId: number) {
 			this.socket.emit('kick', {channelId, userId});
+		},
+
+		clickedChannel(channelId: number) {
+			return (this.selectedChannel.id === channelId ? 'selectedChannel' : '');
 		}
 	},
 });
 
 </script>
-
-<style>
-.home_body {
-	display: flex;
-	width: 95vw;
-	height: 90%;
-	align-items: center;
-	justify-content: center;
-	padding-top: 2.5%;
-	padding-left: 2.7%;
-	padding-bottom: 2%;
-	min-height: 600px;
-	min-width: 500px;
-}
-
-.home_content {
-	display: flex;
-	height: 100%;
-	align-items: center;
-	justify-content: center;
-	flex-basis: 100%;
-	gap: 6%;
-}
-
-.left_column {
-	display: flex;
-	height: 100%;
-	flex-direction: column;
-	gap: 4%;
-	flex-grow: 0.2;
-}
-
-.play_button {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 20%;
-	width: 100%;
-	background: #036280;
-	border: 3px solid #BC0002;
-	border-radius: 25px;
-	text-decoration: none;
-	color: black;
-	font-size: 3em;
-}
-
-.chat {
-	display: flex;
-	height: 99%;
-	width: 45%;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	background: #F0F8FF;
-	border: 3px solid #BC0002;
-	border-radius: 10px;
-}
-
-.friend_list {
-	display: flex;
-	flex-direction: column;
-	height: 90%;
-	width: 100%;
-	background-color: #F0F8FF;
-	border: 3px solid #BC0002;
-	border-radius: 10px;
-}
-
-.add_friend {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 2%;
-	height: 7%;
-	padding-left: 3px;
-	width: 97%;
-
-}
-
-.add_friend .spe {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: white;
-	background-color: black;
-	height: 80%;
-	flex-shrink: 0;
-	width: 37%;
-	overflow: hidden;
-	border-radius: 20px;
-	border: none;
-	cursor: pointer;
-}
-
-.spe:hover {
-	background-color: rgb(47, 49, 49);;
-}
-
-
-.list {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	height: 100%;
-	margin-top: 2%;
-	align-items: center;
-	background-color: rgb(255, 255, 255);
-}
-
-.friends {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	height: 92%;
-	background-color: black;
-}
-
-.friend {
-	margin-top: 5%;
-	margin-bottom: 5%;
-}
-
-
-@media screen and (max-width: 1150px) {
-	.join_panel button {
-		font-size: 65%;
-	}
-
-	.left_column {
-		flex-grow: 0.6;
-	}
-
-	.chat {
-		width: 50%;
-	}
-}
-
-.msg_chat_box {
-	width: 100%;
-}
-
-.msg_chat_box li {
-	text-decoration: none;
-}
-
-.sent {
-	text-align: right;
-}
-
-.received {
-	text-align: left;
-}
-</style>
