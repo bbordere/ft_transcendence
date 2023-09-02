@@ -49,7 +49,33 @@ interface emote{
 	timeout: ReturnType<typeof setTimeout>,
 }
 
-const TPI = 6.28;
+interface pos{
+	x: number,
+	y: number
+}
+
+interface ball{
+	position: pos,
+	speed: number,
+	direction: pos,
+	lastHit: number,
+	radius: number
+}
+
+interface paddle{
+	pos: pos,
+	size: number,
+	speed: number,
+	width: number
+}
+
+interface gameInfos{
+	ball: ball,
+	pad1: paddle,
+	pad2: paddle
+}
+
+const TPI = 6.2831853;
 
 export default {
 	data() {
@@ -63,7 +89,11 @@ export default {
 				emote1: {emoji: ''} as emote,
 				emote2: {emoji: ''} as emote,
 				sprites: [new Image(), new Image(), new Image()] as Array<HTMLImageElement>,
-			};
+				gameInfos: {} as gameInfos,
+				lastUpdate: performance.now(),
+				animId: 0,
+				powerups: [],
+		};
 	},
 	components: {
 		PongPlayerCard,
@@ -154,6 +184,9 @@ export default {
 			ctx.beginPath();
 			ctx.arc(x, y, radius, 0, TPI);
 			ctx.fillStyle = color;
+			ctx.lineWidth = 6;
+			ctx.strokeStyle = "white";
+			ctx.stroke();
 			ctx.fill();
 			ctx.closePath();
 		},
@@ -165,10 +198,35 @@ export default {
 				ctx.drawImage(this.sprites[item.effect], item.pos.x, item.pos.y, item.radius, item.radius);
 			}
 		},
+
+		draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, currentTime: number){
+			if (Object.keys(this.gameInfos).length){
+				const delta = currentTime - this.lastUpdate;
+				this.lastUpdate = currentTime;
+
+				const ball = this.gameInfos.ball;
+				const pad1 = this.gameInfos.pad1;
+				const pad2 = this.gameInfos.pad2;
+
+				if (ball.lastHit !== -1 && ball.position.x != canvas.width / 2 && ball.position.y != canvas.height / 2){
+					ball.position.x = ball.position.x + (ball.direction.x * delta);
+					ball.position.y = ball.position.y + (ball.direction.y * delta);
+				}
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				this.drawRect(ctx, pad1.pos.x, pad1.pos.y, 
+								pad1.width, pad1.size, "#FFFFFF");
+				this.drawRect(ctx, pad2.pos.x, pad2.pos.y, 
+								pad2.width, pad2.size, "#FFFFFF");
+				this.drawCircle(ctx, ball.position.x, ball.position.y,
+							ball.radius, ball.speed === 30 ? "#F44E1A" : "#2A52EB");
+				this.drawPowerups(ctx, this.powerups);
+			}
+			this.animId = requestAnimationFrame((currentTime) => {this.draw(ctx, canvas, currentTime)});
+			// this.drawRect(ctx, ball.position.x - ball.radius, ball.position.y - ball.radius, ball.radius * 2, ball.radius * 2, "#FFFF00");
+		},
 	},
 	mounted() {
 
-		const ballRadius = 20;
 		this.timer = "00:00";
 		const route = useRoute();
 		const mode: string | undefined = route.query["mode"]?.toString();
@@ -207,15 +265,24 @@ export default {
 		});
 
 		this.socket.on('updateGame', (ball, racket1, racket2, powerups) => {
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			this.drawRect(ctx, racket1.pos.x, racket1.pos.y, racket1.width, racket1.size, "#FFFFFF");
-			this.drawRect(ctx, racket2.pos.x, racket2.pos.y, racket2.width, racket2.size, "#FFFFFF");
-			this.drawPowerups(ctx, powerups);
-			this.drawCircle(ctx, ball.position.x, ball.position.y, ballRadius, ball.speed === 30 ? "#F44E1A" : "#2A52EB");
+			this.powerups = powerups;
+			this.gameInfos = {ball: ball, pad1: racket1, pad2: racket2};
+			if (this.animId === -1)
+				this.animId = requestAnimationFrame((current) => {this.draw(ctx, canvas, current)});
+			// requestAnimationFrame(() => {
+				// ctx.clearRect(0, 0, canvas.width, canvas.height);
+				// this.drawRect(ctx, racket1.pos.x, racket1.pos.y, racket1.width, racket1.size, "#FFFFFF");
+				// this.drawRect(ctx, racket2.pos.x, racket2.pos.y, racket2.width, racket2.size, "#FFFFFF");
+				// this.drawCircle(ctx, ball.position.x, ball.position.y, ballRadius, ball.speed === 30 ? "#F44E1A" : "#2A52EB");
+			// 	// this.drawRect(ctx, ball.position.x - ball.radius, ball.position.y - ball.radius, ball.radius * 2, ball.radius * 2, "#FFFF00");
+			// })
 		});
 
 		this.socket.on('text', (data) => {
+			cancelAnimationFrame(this.animId);
+			this.animId = -1;
 			this.drawText(ctx, canvas, data);
+			// this.animId = requestAnimationFrame((current) => {this.draw(ctx, canvas, current)});
 		});
 
 		this.socket.on('time', (time) => {
@@ -227,7 +294,8 @@ export default {
 				this.emoteHandling(1, emoji);
 			else
 				this.emoteHandling(2, emoji);
-		});		
+		});
+		this.animId = requestAnimationFrame((current) => {this.draw(ctx, canvas, current)});
 	},
 	beforeUnmount(){
 		this.socket.disconnect();
@@ -306,6 +374,7 @@ export default {
 	height: 100%;
 	background: black;
 	border-radius: 5px;
+	aspect-ratio: auto;
 }
 
 .button_panel {

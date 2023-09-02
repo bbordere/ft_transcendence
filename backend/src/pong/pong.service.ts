@@ -7,7 +7,6 @@ import { Effect, Powerup } from './interface/powerup.interface';
 
 import { PongConstants } from './interface/constants.interface';
 import { UserService } from 'src/user/user.service';
-import { Player } from './interface/player.interface';
 
 @Injectable()
 export class PongGame {
@@ -16,8 +15,8 @@ export class PongGame {
 
 	resetBall(room: Room) {
 		room.ball.radius = 20;
-		room.ball.position.x = room.canvas.width / 2;
-		room.ball.position.y = room.canvas.height / 2;
+		room.ball.position.x = PongConstants.CANVAS_WIDTH / 2;
+		room.ball.position.y = PongConstants.CANVAS_HEIGHT / 2;
 		room.ball.direction.x = (Math.random() * 2 - 1);
 		while (room.ball.direction.x < 0.5 && room.ball.direction.x > -0.5)
 			room.ball.direction.x = (Math.random() * 2 - 1);
@@ -42,6 +41,7 @@ export class PongGame {
 			room.players[1].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);
 			room.players[1].racket.size = PongConstants.RACKET_HEIGHT;
 			room.players[1].racket.width = PongConstants.RACKET_WIDTH;
+			console.log(room.players[1].racket.pos);
 			if (room.players[1].racket.effectTimeout){
 				clearTimeout(room.players[1].racket.effectTimeout);
 				room.players[1].racket.effectTimeout = null;
