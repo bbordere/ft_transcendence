@@ -43,8 +43,9 @@ export class User {
 	@JoinTable()
 	public channels: Channel[];
 
-	@OneToMany(() => Friend, friend => friend.user)
-	friends: Friend[];
+	@ManyToMany(() => User)
+	@JoinTable()
+	public friends: User[];
 
 	@BeforeInsert()
 	async hashPassword() {

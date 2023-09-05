@@ -111,8 +111,9 @@ export default {
 .modal_friend {
 	display: flex;
 	flex-direction: column;
-	width: 40%;
-	height: 30%;
+	right: 70%;
+	width: 15%;
+	height: 55%;
 	background-color: #DBEFFC;
 	border-radius: 20px;
 }

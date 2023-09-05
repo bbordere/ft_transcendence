@@ -21,9 +21,8 @@
 						<ul>
 							<li v-for="channel in channels"><button :key="channel.id" @click="showChannel(channel)">{{ channel.name }}</button></li>
 						</ul>
-						<div class="friends"></div>
+						<div class="friends"><FriendList /></div>
 					</div>
-					
 				</div>
 			</div>
 			<div class="chat">
@@ -50,6 +49,7 @@ import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
 import Head from '../components/head.vue'
 import ButtonAdd from '../components/ButtonAdd.vue'
+import FriendList from '../components/FriendList.vue'
 
 interface Message {
 	channelId: number;
@@ -71,7 +71,8 @@ export default defineComponent({
 		ButtonAdd,
 		ModalAddFriend,
 		ModalAdd,
-		Head
+		Head,
+		FriendList
 	},
 
 	data() {
@@ -259,7 +260,7 @@ export default defineComponent({
 .friend_list {
 	display: flex;
 	flex-direction: column;
-	height: 90%;
+	height: 80%;
 	width: 100%;
 	background-color: #ffffff;
 	border: 3px solid #BC0002;
@@ -296,13 +297,11 @@ export default defineComponent({
 	background-color: rgb(6, 56, 56);;
 }
 
-
 .list {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	height: 100%;
-	margin-top: 2%;
+	height: 90%;
 	align-items: center;
 	background-color: rgb(255, 255, 255);
 }
@@ -311,8 +310,10 @@ export default defineComponent({
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	height: 92%;
-	background-color: black;
+	height: 95%;
+	width: 87%;
+	background-color: #F0F8FF;
+
 }
 
 .friend {

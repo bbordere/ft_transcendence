@@ -13,7 +13,7 @@ export class Friend {
 	@Column()
 	public FriendId: number;
 
-	@ManyToOne(() => User, user => user.friends)
-	@JoinColumn({ name: 'UserId' })
-	user: User;
+	@Column()
+	public Status: number;
+
 };

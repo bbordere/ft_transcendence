@@ -54,6 +54,7 @@ header .logo {
 	background: #ffffff;
 	border-radius: 290px;
 	margin-left: 2.5%;
+	width: 7%;
 	justify-content: center;
 }
 
@@ -75,7 +76,7 @@ header .profile {
 
 header .box_img_profile {
 	display: flex;
-	justify-content: start;
+	justify-content: end;
 }
 
 .img_profile{
