@@ -10,6 +10,13 @@ h1 {
 	margin-bottom: 10px;
 	max-height: 100%;
 	overflow-y: auto;
+	scrollbar-width: none;
+}
+
+/* Chrome */
+::-webkit-scrollbar {
+	width: 0;
+	background-color: transparent;
 }
 
 .message_box ul {

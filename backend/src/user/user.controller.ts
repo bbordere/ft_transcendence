@@ -65,12 +65,6 @@ export class UserController {
 	@Post('/:userId/channels/:channelId/remove')
 	async removeUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
 		await this.userService.removeUserFromChannel(userId, channelId);
-		// catch {
-		// 	return {
-		// 		message: 'failed to remove user from channel',
-		// 		ok: false,
-		// 	};
-		// }
 		return {
 			message: 'user sucessfully removed from channel',
 			ok: true,
@@ -80,6 +74,11 @@ export class UserController {
 	@Post('/:userId/channels/:channelId/ban')
 	async banUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
 		this.userService.banUserFromChannel(userId, channelId);
+	}
+
+	@Post('/:userId/channels/:channelId/unban')
+	async UnbanUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		this.userService.UnbanUserFromChannel(userId, channelId);
 	}
 
 

@@ -30,7 +30,7 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - /home/whale/ft_transcendence/backend:/workspace
+      - ./backend:/workspace
     env_file: nestjs.env
     container_name: nestjs
 
@@ -52,7 +52,7 @@ volumes:
     driver: local
     name: nestjs
     driver_opts:
-      device: /home/whale/ft_transcendence/backend
+      device: ./backend
       type: volume
       o: bind
   

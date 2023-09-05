@@ -27,6 +27,9 @@
 						<Teleport to="body">
 							<BanUserModal :show="showBanModal" :channelId="selectedChannel.id" @close="showBanModal = false;" @kick="notifyKick"></BanUserModal>
 						</Teleport>
+						<Teleport to="body">
+							<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;"></UnBanUserModal>
+						</Teleport>
 					</div>
 					<div class="list">
 						<ul>
@@ -41,7 +44,7 @@
 				<h1>{{ selectedChannel.name }}</h1>
 				<div class="message_box">
 					<ul class="msg_chat_box">
-						<li v-for="msg in selectedChannel.messages" :class="getMessageClass(msg)"><span>{{ msg.text }}</span></li>
+						<li v-for="(msg, index) in selectedChannel.messages" :ref="`message-${index}`" :class="getMessageClass(msg)" class="message"><span>{{ msg.text }}</span></li>
 					</ul>
 				</div>
 				<div class="send_container">
@@ -53,6 +56,7 @@
 						<button type="button" @click="quitChannel(sender)">Quit Channel</button>
 						<button v-if="selectedChannel.admin == sender" type="button" @click="showKickModal = true">Kick User</button>
 						<button v-if="selectedChannel.admin == sender" type="button" @click="showBanModal = true">Ban User</button>
+						<button v-if="selectedChannel.admin == sender" type="button" @click="showUnBanModal = true">Unban User</button>
 					</div>
 				</div>
 			</div>
@@ -74,6 +78,7 @@ import ButtonAdd from '../components/ButtonAdd.vue'
 import PlayModal from '@/components/PlayModal.vue';
 import KickUserModal from '@/components/KickUserModal.vue';
 import BanUserModal from '@/components/BanUserModal.vue';
+import UnBanUserModal from '@/components/UnBanUserModal.vue';
 
 interface Message {
 	channelId: number;
@@ -99,6 +104,7 @@ export default defineComponent({
 		PlayModal,
 		KickUserModal,
 		BanUserModal,
+		UnBanUserModal,
 	},
 
 	data() {
@@ -108,6 +114,7 @@ export default defineComponent({
 			showModalPlay: false,
 			showKickModal: false,
 			showBanModal: false,
+			showUnBanModal: false,
 			socket: null as any,
 			connected: false as Boolean,
 			sender: -1 as number,
@@ -150,6 +157,14 @@ export default defineComponent({
 		}, 4000);
 	},
 
+	updated() {
+		if (this.selectedChannel.messages) {
+			const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
+			if (lastMessage)
+				lastMessage[0].scrollIntoView();
+		}
+	},
+
 	methods: {
 		init() {
 			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/')
@@ -158,13 +173,13 @@ export default defineComponent({
 			this.socket.on('message', (data: { channelId: number, text: string, sender: number }) => {
 				const { channelId, text, sender } = data;
 				const channel = this.findChannel(channelId);
-					if (channel) {
-						channel.messages.push({
-							channelId: channelId,
-							text: text,
-							sender: sender,
-						});
-					}
+				if (channel) {
+					channel.messages.push({
+						channelId: channelId,
+						text: text,
+						sender: sender,
+					});
+				}
 			});
 			this.socket.on('kick', (data: {channelId: number, userId: number}) => {
 				const { channelId, userId } = data;
@@ -282,7 +297,18 @@ export default defineComponent({
 
 		clickedChannel(channelId: number) {
 			return (this.selectedChannel.id === channelId ? 'selectedChannel' : '');
-		}
+		},
+
+		// scrollToLastMessage() {
+		// 	const lastMessageElement = this.$refs.lastMessage;
+
+		// 	if (lastMessageElement && lastMessageElement instanceof Element) {
+		// 		lastMessageElement.scrollIntoView({
+		// 			behavior: 'smooth',
+		// 			block: 'end',
+		// 		});
+		// 	}
+		// },
 	},
 });
 
