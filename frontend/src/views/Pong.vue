@@ -90,9 +90,9 @@ export default {
 				emote2: {emoji: ''} as emote,
 				sprites: [new Image(), new Image(), new Image()] as Array<HTMLImageElement>,
 				gameInfos: {} as gameInfos,
-				lastUpdate: performance.now(),
 				animId: 0,
 				powerups: [],
+				ball: {speed: -1} as ball,
 		};
 	},
 	components: {
@@ -201,28 +201,26 @@ export default {
 
 		draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, currentTime: number){
 			if (Object.keys(this.gameInfos).length){
-				const delta = currentTime - this.lastUpdate;
-				this.lastUpdate = currentTime;
-
-				const ball = this.gameInfos.ball;
+				if (this.ball.speed === -1){
+					this.ball = this.gameInfos.ball;
+				}
+				const targetBall = this.gameInfos.ball;
 				const pad1 = this.gameInfos.pad1;
 				const pad2 = this.gameInfos.pad2;
-
-				if (ball.lastHit !== -1 && ball.position.x != canvas.width / 2 && ball.position.y != canvas.height / 2){
-					ball.position.x = ball.position.x + (ball.direction.x * delta);
-					ball.position.y = ball.position.y + (ball.direction.y * delta);
-				}
+				this.ball.position.x += (targetBall.position.x - this.ball.position.x) * 0.4;
+				this.ball.position.y += (targetBall.position.y - this.ball.position.y) * 0.4;
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				this.drawRect(ctx, pad1.pos.x, pad1.pos.y, 
 								pad1.width, pad1.size, "#FFFFFF");
 				this.drawRect(ctx, pad2.pos.x, pad2.pos.y, 
 								pad2.width, pad2.size, "#FFFFFF");
-				this.drawCircle(ctx, ball.position.x, ball.position.y,
-							ball.radius, ball.speed === 30 ? "#F44E1A" : "#2A52EB");
+
+				this.drawCircle(ctx, this.ball.position.x, this.ball.position.y,
+					this.ball.radius, this.ball.speed === 30 ? "#F44E1A" : "#2A52EB");
+
 				this.drawPowerups(ctx, this.powerups);
 			}
 			this.animId = requestAnimationFrame((currentTime) => {this.draw(ctx, canvas, currentTime)});
-			// this.drawRect(ctx, ball.position.x - ball.radius, ball.position.y - ball.radius, ball.radius * 2, ball.radius * 2, "#FFFF00");
 		},
 	},
 	mounted() {
@@ -269,13 +267,6 @@ export default {
 			this.gameInfos = {ball: ball, pad1: racket1, pad2: racket2};
 			if (this.animId === -1)
 				this.animId = requestAnimationFrame((current) => {this.draw(ctx, canvas, current)});
-			// requestAnimationFrame(() => {
-				// ctx.clearRect(0, 0, canvas.width, canvas.height);
-				// this.drawRect(ctx, racket1.pos.x, racket1.pos.y, racket1.width, racket1.size, "#FFFFFF");
-				// this.drawRect(ctx, racket2.pos.x, racket2.pos.y, racket2.width, racket2.size, "#FFFFFF");
-				// this.drawCircle(ctx, ball.position.x, ball.position.y, ballRadius, ball.speed === 30 ? "#F44E1A" : "#2A52EB");
-			// 	// this.drawRect(ctx, ball.position.x - ball.radius, ball.position.y - ball.radius, ball.radius * 2, ball.radius * 2, "#FFFF00");
-			// })
 		});
 
 		this.socket.on('text', (data) => {
