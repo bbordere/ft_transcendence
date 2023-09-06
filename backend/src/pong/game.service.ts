@@ -44,7 +44,8 @@ export class GameService {
 				break;
 
 				case State.ENDGAME: {
-					if ((1000 / PongConstants.GAME_TICK) * 5 && !this.roomService.haveUserDisco(room.id))
+
+					if (countDown < (1000 / PongConstants.GAME_TICK) * 5 && !this.roomService.haveUserDisco(room.id))
 						countDown++
 					else
 						this.roomService.endGame(room);
@@ -128,9 +129,9 @@ export class GameService {
 				break;
 
 				case State.ENDGAME: {
+					this.roomService.emitToPlayers(room, 'text', "ENDGAME");
 					clearInterval(room.gameInterval);
 					clearInterval(room.timerInterval);
-					this.roomService.emitToPlayers(room, 'text', "ENDGAME");
 				}
 				break;
 

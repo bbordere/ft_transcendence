@@ -40,8 +40,8 @@ export class PongGame {
 			room.players[1].racket.pos.x = (PongConstants.CANVAS_WIDTH - (PongConstants.RACKET_WIDTH * 2));
 			room.players[1].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);
 			room.players[1].racket.size = PongConstants.RACKET_HEIGHT;
+			room.players[1].racket.size = 2000;
 			room.players[1].racket.width = PongConstants.RACKET_WIDTH;
-			console.log(room.players[1].racket.pos);
 			if (room.players[1].racket.effectTimeout){
 				clearTimeout(room.players[1].racket.effectTimeout);
 				room.players[1].racket.effectTimeout = null;
@@ -119,7 +119,6 @@ export class PongGame {
 			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
 			y: room.ball.direction.y * room.ball.speed + room.ball.radius,
 		}
-		
 		let indexPlayer = -1;
 		if (room.ball.position.x + next.x > room.canvas.width)
 			indexPlayer = 0;

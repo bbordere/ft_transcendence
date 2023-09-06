@@ -62,6 +62,7 @@
 	flex-direction: row;
 	justify-content: space-between;
 	text-align: center;
+	font-size: clamp(0.875rem, 0.5077rem + 0.6186vw, 1.25rem);
 }
 
 .player-card{
@@ -69,11 +70,9 @@
 	flex-direction: column;
 	align-items: center;
 	margin-top: 2%;
-	/* justify-content: space-around; */
 	width: 45%;
 	border-radius: 30px;
-	/* background-color: rgb(79, 79, 187); */
-	font-size: 1em;
+	font-size: clamp(0.75rem, 0.2603rem + 0.8247vw, 1.25rem);
 }
 
 .score-card{
@@ -97,7 +96,7 @@
 @media screen and (max-width: 950px) {
 	.match-card{
 		height: 25%;
-		font-size: 2.5vw;
+		font-size: clamp(0.5rem, -0.3333rem + 2.6667vw, 1.25rem);
 	}
 	.player-card{
 		justify-content: center;
@@ -112,7 +111,7 @@
 		display: none;
 	}
 	.score-text{
-		font-size: 1.9vw;
+		font-size: clamp(0.5rem, -0.3333rem + 2.6667vw, 1.25rem);
 	}
 }
 
@@ -120,6 +119,7 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
+	font-weight: bold;
 }
 
 .text-red{
