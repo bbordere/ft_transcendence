@@ -72,7 +72,7 @@ export default {
 			}
 		},
 
-		draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, currentTime: number){
+		draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement){
 			if (Object.keys(this.gameInfos).length){
 				if (this.ball.speed === -1){
 					this.ball = this.gameInfos.ball;
@@ -85,8 +85,8 @@ export default {
 				this.ball.position.x += (targetBall.position.x - this.ball.position.x) * 0.5;
 				this.ball.position.y += (targetBall.position.y - this.ball.position.y) * 0.5;
 
-				this.pad1.pos.x += (pad1.pos.x - this.pad1.pos.x) * 0.1;
-				this.pad1.pos.y += (pad1.pos.y - this.pad1.pos.y) * 0.1;
+				this.pad1.pos.x += (pad1.pos.x - this.pad1.pos.x) * 0.2;
+				this.pad1.pos.y += (pad1.pos.y - this.pad1.pos.y) * 0.2;
 
 				this.pad2.pos.x += (pad2.pos.x - this.pad2.pos.x) * 0.2;
 				this.pad2.pos.y += (pad2.pos.y - this.pad2.pos.y) * 0.2;
@@ -102,7 +102,7 @@ export default {
 
 				this.drawPowerups(ctx, this.gameInfos.powerups);
 			}
-			this.animId = requestAnimationFrame((currentTime) => {this.draw(ctx, canvas, currentTime)});
+			this.animId = requestAnimationFrame(() => {this.draw(ctx, canvas)});
 		},
 	},
 	mounted() {
@@ -120,7 +120,6 @@ export default {
 		});
 
 		this.socket.on('text', (data: string) => {
-			console.log("TEXT", data);
 			cancelAnimationFrame(this.animId);
 			this.animId = -1;
 			this.drawText(ctx, canvas, data);

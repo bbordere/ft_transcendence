@@ -229,7 +229,7 @@ export default {
 	align-items: center;
 	justify-content: center;
 	font-size: 2em;
-	font-family: 'digital-clock-font', regular;
+	font-family: 'digital-clock-font', monospace;
 }
 
 .button_panel {
@@ -250,7 +250,7 @@ export default {
 
 @font-face{
  font-family:'digital-clock-font';
- src: url('./fonts/digital-7.regular.ttf');
+ src: url('./fonts/digital-7.mono.ttf');
 }
 
 .scores{
