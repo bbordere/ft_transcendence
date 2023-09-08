@@ -36,6 +36,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return (payload);
 	}
 
+	@SubscribeMessage('changeAdmin')
+	handleChangeAdmin(client: Socket, payload: any) {
+		this.server.emit('changeAdmin', payload);
+		return (payload);
+	}
+
 	afterInit(server: Server) {
 		this.logger.log('Websocket server has started up !');
 	}

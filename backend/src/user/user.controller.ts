@@ -50,10 +50,10 @@ export class UserController {
 	@Post('/:userId/channels/:channelId/add')
 	async addUserToChannel(@Param('userId') userId: number, @Param('channelId') channelId: number, @Body('password') password: string) {
 		try {await this.userService.addUserToChannel(userId, channelId, password);}
-		catch {
+		catch (e) {
 			return {
 				ok: false,
-				message: 'user not added'
+				message: e.message,
 			};
 		}
 		return {
@@ -65,10 +65,10 @@ export class UserController {
 	@Post('/:userId/channels/:channelId/remove')
 	async removeUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
 		await this.userService.removeUserFromChannel(userId, channelId);
-		return {
-			message: 'user sucessfully removed from channel',
+		return ({
 			ok: true,
-		};
+			message: 'User successfully removed from channel',
+		});
 	}
 
 	@Post('/:userId/channels/:channelId/ban')

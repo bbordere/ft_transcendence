@@ -48,10 +48,12 @@
 					</ul>
 				</div>
 				<div class="send_container">
-					<div class="sendbox">
-						<input type="text" v-model="message">
-						<button type="button" @click="sendMessage()">&#8593;</button>
-					</div>
+					<form v-on:submit.prevent="sendMessage">
+						<div class="sendbox">
+							<input type="text" v-model="message">
+							<button type="button" @click="sendMessage()">&#8593;</button>
+						</div>
+					</form>
 					<div class="channel_options">
 						<button type="button" @click="quitChannel(sender)">Quit Channel</button>
 						<button v-if="selectedChannel.admin == sender" type="button" @click="showKickModal = true">Kick User</button>
@@ -74,6 +76,7 @@ import io from 'socket.io-client';
 import ModalAdd from '../components/ModalAdd.vue'
 import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
+import { useNotification } from "@kyvg/vue3-notification";
 import ButtonAdd from '../components/ButtonAdd.vue'
 import PlayModal from '@/components/PlayModal.vue';
 import KickUserModal from '@/components/KickUserModal.vue';
@@ -181,15 +184,41 @@ export default defineComponent({
 					});
 				}
 			});
-			this.socket.on('kick', (data: {channelId: number, userId: number}) => {
-				const { channelId, userId } = data;
+			this.socket.on('kick', (data: {channelId: number, userId: number, ban: boolean}) => {
+				const { channelId, userId, ban } = data;
 				if (this.sender === userId) {
 					for (let i = 0; i < this.channels.length; i++) {
 						if (this.channels[i].id === this.selectedChannel.id) {
+							const channel_name = this.channels[i].name;
 							this.channels.splice(i, 1);
 							if (this.selectedChannel.id === channelId)
 								this.selectedChannel = {} as Channel;
 							this.showDiv = false;
+							const notif = useNotification()
+							notif.notify({
+								title: 'Erreur',
+								text: `Vous avez ete ${ban ? 'ban' : 'kick'} du channel: ${channel_name}`,
+								type: 'error',
+								group: 'notif-center',
+							});
+							break ;
+						}
+					}
+				}
+			});
+			this.socket.on('changeAdmin', (data: {channel_id: number, new_admin_id: number}) => {
+				const {channel_id, new_admin_id} = data;
+				if (this.sender === new_admin_id) {
+					for (let i = 0; i < this.channels.length; i++) {
+						if (this.channels[i].id === channel_id) {
+							this.channels[i].admin = new_admin_id;
+							const notif = useNotification();
+							notif.notify({
+								title: 'Nouvel admin',
+								text: `Vous avez ete promu admin du channel ${this.channels[i].name}`,
+								type: 'success',
+								group: 'notif-center',
+							});
 							break ;
 						}
 					}
@@ -215,8 +244,10 @@ export default defineComponent({
 		},
 
 		async joinChannel(channel: Channel, password: string) {
-			if (this.findChannel(channel.id))
+			if (this.findChannel(channel.id)) {
+				// this.showChannel(channel);
 				return ;
+			}
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
 				credentials: 'include',
 				method: "POST",
@@ -233,9 +264,17 @@ export default defineComponent({
 				this.channels.push(channel);
 				this.selectedChannel = channel;
 				this.selectedChannel.messages = await this.getChannelMessages(channel.id);
+				this.showDiv = true;
 			}
-			else
-				alert('Could not add user.');
+			else  {
+				const notif = useNotification()
+				notif.notify({
+					title: 'Erreur',
+					text: `Impossible de rejoindre le channel: ${response_json['message']}`,
+					type: 'error',
+					group: 'notif-center',
+				});
+			}
 		},
 
 		async quitChannel(id: number) {
@@ -247,6 +286,15 @@ export default defineComponent({
 			if (response_json['ok']) {
 				for (let i = 0; i < this.channels.length; i++) {
 					if (this.channels[i].id === this.selectedChannel.id) {
+						if (this.selectedChannel.admin === this.sender) {
+							const admin_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.channels[i].id + '/admin');
+							try {
+								const new_admin_id = (await admin_response.json())['id'];
+								let channel_id = this.channels[i].id;
+								this.socket.emit('changeAdmin', {channel_id, new_admin_id});
+							}
+							catch {}
+						}
 						this.channels.splice(i, 1);
 						this.selectedChannel = {} as Channel;
 						this.showDiv = false;
@@ -291,24 +339,13 @@ export default defineComponent({
 			}
 		},
 
-		notifyKick(channelId: number, userId: number) {
-			this.socket.emit('kick', {channelId, userId});
+		notifyKick(channelId: number, userId: number, ban: boolean) {
+			this.socket.emit('kick', {channelId, userId, ban});
 		},
 
 		clickedChannel(channelId: number) {
 			return (this.selectedChannel.id === channelId ? 'selectedChannel' : '');
 		},
-
-		// scrollToLastMessage() {
-		// 	const lastMessageElement = this.$refs.lastMessage;
-
-		// 	if (lastMessageElement && lastMessageElement instanceof Element) {
-		// 		lastMessageElement.scrollIntoView({
-		// 			behavior: 'smooth',
-		// 			block: 'end',
-		// 		});
-		// 	}
-		// },
 	},
 });
 

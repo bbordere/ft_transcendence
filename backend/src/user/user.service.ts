@@ -140,13 +140,11 @@ export class UserService {
 		if (password === undefined)
 			return ;
 		if (channel.bannedUsers.some(bannedUser => bannedUser.id === user.id)) 
-			throw new Error('user banned');
-		if (!channel.protected || await bcrypt.compare(password, channel.password)) {
-			user.channels.push(channel);
-			await this.usersRepository.save(user);
-		}
-		else
-			throw new Error('wrong password');
+			throw new Error('Utilisateur ban.');
+		if (channel.protected && await bcrypt.compare(password, channel.password) === false)
+			throw new Error('Mauvais mot de passe.');
+		user.channels.push(channel);
+		await this.usersRepository.save(user);
 	}
 
 	async removeUserFromChannel(userId: number, channelId: number) {
@@ -154,16 +152,22 @@ export class UserService {
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admin']});
     
 		user.channels = user.channels.filter((c) => c.id !== channel.id);
+		const users = await this.usersRepository.createQueryBuilder('user')
+			.leftJoinAndSelect('user.channels', 'channel')
+			.where('channel.id = ' + channel.id)
+			.getMany();
+		if (!(users.length - 1)) {
+			await this.channelRepository.delete(channel.id);
+			return (null);
+		}
    		if (user.id === channel.admin.id) {
-    		const users = await this.usersRepository.createQueryBuilder('user')
-				.leftJoinAndSelect('user.channels', 'channel')
-				.where('channel.id = ' + channel.id)
-				.getMany();
-			const index = Math.floor(Math.random() * (users.length - 1));
+			let index = Math.floor(Math.random() * (users.length));
+			while (users[index].id === user.id)
+				index = Math.floor(Math.random() * (users.length));
 			channel.admin = users[index];
 			await this.channelRepository.save(channel);
     	}
-   		await this.usersRepository.save(user);
+   		return (await this.usersRepository.save(user));
 	}
 
 	async banUserFromChannel(userId: number, channelId: number) {
