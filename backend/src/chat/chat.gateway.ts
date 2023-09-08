@@ -24,9 +24,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('message')
 	handleMessage(client: Socket, payload: any) {
+		const {channelId, text, sender} = payload;
 		this.server.emit('message', payload);
-		this.logger.log(`message received: ${payload['text']}`);
-		this.chatService.addMessageToChannel(payload);
+		this.logger.log(`message received: ${text}`);
+		this.chatService.addMessageToChannel({channelId, text, sender});
 		return (payload);
 	}
 

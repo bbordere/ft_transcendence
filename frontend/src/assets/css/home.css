@@ -6,7 +6,7 @@ h1 {
 
 .message_box {
 	padding-right: 20px;
-	width: 80%;
+	width: 90%;
 	margin-bottom: 10px;
 	max-height: 100%;
 	overflow-y: auto;
@@ -29,20 +29,54 @@ h1 {
 	padding: 5px;
 }
 
+.single_message {
+	display: flex;
+	margin-top: 10px;
+}
+
+.single_message div {
+	display: flex;
+	flex-direction: column;
+}
+
+.single_message img {
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	overflow: hidden;
+
+} 
+
+.sender_name {
+	font-size: 10px;
+}
+
+.sent {
+	justify-content: end;
+	flex-direction: row-reverse;
+}
+
 .send_container {
 	display: flex;
 	flex-direction: column;
-	align-items: stretch;
-	width: 80%;
+	align-items: center;
+	width: 100%;
 	margin-bottom: 5%;
 }
 
+.send_container form {
+	width: 80%;
+}
+
 .sendbox {
+	width: 100%;
 	background-color: white;
 	text-align: center;
 	display: flex;
 	flex-direction: row;
-	align-items: stretch;
+	align-items: center;
 }
 
 .sendbox input {
@@ -69,6 +103,7 @@ h1 {
 .channel_options {
 	display: flex;
 	flex-direction: row;
+	width: 80%;
 	flex-wrap: wrap;
 }
 
@@ -184,6 +219,7 @@ h1 {
 	margin-top: 2%;
 	align-items: center;
 	background-color: rgb(255, 255, 255);
+	overflow-y: scroll;
 }
 
 .list ul {
@@ -192,12 +228,12 @@ h1 {
 	list-style-type: none;
 	width: 100%;
 	height: 100%;
-	overflow-y: auto;
-	scrollbar-width: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .list ul li {
-	margin: auto;
 	margin-top: 10px;
 	width: 90%;
 	height: 10%;
