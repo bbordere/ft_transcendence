@@ -11,7 +11,6 @@ import { RoomService } from './room.service';
 import { GameService } from './game.service';
 import { Player } from './interface/player.interface';
 import { Room, State } from './interface/room.interface';
-import e from 'express';
 import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway({namespace: '/pong'})
@@ -51,18 +50,15 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 		else
 			player.socket = client;
-		const room: Room = await this.roomService.searchRoom(client, player, parseInt(data[1]));
-		this.gameService.keyHandling(client, room)
+		await this.roomService.searchRoom(client, player, parseInt(data[1]));
+		this.gameService.keyHandling(client)
 	}
 
 	@SubscribeMessage('emote')
 	async handleEmote(client: Socket, emoji: string){
-		// const room: Room = this.roomService.getRoomFromSocket(client);
 		const room: Room = client.data.room;
 		if (!room)
 			return;
-		// if (room.players.length !== 2)
-		// 	return;
 		client.data.user.stats.totalEmotes += 1;
 		this.userService.saveUser(client.data.user);
 		if (room.players[0] && room.players[0].socket === client)

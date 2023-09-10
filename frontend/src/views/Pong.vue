@@ -164,7 +164,6 @@ export default {
 			else
 				this.emoteHandling(2, emoji);
 		});
-		// this.animId = requestAnimationFrame((current) => {this.draw(ctx, canvas, current)});
 	},
 	beforeUnmount(){
 		this.socket.disconnect();

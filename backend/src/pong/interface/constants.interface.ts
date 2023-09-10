@@ -9,7 +9,7 @@ export abstract class PongConstants{
 	static readonly CANVAS_HEIGHT: number = 1200;
 	
 	static readonly GAME_DURATION: number = 181; //seconds
-	static readonly GAME_TICK: number = 20;
+	static readonly GAME_TICK: number = 16.66;
 	
 	static readonly BIG_PAD_VALUE: number = 70;
 	static readonly LIL_PAD_VALUE: number = 70;

@@ -2,14 +2,13 @@ import { Injectable, } from '@nestjs/common';
 import { PongGame } from './pong.service';
 import { RoomService } from './room.service';
 import { Room, State } from './interface/room.interface';
-import { MatchService } from 'src/match/match.service';
 import { Socket } from 'socket.io';
 import { PongConstants } from './interface/constants.interface';
 
 
 @Injectable()
 export class GameService {
-		constructor(private readonly pongGame: PongGame, private readonly roomService: RoomService, private readonly matchService: MatchService){
+		constructor(private readonly pongGame: PongGame, private readonly roomService: RoomService){
 		setInterval(() => {
 			this.roomService.checkRoomLoop(this);
 		}, 200);
@@ -75,7 +74,7 @@ export class GameService {
 		}, PongConstants.GAME_TICK);
 	}
 
-	async keyHandling(client: Socket, room: Room) {
+	async keyHandling(client: Socket) {
 		var keyUp: boolean = false;
 		var keyDown: boolean = false;
 		client.on('arrowUpdate', (data) => {
@@ -87,19 +86,14 @@ export class GameService {
 				keyDown = true;
 			else if (data === "stopArrowDown")
 				keyDown = false;
-		});
-
-		const it = setInterval(() => {
-			if (room.isFinished)
-				clearInterval(it);
 			client.data.keyDown = keyDown;
 			client.data.keyUp = keyUp;
-		}, PongConstants.GAME_TICK)
+		});
 	}
 
 	async playGame(room: Room){
-		await this.pongGame.initGame(room, false, false);
-		this.pongGame.startTimer(room);
+		await this.pongGame.initGame(room);
+		await this.pongGame.startTimer(room);
 		await this.pongGame.powerupsInit(room);
 		let cooldown: number = 0;
 		this.roomService.emitToPlayers(room, "ids", room.players[0].user.id, room.players[1].user.id)

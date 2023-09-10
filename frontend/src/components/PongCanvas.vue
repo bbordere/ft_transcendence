@@ -19,12 +19,13 @@ export default {
 
 	data() {
 		return {
-			sprites: [new Image(), new Image(), new Image()] as Array<HTMLImageElement>,
+			sprites: [] as Array<HTMLImageElement>,
 			animId: -1,
 			ball: {speed: -1} as ball,
 			pad1: {} as paddle, 
 			pad2: {} as paddle, 
 			gameInfos: {} as gameInfos,
+			lastUpdate: -1 as number,
 		}
 	},
 	methods: {
@@ -33,9 +34,9 @@ export default {
 		},
 
 		async spritesInit(){
-			this.sprites[0] = await this.loadImage("/powerups/big_pad.png");
-			this.sprites[1] = await this.loadImage("/powerups/lil_pad.png");
-			this.sprites[2] = await this.loadImage("/powerups/speed.png");
+			this.sprites.push(await this.loadImage("/powerups/big_pad.png"));
+			this.sprites.push(await this.loadImage("/powerups/lil_pad.png"));
+			this.sprites.push(await this.loadImage("/powerups/speed.png"));
 		},
 
 		drawRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, size: number, color: string) {
@@ -64,15 +65,20 @@ export default {
 			ctx.closePath();
 		},
 
-		drawPowerups(ctx: CanvasRenderingContext2D, powerups: any){
-			if (!powerups)
+		drawPowerups(ctx: CanvasRenderingContext2D){
+			if (!this.gameInfos.powerups)
 				return;
-			for (var item of powerups){
+			for (var item of this.gameInfos.powerups as any[]){
 				ctx.drawImage(this.sprites[item.effect], item.pos.x, item.pos.y, item.radius, item.radius);
 			}
 		},
 
-		draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement){
+		draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, time: number){
+			this.animId = requestAnimationFrame((current) => {this.draw(ctx, canvas, current)});
+			if (this.lastUpdate === -1){
+				this.lastUpdate = time;
+			}
+			this.lastUpdate = time;
 			if (Object.keys(this.gameInfos).length){
 				if (this.ball.speed === -1){
 					this.ball = this.gameInfos.ball;
@@ -82,8 +88,10 @@ export default {
 				const targetBall = this.gameInfos.ball;
 				const pad1 = this.gameInfos.pad1;
 				const pad2 = this.gameInfos.pad2;
-				this.ball.position.x += (targetBall.position.x - this.ball.position.x) * 0.5;
-				this.ball.position.y += (targetBall.position.y - this.ball.position.y) * 0.5;
+				this.ball.position.x += (targetBall.position.x - this.ball.position.x) * 0.414;
+				this.ball.position.y += (targetBall.position.y - this.ball.position.y) * 0.414;
+
+				// this.ball = targetBall;
 
 				this.pad1.pos.x += (pad1.pos.x - this.pad1.pos.x) * 0.2;
 				this.pad1.pos.y += (pad1.pos.y - this.pad1.pos.y) * 0.2;
@@ -100,9 +108,8 @@ export default {
 				this.drawCircle(ctx, this.ball.position.x, this.ball.position.y,
 					this.ball.radius, this.ball.speed === 30 ? "#F44E1A" : "#2A52EB");
 
-				this.drawPowerups(ctx, this.gameInfos.powerups);
+				this.drawPowerups(ctx);
 			}
-			this.animId = requestAnimationFrame(() => {this.draw(ctx, canvas)});
 		},
 	},
 	mounted() {
@@ -113,6 +120,7 @@ export default {
 		if (!ctx)
 			return; // ERROR HANDLING
 
+		this.spritesInit();
 		this.socket.on('updateGame', (ball: ball, racket1: paddle, racket2: paddle, powerups: []) => {
 			this.gameInfos = {ball: ball, pad1: racket1, pad2: racket2, powerups: powerups};
 			if (this.animId === -1)
@@ -124,7 +132,11 @@ export default {
 			this.animId = -1;
 			this.drawText(ctx, canvas, data);
 		});
-	}
+	},
+	unmounted(){
+		if (this.animId !== -1)
+			cancelAnimationFrame(this.animId);
+	},
 }
 
 </script>

@@ -25,7 +25,7 @@ export class PongGame {
 		room.ball.lastHit = -1;
 	}
 
-	resetRacket(room: Room, keyUp: boolean, keyDown: boolean) {
+	resetRacket(room: Room) {
 		if (room.players[0]){
 			room.players[0].racket.pos.x = (PongConstants.RACKET_WIDTH);
 			room.players[0].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);
@@ -40,21 +40,19 @@ export class PongGame {
 			room.players[1].racket.pos.x = (PongConstants.CANVAS_WIDTH - (PongConstants.RACKET_WIDTH * 2));
 			room.players[1].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);
 			room.players[1].racket.size = PongConstants.RACKET_HEIGHT;
-			room.players[1].racket.size = 2000;
+			// room.players[1].racket.size = 2000;
 			room.players[1].racket.width = PongConstants.RACKET_WIDTH;
 			if (room.players[1].racket.effectTimeout){
 				clearTimeout(room.players[1].racket.effectTimeout);
 				room.players[1].racket.effectTimeout = null;
 			}
 		}
-		keyUp = false;
-		keyDown = false;
 	}
 
 	racketHandling(racket: Racket, room: Room, dy: number){
 		if (this.hasRacketIntersect(room.ball, racket))
 			return;
-		let canMove: Boolean = ((dy > 0 && racket.pos.y + racket.size < room.canvas.height - room.ball.radius) || (dy < 0 && racket.pos.y > room.ball.radius));
+		const canMove: Boolean = ((dy > 0 && racket.pos.y + racket.size < room.canvas.height - room.ball.radius) || (dy < 0 && racket.pos.y > room.ball.radius));
 		racket.pos.y += dy * Number(canMove);
 	}
 
@@ -80,6 +78,12 @@ export class PongGame {
 		room.ball.direction.y = Math.sin(angle);
 		if (room.ball.speed != PongConstants.SPEED_BALL_POWERUP)
 			room.ball.speed = Math.min(room.ball.speed += 0.5, PongConstants.MAX_BALL_SPEED);
+		if (playerHit === 0){
+			room.ball.position.x = room.players[0].racket.pos.x + room.players[0].racket.width + room.ball.radius + 2;
+		}
+		else {
+			room.ball.position.x = room.players[1].racket.pos.x - room.ball.radius - 2;
+		}
 	}
 
 	hasRacketIntersect(ball: Ball, racket: Racket): Boolean{
@@ -114,7 +118,7 @@ export class PongGame {
 		return (dx * dx + dy * dy <= ball.radius * ball.radius);
 	}
 
-	updateBall(room: Room, keyUp: boolean, keyDown: boolean) {
+	updateBall(room: Room) {
 		const next = {
 			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
 			y: room.ball.direction.y * room.ball.speed + room.ball.radius,
@@ -133,7 +137,7 @@ export class PongGame {
 				return;
 			}
 			this.resetBall(room);
-			this.resetRacket(room, keyUp, keyDown);
+			this.resetRacket(room);
 			room.state = State.COOLDOWN;
 			return;
 		}
@@ -149,8 +153,10 @@ export class PongGame {
 		else if (this.hasRacketIntersect(room.ball, room.players[1].racket))
 			this.racketBallCollision(room, room.players[1].racket, 1);
 
-		room.ball.position.x += room.ball.direction.x * room.ball.speed;
-		room.ball.position.y += room.ball.direction.y * room.ball.speed;
+		else {
+			room.ball.position.x += room.ball.direction.x * room.ball.speed;
+			room.ball.position.y += room.ball.direction.y * room.ball.speed;
+		}
 	}
 
 	activatePowerup(powerup: Powerup, room: Room){
@@ -198,7 +204,7 @@ export class PongGame {
 	}
 
 	updateGame(client: Socket, room: Room) {
-		this.updateBall(room, client.data.keyUp, client.data.keyDown);
+		this.updateBall(room);
 		this.updateRacket(client, room, client.data.keyUp, client.data.keyDown);
 		this.powerupsHandling(room);
 		const {["effectTimeout"]: timeOut1, ...racket1} = room.players[0].racket;
@@ -206,10 +212,10 @@ export class PongGame {
 		client.emit("updateGame", room.ball, racket1, racket2, room.powerups);
 	}
 
-	async initGame(room: Room, keyUp:boolean, keyDown: boolean) {
+	async initGame(room: Room) {
 		if (!room.ball){
 			room.ball = new Ball();
-			await this.resetBall(room);
+			this.resetBall(room);
 		}
 
 		room.players[0].score = 0;
@@ -223,7 +229,7 @@ export class PongGame {
 		}
 
 		if (room.players[1] && room.players[1].racket)
-			await this.resetRacket(room, keyUp, keyDown);
+			this.resetRacket(room);
 		room.canvas.width = PongConstants.CANVAS_WIDTH;
 		room.canvas.height = PongConstants.CANVAS_HEIGHT;
 	}
