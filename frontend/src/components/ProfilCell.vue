@@ -35,7 +35,7 @@ export default defineComponent({
 			});
 		},
 
-		async User_Info(userid: number) {
+		async userInfo(userid: number) {
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + userid,{ 
 				credentials: 'include'
 			});
@@ -47,33 +47,31 @@ export default defineComponent({
 
 	async mounted() {
 		if (this.profilObject.UserId === this.myid)
-			this.User_Info(this.profilObject.FriendId);
+			await this.userInfo(this.profilObject.FriendId);
 		else
-			this.User_Info(this.profilObject.UserId);
+			await this.userInfo(this.profilObject.UserId);
 	}
 });
+
 </script>
-<!-- 
-	profilObject.UserId
-	profilObject.FriendId
-	profilObject.Status
-	myid
--->
+
 <template>
 	<div class="box" v-if="(profilObject.UserId === myid && profilObject.Status === 1) || (profilObject.FriendId === myid && profilObject.Status === 1)">
-		<router-link class="img_user" to="/profile"><img class="img_user_profil" v-bind:src=avatar alt="default profile img"></router-link>
+		<router-link class="img_user" to="/profile">
+			<img class="img_user_profil" v-bind:src=avatar alt="default profile img">
+		</router-link>
 		<div class="name">
 			{{ username }}
 		</div>
 		<div @click="ModalHamburger = true" class="menu-button">
-			<div class="bar"></div>
-			<div class="bar"></div>
-			<div class="bar"></div>
+			<font-awesome-icon icon="fa-solid fa-pen"/>
 		</div>
 		<hamburger :show="ModalHamburger" @close="ModalHamburger = false"></hamburger>
 	</div>
 	<div class="box" v-else-if="profilObject.FriendId === myid && profilObject.Status === -1">
-		<router-link class="img_user" to="/profile"><img class="img_user_profil" v-bind:src=avatar alt="default profile img"></router-link>
+		<router-link class="img_user" to="/profile">
+			<img class="img_user_profil" v-bind:src=avatar alt="default profile img">
+		</router-link>
 		<div class="name">
 			{{ username }}
 		</div>
@@ -86,13 +84,16 @@ export default defineComponent({
 
 .box {
 	display: flex;
+	width: 90%;
+	border: 2px solid #000000;
+	border-radius: 10px;
+	margin-bottom: 10px;
 	justify-content: space-between;
+	align-items: center;
 }
 
 .name {
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	font-weight: bold;
 }
 
 .img_user {
@@ -101,7 +102,9 @@ export default defineComponent({
 }
 
 .img_user_profil {
-	border-radius: 360px;
+	border-radius: 25px;
+	width: 100%;
+	aspect-ratio: 1;
 }
 
 .menu-button {
@@ -114,8 +117,6 @@ export default defineComponent({
 
 .bar {
 	width: 22px;
-	height: 2px;
-	background-color: #000000;
 	margin: 3px;
 	transition: 0.4s;
 }

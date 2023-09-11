@@ -36,7 +36,9 @@
 						<ul>
 							<li :class="clickedChannel(channel.id)" @click="showChannel(channel)" v-for="channel in channels"><span>{{ channel.name }}</span></li>
 						</ul>
-						<div class="friends"><FriendList /></div>
+						<div class="friends">
+							<FriendList/>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -516,6 +518,7 @@ h1 {
 .left_column {
 	display: flex;
 	height: 100%;
+	width: 10%;
 	flex-direction: column;
 	gap: 4%;
 	flex-grow: 0.2;
@@ -640,13 +643,12 @@ h1 {
 	height: 95%;
 	width: 87%;
 	background-color: #F0F8FF;
-
 }
 
-.friend {
+/* .friend {
 	margin-top: 5%;
 	margin-bottom: 5%;
-}
+} */
 
 
 @media screen and (max-width: 1150px) {
@@ -655,11 +657,11 @@ h1 {
 	}
 
 	.left_column {
-		flex-grow: 0.6;
+		/* flex-grow: 0.6; */
 	}
 
 	.chat {
-		width: 50%;
+		/* width: 50%; */
 	}
 }
 
@@ -686,3 +688,4 @@ h1 {
 }
 
 </style>
+left
