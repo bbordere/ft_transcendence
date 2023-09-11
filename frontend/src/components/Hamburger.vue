@@ -30,8 +30,8 @@ export default {
 
 <template>
 	<Transition name="slide-fade" mode="out-in">
-	<div v-if="show" class="modal_overlay_friend" @click="$emit('close')">
-		<div class="modal_friend" @click.stop>
+		<div v-if="show" class="modal_overlay_friend" @click="$emit('close')">
+			<div class="modal_friend" @click.stop>
 				<div class="addami">
 					Nom de l'ami
 				</div>
@@ -39,8 +39,8 @@ export default {
 					<input class="entry_friend" type="text" placeholder="Username" v-model="username">
 					<button v-on:click="addUser">Ajouter</button>
 				</div>
+			</div>
 		</div>
-	</div>
 	</Transition>
 </template>
 
@@ -49,7 +49,6 @@ export default {
 .non {
 	display: flex;
 	margin-top: 5%;
-	width: 100%;
 	height: 40%;
 	justify-content: center;
 	align-items: center;
@@ -111,8 +110,9 @@ export default {
 .modal_friend {
 	display: flex;
 	flex-direction: column;
-	width: 40%;
-	height: 30%;
+	right: 70%;
+	width: 15%;
+	height: 55%;
 	background-color: #DBEFFC;
 	border-radius: 20px;
 }

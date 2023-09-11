@@ -1,10 +1,11 @@
 import { Column, Entity, PrimaryColumn, Generated, BeforeInsert, JoinColumn, OneToOne, ManyToMany, JoinTable, OneToMany } from "typeorm";
 import * as bcrypt from 'bcrypt';
-import { StatsDetail } from '../stats/stats.entity'
+import { StatsDetail } from '../stats/stats.entity';
 import { Channel } from "src/chat/entities/channel.entity";
+import { Friend } from "src/friend/friend.entity";
 
 @Entity()
-export class User{
+export class User {
 	@PrimaryColumn()
 	@Generated('increment')
 	public id: number;
@@ -30,16 +31,21 @@ export class User{
 	@Column({ default: ""})
 	public avatarLink: string
 
- 	@OneToOne(() => StatsDetail, (stats: StatsDetail) => stats.id, {
+	@OneToOne(() => StatsDetail, (stats: StatsDetail) => stats.id, {
 		cascade: true,
 		eager: true,
-	  })
-	@JoinColumn() 
+	})
+
+	@JoinColumn()
 	public stats: StatsDetail;
 
 	@ManyToMany(() => Channel)
 	@JoinTable()
 	public channels: Channel[];
+
+	@ManyToMany(() => User)
+	@JoinTable()
+	public friends: User[];
 
 	@BeforeInsert()
 	async hashPassword() {

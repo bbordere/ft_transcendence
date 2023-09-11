@@ -1,6 +1,5 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
-import '../assets/css/head.css';
 
 export default defineComponent({
 
@@ -48,3 +47,48 @@ export default defineComponent({
 	</router-link>
 </header>
 </template>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Happy+Monkey&display=swap');
+
+.header {
+	font-family: 'Happy Monkey', cursive;
+	display: flex;
+	height: 10vh;
+	border-bottom: 2px solid #BC0002;
+	background: #036280;
+	justify-content: space-between;
+	min-height: 50px;
+}
+
+.logo_42 {
+	height: 9.4vh;
+	background-color: white;
+	border-radius: 290px;
+	border: 3px solid #BC0002;
+	padding-left: 10%;
+	margin-left: 25%;
+}
+
+.profile {
+	display: flex;
+	flex-direction: row;
+	text-decoration: none;
+	align-items: center;
+	color: black;
+	font-size: 1.7em;
+}
+
+.img_profile{
+	height: 9.9vh;
+	border-radius:27px 0px 0px 27px;
+}
+
+.profile_name {
+	width: 30vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	background-color: #D9D9D9;
+}
+</style>

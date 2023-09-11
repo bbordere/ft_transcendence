@@ -13,6 +13,7 @@ import { MatchController } from './match/match.controller';
 import { MatchModule } from './match/match.module';
 import { ChatModule } from './chat/chat.module';
 import { PongModule } from './pong/pong.module';
+import { FriendModule } from './friend/friend.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { PongModule } from './pong/pong.module';
 		StatsModule,
 		MatchModule,
 		ChatModule,
-		PongModule
+		PongModule,
+		FriendModule,
 	],
   controllers: [AppController, StatsController, MatchController],
   providers: [AppService]
