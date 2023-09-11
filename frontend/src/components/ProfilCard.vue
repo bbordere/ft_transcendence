@@ -18,7 +18,11 @@ export default{
 	},
 	props: ["editable", "username"],
 	data(){
-		return ({user: "", showModal: false, isMyPage: false, windowWidth: window.innerWidth,});
+		return ({user: "", 
+				showModal: false,
+				isMyPage: false,
+				windowWidth: window.innerWidth,
+			});
 	},
 	methods: {
 		logout(){
@@ -45,35 +49,38 @@ export default{
 			});
 		},
 		updateNotif(){
-				this.getUser();
-				const notification = useNotification()
-				notification.notify({
-					title: "Nom d'utilisateur changé !",
-					type: 'success',
-					group: 'notif-center'
-				});
-			},
-			alreadyExistNotif(){
-				const notification = useNotification()
-				notification.notify({
-					title: "Erreur",
-					text: "Ce nom d'utilisateur existe déjà !",
-					type: 'error',
-					group: 'notif-center'
-				});
-			},
-			badFormatNotif(){
-				const notification = useNotification()
-				notification.notify({
-					title: "Erreur",
-					text: "Veuillez entrer un format valide !",
-					type: 'error',
-					group: 'notif-center'
-				});
-			},
-			handleResize() {
-				this.windowWidth = window.innerWidth;
-			},
+			this.getUser();
+			const notification = useNotification()
+			notification.notify({
+				title: "Nom d'utilisateur changé !",
+				type: 'success',
+				group: 'notif-center'
+			});
+		},
+		alreadyExistNotif(){
+			const notification = useNotification()
+			notification.notify({
+				title: "Erreur",
+				text: "Ce nom d'utilisateur existe déjà !",
+				type: 'error',
+				group: 'notif-center'
+			});
+		},
+		badFormatNotif(){
+			const notification = useNotification()
+			notification.notify({
+				title: "Erreur",
+				text: "Veuillez entrer un format valide !",
+				type: 'error',
+				group: 'notif-center'
+			});
+		},
+		handleResize() {
+			this.windowWidth = window.innerWidth;
+		},
+		handle2fa(){
+			router.push('/auth/2fa/home');
+		},
 
 	},
 	beforeMount(){
@@ -102,13 +109,7 @@ export default{
 			</Teleport>
 			<div class="buttons-items" v-if="editable != 0"> 
 				<BlueButton class="button-profile" text="Changer Nom " icon="fa-solid fa-pen" :display-text="windowWidth >= 930" @click="showModal = true"></BlueButton>
-				<div class="tfa">
-						<div class="tfa-extra">
-							<font-awesome-icon icon="fa-solid fa-lock"/>
-							2FA
-						</div>
-						<Switch/>
-				</div>
+				<BlueButton class="button-profile" text="Double Authentification " icon="fa-solid fa-lock" :display-text="windowWidth >= 930" @click="handle2fa"></BlueButton>
 				<BlueButton class="button-profile"  text="Déconnection " icon="fa-solid fa-right-from-bracket" @click="logout" :display-text="windowWidth >= 930"></BlueButton>
 			</div>
 			<div v-else-if="!isMyPage">

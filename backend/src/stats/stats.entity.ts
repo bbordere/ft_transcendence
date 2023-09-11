@@ -34,7 +34,13 @@ export class StatsDetail{
 	totalClassicGames: number
 
 	@Column({ default: 0})
-	friendDuel: number
+	totalArcadeGames: number
+
+	@Column({ default: 0})
+	totalRankedGames: number
+
+	@Column({ default: 0})
+	totalFriendsDuel: number
 
 	@Column({ default: 0})
 	totalPowerups: number

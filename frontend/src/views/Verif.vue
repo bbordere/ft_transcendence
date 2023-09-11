@@ -1,25 +1,30 @@
 <template>
-	<div class="verify">
-		<h4>Enter OTP Code</h4>
-		<div class="input-field"  :class="[status === 'Failure' ? 'shakeAnimation' : ' ']">
-			<form>
-			<input
-			  v-for="(n, index) in codeArr"
-			  :key="index"
-			  type="number"
-			  pattern="\d*"
-			  :id="'input_' + index"
-			  maxlength="1"
-			  v-model="codeArr[index]"
-			  @input="handleInput"
-			  @keypress="isKeyNumeric"
-			  @keydown.delete="handleDelete"
-			  @paste="onPaste"
-			/>
-		  </form>
+	<div class="verify-container">
+		<div class="verify">
+			<h4>Entrez le code</h4>
+			<div class="input-field"  :class="[status === 'Failure' ? 'shakeAnimation' : ' ']">
+				<form>
+					<input
+					v-for="(n, index) in codeArr"
+					:key="index"
+					type="number"
+					pattern="\d*"
+					:id="'input_' + index"
+					maxlength="1"
+					v-model="codeArr[index]"
+					@input="handleInput"
+					@keypress="isKeyNumeric"
+					@keydown.delete="handleDelete"
+					@paste="onPaste"
+					/>
+				</form>
+			</div>
+			<div v-if="status" class="status" :class="[status === 'Success' ? 'text-green' : 'text-red']">
+				{{ status === "Failure" ? "Échec" : "Réussite" }}
+			</div>
 		</div>
-		<div class="status" :class="[status === 'Success' ? 'text-green' : 'text-red']">{{ status }}</div>
 	</div>
+
 </template>
 	
 	
@@ -141,20 +146,25 @@
 		flex-direction: row;
 	}
 
+	.verify-container{
+		margin-top: 20vh;
+		height: 60%;
+	}
+
 	.verify {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		width: 300px;
-		height: 150px;
+		width: 270px;
+		height: 170px;
 		margin: auto;
-		margin-top: auto;
 		background: rgb(255, 255, 255);
 		border-radius: 50px;
 		box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 	}
 	.verify h4 {
-		font-size: 1.25rem;
+		/* font-size: clamp(0.625rem, 0.0694rem + 1.7778vw, 1.125rem); */
+		font-size: 1.25em;
 		color: #333;
 		font-weight: 500;
 	}
@@ -190,6 +200,10 @@
 
 	.text-green{
 		color: rgb(12, 167, 12);
+	}
+
+	.status{
+		margin-top: 15px;
 	}
 
 	@keyframes shake {

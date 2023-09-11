@@ -1,10 +1,10 @@
-FROM debian:latest
+FROM alpine:latest
 
-RUN apt update ; apt upgrade -y ; \
-	apt-get install -y procps; \
-	apt install -y curl ;\
+RUN apk update ; \
+	apk add procps; \
+	apk add curl ;\
 	curl -sL https://deb.nodesource.com/setup_18.x | bash ;\
-	apt install -y nodejs
+	apk add --update nodejs npm
 RUN npm i -g @nestjs/cli
 RUN mkdir /workspace
 

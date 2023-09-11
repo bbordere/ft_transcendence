@@ -3,7 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { createReadStream, existsSync } from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
-import e, { Response } from 'express';
+import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UserService } from 'src/user/user.service';
 

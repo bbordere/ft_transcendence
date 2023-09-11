@@ -44,9 +44,9 @@ export class MatchService {
 			match.player1.stats.mmr = Math.ceil(await this.statsService.getUpdatedMmr(tempScore1, tempScore2, match.player1.stats.mmr, match.player2.stats.mmr));
 			match.player2.stats.mmr = Math.ceil(await this.statsService.getUpdatedMmr(tempScore2, tempScore1, match.player2.stats.mmr, match.player1.stats.mmr));
 		}
-		this.userService.saveUser(match.player1);
-		this.userService.saveUser(match.player2);
-		this.matchRepository.save(match);
+		await this.userService.saveUser(match.player1);
+		await this.userService.saveUser(match.player2);
+		await this.matchRepository.save(match);
 	}
 	
 	async getMyMatches(req: Request){

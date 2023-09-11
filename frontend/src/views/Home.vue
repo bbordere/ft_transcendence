@@ -1,6 +1,7 @@
 <template>
 	<div class="home_body">
 		<div class="home_content">
+
 			<div class="left_column">
 				<button v-if="!recoButton" class="play_button" @click="showModalPlay = true">Jouer</button>
 				<button v-else class="play_button" @click="reconnectToRoom">Reco</button>
@@ -164,15 +165,19 @@ export default defineComponent({
 		this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
-		const hasDisconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
-		this.recoButton = hasDisconnectObject["disconnect"];
-		this.recoMode = hasDisconnectObject["mode"];
-		setTimeout(async () => {
-			const hasDisconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
-			this.recoButton = hasDisconnectObject["disconnect"];
-			this.recoMode = hasDisconnectObject["mode"];
-			console.log("RECHECK", this.recoButton, this.recoMode);
-		}, 4000);
+		const disconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
+		this.recoButton = disconnectObject["disconnect"];
+		this.recoMode = disconnectObject["mode"];
+		if (!this.recoButton)
+			return;
+		let timer: number = 0;
+		const it = setInterval(async () => {
+			const disconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
+			this.recoButton = disconnectObject["disconnect"];
+			timer++;
+			if (timer === 8 || !this.recoButton)
+				clearInterval(it);
+		}, 500);
 	},
 
 	updated() {
@@ -341,7 +346,7 @@ export default defineComponent({
 		},
 
 		reconnectToRoom(){
-			const mode = ["classic", "ranked", "arcade"][this.recoMode];
+			const mode = ["classic", "arcade", "ranked"][this.recoMode];
 			this.$router.push({ path: '/pong', query: { mode: mode }});
 		},
 
@@ -377,3 +382,166 @@ export default defineComponent({
 });
 
 </script>
+
+<style>
+.home_body {
+	height: 90%;
+	padding: 2.5%;
+	min-height: 600px;
+	min-width: 500px;
+}
+
+.home_content {
+	display: flex;
+	height: 100%;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+	/* background-color: #BC0002; */
+	gap: 6%;
+}
+
+.left_column {
+	display: flex;
+	height: 100%;
+	flex-direction: column;
+	gap: 4%;
+	flex-grow: 0.2;
+}
+
+.play_button {
+	display: flex;
+	width: 100%;
+	height: 20%;
+	justify-content: center;
+	align-items: center;
+	background: #036280;
+	border: 3px solid #BC0002;
+	border-radius: 25px;
+	text-decoration: none;
+	color: black;
+	font-size: 3em;
+}
+
+.chat {
+	display: flex;
+	height: 99%;
+	width: 45%;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	background: #F0F8FF;
+	border: 3px solid #BC0002;
+	border-radius: 10px;
+}
+
+.friend_list {
+	display: flex;
+	flex-direction: column;
+	height: 90%;
+	width: 100%;
+	background-color: #F0F8FF;
+	border: 3px solid #BC0002;
+	border-radius: 10px;
+}
+
+.add_friend {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 2%;
+	height: 7%;
+	padding-left: 3px;
+	width: 97%;
+
+}
+
+.add_friend .spe {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	background-color: black;
+	height: 80%;
+	flex-shrink: 0;
+	width: 37%;
+	overflow: hidden;
+	border-radius: 20px;
+	border: none;
+	cursor: pointer;
+}
+
+.spe:hover {
+	background-color: rgb(47, 49, 49);;
+}
+
+
+.list {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	margin-top: 2%;
+	align-items: center;
+	background-color: rgb(255, 255, 255);
+}
+
+.friends {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 92%;
+	background-color: black;
+}
+
+.friend {
+	margin-top: 5%;
+	margin-bottom: 5%;
+}
+
+
+@media screen and (max-width: 1150px) {
+	.join_panel button {
+		font-size: 65%;
+	}
+
+	.left_column {
+		flex-grow: 0.6;
+	}
+
+	.chat {
+		width: 50%;
+	}
+}
+
+.msg_chat_box {
+	width: 100%;
+}
+
+.msg_chat_box li {
+	text-decoration: none;
+}
+
+.sent {
+	text-align: right;
+}
+
+.received {
+	text-align: left;
+}
+
+.slide-fade-enter-from {
+	opacity: 0;
+}
+
+.slide-fade-leave-to {
+	opacity: 0;
+}
+
+.slide-fade-enter-from .modal-container,
+.slide-fade-leave-to .modal-container {
+	-webkit-transform: scale(1.5);
+	transform: scale(1.5);
+}
+
+</style>

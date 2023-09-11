@@ -1,8 +1,9 @@
 <template>
-	<button class="blue-button"><font-awesome-icon :icon="this.icon"/>
-	<div class="blue-button-text" v-if="this.displayText"> 
-		{{ this.text }}
-	</div>
+	<button class="blue-button">
+		<font-awesome-icon v-if="this.icon" :icon="this.icon"/>
+		<div class="blue-button-text" v-if="this.displayText"> 
+			{{ this.text }}
+		</div>
 	</button>
 </template>
 
@@ -31,7 +32,7 @@ export default{
 	position: relative;
 	font-family: 'Poppins';
     font-weight: bold;
-	font-size: 0.8em;
+	font-size: clamp(0.625rem, 0.4861rem + 0.4444vw, 0.75rem);
 	background-color: rgb(34, 158, 230);
 	border-radius: 10px;
 	box-shadow: rgb(37, 18, 121) 0px 4px 0px 0px;
@@ -42,7 +43,7 @@ export default{
 	/* width: 100%; */
 	border: none;
 	transition: all .3s ease-in-out;
-	/* overflow: hidden; */
+	overflow: hidden;
 	overflow-wrap: anywhere;
 	cursor: pointer;
 }
@@ -64,10 +65,10 @@ export default{
 	opacity: 50%;
 }
 
-@media screen and (max-width: 930px) {
+/* @media screen and (max-width: 930px) {
 	.blue-button-text{
 		font-size: 1.4vw;
 	}
-}
+} */
 
 </style>

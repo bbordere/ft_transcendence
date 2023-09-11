@@ -13,9 +13,7 @@
 					-
 					<span id="score1">{{score2}}</span>
 				</div>
-				<div class="pong_screen">
-					<canvas id="pongCanvas" width="2000" height="1200"></canvas>
-				</div>
+				<PongCanvas v-if="dataLoaded" :socket="this.socket"/>
 				<div class="button_panel">
 					<div class="reaction_panel">
 						<EmoteButton emoji="🤣" :socket="socket"></EmoteButton>
@@ -42,6 +40,7 @@ import io from 'socket.io-client';
 import { useRoute } from 'vue-router';
 import PongPlayerCard from '@/components/PongPlayerCard.vue';
 import EmoteButton from '@/components/EmoteButton.vue'
+import PongCanvas from '@/components/PongCanvas.vue'
 
 interface emote{
 	emoji: string,
@@ -60,12 +59,12 @@ export default {
 				score2: 0,
 				emote1: {emoji: ''} as emote,
 				emote2: {emoji: ''} as emote,
-				sprites: [new Image(), new Image(), new Image()] as Array<HTMLImageElement>,
-			};
+		};
 	},
 	components: {
 		PongPlayerCard,
 		EmoteButton,
+		PongCanvas,
 	},
 	methods: {
 		getIdMode(mode: string){
@@ -98,15 +97,6 @@ export default {
 			}, 2000);
 		},
 
-		async loadImage(path: string): Promise<HTMLImageElement> {
-  			return new Promise(r => { let i = new Image(); i.onload = (() => r(i)); i.src = path; });
-		},
-
-		async spritesInit(){
-			this.sprites[0] = await this.loadImage("/powerups/big_pad.png");
-			this.sprites[1] = await this.loadImage("/powerups/lil_pad.png");
-			this.sprites[2] = await this.loadImage("/powerups/speed.png");
-		},
 
 		initKeyHandler(){
 			var keyArrowUp: Boolean = false
@@ -132,41 +122,10 @@ export default {
 				}
 			});
 		},
-
-		drawRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, size: number, color: string) {
-			ctx.beginPath();
-			ctx.rect(x, y, width, size);
-			ctx.fillStyle = color;
-			ctx.fill();
-			ctx.closePath();
-		},
-
-		drawText(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, text: string){
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.font = "200px serif";
-			ctx.fillText(text, 50, canvas.height / 2);
-			ctx.fillStyle = 'white'
-		},
-
-		drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
-			ctx.beginPath();
-			ctx.arc(x, y, radius, 0, Math.PI*2);
-			ctx.fillStyle = color;
-			ctx.fill();
-			ctx.closePath();
-		},
-
-		drawPowerups(ctx: CanvasRenderingContext2D, powerups: any){
-			if (!powerups)
-				return;
-			for (var item of powerups){
-				ctx.drawImage(this.sprites[item.effect], item.pos.x, item.pos.y, item.radius, item.radius);
-			}
-		},
 	},
 	mounted() {
 
-		const ballRadius = 20;
+		this.timer = "00:00";
 		const route = useRoute();
 		const mode: string | undefined = route.query["mode"]?.toString();
 		if (!mode){
@@ -177,15 +136,7 @@ export default {
 		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");	
 		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), this.getIdMode(mode));
 	
-		this.spritesInit();
 		this.initKeyHandler();
-
-		const canvas = <HTMLCanvasElement> document.getElementById('pongCanvas');
-		if (!canvas)
-			return; // ERROR HANDLING
-		const ctx = canvas.getContext('2d');
-		if (!ctx)
-			return; // ERROR HANDLING
 
 		this.socket.on('disconnect', () => {
 			this.socket.disconnect();
@@ -203,18 +154,6 @@ export default {
 			this.score2 = score2;
 		});
 
-		this.socket.on('updateGame', (ball, racket1, racket2, powerups) => {
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			this.drawRect(ctx, racket1.pos.x, racket1.pos.y, racket1.width, racket1.size, "#FFFFFF");
-			this.drawRect(ctx, racket2.pos.x, racket2.pos.y, racket2.width, racket2.size, "#FFFFFF");
-			this.drawPowerups(ctx, powerups);
-			this.drawCircle(ctx, ball.position.x, ball.position.y, ballRadius, ball.speed === 30 ? "#F44E1A" : "#2A52EB");
-		});
-
-		this.socket.on('text', (data) => {
-			this.drawText(ctx, canvas, data);
-		});
-
 		this.socket.on('time', (time) => {
 			this.timer = time;
 		});
@@ -224,7 +163,7 @@ export default {
 				this.emoteHandling(1, emoji);
 			else
 				this.emoteHandling(2, emoji);
-		});		
+		});
 	},
 	beforeUnmount(){
 		this.socket.disconnect();
@@ -289,21 +228,7 @@ export default {
 	align-items: center;
 	justify-content: center;
 	font-size: 2em;
-	font-family: 'digital-clock-font', regular;
-}
-
-.pong_screen {
-	max-width: 100%;
-	max-height: 80%;
-	min-width: auto;
-	width: 100%;
-
-}
-#pongCanvas {
-	width: 100%;
-	height: 100%;
-	background: black;
-	border-radius: 5px;
+	font-family: 'digital-clock-font', monospace;
 }
 
 .button_panel {
@@ -324,7 +249,7 @@ export default {
 
 @font-face{
  font-family:'digital-clock-font';
- src: url('./fonts/digital-7.regular.ttf');
+ src: url('./fonts/digital-7.mono.ttf');
 }
 
 .scores{
