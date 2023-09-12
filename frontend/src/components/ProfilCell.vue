@@ -83,22 +83,29 @@ export default defineComponent({
 <style>
 
 .box {
-	display: flex;
+	margin-top: 10px;
 	width: 90%;
-	border: 2px solid #000000;
-	border-radius: 10px;
-	margin-bottom: 10px;
+	height: 10%;
+	display: flex;
+	border-radius: 20px;
 	justify-content: space-between;
 	align-items: center;
 }
 
+.box:hover {
+	background-color: #F0F8FF;
+}
+
 .name {
+	font-family: 'Poppins', sans-serif;
 	font-weight: bold;
+	font-size: 1em;
 }
 
 .img_user {
 	display: flex;
 	width: 10%;
+	margin-left: 7%;
 }
 
 .img_user_profil {
