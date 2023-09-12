@@ -66,7 +66,7 @@ export default defineComponent({
 		<div @click="ModalHamburger = true" class="menu-button">
 			<font-awesome-icon icon="fa-solid fa-pen"/>
 		</div>
-		<hamburger :show="ModalHamburger" @close="ModalHamburger = false"></hamburger>
+		<hamburger :show="ModalHamburger" @close="ModalHamburger = false" :id1="profilObject.UserId" :id2="profilObject.FriendId"></hamburger>
 	</div>
 	<div class="box" v-else-if="profilObject.FriendId === myid && profilObject.Status === -1">
 		<router-link class="img_user" to="/profile">
