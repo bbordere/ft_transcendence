@@ -37,6 +37,8 @@ export default {
 			this.sprites.push(await this.loadImage("/powerups/big_pad.png"));
 			this.sprites.push(await this.loadImage("/powerups/lil_pad.png"));
 			this.sprites.push(await this.loadImage("/powerups/speed.png"));
+			this.sprites.push(await this.loadImage("pong_background.png"));
+			this.sprites.push(await this.loadImage("paddle.png"));
 		},
 
 		drawRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, size: number, color: string) {
@@ -100,13 +102,19 @@ export default {
 				this.pad2.pos.y += (pad2.pos.y - this.pad2.pos.y) * 0.2;
 
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				this.drawRect(ctx, this.pad1.pos.x, this.pad1.pos.y, 
-								pad1.width, pad1.size, "#FFFFFF");
-				this.drawRect(ctx, this.pad2.pos.x, this.pad2.pos.y, 
-								pad2.width, pad2.size, "#FFFFFF");
+				ctx.drawImage(this.sprites[3], 0, 0);
+				ctx.drawImage(this.sprites[4], this.pad1.pos.x, this.pad1.pos.y,
+								pad1.width, pad1.size);
+				ctx.drawImage(this.sprites[4], this.pad2.pos.x, this.pad2.pos.y, 
+				 				pad2.width, pad2.size);
+
+				// this.drawRect(ctx, this.pad1.pos.x, this.pad1.pos.y, 
+				// 				pad1.width, pad1.size, "#5151510F");
+				// this.drawRect(ctx, this.pad2.pos.x, this.pad2.pos.y, 
+				// 				pad2.width, pad2.size, "#515151");
 
 				this.drawCircle(ctx, this.ball.position.x, this.ball.position.y,
-					this.ball.radius, this.ball.speed === 30 ? "#F44E1A" : "#2A52EB");
+					this.ball.radius, this.ball.speed === 30 ? "#F44E1A" : "#515151");
 
 				this.drawPowerups(ctx);
 			}
@@ -152,7 +160,7 @@ export default {
 #pongCanvas {
 	width: 100%;
 	height: 100%;
-	background: black;
+	/* background: black; */
 	border-radius: 5px;
 	aspect-ratio: auto;
 }

@@ -25,6 +25,8 @@ export default {
 	background-color: gray;
 	border-radius: 20px;
 	font-size: 2.5vh;
+	padding: 0.7vw;
+	margin-left: 1vw;
 }
 
 .emoteContainer:hover {

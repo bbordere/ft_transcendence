@@ -23,7 +23,9 @@
 					</div>
 
 					<div class="forgive_button">
-						<router-link to="/">Quitter la partie</router-link>
+						<router-link to="/">
+							<button id="exit_button" role="link">Quitter la partie</button>
+						</router-link>
 					</div>
 				</div>
 			</div>
@@ -242,9 +244,18 @@ export default {
 .reaction_panel {
 	display: flex;
 	flex-direction: row;
-	justify-content: center;
-	gap: 20px;
-	align-items: center;
+	justify-content: space-between;
+	width: 35%;
+}
+
+#exit_button {
+	position: relative;
+	background-color: gray;
+	font-size: 2vh;
+	padding: 0.7vw;
+	margin-right: 1vw;
+	border-radius: 40px;
+	border-color: gray;
 }
 
 @font-face{
