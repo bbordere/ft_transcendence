@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Friend } from './friend.entity';
 import { UserService } from '../user/user.service';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class FriendService {
@@ -54,7 +55,12 @@ export class FriendService {
     });
   }
 
-  async friendlist(): Promise<Friend[]> {
-    return this.friendRepository.find();
+  async friendlist(userId: number): Promise<Friend[]> {
+    const friends = this.friendRepository.find({where: [
+		{ UserId: userId },
+		{ FriendId: userId },
+	]});
+	console.log(friends);
+	return (friends)
   }
 }

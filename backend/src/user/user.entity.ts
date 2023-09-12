@@ -43,10 +43,6 @@ export class User {
 	@JoinTable()
 	public channels: Channel[];
 
-	@ManyToMany(() => User)
-	@JoinTable()
-	public friends: User[];
-
 	@BeforeInsert()
 	async hashPassword() {
 		this.password = await bcrypt.hash(this.password, 8);

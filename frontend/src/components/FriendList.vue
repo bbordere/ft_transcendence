@@ -15,7 +15,7 @@ export default defineComponent({
 
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
-		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/friend/list", { credentials: 'include' });
+		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/friend/" + this.sender + "/list", { credentials: 'include' });
 		this.friends = await response.json();
 	},
 })
