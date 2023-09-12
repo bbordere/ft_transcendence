@@ -31,12 +31,11 @@ export default defineComponent({
 <style>
 
 .list_friend{
-
 	display: flex;
 	align-items: center;
 	flex-direction: column;
 	width: 100%;
-	height: 90%;
+	height: 100%;
 }
 
 </style>

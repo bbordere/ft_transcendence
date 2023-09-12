@@ -85,4 +85,17 @@ export class ChatService {
 			return (null);
 		return (channel.admin);
 	}
+
+	async getUsersInChannel(channelId: number): Promise<User[] | null> {
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		if (!channel)
+			return (null);
+		const users = await this.userRepository.createQueryBuilder('user')
+		.leftJoinAndSelect('user.channels', 'channel')
+		.where('channel.id = ' + channel.id)
+		.getMany();
+		if (!users)
+			return (null);
+		return (users);
+	}
 }

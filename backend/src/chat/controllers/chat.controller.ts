@@ -42,7 +42,6 @@ export class ChatController {
 
 	@Post('/delete')
 	async delete(@Body('name') name: string) {
-		// Maybe require the password when deleting if the channel is protected
 		if (Array.from(name)[0] != '#')
 			name = '#' + name;
 		this.chatService.delete(name);
@@ -51,5 +50,10 @@ export class ChatController {
 	@Get('/:id/admin')
 	async getAdmin(@Param('id') id: number) {
 		return (await this.chatService.getChannelAdmin(id));
+	}
+
+	@Get('/:id/getUsers')
+	async getUsersInChannel(@Param('id') id: number) {
+		return (await this.chatService.getUsersInChannel(id));
 	}
 }
