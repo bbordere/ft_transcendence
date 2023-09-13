@@ -23,19 +23,19 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="list_friend">
-		<ProfilCell v-for="friend in friends" :profilObject="friend" :myid=sender></ProfilCell>
+	<div class="list">
+		<div class="list_friend">
+			<ProfilCell v-for="friend in friends" :profilObject="friend" :myid=sender></ProfilCell>
+		</div>
 	</div>
 </template>
 
 <style>
-
-.list_friend{
+.list_friend {
 	display: flex;
 	align-items: center;
 	flex-direction: column;
 	width: 100%;
 	height: 100%;
 }
-
 </style>

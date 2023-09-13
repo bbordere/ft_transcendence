@@ -6,18 +6,13 @@
 				<div class="friend_list">
 					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel" @kick="notifyKick"
 						ref="ModalManager" />
-					<div class="list">
-						<ChannelList class="list" v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
-							:selectedChannel="selectedChannel" @showChannel="showChannel" />
-						<FriendList class="friends" v-else />
-					</div>
+					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
+						:selectedChannel="selectedChannel" @showChannel="showChannel" />
+					<FriendList v-else />
 				</div>
 			</div>
-			<div class="chat">
-				<Chat v-if="connected && showChannelDiv" :selectedChannel="selectedChannel" :sender="sender"
-					:socket="socket" @removeChannel="removeChannel"
-					@displayChannelOption="displayChannelOption"/>
-			</div>
+			<Chat :selectedChannel="selectedChannel" :sender="sender"
+				:socket="socket" @removeChannel="removeChannel" @displayChannelOption="displayChannelOption"></Chat>
 		</div>
 	</div>
 </template>
@@ -71,12 +66,9 @@ export default defineComponent({
 
 	data() {
 		return {
-			showModalPlay: false,
 			showChannelDiv: false,
 			socket: null as any,
-			connected: false as Boolean,
 			sender: {} as User,
-			message: '' as string,
 			channels: [] as Channel[],
 			selectedChannel: {} as Channel,
 			ModalManagerData: null as unknown,
@@ -89,7 +81,6 @@ export default defineComponent({
 
 	async mounted() {
 		this.ModalManagerData = this.$refs['ModalManager'];
-		console.log(typeof(this.ModalManagerData));
 		const user = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json()
 		this.sender.id = user['id'];
 		this.sender.name = user['name'];
@@ -120,8 +111,6 @@ export default defineComponent({
 	methods: {
 		init() {
 			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/')
-			this.socket.on('connect', () => { this.connected = true; });
-			this.socket.on('disconnect', () => { this.connected = false; });
 			this.socket.on('message',
 				(data: {
 					channelId: number,
@@ -297,119 +286,6 @@ h1 {
 	text-align: left;
 }
 
-.message {
-	word-wrap: break-word;
-}
-
-.message_box {
-	padding-right: 20px;
-	width: 90%;
-	margin-bottom: 10px;
-	max-height: 100%;
-	overflow-y: auto;
-	scrollbar-width: none;
-}
-
-::-webkit-scrollbar {
-	width: 0;
-	background-color: transparent;
-}
-
-.message_box ul {
-	margin: 0;
-	padding: 0;
-	list-style-type: none;
-}
-
-.message_box ul li {
-	padding: 5px;
-}
-
-.single_message {
-	display: flex;
-	margin-top: 10px;
-}
-
-.single_message div {
-	display: flex;
-	flex-direction: column;
-	max-width: 50%;
-}
-
-.single_message img {
-	padding-left: 5px;
-	padding-right: 5px;
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	overflow: hidden;
-}
-
-.sender_name {
-	font-size: 10px;
-}
-
-.sent {
-	justify-content: end;
-	flex-direction: row-reverse;
-}
-
-.send_container {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 100%;
-	margin-bottom: 5%;
-}
-
-.send_container form {
-	width: 80%;
-}
-
-.sendbox {
-	width: 100%;
-	background-color: white;
-	text-align: center;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-
-.sendbox input {
-	width: 90%;
-	height: 50px;
-	border: none;
-	padding-left: 15px;
-	border-right: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.sendbox input:focus {
-	outline: none;
-}
-
-.sendbox button {
-	padding-left: 20px;
-	border: none;
-	background-color: transparent;
-	font-size: 20px;
-	padding-right: 20px;
-	color: rgba(0, 0, 0, 0.2);
-}
-
-.channel_options {
-	display: flex;
-	flex-direction: row;
-	width: 80%;
-	flex-wrap: wrap;
-}
-
-.channel_options button {
-	flex: 1;
-	padding: 10px;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	background-color: white;
-}
-
 .home_body {
 	height: 90%;
 	padding: 2.5%;
@@ -435,32 +311,6 @@ h1 {
 	flex-grow: 0.2;
 }
 
-.play_button {
-	display: flex;
-	width: 100%;
-	height: 20%;
-	justify-content: center;
-	align-items: center;
-	background: #036280;
-	border: 3px solid #BC0002;
-	border-radius: 25px;
-	text-decoration: none;
-	color: black;
-	font-size: 3em;
-}
-
-.chat {
-	display: flex;
-	height: 100%;
-	width: 45%;
-	flex-direction: column;
-	align-items: center;
-	justify-content: space-between;
-	background: #F0F8FF;
-	border: 3px solid #BC0002;
-	border-radius: 10px;
-}
-
 .friend_list {
 	display: flex;
 	flex-direction: column;
@@ -471,113 +321,23 @@ h1 {
 	border-radius: 10px;
 }
 
-.add_friend {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 2%;
-	height: 7%;
-	padding-left: 3px;
-	width: 97%;
-
-}
-
-.add_friend .spe {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: white;
-	background-color: black;
-	height: 80%;
-	flex-shrink: 0;
-	width: 37%;
-	overflow: hidden;
-	border-radius: 20px;
-	border: none;
-	cursor: pointer;
-}
-
-.spe:hover {
-	background-color: rgb(6, 56, 56);
-	;
-}
-
-.list {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	height: 100%;
-	margin-top: 2%;
-	align-items: center;
-	background-color: rgb(255, 255, 255);
-	overflow-y: scroll;
-}
-
-.list ul {
-	margin: 0;
-	padding: 0;
-	list-style-type: none;
-	width: 100%;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-}
-
-.list ul li {
-	margin-top: 10px;
-	width: 90%;
-	height: 10%;
-	display: flex;
-	border-radius: 20px;
-	justify-content: center;
-	align-items: center;
-}
-
-.list ul li:hover {
-	background-color: #F0F8FF;
-}
-
-.list ul li span {
-	font-family: 'Poppins', sans-serif;
-	font-weight: bold;
-	font-size: 1em;
-}
-
-.selectedChannel {
-	background-color: #F0F8FF;
-}
-
-.friends {
+/* .friends {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	height: 100%;
 	width: 100%;
 	background-color: white;
-}
-
+} */
 
 @media screen and (max-width: 1150px) {
-	.join_panel button {
+	/* .join_panel button {
 		font-size: 65%;
-	}
+	} */
 
 	.left_column {
 		flex-grow: 0.6;
 	}
-
-	.chat {
-		width: 50%;
-	}
-}
-
-.sent {
-	text-align: right;
-}
-
-.received {
-	text-align: left;
 }
 
 .slide-fade-enter-from {

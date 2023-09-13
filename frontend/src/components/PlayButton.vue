@@ -47,3 +47,18 @@ export default {
 	}
 }
 </script>
+<style>
+.play_button {
+	display: flex;
+	width: 100%;
+	height: 20%;
+	justify-content: center;
+	align-items: center;
+	background: #036280;
+	border: 3px solid #BC0002;
+	border-radius: 25px;
+	text-decoration: none;
+	color: black;
+	font-size: 3em;
+}
+</style>
