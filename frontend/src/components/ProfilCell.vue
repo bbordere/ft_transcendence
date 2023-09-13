@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Hamburger from '../components/Hamburger.vue'
+
 export default defineComponent({
 		props: ["profilObject", "myid"],
 	components: {
@@ -56,7 +57,7 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="box" v-if="profilObject.Status === 1">
+	<div class="box" v-if="profilObject.Status === 'accepted'">
 		<router-link class="img_user" to="/profile">
 			<img class="img_user_profil" v-bind:src=avatar alt="default profile img">
 		</router-link>
@@ -69,7 +70,7 @@ export default defineComponent({
 		</div>
 		<hamburger :show="ModalHamburger" @close="ModalHamburger = false" :id1="profilObject.UserId" :id2="profilObject.FriendId" :username="username"></hamburger>
 	</div>
-	<div class="box" v-else-if="profilObject.FriendId === myid && profilObject.Status === -1">
+	<div class="box" v-else-if="profilObject.FriendId === myid && profilObject.Status === 'pending'">
 		<router-link class="img_user" to="/profile">
 			<img class="img_user_profil" v-bind:src=avatar alt="default profile img">
 		</router-link>

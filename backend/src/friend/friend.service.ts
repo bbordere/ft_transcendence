@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Friend } from './friend.entity';
 import { UserService } from '../user/user.service';
-import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class FriendService {
+	
 	constructor(
 		@InjectRepository(Friend)
 		private friendRepository: Repository<Friend>,
@@ -23,7 +23,7 @@ export class FriendService {
 		const friend = new Friend();
 		friend.UserId = sender;
 		friend.FriendId = friendToAdd.id;
-		friend.Status = -1;
+		friend.Status = 'pending';
 		return this.friendRepository.save(friend);
 	}
 
@@ -39,7 +39,7 @@ export class FriendService {
 				{ UserId: id2, FriendId: id1 },
 			],
 		});
-		user.Status = 1;
+		user.Status = 'accepted';
 		await this.friendRepository.save(user);
 	}
 
@@ -50,7 +50,7 @@ export class FriendService {
 				{ UserId: id2, FriendId: id1 },
 			],
 		});
-		user.Status = 1;
+		user.Status = 'blocked';
 		await this.friendRepository.save(user);
 	}
 
