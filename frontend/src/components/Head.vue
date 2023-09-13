@@ -54,8 +54,8 @@ export default defineComponent({
 	font-family: 'Happy Monkey', cursive;
 	display: flex;
 	height: 10vh;
-	border-bottom: 2px solid #BC0002;
-	background: #036280;
+	border-bottom: 2px solid #515151;
+	background: #f7f4dd;
 	justify-content: space-between;
 	min-height: 50px;
 }
@@ -64,7 +64,7 @@ export default defineComponent({
 	height: 9.4vh;
 	background-color: white;
 	border-radius: 290px;
-	border: 3px solid #BC0002;
+	border: 3px solid #515151;
 	padding-left: 10%;
 	margin-left: 25%;
 }
@@ -79,7 +79,8 @@ export default defineComponent({
 }
 
 .img_profile{
-	height: 9.9vh;
+	height: 100%;
+	aspect-ratio: 1;
 	border-radius:27px 0px 0px 27px;
 }
 
@@ -89,6 +90,6 @@ export default defineComponent({
 	justify-content: center;
 	align-items: center;
 	height: 100%;
-	background-color: #D9D9D9;
+	background-color: white;
 }
 </style>

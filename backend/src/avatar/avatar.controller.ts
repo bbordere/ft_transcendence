@@ -40,7 +40,7 @@ export class AvatarController {
 	
 	@Get('/default')
 	getDefaultAvatar(@Res() res: Response, @Req() req){
-		const file = createReadStream(join(process.cwd(), 'avatars/default.jpg'));
+		const file = createReadStream(join(process.cwd(), 'avatars/default.png'));
 		file.pipe(res);
 	}
 	

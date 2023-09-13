@@ -58,7 +58,7 @@ export default {
 
 		drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
 			ctx.beginPath();
-			ctx.arc(x, y, radius/2, 0, TPI);
+			ctx.arc(x, y, radius, 0, TPI);
 			ctx.fillStyle = color;
 			ctx.lineWidth = 6;
 			ctx.strokeStyle = "white";
@@ -90,10 +90,11 @@ export default {
 				const targetBall = this.gameInfos.ball;
 				const pad1 = this.gameInfos.pad1;
 				const pad2 = this.gameInfos.pad2;
-				this.ball.position.x += (targetBall.position.x - this.ball.position.x) * 0.414;
-				this.ball.position.y += (targetBall.position.y - this.ball.position.y) * 0.414;
+				this.ball.position.x += (targetBall.position.x - this.ball.position.x) * 0.5;
+				this.ball.position.y += (targetBall.position.y - this.ball.position.y) * 0.5;
 
 				// this.ball = targetBall;
+				// console.log(this.ball.position, this.gameInfos.ball.position);
 
 				this.pad1.pos.x += (pad1.pos.x - this.pad1.pos.x) * 0.2;
 				this.pad1.pos.y += (pad1.pos.y - this.pad1.pos.y) * 0.2;
