@@ -1,81 +1,23 @@
 <template>
 	<div class="home_body">
 		<div class="home_content">
-
 			<div class="left_column">
-				<button v-if="!recoButton" class="play_button" @click="showModalPlay = true">Jouer</button>
-				<button v-else class="play_button" @click="reconnectToRoom">Reco</button>
-				<Teleport to="body">
-					<transition name="slide-fade" mode="out-in">
-						<PlayModal v-show="showModalPlay" @close-modal="showModalPlay = false"></PlayModal>
-					</transition>
-				</Teleport>
+				<PlayButton />
 				<div class="friend_list">
-					<div class="add_friend">
-						<button class="spe" @click="channelList = true;">Channel</button>
-						<button class="spe" @click="channelList = false;">Amis</button>
-						<ButtonAdd icon="fa-solid fa-user-plus" id="show-modal" @click="showModalFriend = true"></ButtonAdd>
-						<Teleport to="body">
-							<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
-						</Teleport>
-							<ButtonAdd icon="fa-circle-plus" id="show-modal" @click="showModal = true"></ButtonAdd>
-						<Teleport to="body">
-							<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannel"></ModalAdd>
-						</Teleport>
-						<Teleport to="body">
-							<KickUserModal :show="showKickModal" :channelId="selectedChannel.id" @close="showKickModal = false;" @kick="notifyKick"></KickUserModal>
-						</Teleport>
-						<Teleport to="body">
-							<BanUserModal :show="showBanModal" :users="getUsersInChannel" :channelId="selectedChannel.id" @close="showBanModal = false;" @kick="notifyKick"></BanUserModal>
-						</Teleport>
-						<Teleport to="body">
-							<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;"></UnBanUserModal>
-						</Teleport>
-					</div>
+					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel" @kick="notifyKick"
+						ref="ModalManager" />
 					<div class="list">
-						<ul v-if="channelList">
-							<li :class="clickedChannel(channel.id)" @click="showChannel(channel)" v-for="channel in channels"><span>{{ channel.name }}</span></li>
-						</ul>
-						<div v-else class="friends">
-							<FriendList/>
-						</div>
+						<ChannelList class="list" v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
+							:selectedChannel="selectedChannel" @showChannel="showChannel" />
+						<FriendList class="friends" v-else />
 					</div>
 				</div>
 			</div>
-			<div v-if="connected && showDiv" class="chat">
-				<h1>{{ selectedChannel.name }}</h1>
-				<div class="message_box">
-					<ul class="msg_chat_box">
-						<li>
-							<div v-for="(msg, index) in selectedChannel.messages" class="single_message" :class="getMessageClass(msg)">
-								<img :src="msg.sender_img">
-								<div>
-									<span class="sender_name">{{ msg.sender_name }}</span>
-									<span :ref="`message-${index}`" class="message">{{ msg.text }}</span>
-								</div>
-							</div>
-						</li>
-					</ul>
-				</div>
-				<div class="send_container">
-					<form v-on:submit.prevent="sendMessage">
-						<div class="sendbox">
-							<input type="text" v-model="message">
-							<button type="button" @click="sendMessage()">&#8593;</button>
-						</div>
-					</form>
-					<div class="channel_options">
-						<button type="button" @click="quitChannel(sender)">Quit Channel</button>
-						<button v-if="selectedChannel.admin == sender" type="button" @click="showKickModal = true">Kick User</button>
-						<button v-if="selectedChannel.admin == sender" type="button" @click="showBanModal = true">Ban User</button>
-						<button v-if="selectedChannel.admin == sender" type="button" @click="showUnBanModal = true">Unban User</button>
-					</div>
-				</div>
+			<div class="chat">
+				<Chat v-if="connected && showChannelDiv" :selectedChannel="selectedChannel" :sender="sender"
+					:socket="socket" @removeChannel="removeChannel"
+					@displayChannelOption="displayChannelOption"/>
 			</div>
-			<div v-else-if="!connected" class="chat">
-				<p>connecting to websocket server...</p>
-			</div>
-			<div v-else-if="!showDiv" class="chat"></div>
 		</div>
 	</div>
 </template>
@@ -86,18 +28,17 @@ import ModalAdd from '../components/ModalAdd.vue'
 import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
 import { useNotification } from "@kyvg/vue3-notification";
-import ButtonAdd from '../components/ButtonAdd.vue'
 import PlayModal from '@/components/PlayModal.vue';
-import KickUserModal from '@/components/KickUserModal.vue';
-import BanUserModal from '@/components/BanUserModal.vue';
-import UnBanUserModal from '@/components/UnBanUserModal.vue';
-import FriendList from '../components/FriendList.vue'
+import ChannelList from '../components/ChannelList.vue';
+import ModalManager from '../components/ModalManager.vue';
+import FriendList from '@/components/FriendList.vue';
+import Chat from '@/components/Chat.vue';
+import PlayButton from '@/components/PlayButton.vue';
 
 interface User {
 	id: number;
 	name: string;
 	img: string;
-	admin: boolean;
 }
 
 interface Message {
@@ -118,36 +59,27 @@ interface Channel {
 
 export default defineComponent({
 	components: {
-		ButtonAdd,
 		ModalAddFriend,
 		ModalAdd,
 		PlayModal,
-		KickUserModal,
-		BanUserModal,
-		UnBanUserModal,
-		FriendList
+		ChannelList,
+		ModalManager,
+		FriendList,
+		Chat,
+		PlayButton,
 	},
 
 	data() {
 		return {
-			showModal: false,
-			showModalFriend: false,
 			showModalPlay: false,
-			showKickModal: false,
-			showBanModal: false,
-			showUnBanModal: false,
-			channelList: true,
+			showChannelDiv: false,
 			socket: null as any,
 			connected: false as Boolean,
-			sender: -1 as number,
-			sender_name: '' as string,
-			sender_img: '' as string,
+			sender: {} as User,
 			message: '' as string,
 			channels: [] as Channel[],
 			selectedChannel: {} as Channel,
-			showDiv: false as Boolean,
-			recoButton: false as Boolean,
-			recoMode: -1 as number,
+			ModalManagerData: null as unknown,
 		}
 	},
 
@@ -156,15 +88,17 @@ export default defineComponent({
 	},
 
 	async mounted() {
+		this.ModalManagerData = this.$refs['ModalManager'];
+		console.log(typeof(this.ModalManagerData));
 		const user = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json()
-		this.sender = user['id'];
-		this.sender_name = user['name'];
-		this.sender_img = user['avatarLink'];
-		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/joinedChannels', { credentials: 'include' })).json();
+		this.sender.id = user['id'];
+		this.sender.name = user['name'];
+		this.sender.img = user['avatarLink'];
+		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender.id + '/joinedChannels', { credentials: 'include' })).json();
 		for (let i = 0; i < channels_json.length; i++) {
 			this.channels.push({
 				id: channels_json[i]['id'],
-				admin: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/admin', {credentials: 'include'})).json())['id'],
+				admin: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/admin', { credentials: 'include' })).json())['id'],
 				name: channels_json[i]['name'],
 				messages: await this.getChannelMessages(channels_json[i]['id']),
 				protected: channels_json[i]['protected'],
@@ -173,19 +107,6 @@ export default defineComponent({
 		this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
-		const disconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
-		this.recoButton = disconnectObject["disconnect"];
-		this.recoMode = disconnectObject["mode"];
-		if (!this.recoButton)
-			return;
-		let timer: number = 0;
-		const it = setInterval(async () => {
-			const disconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
-			this.recoButton = disconnectObject["disconnect"];
-			timer++;
-			if (timer === 8 || !this.recoButton)
-				clearInterval(it);
-		}, 500);
 	},
 
 	updated() {
@@ -202,34 +123,35 @@ export default defineComponent({
 			this.socket.on('connect', () => { this.connected = true; });
 			this.socket.on('disconnect', () => { this.connected = false; });
 			this.socket.on('message',
-				(data: { channelId: number,
+				(data: {
+					channelId: number,
 					text: string,
 					sender: number,
 					sender_name: string,
 					sender_img: string
 				}) => {
-				const { channelId, text, sender, sender_name, sender_img } = data;
-				const channel = this.findChannel(channelId);
-				if (channel) {
-					channel.messages.push({
-						channelId: channelId,
-						text: text,
-						sender: sender,
-						sender_name: sender_name,
-						sender_img: sender_img,
-					});
-				}
-			});
-			this.socket.on('kick', (data: {channelId: number, userId: number, ban: boolean}) => {
+					const { channelId, text, sender, sender_name, sender_img } = data;
+					const channel = this.findChannel(channelId);
+					if (channel) {
+						channel.messages.push({
+							channelId: channelId,
+							text: text,
+							sender: sender,
+							sender_name: sender_name,
+							sender_img: sender_img,
+						});
+					}
+				});
+			this.socket.on('kick', (data: { channelId: number, userId: number, ban: boolean }) => {
 				const { channelId, userId, ban } = data;
-				if (this.sender === userId) {
+				if (this.sender.id === userId) {
 					for (let i = 0; i < this.channels.length; i++) {
 						if (this.channels[i].id === this.selectedChannel.id) {
 							const channel_name = this.channels[i].name;
 							this.channels.splice(i, 1);
 							if (this.selectedChannel.id === channelId)
 								this.selectedChannel = {} as Channel;
-							this.showDiv = false;
+							this.showChannelDiv = false;
 							const notif = useNotification()
 							notif.notify({
 								title: 'Erreur',
@@ -237,14 +159,14 @@ export default defineComponent({
 								type: 'error',
 								group: 'notif-center',
 							});
-							break ;
+							break;
 						}
 					}
 				}
 			});
-			this.socket.on('changeAdmin', (data: {channel_id: number, new_admin_id: number}) => {
-				const {channel_id, new_admin_id} = data;
-				if (this.sender === new_admin_id) {
+			this.socket.on('changeAdmin', (data: { channel_id: number, new_admin_id: number }) => {
+				const { channel_id, new_admin_id } = data;
+				if (this.sender.id === new_admin_id) {
 					for (let i = 0; i < this.channels.length; i++) {
 						if (this.channels[i].id === channel_id) {
 							this.channels[i].admin = new_admin_id;
@@ -255,29 +177,15 @@ export default defineComponent({
 								type: 'success',
 								group: 'notif-center',
 							});
-							break ;
+							break;
 						}
 					}
 				}
 			});
 		},
 
-		sendMessage() {
-			if (this.socket && this.message) {
-				const data = {
-					channelId: this.selectedChannel.id,
-					text: this.message,
-					sender: this.sender,
-					sender_name: this.sender_name,
-					sender_img: this.sender_img,
-				};
-				this.socket.emit('message', data);
-				this.message = '';
-			}
-		},
-
 		async showChannel(chan: Channel) {
-			this.showDiv = true;
+			this.showChannelDiv = true;
 			this.selectedChannel = chan;
 		},
 
@@ -285,9 +193,9 @@ export default defineComponent({
 			const found = this.findChannel(channel.id);
 			if (found) {
 				this.showChannel(found);
-				return ;
+				return;
 			}
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender.id + '/channels/' + channel['id'] + '/add', {
 				credentials: 'include',
 				method: "POST",
 				headers: {
@@ -299,13 +207,13 @@ export default defineComponent({
 			});
 			const response_json = await response.json();
 			if (response_json['ok'] === true) {
-				channel.admin = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channel.id + '/admin', {credentials: 'include'})).json())['id'];
+				channel.admin = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channel.id + '/admin', { credentials: 'include' })).json())['id'];
 				this.channels.push(channel);
 				this.selectedChannel = channel;
 				this.selectedChannel.messages = await this.getChannelMessages(channel.id);
-				this.showDiv = true;
+				this.showChannelDiv = true;
 			}
-			else  {
+			else {
 				const notif = useNotification()
 				notif.notify({
 					title: 'Erreur',
@@ -316,49 +224,33 @@ export default defineComponent({
 			}
 		},
 
-		async quitChannel(id: number) {
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + id + '/channels/' + this.selectedChannel.id + '/remove', {
-				credentials: 'include',
-				method: 'POST'
-			});
-			const response_json = await response.json();
-			if (response_json['ok']) {
-				for (let i = 0; i < this.channels.length; i++) {
-					if (this.channels[i].id === this.selectedChannel.id) {
-						if (this.selectedChannel.admin === this.sender) {
-							const admin_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.channels[i].id + '/admin');
-							try {
-								const new_admin_id = (await admin_response.json())['id'];
-								let channel_id = this.channels[i].id;
-								this.socket.emit('changeAdmin', {channel_id, new_admin_id});
-							}
-							catch {}
+		async removeChannel(id: number) {
+			for (let i = 0; i < this.channels.length; i++) {
+				if (this.channels[i].id === this.selectedChannel.id) {
+					if (this.selectedChannel.admin === this.sender.id) {
+						const admin_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.channels[i].id + '/admin');
+						try {
+							const new_admin_id = (await admin_response.json())['id'];
+							let channel_id = this.channels[i].id;
+							this.socket.emit('changeAdmin', { channel_id, new_admin_id });
 						}
-						this.channels.splice(i, 1);
-						this.selectedChannel = {} as Channel;
-						this.showDiv = false;
-						break ;
+						catch { }
 					}
+					this.channels.splice(i, 1);
+					this.selectedChannel = {} as Channel;
+					this.showChannelDiv = false;
+					break;
 				}
 			}
 		},
 
-		async getUsersInChannel() {
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.selectedChannel.id + '/getUsers', { credentials: 'include' });
-			var users = [];
-			try {
-				var users_json = await response.json();
-				for (let i = 0; i < users_json.length; i++) {
-					users.push({
-						id: users_json[i]['id'],
-						name: users_json[i]['name'],
-						img: users_json[i]['avatarLink'],
-						admin: this.sender === this.selectedChannel.admin,
-					});
-				}
-			}
-			catch {}
-			return (users);
+		displayChannelOption(str: string) {
+			if (str === 'kick')
+				this.ModalManagerData.showKickModal = true;
+			else if (str === 'ban')
+				this.ModalManagerData.showBanModal = true;
+			else if (str === 'unban')
+				this.ModalManagerData.showUnBanModal = true;
 		},
 
 		findChannel(id: number): Channel | null {
@@ -366,15 +258,6 @@ export default defineComponent({
 				if (this.channels[i].id === id)
 					return (this.channels[i]);
 			return (null);
-		},
-
-		getMessageClass(message: Message): string {
-			return (this.sender === message.sender ? 'sent' : 'received');
-		},
-
-		reconnectToRoom(){
-			const mode = ["classic", "arcade", "ranked"][this.recoMode];
-			this.$router.push({ path: '/pong', query: { mode: mode }});
 		},
 
 		async getChannelMessages(channelId: number): Promise<Message[]> {
@@ -387,8 +270,8 @@ export default defineComponent({
 						channelId: channelId,
 						text: messages_json[i].text,
 						sender: messages_json[i].sender.id,
-						sender_name: (await ( await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].sender.id, { credentials: 'include' })).json())['name'],
-						sender_img: (await ( await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].sender.id, { credentials: 'include' })).json())['avatarLink'],
+						sender_name: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].sender.id, { credentials: 'include' })).json())['name'],
+						sender_img: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].sender.id, { credentials: 'include' })).json())['avatarLink'],
 					});
 				}
 				return (messages);
@@ -399,12 +282,9 @@ export default defineComponent({
 		},
 
 		notifyKick(channelId: number, userId: number, ban: boolean) {
-			this.socket.emit('kick', {channelId, userId, ban});
+			this.socket.emit('kick', { channelId, userId, ban });
 		},
 
-		clickedChannel(channelId: number) {
-			return (this.selectedChannel.id === channelId ? 'selectedChannel' : '');
-		},
 	},
 });
 
@@ -463,7 +343,7 @@ h1 {
 	height: 40px;
 	border-radius: 50%;
 	overflow: hidden;
-} 
+}
 
 .sender_name {
 	font-size: 10px;
@@ -618,7 +498,8 @@ h1 {
 }
 
 .spe:hover {
-	background-color: rgb(6, 56, 56);;
+	background-color: rgb(6, 56, 56);
+	;
 }
 
 .list {
@@ -712,6 +593,4 @@ h1 {
 	-webkit-transform: scale(1.5);
 	transform: scale(1.5);
 }
-
 </style>
-left
