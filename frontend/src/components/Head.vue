@@ -37,7 +37,7 @@ export default defineComponent({
 <template>
 <header class="header">
 	<router-link to="/">
-		<img class="logo_42" src="../assets/img/logo.png" alt="logo 42">
+		<img class="logo_42" src="../assets/img/logoPinaColaPong2.png" alt="logo 42">
 	</router-link>
 	<router-link to="/profile" class="profile">
 		<img class="img_profile" v-bind:src=avatar alt="default profile img">
@@ -56,17 +56,18 @@ export default defineComponent({
 	height: 10vh;
 	border-bottom: 2px solid #515151;
 	background: #f7f4dd;
+	background: white;
 	justify-content: space-between;
 	min-height: 50px;
 }
 
 .logo_42 {
-	height: 9.4vh;
-	background-color: white;
-	border-radius: 290px;
-	border: 3px solid #515151;
+	height: 95%;
+	/* background-color: white; */
+	/* border-radius: 290px; */
+	/* border: 3px solid #515151; */
 	padding-left: 10%;
-	margin-left: 25%;
+	/* margin-left: 25%; */
 }
 
 .profile {
