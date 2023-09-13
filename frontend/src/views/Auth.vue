@@ -80,7 +80,7 @@ async function login(){
 			<button @click="login">connection</button>
 		</div>
 		<div class="inscription">
-			<button id="show-modal" @click="showModal = true">Inscription</button>
+			<button id="inscription-btn" @click="showModal = true">Inscription</button>
 		</div>
 		<Teleport to="body">
 			<inscription :show="showModal" @close="showModal = false" />
@@ -213,6 +213,35 @@ async function login(){
 	to {
 	filter: hue-rotate(1turn);
 	}
+}
+
+.inscription {
+	display: flex;
+	direction: row;
+	justify-content: center;
+}
+
+#inscription-btn {
+	margin: 15px 0;
+	width: 80%;
+	height: 50px;
+	font-size: 18px;
+	line-height: 50px;
+	font-weight: 600;
+	background: #dde1e7;
+	border-radius: 25px;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	color: #595959;
+	box-shadow:  4px 4px 4px #616161,
+             -4px -4px 4px #eaeaea;
+}
+
+#inscription-btn:focus {
+	color: #3498db;
+	box-shadow:  4px 4px 4px #606060,
+             -4px -4px 4px #c9c9c9;
 }
 
 .btn42::after {

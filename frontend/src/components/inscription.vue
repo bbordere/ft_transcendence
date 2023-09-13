@@ -52,23 +52,23 @@ async function register(){
     	<div class="modal-container" @click.stop>
         	<div class="modal-body">
 				<span class="text">inscription</span>
-				<div class="form">
-					<div class="field">
-						<input type="email" placeholder="@ email" v-model="email" />
-					</div>
-					<div class="field">
-						<input type="text" placeholder="pseudo" v-model="pseudo" />
-					</div>
-					<div class="field">
-						<input type="text" placeholder="mot de passe" v-model="password" />
-					</div>
+					<form v-on:submit.prevent="register" class="form">
+						<div class="field">
+							<input type="email" placeholder="@ email" v-model="email" />
+						</div>
+						<div class="field">
+							<input type="text" placeholder="pseudo" v-model="pseudo" />
+						</div>
+						<div class="field">
+							<input type="password" placeholder="mot de passe" v-model="password" />
+						</div>
 						<button @click="register">inscription</button>
-					</div>
+					</form>
         		</div>
     		</div>
     	</div>
 	</Transition>
-</template>
+</template>``
 
 <style scoped>
 .modal-mask {

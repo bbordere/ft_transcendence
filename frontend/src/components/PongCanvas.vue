@@ -138,6 +138,7 @@ export default {
 		this.socket.on('text', (data: string) => {
 			cancelAnimationFrame(this.animId);
 			this.animId = -1;
+			if (data === "QUEUEING")
 			this.drawText(ctx, canvas, data);
 		});
 	},
