@@ -199,7 +199,7 @@ export default {
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
-	background: #D9D9D9;
+	background: #F0F8FF;
 	border: 3px solid #BC0002;
 	border-radius: 20px;
 }
@@ -245,17 +245,23 @@ export default {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	width: 35%;
+	width: 32%;
 }
 
 #exit_button {
 	position: relative;
-	background-color: gray;
+	background-color: #229EE6;
 	font-size: 2vh;
 	padding: 0.7vw;
 	margin-right: 1vw;
 	border-radius: 40px;
-	border-color: gray;
+	border-color: #229EE6;
+	font-family: "Poppins", sans-serif
+}
+
+#exit_button:hover {
+	background-color: #91CEF2;
+	cursor: pointer;
 }
 
 @font-face{

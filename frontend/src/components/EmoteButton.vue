@@ -22,7 +22,7 @@ export default {
 .emoteContainer{
 	position: relative;
 	overflow: hidden;
-	background-color: gray;
+	background-color: #229EE6;
 	border-radius: 20px;
 	font-size: 2.5vh;
 	padding: 0.7vw;
@@ -30,7 +30,7 @@ export default {
 }
 
 .emoteContainer:hover {
-	background-color: aliceblue;
+	background-color: #91CEF2;
 	cursor: pointer;
 }
 

@@ -1,7 +1,7 @@
 <template>
 
 	<div class="pong_screen">
-		<canvas id="pongCanvas" width="2000" height="1200"></canvas>
+		<canvas id="pongCanvas" width="1200" height="600"></canvas>
 	</div>
 
 </template>
@@ -58,7 +58,7 @@ export default {
 
 		drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
 			ctx.beginPath();
-			ctx.arc(x, y, radius, 0, TPI);
+			ctx.arc(x, y, radius/2, 0, TPI);
 			ctx.fillStyle = color;
 			ctx.lineWidth = 6;
 			ctx.strokeStyle = "white";
