@@ -12,8 +12,8 @@
 				</Teleport>
 				<div class="friend_list">
 					<div class="add_friend">
-						<button class="spe">Channel</button>
-						<button class="spe">Amis</button>
+						<button class="spe" @click="channelList = true;">Channel</button>
+						<button class="spe" @click="channelList = false;">Amis</button>
 						<ButtonAdd icon="fa-solid fa-user-plus" id="show-modal" @click="showModalFriend = true"></ButtonAdd>
 						<Teleport to="body">
 							<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
@@ -26,17 +26,17 @@
 							<KickUserModal :show="showKickModal" :channelId="selectedChannel.id" @close="showKickModal = false;" @kick="notifyKick"></KickUserModal>
 						</Teleport>
 						<Teleport to="body">
-							<BanUserModal :show="showBanModal" :channelId="selectedChannel.id" @close="showBanModal = false;" @kick="notifyKick"></BanUserModal>
+							<BanUserModal :show="showBanModal" :users="getUsersInChannel" :channelId="selectedChannel.id" @close="showBanModal = false;" @kick="notifyKick"></BanUserModal>
 						</Teleport>
 						<Teleport to="body">
 							<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;"></UnBanUserModal>
 						</Teleport>
 					</div>
 					<div class="list">
-						<ul>
+						<ul v-if="channelList">
 							<li :class="clickedChannel(channel.id)" @click="showChannel(channel)" v-for="channel in channels"><span>{{ channel.name }}</span></li>
 						</ul>
-						<div class="friends">
+						<div v-else class="friends">
 							<FriendList/>
 						</div>
 					</div>
@@ -93,6 +93,13 @@ import BanUserModal from '@/components/BanUserModal.vue';
 import UnBanUserModal from '@/components/UnBanUserModal.vue';
 import FriendList from '../components/FriendList.vue'
 
+interface User {
+	id: number;
+	name: string;
+	img: string;
+	admin: boolean;
+}
+
 interface Message {
 	channelId: number;
 	text: string;
@@ -129,6 +136,7 @@ export default defineComponent({
 			showKickModal: false,
 			showBanModal: false,
 			showUnBanModal: false,
+			channelList: true,
 			socket: null as any,
 			connected: false as Boolean,
 			sender: -1 as number,
@@ -274,8 +282,9 @@ export default defineComponent({
 		},
 
 		async joinChannel(channel: Channel, password: string) {
-			if (this.findChannel(channel.id)) {
-				// this.showChannel(channel);
+			const found = this.findChannel(channel.id);
+			if (found) {
+				this.showChannel(found);
 				return ;
 			}
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender + '/channels/' + channel['id'] + '/add', {
@@ -334,6 +343,24 @@ export default defineComponent({
 			}
 		},
 
+		async getUsersInChannel() {
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.selectedChannel.id + '/getUsers', { credentials: 'include' });
+			var users = [];
+			try {
+				var users_json = await response.json();
+				for (let i = 0; i < users_json.length; i++) {
+					users.push({
+						id: users_json[i]['id'],
+						name: users_json[i]['name'],
+						img: users_json[i]['avatarLink'],
+						admin: this.sender === this.selectedChannel.admin,
+					});
+				}
+			}
+			catch {}
+			return (users);
+		},
+
 		findChannel(id: number): Channel | null {
 			for (let i = 0; i < this.channels.length; i++)
 				if (this.channels[i].id === id)
@@ -390,6 +417,10 @@ h1 {
 	text-align: left;
 }
 
+.message {
+	word-wrap: break-word;
+}
+
 .message_box {
 	padding-right: 20px;
 	width: 90%;
@@ -422,6 +453,7 @@ h1 {
 .single_message div {
 	display: flex;
 	flex-direction: column;
+	max-width: 50%;
 }
 
 .single_message img {
@@ -431,7 +463,6 @@ h1 {
 	height: 40px;
 	border-radius: 50%;
 	overflow: hidden;
-
 } 
 
 .sender_name {
@@ -640,15 +671,10 @@ h1 {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	height: 95%;
-	width: 87%;
-	background-color: #F0F8FF;
+	height: 100%;
+	width: 100%;
+	background-color: white;
 }
-
-/* .friend {
-	margin-top: 5%;
-	margin-bottom: 5%;
-} */
 
 
 @media screen and (max-width: 1150px) {
@@ -657,11 +683,11 @@ h1 {
 	}
 
 	.left_column {
-		/* flex-grow: 0.6; */
+		flex-grow: 0.6;
 	}
 
 	.chat {
-		/* width: 50%; */
+		width: 50%;
 	}
 }
 
