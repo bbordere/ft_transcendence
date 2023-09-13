@@ -15,10 +15,25 @@ export default defineComponent({
 
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
-		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/friend/" + this.sender + "/list", { credentials: 'include' });
-		this.friends = await response.json();
+		await this.fetchFriends();
 	},
-})
+	
+	methods: {
+		async fetchFriends() {
+			const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/friend/" + this.sender + "/list", { credentials: 'include' });
+			this.friends = await response.json();
+		}
+	},
+
+	watch: {
+		friends: {
+			handler() {
+				this.fetchFriends();
+			},
+			deep: true,
+		},
+	},
+});
 
 </script>
 

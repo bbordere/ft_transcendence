@@ -21,6 +21,11 @@ export class FriendController {
 		return this.friendService.acceptFriend(id1, id2);
 	}
 
+	@Patch('/block')
+	async blockFriend(@Query('id1') id1: number, @Query('id2') id2: number) {
+		return this.friendService.blockFriend(id1, id2);
+	}
+
 	@Delete('/delete')
 	async deleteFriend(@Query('id1') id1: number, @Query('id2') id2: number) {
 		return this.friendService.deleteFriend(id1, id2);

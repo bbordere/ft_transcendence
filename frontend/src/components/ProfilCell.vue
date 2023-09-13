@@ -56,17 +56,18 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="box" v-if="(profilObject.UserId === myid && profilObject.Status === 1) || (profilObject.FriendId === myid && profilObject.Status === 1)">
+	<div class="box" v-if="profilObject.Status === 1">
 		<router-link class="img_user" to="/profile">
 			<img class="img_user_profil" v-bind:src=avatar alt="default profile img">
 		</router-link>
 		<div class="name">
 			{{ username }}
 		</div>
+			<font-awesome-icon icon="fa-solid fa-gamepad"/>
 		<div @click="ModalHamburger = true" class="menu-button">
-			<font-awesome-icon icon="fa-solid fa-pen"/>
+			<font-awesome-icon icon="fa-solid fa-xmark"/>
 		</div>
-		<hamburger :show="ModalHamburger" @close="ModalHamburger = false" :id1="profilObject.UserId" :id2="profilObject.FriendId"></hamburger>
+		<hamburger :show="ModalHamburger" @close="ModalHamburger = false" :id1="profilObject.UserId" :id2="profilObject.FriendId" :username="username"></hamburger>
 	</div>
 	<div class="box" v-else-if="profilObject.FriendId === myid && profilObject.Status === -1">
 		<router-link class="img_user" to="/profile">

@@ -136,7 +136,7 @@ export default defineComponent({
 			showKickModal: false,
 			showBanModal: false,
 			showUnBanModal: false,
-			channelList: true,
+			channelList: false,
 			socket: null as any,
 			connected: false as Boolean,
 			sender: -1 as number,
@@ -599,7 +599,6 @@ h1 {
 	height: 7%;
 	padding-left: 3px;
 	width: 97%;
-
 }
 
 .add_friend .spe {

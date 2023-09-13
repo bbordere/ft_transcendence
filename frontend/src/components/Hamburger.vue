@@ -3,19 +3,25 @@ export default {
 	props: {
 		id1: Number,
 		id2: Number,
+		username: String,
 		show: Boolean
 	},
-	data() {
-		return {
-			username: '' as string,
-			sender: -1 as number,
-		}
-	},
+
 	methods: {
 		async deleteFriend() {
 			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/delete?id1=${this.id1}&id2=${this.id2}`,{
 				credentials: 'include',
 				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+			});
+		},
+
+		async blockFriend() {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/block?id1=${this.id1}&id2=${this.id2}`,{
+				credentials: 'include',
+				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json'
 				},
@@ -29,8 +35,10 @@ export default {
 	<Transition name="slide-fade" mode="out-in">
 		<div v-if="show" class="modal_overlay" @click="$emit('close')">
 			<div class="modal_friend" @click.stop>
+				<p>Attention, <b> {{ username }}</b> va être :</p>
 				<div class="button_box">
-					<button v-on:click="deleteFriend">Supprimer l'ami</button>
+					<button v-on:click="blockFriend">Bloquer</button>
+					<button v-on:click="deleteFriend">Supprimer</button>
 				</div>
 			</div>
 		</div>
@@ -41,11 +49,9 @@ export default {
 
 .button_box {
 	display: flex;
-	margin-top: 5%;
 	height: 40%;
-	justify-content: center;
+	justify-content: space-around;
 	align-items: center;
-	gap: 15px;
 	font-size: larger;
 }
 
@@ -58,7 +64,7 @@ export default {
 	justify-content: center;
 	align-items: center;
 	height: 50%;
-	width: 25%;
+	width: 30%;
 	background-color: #036280;;
 	border: 1px solid #000000;
 	border-radius: 20px;
@@ -84,11 +90,17 @@ export default {
 .modal_friend {
 	display: flex;
 	flex-direction: column;
+	justify-content: center;
 	right: 70%;
-	width: 15%;
-	height: 55%;
+	width: 30%;
+	height: 30%;
 	background-color: #DBEFFC;
 	border-radius: 20px;
+}
+
+.modal_friend p {
+	text-align: center;
+	font-size: 1.3em;
 }
 
 @media screen and (max-width: 1150px) {
