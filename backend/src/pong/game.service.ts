@@ -14,6 +14,7 @@ export class GameService {
 		}, 200);
 	};
 
+	
 	checkRoom(room: Room){
 		let countDown: number = 0;
 		let isStarted: boolean = false;
@@ -106,8 +107,9 @@ export class GameService {
 
 				case State.COOLDOWN: {
 					room.powerups = [];
-					this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
+					this.pongGame.resetBall(room);
 					this.roomService.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, room.powerups);
+					this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
 					if (room.timerInterval){
 						clearInterval(room.timerInterval);
 						clearTimeout(room.timerTimeout);
@@ -133,6 +135,11 @@ export class GameService {
 					cooldown = 0;
 					this.pongGame.updateGame(room.players[0].socket, room);
 					this.pongGame.updateGame(room.players[1].socket, room);
+					console.log(room.players[0].score, room.players[1].score);
+					if (room.players[0].score === PongConstants.WIN_SCORE_VALUE || room.players[1].score === PongConstants.WIN_SCORE_VALUE){
+						this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
+						room.state = State.ENDGAME;
+					}
 				}
 				break;
 

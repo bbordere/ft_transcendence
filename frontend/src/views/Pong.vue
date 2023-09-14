@@ -200,6 +200,7 @@ export default {
 	justify-content: center;
 	align-items: center;
 	background: #F0F8FF;
+	/* background: #fff9cf; */
 	border: 3px solid #BC0002;
 	border-radius: 20px;
 }

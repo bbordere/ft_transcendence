@@ -14,7 +14,7 @@ export class PongGame {
 	constructor(private roomService: RoomService, private readonly userService: UserService) {}
 
 	resetBall(room: Room) {
-		room.ball.radius = 20;
+		room.ball.radius = 10;
 		room.ball.position.x = PongConstants.CANVAS_WIDTH / 2;
 		room.ball.position.y = PongConstants.CANVAS_HEIGHT / 2;
 		room.ball.direction.x = (Math.random() * 2 - 1);
@@ -131,14 +131,15 @@ export class PongGame {
 
 		if (indexPlayer != -1){
 			room.players[indexPlayer].score++;
-			if (room.mode === Mode.RANKED && room.players[indexPlayer].score === PongConstants.WIN_SCORE_VALUE) {
-				this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
-				room.state = State.ENDGAME;
-				return;
-			}
+			// console.log(room.players[indexPlayer].score === PongConstants.WIN_SCORE_VALUE);
+			// if (room.mode === Mode.RANKED && room.players[indexPlayer].score === PongConstants.WIN_SCORE_VALUE) {
+			// 	this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
+			// 	room.state = State.ENDGAME;
+			// 	return;
+			// }
+			room.state = State.COOLDOWN;
 			this.resetBall(room);
 			this.resetRacket(room);
-			room.state = State.COOLDOWN;
 			return;
 		}
 		

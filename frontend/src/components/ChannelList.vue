@@ -1,0 +1,65 @@
+<template>
+	<div class="list">
+		<ul>
+			<li :class="clickedChannel(channel['id'])" @click="$emit('showChannel', channel)" v-for="channel in channels">
+				<span>{{ channel['name'] }}</span></li>
+		</ul>
+	</div>
+</template>
+<script lang="ts">
+export default {
+	props: ['channels', 'selectedChannel'],
+	methods: {
+		clickedChannel(channelId: number) {
+			return (this.selectedChannel['id'] === channelId ? 'selectedChannel' : '');
+		},
+	},
+}
+</script>
+<style>
+.list {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	margin-top: 2%;
+	align-items: center;
+	background-color: rgb(255, 255, 255);
+	overflow-y: scroll;
+}
+
+.list ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.list ul li {
+	margin-top: 10px;
+	width: 90%;
+	height: 10%;
+	display: flex;
+	border-radius: 20px;
+	justify-content: center;
+	align-items: center;
+}
+
+.list ul li:hover {
+	background-color: #F0F8FF;
+}
+
+.list ul li span {
+	font-family: 'Poppins', sans-serif;
+	font-weight: bold;
+	font-size: 1em;
+}
+
+.selectedChannel {
+	background-color: #F0F8FF;
+}
+</style>

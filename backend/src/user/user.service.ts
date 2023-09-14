@@ -107,7 +107,7 @@ export class UserService {
 		this.usersRepository.save(user);
 	}
 
-	async updatePictureLink(email: string, link: string = "http://" + process.env.HOST + ":3000/avatar/default.jpg"){
+	async updatePictureLink(email: string, link: string = "http://" + process.env.HOST + ":3000/avatar/default.png"){
 		const user = await this.getByEmail(email);
 		user.avatarLink = link;
 		await this.usersRepository.save(user);
