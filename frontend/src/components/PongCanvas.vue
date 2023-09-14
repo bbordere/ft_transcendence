@@ -26,6 +26,9 @@ export default {
 			pad2: {} as paddle, 
 			gameInfos: {} as gameInfos,
 			lastUpdate: -1 as number,
+			angle: 0,
+			offsetX: 0,
+			isInGame: false,
 		}
 	},
 	methods: {
@@ -39,7 +42,25 @@ export default {
 			this.sprites.push(await this.loadImage("/powerups/speed.png"));
 			this.sprites.push(await this.loadImage("pong_background.png"));
 			this.sprites.push(await this.loadImage("paddle.png"));
+			this.sprites.push(await this.loadImage("queueing_background.png"));
+			this.sprites.push(await this.loadImage("queueing_ananas.png"));
 		},
+
+		animate(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+			this.animId = requestAnimationFrame(() => {this.animate(ctx, canvas)});
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(this.sprites[5], 0, 0, canvas.width, canvas.height);
+
+            this.angle += 0.02;
+			this.offsetX += 1;
+            let offsetY = canvas.height / 2 + Math.sin(this.angle) * 20;
+			if (this.offsetX > canvas.width - this.sprites[6].width / 8) {
+                this.offsetX = -this.sprites[6].width;
+            }
+            ctx.drawImage(this.sprites[6], this.offsetX, offsetY - canvas.height/6);
+        },
+
 
 		drawRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, size: number, color: string) {
 			ctx.beginPath();
@@ -132,15 +153,24 @@ export default {
 		this.spritesInit();
 		this.socket.on('updateGame', (ball: ball, racket1: paddle, racket2: paddle, powerups: []) => {
 			this.gameInfos = {ball: ball, pad1: racket1, pad2: racket2, powerups: powerups};
-			if (this.animId === -1)
+			if (this.animId === -1 || !this.isInGame){
+				if (this.animId !== -1)
+					cancelAnimationFrame(this.animId);
+				this.isInGame = true;
 				this.animId = requestAnimationFrame((current) => {this.draw(ctx, canvas, current)});
+			}
+			
 		});
 
 		this.socket.on('text', (data: string) => {
 			cancelAnimationFrame(this.animId);
 			this.animId = -1;
-			if (data === "QUEUEING")
-			this.drawText(ctx, canvas, data);
+			var x = 0;
+			if (data === "QUEUEING" || data === "WAITING") {
+				this.animId = requestAnimationFrame(() => {this.animate(ctx, canvas)});
+			} else if (data === "ENDGAME" || data === "FINISHED") {
+				this.animId = requestAnimationFrame(() => {this.animate(ctx, canvas)});
+			}
 		});
 	},
 	unmounted(){
