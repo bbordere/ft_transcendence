@@ -18,13 +18,17 @@ export default {
 			});
 		},
 
-		async blockFriend() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/block?id1=${this.id1}&id2=${this.id2}`,{
+		async blockUser() {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/blocklist/block`,{
 				credentials: 'include',
-				method: 'PATCH',
+				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
+				body: JSON.stringify({
+					userId: this.id1,
+					friendId: this.id2,
+				}),
 			});
 		},
 	}
@@ -37,7 +41,7 @@ export default {
 			<div class="modal_friend" @click.stop>
 				<p>Attention, <b> {{ username }}</b> va être :</p>
 				<div class="button_box">
-					<button v-on:click="blockFriend">Bloquer</button>
+					<button v-on:click="blockUser">Bloquer</button>
 					<button v-on:click="deleteFriend">Supprimer</button>
 				</div>
 			</div>

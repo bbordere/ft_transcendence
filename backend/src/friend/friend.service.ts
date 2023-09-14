@@ -43,17 +43,6 @@ export class FriendService {
 		await this.friendRepository.save(user);
 	}
 
-	async blockFriend(id1: number, id2: number): Promise<void> {
-		const user = await this.friendRepository.findOne({
-			where: [
-				{ UserId: id1, FriendId: id2 },
-				{ UserId: id2, FriendId: id1 },
-			],
-		});
-		user.Status = 'blocked';
-		await this.friendRepository.save(user);
-	}
-
 	async getFriendId(
 		FriendToAdd: number,
 		sender: number,
@@ -73,7 +62,6 @@ export class FriendService {
 				{ FriendId: userId },
 			]
 		});
-		console.log(friends);
 		return (friends)
 	}
 }

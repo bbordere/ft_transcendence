@@ -12,7 +12,9 @@ export default defineComponent({
 		return {
 			avatar: "" as string,
 			username: "" as string,
-			ModalHamburger: false,
+			userId: this.profilObject.UserId as number,
+			friendId: this.profilObject.friendId as number,
+			modalHamburger: false,
 		}
 	},
 	methods: {
@@ -47,10 +49,14 @@ export default defineComponent({
 	},
 
 	async mounted() {
-		if (this.profilObject.UserId === this.myid)
+		if (this.profilObject.UserId === this.myid) {
 			await this.userInfo(this.profilObject.FriendId);
-		else
+		}
+		else {
 			await this.userInfo(this.profilObject.UserId);
+			this.userId = this.profilObject.FriendId;
+			this.friendId = this.profilObject.UserId;
+		}
 	}
 });
 
@@ -65,10 +71,10 @@ export default defineComponent({
 			{{ username }}
 		</div>
 			<font-awesome-icon icon="fa-solid fa-gamepad"/>
-		<div @click="ModalHamburger = true" class="menu-button">
+		<div @click="modalHamburger = true" class="menu-button">
 			<font-awesome-icon icon="fa-solid fa-xmark"/>
 		</div>
-		<hamburger :show="ModalHamburger" @close="ModalHamburger = false" :id1="profilObject.UserId" :id2="profilObject.FriendId" :username="username"></hamburger>
+		<hamburger :show="modalHamburger" @close="modalHamburger = false" :userId="userId" :friendId="friendId" :username="username"></hamburger>
 	</div>
 	<div class="box" v-else-if="profilObject.FriendId === myid && profilObject.Status === 'pending'">
 		<router-link class="img_user" to="/profile">

@@ -1,4 +1,3 @@
-
 import { Injectable, NotAcceptableException, ValidationError } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -194,5 +193,12 @@ export class UserService {
 		if (!user)
 			return (null);
 		return (user.channels);
+	}
+
+	async blockUser(userId: number, blockId: number) {
+		const userToBlock = await this.usersRepository.findOne({where: { id: blockId }});
+		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['blocklist']});
+		user.blocklist.push(userToBlock);
+		await this.usersRepository.save(user);
 	}
 }

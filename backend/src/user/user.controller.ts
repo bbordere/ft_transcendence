@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, Res, UseGuards,} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, Res, UseGuards,} from '@nestjs/common';
 import { Response, Request } from 'express';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
@@ -85,5 +85,10 @@ export class UserController {
 	@Get('/:userId/joinedChannels')
 	async getJoinedChannels(@Param('userId') userId: number) {
 		return (this.userService.getJoinedChannels(userId));
+	}
+
+	@Post('/blocklist/block')
+	async blockUser(@Param('userId') userId: number, @Param('blockId') blockId: number) {
+		return (this.userService.blockUser(userId, blockId));
 	}
 }
