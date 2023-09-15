@@ -13,7 +13,8 @@ export default defineComponent({
 			avatar: "" as string,
 			username: "" as string,
 			userId: this.profilObject.UserId as number,
-			friendId: this.profilObject.friendId as number,
+			friendId: this.profilObject.FriendId as number,
+			blockList: [],
 			modalHamburger: false,
 		}
 	},
@@ -57,6 +58,10 @@ export default defineComponent({
 			this.userId = this.profilObject.FriendId;
 			this.friendId = this.profilObject.UserId;
 		}
+		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.userId + "/block/blocklist", {
+				credentials: 'include'
+			});
+		this.blockList = await response.json();
 	}
 });
 
@@ -74,7 +79,7 @@ export default defineComponent({
 		<div @click="modalHamburger = true" class="menu-button">
 			<font-awesome-icon icon="fa-solid fa-xmark"/>
 		</div>
-		<hamburger :show="modalHamburger" @close="modalHamburger = false" :userId="userId" :friendId="friendId" :username="username"></hamburger>
+		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger>
 	</div>
 	<div class="box" v-else-if="profilObject.FriendId === myid && profilObject.Status === 'pending'">
 		<router-link class="img_user" to="/profile">

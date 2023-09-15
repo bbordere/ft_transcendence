@@ -42,9 +42,8 @@ export class User {
 	@JoinTable()
 	public channels: Channel[];
 
-	@ManyToMany(() => User)
-	@JoinTable()
-	public blocklist: User[];
+	@Column('int', { array: true, default: [] })
+	public blockList: number[];
 
 	@BeforeInsert()
 	async hashPassword() {

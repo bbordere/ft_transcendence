@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Req, Res, UseGuards,} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req, Res, UseGuards,} from '@nestjs/common';
 import { Response, Request } from 'express';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
@@ -81,14 +81,23 @@ export class UserController {
 		this.userService.UnbanUserFromChannel(userId, channelId);
 	}
 
-
 	@Get('/:userId/joinedChannels')
 	async getJoinedChannels(@Param('userId') userId: number) {
 		return (this.userService.getJoinedChannels(userId));
 	}
 
-	@Post('/blocklist/block')
-	async blockUser(@Param('userId') userId: number, @Param('blockId') blockId: number) {
+	@Post('/block/blocked')
+	async blockUser(@Body('userId') userId: number, @Body('blockId') blockId: number) {
 		return (this.userService.blockUser(userId, blockId));
+	}
+
+	@Get('/:userId/block/blocklist')
+	async getBlockList(@Param('userId') userId: number) {
+		return (this.userService.getBlockList(userId));
+	}
+
+	@Patch('/block/unblock')
+	async unblockUser(@Body('userId') userId: number, @Body('blockId') unblockId: number) {
+		return (this.userService.unblockUser(userId, unblockId));
 	}
 }

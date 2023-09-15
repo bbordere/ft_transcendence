@@ -8,6 +8,7 @@ import { StatsDetail } from 'src/stats/stats.entity';
 import { validate } from 'class-validator';
 import { Channel } from 'src/chat/entities/channel.entity';
 import * as bcrypt from 'bcrypt';
+import { Console } from 'console';
 
 @Injectable()
 export class UserService {
@@ -196,9 +197,24 @@ export class UserService {
 	}
 
 	async blockUser(userId: number, blockId: number) {
-		const userToBlock = await this.usersRepository.findOne({where: { id: blockId }});
-		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['blocklist']});
-		user.blocklist.push(userToBlock);
-		await this.usersRepository.save(user);
+		const user = await this.usersRepository.findOne({where: {id: userId}});
+		if (!user.blockList.includes(blockId, 0)) {
+			user.blockList.push(blockId);
+			await this.usersRepository.save(user);
+		}
+	}
+
+	async unblockUser(userId: number, unblockId: number) {
+		const user = await this.usersRepository.findOne({where: {id: userId}});
+		if (user.blockList.includes(unblockId, 0)){
+			user.blockList = user.blockList.filter((elem) => elem != unblockId);
+			await this.usersRepository.save(user);
+			console.log(user.blockList);
+		}
+	}
+
+	async getBlockList(userId: number) {
+		let user = await this.usersRepository.findOne({where: {id: userId}});
+		return (user.blockList);
 	}
 }

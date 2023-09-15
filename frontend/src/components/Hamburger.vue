@@ -19,7 +19,7 @@ export default {
 		},
 
 		async blockUser() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/blocklist/block`,{
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/blocked`,{
 				credentials: 'include',
 				method: 'POST',
 				headers: {
@@ -27,7 +27,7 @@ export default {
 				},
 				body: JSON.stringify({
 					userId: this.id1,
-					friendId: this.id2,
+					blockId: this.id2,
 				}),
 			});
 		},
