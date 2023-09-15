@@ -1,7 +1,7 @@
 import { Injectable, } from '@nestjs/common';
 import { PongGame } from './pong.service';
 import { RoomService } from './room.service';
-import { Room, State } from './interface/room.interface';
+import { Mode, Room, State } from './interface/room.interface';
 import { Socket } from 'socket.io';
 import { PongConstants } from './interface/constants.interface';
 
@@ -136,7 +136,7 @@ export class GameService {
 					this.pongGame.updateGame(room.players[0].socket, room);
 					this.pongGame.updateGame(room.players[1].socket, room);
 					console.log(room.players[0].score, room.players[1].score);
-					if (room.players[0].score === PongConstants.WIN_SCORE_VALUE || room.players[1].score === PongConstants.WIN_SCORE_VALUE){
+					if (room.mode === Mode.RANKED && (room.players[0].score === PongConstants.WIN_SCORE_VALUE || room.players[1].score === PongConstants.WIN_SCORE_VALUE)){
 						this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
 						room.state = State.ENDGAME;
 					}

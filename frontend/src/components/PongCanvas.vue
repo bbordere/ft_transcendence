@@ -15,13 +15,17 @@ import type { gameInfos } from '@/interfaces/gameInfos.interface'
 import type { paddle } from '@/interfaces/paddle.interface'
 
 export default {
-	props: ["socket", ],
+	props: ["socket", "playId1", "playId2", "score1", "score2"],
 
 	data() {
 		return {
 			sprites: [] as Array<HTMLImageElement>,
 			animId: -1,
 			ball: {speed: -1} as ball,
+			user1Img: new Image,
+			user2Img: new Image,
+			user1Name: "",
+			user2Name: "",
 			pad1: {} as paddle, 
 			pad2: {} as paddle, 
 			gameInfos: {} as gameInfos,
@@ -60,6 +64,43 @@ export default {
             }
             ctx.drawImage(this.sprites[6], this.offsetX, offsetY - canvas.height/6);
         },
+
+		animateEnd(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+			ctx.clearRect(0,0,canvas.width, canvas.height)
+			ctx.drawImage(this.sprites[3], 0, 0);
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId1, {credentials: 'include'})
+			.then(res => res.json())
+			.then((res) => {this.user1Img.src = res["avatarLink"]
+							this.user1Name = res["name"]})
+			.then(() => {ctx.drawImage(this.user1Img, canvas.width / 6, canvas.height / 3, 200, 200)})
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId2, {credentials: 'include'})
+			.then(res => res.json())
+			.then((res) => {this.user2Img.src = res["avatarLink"]
+							this.user2Name = res["name"]})
+			.then(() => {ctx.drawImage(this.user2Img, canvas.width - canvas.width / 3,canvas.height / 3, 200, 200)})
+			ctx.fillStyle = 'white dark'
+			ctx.font = "150px poppins";
+			ctx.textBaseline = "middle";
+			ctx.textAlign = "center";
+			let offsetX1;
+			let offsetX2;
+			this.score1 <= 9 ? offsetX1 = 70 : offsetX1 = 105;
+			this.score2 <= 9 ? offsetX2 = 70 : offsetX2 = 105;
+			ctx.fillText(this.score1, offsetX1, canvas.height / 2 + canvas.height / 20);
+			ctx.fillText(this.score1, canvas.width - offsetX2, canvas.height / 2 + canvas.height / 20);
+			ctx.fillText(this.user1Name, canvas.width / 4, canvas.height - canvas.height / 6)
+			ctx.font = "100px poppins";
+			if (this.score1 > this.score2) {
+				ctx.fillText("Victoire", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+				ctx.fillText("Defaite", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+			} else if (this.score2 > this.score1) {
+				ctx.fillText("Defaite", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+				ctx.fillText("Victoire", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+			} else {
+				ctx.fillText("Egalité", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+				ctx.fillText("Egalité", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+			}
+		},
 
 
 		drawRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, size: number, color: string) {
@@ -168,8 +209,8 @@ export default {
 			var x = 0;
 			if (data === "QUEUEING" || data === "WAITING") {
 				this.animId = requestAnimationFrame(() => {this.animate(ctx, canvas)});
-			} else if (data === "ENDGAME" || data === "FINISHED") {
-				this.animId = requestAnimationFrame(() => {this.animate(ctx, canvas)});
+			} else if (data === "FINISHED") {
+				requestAnimationFrame(() => {this.animateEnd(ctx, canvas)})
 			}
 		});
 	},

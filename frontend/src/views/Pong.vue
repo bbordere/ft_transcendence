@@ -13,7 +13,7 @@
 					-
 					<span id="score1">{{score2}}</span>
 				</div>
-				<PongCanvas v-if="dataLoaded" :socket="this.socket"/>
+				<PongCanvas v-if="dataLoaded" :socket="this.socket" :playId1="this.player1Id" :playId2="this.player2Id" :score1="score1" :score2="score2"/>
 				<div class="button_panel">
 					<div class="reaction_panel">
 						<EmoteButton emoji="🤣" :socket="socket"></EmoteButton>
