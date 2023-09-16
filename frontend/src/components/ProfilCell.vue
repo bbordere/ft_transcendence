@@ -3,7 +3,7 @@ import { defineComponent } from 'vue';
 import Hamburger from '../components/Hamburger.vue'
 
 export default defineComponent({
-		props: ["profilObject", "myid"],
+		props: ["profilObject", "myid", "blockList"],
 	components: {
 		Hamburger
 	},
@@ -14,11 +14,26 @@ export default defineComponent({
 			username: "" as string,
 			userId: this.profilObject.UserId as number,
 			friendId: this.profilObject.FriendId as number,
-			blockList: [],
 			modalHamburger: false,
 		}
 	},
 	methods: {
+
+		async unblockUser() {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/unblock`,{
+				credentials: 'include',
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					userId: this.userId,
+					unblockId: this.friendId,
+				}),
+			});
+			this.modalHamburger = false;
+		},
+
 		async acceptFriend() {
 			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/accept?id1=${this.profilObject.UserId}&id2=${this.profilObject.FriendId}`,{
 				credentials: 'include',
@@ -58,17 +73,22 @@ export default defineComponent({
 			this.userId = this.profilObject.FriendId;
 			this.friendId = this.profilObject.UserId;
 		}
-		const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.userId + "/block/blocklist", {
-				credentials: 'include'
-			});
-		this.blockList = await response.json();
 	}
 });
 
 </script>
 
 <template>
-	<div class="box" v-if="profilObject.Status === 'accepted'">
+	<div class="box" v-if="blockList.includes(friendId)">
+		<router-link class="img_user" to="/profile">
+			<img class="img_user_profil" v-bind:src=avatar alt="default profile img">
+		</router-link>
+		<div class="name">
+			{{ username }}
+		</div>
+			<button v-on:click="unblockUser">UNBLOCK</button>
+	</div>
+	<div class="box" v-else-if="profilObject.Status === 'accepted'">
 		<router-link class="img_user" to="/profile">
 			<img class="img_user_profil" v-bind:src=avatar alt="default profile img">
 		</router-link>
@@ -76,7 +96,7 @@ export default defineComponent({
 			{{ username }}
 		</div>
 			<font-awesome-icon icon="fa-solid fa-gamepad"/>
-		<div @click="modalHamburger = true" class="menu-button">
+		<div v-on:click="modalHamburger = true" class="menu-button">
 			<font-awesome-icon icon="fa-solid fa-xmark"/>
 		</div>
 		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger>

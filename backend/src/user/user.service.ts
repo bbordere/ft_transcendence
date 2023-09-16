@@ -209,7 +209,6 @@ export class UserService {
 		if (user.blockList.includes(unblockId, 0)){
 			user.blockList = user.blockList.filter((elem) => elem != unblockId);
 			await this.usersRepository.save(user);
-			console.log(user.blockList);
 		}
 	}
 

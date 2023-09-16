@@ -9,6 +9,7 @@ export default defineComponent({
 	data() {
 		return {
 			friends: [],
+			blockList: [],
 			sender: -1 as number,
 		};
 	},
@@ -16,12 +17,18 @@ export default defineComponent({
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
 		await this.fetchFriends();
+		await this.fetchBlockList();
 	},
 	
 	methods: {
 		async fetchFriends() {
 			const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/friend/" + this.sender + "/list", { credentials: 'include' });
 			this.friends = await response.json();
+		},
+
+		async fetchBlockList() {
+			const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.sender + "/block/blocklist", { credentials: 'include' });
+			this.blockList = await response.json();
 		}
 	},
 
@@ -32,6 +39,12 @@ export default defineComponent({
 			},
 			deep: true,
 		},
+		blockList: {
+			handler() {
+				this.fetchBlockList();
+			},
+			deep: true,
+		},
 	},
 });
 
@@ -39,7 +52,7 @@ export default defineComponent({
 
 <template>
 	<div class="list_friend">
-		<ProfilCell v-for="friend in friends" :profilObject="friend" :myid=sender></ProfilCell>
+		<ProfilCell v-for="friend in friends" :profilObject="friend" :myid=sender :blockList=blockList></ProfilCell>
 	</div>
 </template>
 

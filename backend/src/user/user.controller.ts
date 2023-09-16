@@ -97,7 +97,7 @@ export class UserController {
 	}
 
 	@Patch('/block/unblock')
-	async unblockUser(@Body('userId') userId: number, @Body('blockId') unblockId: number) {
+	async unblockUser(@Body('userId') userId: number, @Body('unblockId') unblockId: number) {
 		return (this.userService.unblockUser(userId, unblockId));
 	}
 }
