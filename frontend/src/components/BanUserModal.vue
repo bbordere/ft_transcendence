@@ -37,7 +37,7 @@ export default defineComponent ({
 		<div class="modal" @click.stop>
 			<div class="form">
 				<div class="field">
-					<h1>Nom de l'utilisateur</h1>
+					<h1>Bannir un utilisateur</h1>
 					<input v-model="username" class="entry" type="text" placeholder="Utilisateur"/>
 				</div>
 				<div class="choice">
@@ -51,6 +51,10 @@ export default defineComponent ({
 
 <style scoped>
 
+h1 {
+	width: 100%;
+	text-align: center;
+}
 .modal_overlay {
 	position: fixed;
 	display: flex;

@@ -57,13 +57,11 @@ export default defineComponent({
 </template>
 
 <style>
-
-.list_friend{
+.list_friend {
 	display: flex;
 	align-items: center;
 	flex-direction: column;
 	width: 100%;
 	height: 100%;
 }
-
 </style>
