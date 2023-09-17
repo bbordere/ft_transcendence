@@ -1,7 +1,7 @@
 <template>
 	<div class="add_friend">
 		<button class="spe" @click="listView = true;">Channel</button>
-		<button class="spe" @click="listView = false;">Amis</button>
+		<button class="spe" @click="listView = false;">Amitié</button>
 		<ButtonAdd icon="fa-solid fa-user-plus" id="show-modal" @click="showModalFriend = true"></ButtonAdd>
 		<Teleport to="body">
 			<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>

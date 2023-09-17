@@ -1,16 +1,20 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ProfilCell from './ProfilCell.vue';
+import BlockListCell from './BlockListCell.vue';
 
 export default defineComponent({
 	components: {
-		ProfilCell
+		ProfilCell,
+		BlockListCell
 	},
 	data() {
 		return {
 			friends: [],
 			blockList: [],
 			sender: -1 as number,
+			block: false as boolean,
+			print: 0 as number,
 		};
 	},
 
@@ -51,8 +55,16 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="list_friend">
-		<ProfilCell v-for="friend in friends" :profilObject="friend" :myid=sender :blockList=blockList></ProfilCell>
+	<div class="add_friend">
+		<button class="tri" @click="print = 0;">Amis</button>
+		<button class="tri" @click="print = 1;">Demande</button>
+		<button class="tri" @click="print = 2;">Bloqué</button>
+	</div>
+	<div v-if="print === 2" class="list_friend">
+		<BlockListCell v-for="block in blockList" :block=block :myid=sender></BlockListCell>
+	</div>
+	<div v-else class="list_friend">
+		<ProfilCell v-for="friend in friends" :profilObject="friend" :myid=sender :blockList=blockList :print=print></ProfilCell>
 	</div>
 </template>
 
@@ -63,5 +75,24 @@ export default defineComponent({
 	flex-direction: column;
 	width: 100%;
 	height: 100%;
+}
+
+.add_friend .tri {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	background-color: black;
+	height: 85%;
+	flex-shrink: 0;
+	width: 32%;
+	overflow: hidden;
+	border-radius: 20px;
+	border: none;
+	cursor: pointer;
+}
+
+.tri:hover {
+	background-color: rgb(6, 56, 56);
 }
 </style>
