@@ -97,6 +97,7 @@ export class GameService {
 		await this.pongGame.startTimer(room);
 		await this.pongGame.powerupsInit(room);
 		let cooldown: number = 0;
+		let needUpdate = true;
 		this.roomService.emitToPlayers(room, "ids", room.players[0].user.id, room.players[1].user.id)
 		room.gameInterval = setInterval(() => {
 			switch (room.state) {
@@ -107,9 +108,12 @@ export class GameService {
 
 				case State.COOLDOWN: {
 					room.powerups = [];
-					this.pongGame.resetBall(room);
-					this.roomService.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, room.powerups);
-					this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
+					if (needUpdate){
+						needUpdate = false;
+						this.pongGame.resetBall(room);
+						this.roomService.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, room.powerups);
+						this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
+					}
 					if (room.timerInterval){
 						clearInterval(room.timerInterval);
 						clearTimeout(room.timerTimeout);
@@ -120,6 +124,7 @@ export class GameService {
 						cooldown = 0;
 						room.state = State.PLAY;
 						this.pongGame.startTimer(room);
+						needUpdate = true;
 					}
 				}
 				break;
@@ -135,7 +140,6 @@ export class GameService {
 					cooldown = 0;
 					this.pongGame.updateGame(room.players[0].socket, room);
 					this.pongGame.updateGame(room.players[1].socket, room);
-					console.log(room.players[0].score, room.players[1].score);
 					if (room.mode === Mode.RANKED && (room.players[0].score === PongConstants.WIN_SCORE_VALUE || room.players[1].score === PongConstants.WIN_SCORE_VALUE)){
 						this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
 						room.state = State.ENDGAME;

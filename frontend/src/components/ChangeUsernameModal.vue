@@ -4,7 +4,7 @@
 			<SlidingTitle text="Changer Pseudo"/>
 			<div class="username-items">
 				<div class="form__group">
-					<input type="text" v-model="username" class="input_username" id="name" placeholder="Nouveau Pseudo"/>
+					<input type="text" maxlength="15" v-model="username" class="input_username" id="name" placeholder="Nouveau Pseudo"/>
 					<label for="name" class="input_label">Nouveau Pseudo</label>
 				</div>
 				<BlueButton text="Confirmer" icon="fa-solid fa-pen" @click="changeUsername" />
@@ -44,7 +44,7 @@ export default{
 		changeUsername(){
 			if (!this.username)
 				return;
-			if (!this.username.match(/^[\p{L}\p{N}_]+$/u)) {
+			if (!this.username.match(/^(?=.{1,15}$)[\p{L}\p{N}_]+$/u)) {
 				this.$emit('bad-format');
 				return;
 			}

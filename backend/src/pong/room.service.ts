@@ -16,7 +16,13 @@ export class RoomService {
 	private disconnectedUsers: Map<number, string> = new Map();
 	private checkedRooms: Set<Room> = new Set();
 
-	constructor(private readonly matchService: MatchService) {}
+	constructor(private readonly matchService: MatchService) {
+		this.roomsMap.set(Mode.DEFAULT, []);
+		this.roomsMap.set(Mode.ARCADE, []);
+		this.roomsMap.set(Mode.RANKED, []);
+		this.roomsMap.set(Mode.DUEL_DEFAULT, []);
+		this.roomsMap.set(Mode.DUEL_ARCADE, []);
+	}
 
 	checkRoomLoop(gameService: GameService){
 		const keysArray = Array.from(this.roomsMap.keys());
@@ -67,7 +73,7 @@ export class RoomService {
 		}
 	}
 
-	async createRoom(mode: Mode): Promise<Room> {
+	async createRoom(mode: Mode, id?: number): Promise<Room> {
 		const room: Room = {
 			id: this.lastRoomId++,
 			state: State.QUEUE,
@@ -82,6 +88,8 @@ export class RoomService {
 			isFinished: false,
 			powerups: [],
 		};
+		if (id)
+			room.id = id;
 		this.roomsMap.get(mode).push(room);
 		return room;
 	}
@@ -133,7 +141,23 @@ export class RoomService {
 		return (playerNames.includes(email));
 	}
 
-	async searchRoom(client: Socket, player: Player, mode: Mode): Promise<Room> {
+	async duelHandling(client: Socket, player: Player, mode: Mode, id: number){
+		for (var room of this.roomsMap.get(mode) as Room[]){
+			if (room.id === id){
+				if (this.disconnectedUsers.get(room.id))
+					this.disconnectedUsers.delete(room.id);
+				return (this.joinRoom(client, room, player));
+			}
+		}
+		const newRoom: Room = await this.createRoom(mode, id);
+		player.roomId = newRoom.id;
+		return (this.joinRoom(client, newRoom, player));
+	}
+
+	async searchRoom(client: Socket, player: Player, mode: Mode, id?: any): Promise<Room> {
+		if (mode === Mode.DUEL_ARCADE || mode === Mode.DUEL_DEFAULT){
+			return (this.duelHandling(client, player, mode, id));
+		}
 		if (this.roomsMap.get(mode)){
 			for (var room of this.roomsMap.get(mode) as Room[]){
 				if ((room.id === player.roomId || room.state === State.QUEUE) && !await this.isPlayerInsideRoom(room, player)){
@@ -142,9 +166,6 @@ export class RoomService {
 					return (this.joinRoom(client, room, player));
 				}
 			}
-		}
-		else {
-			this.roomsMap.set(mode, []);
 		}
 		const newRoom: Room = await this.createRoom(mode);
 		player.roomId = newRoom.id;
@@ -181,7 +202,7 @@ export class RoomService {
 	endGame(room: Room){
 		if (room.players.length != 2)
 			return;
-		const modes: string[] = ["Classique", "Arcade", "Classée"];
+		const modes: string[] = ["Classique", "Arcade", "Classée", "Duel Classique", "Duel Arcade"];
 		const matchDto: MatchDto = {player1Id: room.players[0].user["id"], player2Id: room.players[1].user["id"],
 									scorePlayer1: room.players[0].score, scorePlayer2: room.players[1].score,
 									mode: modes[room.mode], leaverId: -1}

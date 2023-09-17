@@ -28,7 +28,7 @@
 
 <template>
 	<div class="avatar-container">
-		<img :src="path" class="image"/>
+		<img :src="path" class="image" draggable="false"/>
 		<button class="change-button" @click="openFileUpload" v-if="editable != 0">
 			<font-awesome-icon icon="fa-solid fa-pen"/>
 		</button>

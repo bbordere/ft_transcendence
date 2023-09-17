@@ -56,7 +56,7 @@ export default {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(this.sprites[5], 0, 0, canvas.width, canvas.height);
 
-            this.angle += 0.02;
+			this.angle += 0.02;
 			this.offsetX += 1;
             let offsetY = canvas.height / 2 + Math.sin(this.angle) * 20;
 			if (this.offsetX > canvas.width - this.sprites[6].width / 8) {
@@ -87,14 +87,14 @@ export default {
 			this.score1 <= 9 ? offsetX1 = 70 : offsetX1 = 105;
 			this.score2 <= 9 ? offsetX2 = 70 : offsetX2 = 105;
 			ctx.fillText(this.score1, offsetX1, canvas.height / 2 + canvas.height / 20);
-			ctx.fillText(this.score1, canvas.width - offsetX2, canvas.height / 2 + canvas.height / 20);
+			ctx.fillText(this.score2, canvas.width - offsetX2, canvas.height / 2 + canvas.height / 20);
 			ctx.fillText(this.user1Name, canvas.width / 4, canvas.height - canvas.height / 6)
 			ctx.font = "100px poppins";
 			if (this.score1 > this.score2) {
 				ctx.fillText("Victoire", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-				ctx.fillText("Defaite", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+				ctx.fillText("Défaite", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 			} else if (this.score2 > this.score1) {
-				ctx.fillText("Defaite", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+				ctx.fillText("Défaite", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 				ctx.fillText("Victoire", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 			} else {
 				ctx.fillText("Egalité", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
@@ -183,7 +183,7 @@ export default {
 			}
 		},
 	},
-	mounted() {
+	async mounted() {
 		const canvas = <HTMLCanvasElement> document.getElementById('pongCanvas');
 		if (!canvas)
 			return; // ERROR HANDLING
@@ -191,7 +191,7 @@ export default {
 		if (!ctx)
 			return; // ERROR HANDLING
 
-		this.spritesInit();
+		await this.spritesInit();
 		this.socket.on('updateGame', (ball: ball, racket1: paddle, racket2: paddle, powerups: []) => {
 			this.gameInfos = {ball: ball, pad1: racket1, pad2: racket2, powerups: powerups};
 			if (this.animId === -1 || !this.isInGame){
@@ -205,6 +205,7 @@ export default {
 
 		this.socket.on('text', (data: string) => {
 			cancelAnimationFrame(this.animId);
+			this.isInGame = false;
 			this.animId = -1;
 			var x = 0;
 			if (data === "QUEUEING" || data === "WAITING") {
@@ -225,17 +226,17 @@ export default {
 <style>
 
 .pong_screen {
+	margin-top: -6px;
 	max-width: 100%;
 	max-height: 80%;
 	min-width: auto;
-	width: 100%;
+	border: 3px solid #515151;
+	border-radius: 20px;
+	overflow: hidden;
 }
 #pongCanvas {
 	width: 100%;
 	height: 100%;
-	/* background: black; */
-	border-radius: 5px;
-	aspect-ratio: auto;
 }
 
 </style>

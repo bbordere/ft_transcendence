@@ -5,7 +5,7 @@
 				{{ emote }}
 			</div>
 		</Transition>
-		<img :src="user.avatarLink" class="image" id="PongCardAvatar"/>
+		<img :src="user.avatarLink" class="image" id="PongCardAvatar" draggable="false"/>
 		<div class="pongPlayerCardText">
 			{{ user.name }}
 		</div>

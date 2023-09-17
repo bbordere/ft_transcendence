@@ -1,4 +1,5 @@
 <script lang="ts">
+import router from '@/router';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -20,6 +21,9 @@ export default defineComponent({
 				this.avatar = data["avatarLink"];
 			})
 		},
+		redirectToHome(){
+			router.push('/home')
+		},
 	},
 
 	watch: {
@@ -36,13 +40,11 @@ export default defineComponent({
 
 <template>
 <header class="header">
-	<router-link to="/">
-		<img class="logo_42" src="../assets/img/logoPinaColaPong2.png" alt="logo 42">
-	</router-link>
-	<router-link to="/profile" class="profile">
-		<img class="img_profile" v-bind:src=avatar alt="default profile img">
+	<img class="logo" src="../assets/img/logoPinaColaPong2.png" @click="redirectToHome()" draggable="false">
+	<router-link to="/profile" class="profile" draggable="false">
+		<img class="img_profile" v-bind:src=avatar draggable="false">
 		<div class="profile_name">
-			<span>{{ name }}</span>
+			<span class="name">{{ name }}</span>
 		</div>
 	</router-link>
 </header>
@@ -51,23 +53,30 @@ export default defineComponent({
 @import url('https://fonts.googleapis.com/css2?family=Happy+Monkey&display=swap');
 
 .header {
-	font-family: 'Happy Monkey', cursive;
+	font-family: 'Poppins', sans-serif;
 	display: flex;
 	height: 10vh;
 	border-bottom: 2px solid #515151;
-	background: #f7f4dd;
+	/* background: #f7f4dd; */
 	background: white;
 	justify-content: space-between;
+	align-items: center;
 	min-height: 50px;
 }
 
-.logo_42 {
-	height: 95%;
+.logo {
+	height: 90%;
+	/* max-width: 20%; */
+	/* min-width: 145px; */
 	/* background-color: white; */
 	/* border-radius: 290px; */
 	/* border: 3px solid #515151; */
-	padding-left: 10%;
-	/* margin-left: 25%; */
+	/* padding-left: 10%; */
+	margin-left: 0.8%;
+	cursor: pointer	;
+}
+.name{
+	z-index: 2;
 }
 
 .profile {
@@ -76,13 +85,53 @@ export default defineComponent({
 	text-decoration: none;
 	align-items: center;
 	color: black;
-	font-size: 1.7em;
+	font-size: clamp(0.8125rem, 0.476rem + 1.0769vw, 1.25rem);
+	font-weight: bold;
+	max-width: 50%;
+	height: 90%;
+	/* background: pink; */
+	border: 2px solid #515151;
+	margin-right: 0.1%;
+	border-radius: 27px;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+	position: relative;
+	/* border-bottom-width: 0px; */
+	/* border-radius: 50px; */
+	/* width: 25%; */
+}
+
+/* .profile:hover{
+	background-color: #d1e6eee0;
+} */
+
+.profile::before{
+	content: "";
+	z-index: 1;
+	background-color: #a5d6e9e0;
+	width: 0;
+	height: 9vh;
+	position: absolute;
+	border-radius: 27px;
+	top: 0.1%;
+	/* left: 0; */
+	transition: width 700ms ease-in-out;
+	opacity: 50%;
+}
+
+.profile:hover::before {
+	width: 100%;
+	opacity: 50%;
+	border-radius: 27px;
 }
 
 .img_profile{
-	height: 100%;
+	z-index: 1;
+
+	height: 90%;
+	padding-left: 5px;
 	aspect-ratio: 1;
-	border-radius:27px 0px 0px 27px;
+	border-radius:27px 27px 27px 27px;
 }
 
 .profile_name {
@@ -91,6 +140,5 @@ export default defineComponent({
 	justify-content: center;
 	align-items: center;
 	height: 100%;
-	background-color: white;
 }
 </style>

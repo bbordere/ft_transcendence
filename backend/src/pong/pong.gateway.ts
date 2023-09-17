@@ -50,7 +50,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 		else
 			player.socket = client;
-		await this.roomService.searchRoom(client, player, parseInt(data[1]));
+		await this.roomService.searchRoom(client, player, parseInt(data[1]), parseInt(data[2]));
 		this.gameService.keyHandling(client)
 	}
 

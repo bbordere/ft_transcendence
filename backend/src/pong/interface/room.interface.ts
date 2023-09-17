@@ -40,7 +40,9 @@ export enum State {
 export enum Mode {
 	DEFAULT = 0,
 	ARCADE,
-	RANKED
+	RANKED,
+	DUEL_DEFAULT,
+	DUEL_ARCADE,
 }
 
 export class Room {

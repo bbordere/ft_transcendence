@@ -40,7 +40,7 @@ export class StatsService {
 		stats.loosePoints += match[`scorePlayer${opId}`];
 		stats.highScore = Math.max(match[`scorePlayer${indexPlayer}`], stats.highScore);
 
-		const modes: string[] = ["Classique", "Arcade", "Classée"];
+		const modes: string[] = ["Classique", "Arcade", "Classée", "Duel Classique", "Duel Arcade"];
 		switch (match["mode"]){
 			case "Classique":
 				stats.totalClassicGames++;
@@ -52,6 +52,9 @@ export class StatsService {
 				stats.totalRankedGames++;
 				break;
 			case "Duel":
+				stats.totalFriendsDuel++;
+				break;
+			default:
 				stats.totalFriendsDuel++;
 				break;
 		}

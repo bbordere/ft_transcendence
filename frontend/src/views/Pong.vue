@@ -70,7 +70,7 @@ export default {
 	},
 	methods: {
 		getIdMode(mode: string){
-			const modes: string[] = ["classic", "arcade", "ranked"];
+			const modes: string[] = ["classic", "arcade", "ranked", "duelClassic", "duelArcade"];
 			if (!modes.includes(mode)){
 				this.$router.push('/notfound');
 				return;
@@ -127,16 +127,16 @@ export default {
 	},
 	mounted() {
 
-		this.timer = "00:00";
 		const route = useRoute();
 		const mode: string | undefined = route.query["mode"]?.toString();
 		if (!mode){
 			this.$router.push('notfound');
 			return;
 		}
+		this.timer = mode === "ranked" ? "00:00" : "03:00";
 
 		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");	
-		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), this.getIdMode(mode));
+		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), this.getIdMode(mode), route.query["id"]);
 	
 		this.initKeyHandler();
 
