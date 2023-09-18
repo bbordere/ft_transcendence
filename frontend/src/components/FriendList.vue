@@ -8,6 +8,7 @@ export default defineComponent({
 		ProfilCell,
 		BlockListCell
 	},
+	props: ['updateTimestamp'],
 	data() {
 		return {
 			friends: [],
@@ -20,8 +21,8 @@ export default defineComponent({
 
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
-		await this.fetchFriends();
 		await this.fetchBlockList();
+		await this.fetchFriends();
 	},
 	
 	methods: {
@@ -43,6 +44,12 @@ export default defineComponent({
 			},
 			deep: true,
 		},
+		updateTimestamp: {
+			handler(){
+				this.print = 0;
+			},
+			deep: true
+		},
 		blockList: {
 			handler() {
 				this.fetchBlockList();
@@ -56,7 +63,6 @@ export default defineComponent({
 
 <template>
 	<div class="add_friend">
-		<button class="tri" @click="print = 0;">Amis</button>
 		<button class="tri" @click="print = 1;">Demande</button>
 		<button class="tri" @click="print = 2;">Bloqué</button>
 	</div>
@@ -83,9 +89,9 @@ export default defineComponent({
 	justify-content: center;
 	color: white;
 	background-color: black;
-	height: 85%;
+	height: 70%;
 	flex-shrink: 0;
-	width: 32%;
+	width: 45%;
 	overflow: hidden;
 	border-radius: 20px;
 	border: none;

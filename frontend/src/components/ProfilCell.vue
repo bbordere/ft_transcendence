@@ -20,6 +20,7 @@ export default defineComponent({
 			modalHamburger: false,
 			borderColor: "green" as string,
 			showInfo: false,
+			dataLoaded: false,
 		}
 	},
 	methods: {
@@ -101,13 +102,14 @@ export default defineComponent({
 			this.friendId = this.profilObject.UserId;
 		}
 		await this.friendInfo();
+		this.dataLoaded = true;
 	}
 });
 
 </script>
 
 <template>
-	<div class="box" v-if="print === 0 && profilObject.Status === 'accepted' && !blockList.includes(friendId)">
+	<div class="box" v-if="dataLoaded && print === 0 && profilObject.Status === 'accepted' && !blockList.includes(friendId)">
 		<div class="img_user">
 			<img class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friendId)" @click="redirecToProfil(friendUsername)">
 		</div>
@@ -123,7 +125,7 @@ export default defineComponent({
 		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger>
 		<!-- <hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger> -->
 	</div>
-	<div class="box" v-else-if="print === 1 && profilObject.FriendId === myid && profilObject.Status === 'pending' && !blockList.includes(friendId)">
+	<div class="box" v-else-if="dataLoaded && print === 1 && profilObject.FriendId === myid && profilObject.Status === 'pending' && !blockList.includes(friendId)">
 		<div class="img_user">
 			<img class="img_user_profil" :src="getAvatarUrl(friendId)" @click="redirecToProfil(friendUsername)">
 		</div>
