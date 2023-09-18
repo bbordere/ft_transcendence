@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Delete, Get, Query, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Delete, Get, Query, Patch, Param } from '@nestjs/common';
 import { FriendService } from './friend.service';
 import { friendDto } from './dtos/friend.dto';
 import { Friend } from './friend.entity';
@@ -26,8 +26,8 @@ export class FriendController {
 		return this.friendService.deleteFriend(id1, id2);
 	}
 
-	@Get('list')
-	async friendlist(): Promise<Friend[]> {
-		return this.friendService.friendlist();
+	@Get('/:id/list')
+	async friendlist(@Param('id') id: number): Promise<Friend[]> {
+		return this.friendService.friendlist(id);
 	}
 }

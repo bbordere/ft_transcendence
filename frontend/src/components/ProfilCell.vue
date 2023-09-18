@@ -1,8 +1,11 @@
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, resolveDirective } from 'vue';
 import Hamburger from '../components/Hamburger.vue'
+import router from '@/router';
+
+
 export default defineComponent({
-		props: ["profilObject", "myid"],
+		props: ["profilObject", "myid", "blockList", "print"],
 	components: {
 		Hamburger
 	},
@@ -11,10 +14,46 @@ export default defineComponent({
 		return {
 			avatar: "" as string,
 			username: "" as string,
-			ModalHamburger: false,
+			friendUsername: "" as string,
+			userId: this.profilObject.UserId as number,
+			friendId: this.profilObject.FriendId as number,
+			modalHamburger: false,
+			borderColor: "green" as string,
+			showInfo: false,
+			dataLoaded: false,
 		}
 	},
 	methods: {
+
+		handleClick() {
+			if (this.borderColor === 'green') {
+			this.modalHamburger = true;
+			}
+		},
+
+		redirecToProfil(name: string) {
+			router.push({path:'/profile', query: { user: name }});
+		},
+
+		getAvatarUrl(id: number) {
+			return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/id/" + id.toString());
+		},
+
+		async unblockUser() {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/unblock`,{
+				credentials: 'include',
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					userId: this.userId,
+					unblockId: this.friendId,
+				}),
+			});
+			this.modalHamburger = false;
+		},
+
 		async acceptFriend() {
 			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/accept?id1=${this.profilObject.UserId}&id2=${this.profilObject.FriendId}`,{
 				credentials: 'include',
@@ -43,35 +82,53 @@ export default defineComponent({
 			this.username = userData.name;
 			this.avatar = userData.avatarLink;
 		},
+
+		async friendInfo() {
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + this.friendId,{ 
+				credentials: 'include'
+			});
+			const userData = await response.json();
+			this.friendUsername = userData.name;
+		},
 	},
 
 	async mounted() {
-		if (this.profilObject.UserId === this.myid)
+		if (this.profilObject.UserId === this.myid) {
 			await this.userInfo(this.profilObject.FriendId);
-		else
+		}
+		else {
 			await this.userInfo(this.profilObject.UserId);
+			this.userId = this.profilObject.FriendId;
+			this.friendId = this.profilObject.UserId;
+		}
+		await this.friendInfo();
+		this.dataLoaded = true;
 	}
 });
 
 </script>
 
 <template>
-	<div class="box" v-if="(profilObject.UserId === myid && profilObject.Status === 1) || (profilObject.FriendId === myid && profilObject.Status === 1)">
-		<router-link class="img_user" to="/profile">
-			<img class="img_user_profil" v-bind:src=avatar alt="default profile img">
-		</router-link>
+	<div class="box" v-if="dataLoaded && print === 0 && profilObject.Status === 'accepted' && !blockList.includes(friendId)">
+		<div class="img_user">
+			<img class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friendId)" @click="redirecToProfil(friendUsername)">
+		</div>
 		<div class="name">
 			{{ username }}
 		</div>
-		<div @click="ModalHamburger = true" class="menu-button">
-			<font-awesome-icon icon="fa-solid fa-pen"/>
+		<div :style="{'color': borderColor}" v-on:click=handleClick>
+			<font-awesome-icon icon="fa-solid fa-gamepad"/>
 		</div>
-		<hamburger :show="ModalHamburger" @close="ModalHamburger = false"></hamburger>
+		<div v-on:click="modalHamburger = true" class="menu-button">
+			<font-awesome-icon icon="fa-solid fa-xmark"/>
+		</div>
+		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger>
+		<!-- <hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger> -->
 	</div>
-	<div class="box" v-else-if="profilObject.FriendId === myid && profilObject.Status === -1">
-		<router-link class="img_user" to="/profile">
-			<img class="img_user_profil" v-bind:src=avatar alt="default profile img">
-		</router-link>
+	<div class="box" v-else-if="dataLoaded && print === 1 && profilObject.FriendId === myid && profilObject.Status === 'pending' && !blockList.includes(friendId)">
+		<div class="img_user">
+			<img class="img_user_profil" :src="getAvatarUrl(friendId)" @click="redirecToProfil(friendUsername)">
+		</div>
 		<div class="name">
 			{{ username }}
 		</div>
@@ -104,14 +161,20 @@ export default defineComponent({
 
 .img_user {
 	display: flex;
+	flex-direction: column;
 	width: 10%;
-	margin-left: 7%;
+	margin-left: 4%;
 }
 
 .img_user_profil {
 	border-radius: 25px;
 	width: 100%;
 	aspect-ratio: 1;
+	border: 2px solid;
+	border-radius: 50%;
+	display: inline-block;
+	border-color: rgb(107, 106, 106);
+	padding: 2px;
 }
 
 .menu-button {

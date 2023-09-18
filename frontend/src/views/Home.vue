@@ -5,10 +5,10 @@
 				<PlayButton />
 				<div class="friend_list">
 					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel" @kick="notifyKick"
-						ref="ModalManager" />
+						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
-					<FriendList v-else />
+					<FriendList v-else :updateTimestamp="updateTimestamp" @click=""/>
 				</div>
 			</div>
 			<Chat :selectedChannel="selectedChannel" :sender="sender"
@@ -72,6 +72,7 @@ export default defineComponent({
 			channels: [] as Channel[],
 			selectedChannel: {} as Channel,
 			ModalManagerData: null as unknown,
+			updateTimestamp: 0 as number,
 		}
 	},
 

@@ -1,5 +1,4 @@
-import { Column, Entity, Generated, PrimaryColumn, JoinColumn, ManyToOne } from "typeorm";
-import { User} from "src/user/user.entity"
+import { Column, Entity, Generated, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Friend {
@@ -13,7 +12,7 @@ export class Friend {
 	@Column()
 	public FriendId: number;
 
-	@Column()
-	public Status: number;
+	@Column( { default: 'pending'})
+	public Status: string;
 
 };

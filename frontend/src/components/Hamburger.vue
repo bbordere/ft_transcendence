@@ -1,43 +1,48 @@
 <script lang="ts">
 export default {
 	props: {
+		id1: Number,
+		id2: Number,
+		username: String,
 		show: Boolean
 	},
-	data() {
-		return {
-			username: '' as string,
-			sender: -1 as number,
-		}
-	},
+
 	methods: {
-		async addUser() {
-			this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/friend/add',{
+		async deleteFriend() {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/delete?id1=${this.id1}&id2=${this.id2}`,{
+				credentials: 'include',
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+			});
+		},
+
+		async blockUser() {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/blocked`,{
 				credentials: 'include',
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					username: this.username,
-					sender: this.sender,
-				})
-			})
-		}
+					userId: this.id1,
+					blockId: this.id2,
+				}),
+			});
+		},
 	}
 }
 </script>
 
 <template>
 	<Transition name="slide-fade" mode="out-in">
-		<div v-if="show" class="modal_overlay_friend" @click="$emit('close')">
+		<div v-if="show" class="modal_overlay" @click="$emit('close')">
 			<div class="modal_friend" @click.stop>
-				<div class="addami">
-					Nom de l'ami
-				</div>
-				<div class="non">
-					<input class="entry_friend" type="text" placeholder="Username" v-model="username">
-					<button v-on:click="addUser">Ajouter</button>
+				<p>Attention, <b> {{ username }}</b> va être :</p>
+				<div class="button_box">
+					<button v-on:click="blockUser(); $emit('close')">Bloquer</button>
+					<button v-on:click="deleteFriend(); $emit('close')">Supprimer</button>
 				</div>
 			</div>
 		</div>
@@ -46,51 +51,30 @@ export default {
 
 <style scoped>
 
-.non {
+.button_box {
 	display: flex;
-	margin-top: 5%;
 	height: 40%;
-	justify-content: center;
+	justify-content: space-around;
 	align-items: center;
-	gap: 15px;
-	font-size: larger;
-}
-.entry_friend {
-	display: flex;
-	border-radius: 20px;
-	height: 50%;
-	width: 50%;
-	outline: none;
-	border: none;
-	text-align: center;
 	font-size: larger;
 }
 
-.non button:hover {
+.button_box button:hover {
 	background-color: rgb(182, 227, 238);
 }
-.non button {
+.button_box button {
 	font-size: larger;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	height: 50%;
-	width: 25%;
+	width: 30%;
 	background-color: #036280;;
 	border: 1px solid #000000;
 	border-radius: 20px;
 }
-.addami {
-	display: flex;
-	height: 15%;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	font-size: 2em;
-	padding-top: 5%;
-}
 
-.modal_overlay_friend {
+.modal_overlay {
 	position: fixed;
 	display: flex;
 	z-index: 9998;
@@ -110,11 +94,17 @@ export default {
 .modal_friend {
 	display: flex;
 	flex-direction: column;
+	justify-content: center;
 	right: 70%;
-	width: 15%;
-	height: 55%;
+	width: 30%;
+	height: 30%;
 	background-color: #DBEFFC;
 	border-radius: 20px;
+}
+
+.modal_friend p {
+	text-align: center;
+	font-size: 1.3em;
 }
 
 @media screen and (max-width: 1150px) {
