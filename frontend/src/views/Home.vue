@@ -52,6 +52,12 @@ interface Channel {
 	protected: boolean,
 }
 
+enum State {
+	OFFLINE,
+	ONLINE,
+	INGAME,
+}
+
 export default defineComponent({
 	components: {
 		ModalAddFriend,
@@ -109,9 +115,26 @@ export default defineComponent({
 		}
 	},
 
+	unmounted() {
+		this.socket.disconnect();
+	},
+
 	methods: {
 		init() {
-			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/')
+			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/');
+			this.socket.on('connect', () => {
+				this.socket.emit('changeState', this.sender.id, {
+					userId: this.sender.id,
+					state: State.ONLINE,
+				});
+			});
+			this.socket.on('disconnect', () => {
+				this.socket.emit('changeState', {
+					userId: this.sender.id,
+					state: State.OFFLINE,
+				});
+				console.log('bonsoir bordel michel !');
+			});
 			this.socket.on('message',
 				(data: {
 					channelId: number,
