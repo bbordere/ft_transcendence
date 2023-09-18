@@ -35,6 +35,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('onJoinGame')
 	async handleJoinGame(client: Socket, data: string[]) {
+		console.log(data);
 		client.data.user = await this.authService.getUserFromToken(data[0]);
 		let player: Player = this.playerMap.get(client.data.user["email"]);
 		if (!player){

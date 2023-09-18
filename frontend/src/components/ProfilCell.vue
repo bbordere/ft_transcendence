@@ -1,13 +1,15 @@
 <script lang="ts">
 import { defineComponent, resolveDirective } from 'vue';
 import Hamburger from '../components/Hamburger.vue'
+import Invite from '../components/Invite.vue'
 import router from '@/router';
 
 
 export default defineComponent({
 		props: ["profilObject", "myid", "blockList", "print"],
 	components: {
-		Hamburger
+		Hamburger,
+		Invite,
 	},
 
 	data() {
@@ -18,8 +20,8 @@ export default defineComponent({
 			userId: this.profilObject.UserId as number,
 			friendId: this.profilObject.FriendId as number,
 			modalHamburger: false,
+			modalInvite: false,
 			borderColor: "green" as string,
-			showInfo: false,
 			dataLoaded: false,
 		}
 	},
@@ -27,7 +29,7 @@ export default defineComponent({
 
 		handleClick() {
 			if (this.borderColor === 'green') {
-			this.modalHamburger = true;
+				this.modalInvite = true;
 			}
 		},
 
@@ -123,7 +125,7 @@ export default defineComponent({
 			<font-awesome-icon icon="fa-solid fa-xmark"/>
 		</div>
 		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger>
-		<!-- <hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger> -->
+		<invite :show="modalInvite" @close="modalInvite = false" :myId="myid" :friendId="friendId"></invite>
 	</div>
 	<div class="box" v-else-if="dataLoaded && print === 1 && profilObject.FriendId === myid && profilObject.Status === 'pending' && !blockList.includes(friendId)">
 		<div class="img_user">
