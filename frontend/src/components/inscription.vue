@@ -52,7 +52,7 @@ async function register(){
     	<div class="modal-container" @click.stop>
         	<div class="modal-body">
 				<span class="text">inscription</span>
-					<form v-on:submit.prevent="register" class="form">
+					<div class="form">
 						<div class="field">
 							<input type="email" placeholder="@ email" v-model="email" />
 						</div>
@@ -63,7 +63,7 @@ async function register(){
 							<input type="password" placeholder="mot de passe" v-model="password" />
 						</div>
 						<button @click="register">inscription</button>
-					</form>
+						</div>
         		</div>
     		</div>
     	</div>

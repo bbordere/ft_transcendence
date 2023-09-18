@@ -10,7 +10,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { RoomService } from './room.service';
 import { GameService } from './game.service';
 import { Player } from './interface/player.interface';
-import { Room, State } from './interface/room.interface';
+import { Room, } from './interface/room.interface';
 import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway({namespace: '/pong'})
