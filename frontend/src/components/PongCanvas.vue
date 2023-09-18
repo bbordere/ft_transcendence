@@ -73,11 +73,15 @@ export default {
 			.then((res) => {this.user1Img.src = res["avatarLink"]
 							this.user1Name = res["name"]})
 			.then(() => {ctx.drawImage(this.user1Img, canvas.width / 6, canvas.height / 3, 200, 200)})
+			.then(() => {ctx.font = "60px poppins";
+						ctx.fillText(this.user1Name, canvas.width / 4, canvas.height - canvas.height / 5)})
 			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId2, {credentials: 'include'})
 			.then(res => res.json())
 			.then((res) => {this.user2Img.src = res["avatarLink"]
 							this.user2Name = res["name"]})
 			.then(() => {ctx.drawImage(this.user2Img, canvas.width - canvas.width / 3,canvas.height / 3, 200, 200)})
+			.then(() => {ctx.font = "0px poppins";
+						ctx.fillText(this.user2Name, canvas.width - canvas.width / 4, canvas.height - canvas.height / 5)})
 			ctx.fillStyle = 'white dark'
 			ctx.font = "150px poppins";
 			ctx.textBaseline = "middle";
