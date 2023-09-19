@@ -64,4 +64,21 @@ export class FriendService {
 		});
 		return (friends)
 	}
+
+	async getFriendsFromUser(userId: number): Promise<number[]> {
+		const friendships = await this.friendRepository.find({
+			where: [
+				{ UserId: userId },
+				{ FriendId: userId },
+			]
+		});
+		const friends = [];
+		for (let friendship of friendships) {
+			if (friendship.UserId === userId)
+				friends.push(friendship.FriendId);
+			else
+				friends.push(friendship.UserId);
+		}
+		return (friends);
+	}
 }
