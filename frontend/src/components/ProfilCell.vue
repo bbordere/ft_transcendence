@@ -23,6 +23,8 @@ export default defineComponent({
 			modalInvite: false,
 			borderColor: "green" as string,
 			dataLoaded: false,
+			stateId: -1,
+			state: -1,
 		}
 	},
 	methods: {

@@ -8,7 +8,7 @@
 						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
-					<FriendList v-else :updateTimestamp="updateTimestamp" @click=""/>
+					<FriendList v-else :socket="socket" :updateTimestamp="updateTimestamp"/>
 				</div>
 			</div>
 			<Chat :selectedChannel="selectedChannel" :sender="sender"
@@ -133,7 +133,6 @@ export default defineComponent({
 					userId: this.sender.id,
 					state: State.OFFLINE,
 				});
-				console.log('bonsoir bordel michel !');
 			});
 			this.socket.on('message',
 				(data: {
@@ -195,6 +194,12 @@ export default defineComponent({
 					}
 				}
 			});
+
+			// this.socket.on('changeState', (data: any) => {
+			// for (var friend of this.friends)
+			// 	if (friend.)
+			// 		// change state
+			// });
 		},
 
 		async showChannel(chan: Channel) {

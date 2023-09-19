@@ -24,6 +24,7 @@ export class FriendService {
 		friend.UserId = sender;
 		friend.FriendId = friendToAdd.id;
 		friend.Status = 'pending';
+		// friend.State = friendToAdd.state;
 		return this.friendRepository.save(friend);
 	}
 

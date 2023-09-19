@@ -59,6 +59,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleDisconnect(client: Socket) {
+		this.server.emit('changeState', State.OFFLINE);
 		await this.userService.changeState(client.data.user, State.OFFLINE);
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
