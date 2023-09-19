@@ -100,4 +100,9 @@ export class UserController {
 	async unblockUser(@Body('userId') userId: number, @Body('unblockId') unblockId: number) {
 		return (this.userService.unblockUser(userId, unblockId));
 	}
+
+	@Get('/:userId/state')
+	async getState(@Param('userId') userId: number) {
+		return (await this.userService.getState(userId));
+	}
 }
