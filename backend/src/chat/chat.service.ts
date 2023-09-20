@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, UseInterceptors } from "@nestjs/common";
 import { Channel } from "./entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -97,5 +97,35 @@ export class ChatService {
 		if (!users)
 			return (null);
 		return (users);
+	}
+
+	async addAdminInChannel(channelId: number, userId: number): Promise<Channel> {
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admins', 'owner', 'bannedUsers']});
+		const user = await this.userRepository.findOne({where: {id: userId}});
+
+		if (!channel)
+			throw new Error("Could not find channel.");
+		if (!user)
+			throw new Error("Could not find user.");
+		if (user.id === channel.owner.id)
+			throw new Error("The user is the owner of the channel.");
+		if (channel.bannedUsers.includes(user))
+			throw new Error("This user has been banned from this channel");
+		channel.admins.push(user);
+		return (await this.channelRepository.save(channel));
+	}
+
+	async removeAdminInChannel(channelId: number, userId: number): Promise<Channel> {
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admins', 'owner', 'bannedUsers']});
+		const user = await this.userRepository.findOne({where: {id: userId}});
+
+		if (!channel)
+			throw new Error("Could not find channel.");
+		if (!user)
+			throw new Error("Could not find user.");
+		if (channel.admins.includes(user))
+			throw new Error("User is banned.");
+		channel.admins.splice(channel.admins.indexOf(user), 1);
+		return (await this.channelRepository.save(channel));
 	}
 }

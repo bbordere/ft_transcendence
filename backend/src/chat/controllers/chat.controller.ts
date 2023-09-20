@@ -56,4 +56,34 @@ export class ChatController {
 	async getUsersInChannel(@Param('id') id: number) {
 		return (await this.chatService.getUsersInChannel(id));
 	}
+
+	@Post('/:id/addAdmin/:userId')
+	async addAdmin(@Param('id') id: number, @Param('userId') userId: number) {
+		try {await this.chatService.addAdminInChannel(id, userId);}
+		catch (e) {
+			return {
+				ok: false,
+				message: e.message,
+			}
+		}
+		return {
+			ok: true,
+			message: 'New admin added',
+		}
+	}
+
+	@Post('/:id/removeAdmin/:userId')
+	async removeAdmin(@Param('id') id: number, @Param('userId') userId: number) {
+		try {await this.chatService.removeAdminInChannel(id, userId)}
+		catch (e) {
+			return {
+				ok: false,
+				message: e.message,
+			}
+		}
+		return {
+			ok: true,
+			message: 'admin removed from channel',
+		}
+	}
 }
