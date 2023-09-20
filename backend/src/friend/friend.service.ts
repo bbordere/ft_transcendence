@@ -15,7 +15,8 @@ export class FriendService {
 
 	async addFriend(username: string, sender: number): Promise<Friend | string> {
 		const friendToAdd = await this.userService.getByName(username);
-		if (!friendToAdd) return "Ce nom d'utilisateur n'existe pas !";
+		if (!friendToAdd)
+			return "Ce nom d'utilisateur n'existe pas !";
 		else if (friendToAdd.id === sender)
 			return "Tu ne peux pas t'ajouer en ami !";
 		else if (await this.getFriendId(friendToAdd.id, sender))
@@ -24,7 +25,6 @@ export class FriendService {
 		friend.UserId = sender;
 		friend.FriendId = friendToAdd.id;
 		friend.Status = 'pending';
-		// friend.State = friendToAdd.state;
 		return this.friendRepository.save(friend);
 	}
 
