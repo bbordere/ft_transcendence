@@ -47,9 +47,9 @@ export class ChatController {
 		this.chatService.delete(name);
 	}
 
-	@Get('/:id/admin')
+	@Get('/:id/owner')
 	async getAdmin(@Param('id') id: number) {
-		return (await this.chatService.getChannelAdmin(id));
+		return (await this.chatService.getChannelOwner(id));
 	}
 
 	@Get('/:id/getUsers')

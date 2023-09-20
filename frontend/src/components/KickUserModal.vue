@@ -22,9 +22,12 @@ export default defineComponent ({
 				return ;
 			}
 			const user = await user_resp.json();
-			await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/remove', {credentials: 'include', method: 'POST'});
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/kick', {credentials: 'include', method: 'POST'});
+			const response_json = await response.json();
+			console.log(response_json);
 			this.$emit('close');
-			this.$emit('kick', this.$props.channelId, user['id'], false);
+			if (response_json['ok'])
+				this.$emit('kick', this.$props.channelId, user['id'], false);
 		}
 	},
 });

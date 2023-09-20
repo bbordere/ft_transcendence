@@ -71,9 +71,34 @@ export class UserController {
 		});
 	}
 
+	@Post('/:userId/channels/:channelId/kick')
+	async kickUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		try {await this.userService.kickUserFromChannel(userId, channelId);}
+		catch (e) {
+			return {
+				ok: false,
+				message: e.message,
+			}
+		}
+		return {
+			ok: true,
+			message: 'Kicked user from channel',
+		}
+	}
+
 	@Post('/:userId/channels/:channelId/ban')
 	async banUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
-		this.userService.banUserFromChannel(userId, channelId);
+		try {await this.userService.banUserFromChannel(userId, channelId);}
+		catch (e) {
+			return {
+				ok: false,
+				message: e.message,
+			}
+		}
+		return {
+			ok: true,
+			message: 'Banned user from channel',
+		}
 	}
 
 	@Post('/:userId/channels/:channelId/unban')

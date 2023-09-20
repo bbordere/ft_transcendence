@@ -29,9 +29,13 @@ export class Channel {
 
 	@ManyToOne(() => User, user => user.channels)
 	@JoinColumn()
-	public admin: User;
+	public owner: User;
 
 	@ManyToMany(() => User)
 	@JoinTable()
 	public bannedUsers: User[];
+
+	@ManyToMany(() => User)
+	@JoinTable()
+	public admins: User[];
 };

@@ -149,8 +149,8 @@ export class UserService {
 
 	async removeUserFromChannel(userId: number, channelId: number) {
 		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admin']});
-    
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+	
 		user.channels = user.channels.filter((c) => c.id !== channel.id);
 		const users = await this.usersRepository.createQueryBuilder('user')
 			.leftJoinAndSelect('user.channels', 'channel')
@@ -160,20 +160,33 @@ export class UserService {
 			await this.channelRepository.delete(channel.id);
 			return (null);
 		}
-   		if (user.id === channel.admin.id) {
+		// Check if there are admin, if so, search in them
+   		if (user.id === channel.owner.id) {
 			let index = Math.floor(Math.random() * (users.length));
 			while (users[index].id === user.id)
 				index = Math.floor(Math.random() * (users.length));
-			channel.admin = users[index];
+			channel.owner = users[index];
 			await this.channelRepository.save(channel);
     	}
    		return (await this.usersRepository.save(user));
 	}
+	
+	async kickUserFromChannel(userId: number, channelId: number) {
+		const user = await this.usersRepository.findOne({where: {id: userId}});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+		if (!user)
+			return ;
+		if (user.id === channel.owner.id)
+			throw new Error('You cannot kick the owner of the channel.');
+		await this.removeUserFromChannel(user.id, channel.id);
+	}
 
 	async banUserFromChannel(userId: number, channelId: number) {
 		const user = await this.usersRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['bannedUsers']});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['bannedUsers', 'owner']});
 
+		if (user.id === channel.owner.id)
+			throw new Error('You cannot ban the owner of the channel.');
 		await this.removeUserFromChannel(userId, channelId);
 		channel.bannedUsers.push(user);
 		await this.channelRepository.save(channel);

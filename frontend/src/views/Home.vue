@@ -47,9 +47,10 @@ interface Message {
 interface Channel {
 	id: number;
 	name: string;
-	admin: number;
+	owner: number;
 	messages: Message[],
 	protected: boolean,
+	// admin: number[];
 }
 
 export enum State {
@@ -96,15 +97,16 @@ export default defineComponent({
 		for (let i = 0; i < channels_json.length; i++) {
 			this.channels.push({
 				id: channels_json[i]['id'],
-				admin: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/admin', { credentials: 'include' })).json())['id'],
+				owner: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/owner', { credentials: 'include' })).json())['id'],
 				name: channels_json[i]['name'],
 				messages: await this.getChannelMessages(channels_json[i]['id']),
 				protected: channels_json[i]['protected'],
 			});
+			console.log(this.channels[i].owner);
 		}
-		this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
+		this.init();
 	},
 
 	updated() {
@@ -117,7 +119,7 @@ export default defineComponent({
 
 	methods: {
 		init() {
-			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/', {query: {userId: this.sender.id}});
+			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/', {query: {token: sessionStorage.getItem('token')}});
 			this.socket.on('message',
 				(data: {
 					channelId: number,
@@ -160,16 +162,16 @@ export default defineComponent({
 					}
 				}
 			});
-			this.socket.on('changeAdmin', (data: { channel_id: number, new_admin_id: number }) => {
-				const { channel_id, new_admin_id } = data;
-				if (this.sender.id === new_admin_id) {
+			this.socket.on('changeAdmin', (data: { channel_id: number, new_owner_id: number }) => {
+				const { channel_id, new_owner_id } = data;
+				if (this.sender.id === new_owner_id) {
 					for (let i = 0; i < this.channels.length; i++) {
 						if (this.channels[i].id === channel_id) {
-							this.channels[i].admin = new_admin_id;
+							this.channels[i].owner = new_owner_id;
 							const notif = useNotification();
 							notif.notify({
-								title: 'Nouvel admin',
-								text: `Vous avez ete promu admin du channel ${this.channels[i].name}`,
+								title: 'Nouvel owner',
+								text: `Vous avez ete promu owner du channel ${this.channels[i].name}`,
 								type: 'success',
 								group: 'notif-center',
 							});
@@ -203,7 +205,7 @@ export default defineComponent({
 			});
 			const response_json = await response.json();
 			if (response_json['ok'] === true) {
-				channel.admin = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channel.id + '/admin', { credentials: 'include' })).json())['id'];
+				channel.owner = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channel.id + '/owner', { credentials: 'include' })).json())['id'];
 				this.channels.push(channel);
 				this.selectedChannel = channel;
 				this.selectedChannel.messages = await this.getChannelMessages(channel.id);
@@ -223,12 +225,12 @@ export default defineComponent({
 		async removeChannel(id: number) {
 			for (let i = 0; i < this.channels.length; i++) {
 				if (this.channels[i].id === this.selectedChannel.id) {
-					if (this.selectedChannel.admin === this.sender.id) {
-						const admin_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.channels[i].id + '/admin');
+					if (this.selectedChannel.owner === this.sender.id) {
+						const owner_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.channels[i].id + '/owner');
 						try {
-							const new_admin_id = (await admin_response.json())['id'];
+							const new_owner_id = (await owner_response.json())['id'];
 							let channel_id = this.channels[i].id;
-							this.socket.emit('changeAdmin', { channel_id, new_admin_id });
+							this.socket.emit('changeAdmin', { channel_id, new_owner_id });
 						}
 						catch { }
 					}

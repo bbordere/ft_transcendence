@@ -24,11 +24,11 @@
 			</form>
 			<div class="channel_options">
 				<button type="button" @click="quitChannel(sender.id)">Quit Channel</button>
-				<button v-if="selectedChannel.admin == sender.id" type="button"
+				<button v-if="selectedChannel.owner == sender.id" type="button"
 					@click="$emit('displayChannelOption', 'kick')">Kick User</button>
-				<button v-if="selectedChannel.admin == sender.id" type="button"
+				<button v-if="selectedChannel.owner == sender.id" type="button"
 					@click="$emit('displayChannelOption', 'ban')">Ban User</button>
-				<button v-if="selectedChannel.admin == sender.id" type="button"
+				<button v-if="selectedChannel.owner == sender.id" type="button"
 					@click="$emit('displayChannelOption', 'unban')">Unban User</button>
 			</div>
 		</div>

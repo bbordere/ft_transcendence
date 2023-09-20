@@ -10,10 +10,12 @@ import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { FriendService } from 'src/friend/friend.service';
 import { Friend } from 'src/friend/friend.entity';
+import { AuthService } from 'src/auth/auth.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Channel, Message, User, Friend])],
-  providers: [ChatGateway, ChatService, UserService, FriendService],
+  providers: [ChatGateway, ChatService, UserService, FriendService, AuthService, JwtService],
   controllers: [MessageController, ChatController],
   exports: [ChatService],
 })

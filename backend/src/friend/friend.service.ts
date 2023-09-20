@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Friend } from './friend.entity';
 import { UserService } from '../user/user.service';
+import { Channel } from 'src/chat/entities/channel.entity';
+import { ChatService } from 'src/chat/chat.service';
 
 @Injectable()
 export class FriendService {
@@ -11,6 +13,7 @@ export class FriendService {
 		@InjectRepository(Friend)
 		private friendRepository: Repository<Friend>,
 		private userService: UserService,
+		private chatService: ChatService,
 	) { }
 
 	async addFriend(username: string, sender: number): Promise<Friend | string> {
@@ -33,14 +36,14 @@ export class FriendService {
 	}
 
 	async acceptFriend(id1: number, id2: number): Promise<void> {
-		const user = await this.friendRepository.findOne({
+		const friendship = await this.friendRepository.findOne({
 			where: [
 				{ UserId: id1, FriendId: id2 },
 				{ UserId: id2, FriendId: id1 },
 			],
 		});
-		user.Status = 'accepted';
-		await this.friendRepository.save(user);
+		friendship.Status = 'accepted';
+		await this.friendRepository.save(friendship);
 	}
 
 	async getFriendId(

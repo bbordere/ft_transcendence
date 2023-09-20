@@ -11,6 +11,7 @@ import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
 import { State } from 'src/user/user.entity';
 import { FriendService } from 'src/friend/friend.service';
+import { AuthService } from 'src/auth/auth.service';
 
 interface StateInfo {
 	client_socket: Socket;
@@ -26,6 +27,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	constructor(
 		private readonly chatService: ChatService,
 		private readonly friendService: FriendService,
+		private readonly authService: AuthService,
 	) {}
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('ChatGateway');
@@ -54,6 +56,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('kick')
 	handleKick(client: Socket, payload: any) {
+		console.log(payload);
 		this.server.emit('kick', payload);
 		return (payload);
 	}
@@ -69,14 +72,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleDisconnect(client: Socket) {
-		// this.clients.set(client.data.userId, {client_socket: client, state: State.OFFLINE});
 		this.clients.delete(client.data.userId);
 		await this.handleGetStatus(client, client.data.userId);
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
 	async handleConnection(client: Socket, ...args: any[]) {
-		client.data.userId = Number(client.handshake.query['userId']);
+		const token = client.handshake.query['token'] as string;
+		const user = await this.authService.getUserFromToken(token);
+		client.data.userId = user.id;
 		this.clients.set(client.data.userId, {client_socket: client, state: State.ONLINE});
 		await this.handleGetStatus(client, client.data.userId);
 		this.logger.log(`Client connected: ${client.id}`);

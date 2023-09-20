@@ -38,7 +38,7 @@ export class ChatService {
 		channel.name = name;
 		channel.password = (protect ? await bcrypt.hash(password, 8) : '');
 		channel.protected = protect;
-		channel.admin = creator
+		channel.owner = creator
 		const createdChannel = await this.channelRepository.save(channel);
 		return (createdChannel);
 	}
@@ -79,11 +79,11 @@ export class ChatService {
 		return (channel.messages);
 	}
 
-	async getChannelAdmin(channelId: number): Promise<User | null> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admin']});
+	async getChannelOwner(channelId: number): Promise<User | null> {
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
 		if (!channel)
 			return (null);
-		return (channel.admin);
+		return (channel.owner);
 	}
 
 	async getUsersInChannel(channelId: number): Promise<User[] | null> {
