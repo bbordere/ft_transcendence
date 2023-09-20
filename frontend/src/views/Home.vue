@@ -178,6 +178,12 @@ export default defineComponent({
 					}
 				}
 			});
+
+			// this.socket.on('changeState', (data: any) => {
+			// for (var friend of this.friends)
+			// 	if (friend.)
+			// 		// change state
+			// });
 		},
 
 		async showChannel(chan: Channel) {
