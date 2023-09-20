@@ -5,12 +5,14 @@
 </template>
 
 <script lang="ts">
+import { SocketService } from '@/services/SocketService';
+
 
 export default {
-	props: ["emoji", "socket"],
+	props: ["emoji"],
 	methods: {
 		test(){
-			this.socket.emit('emote', this.emoji);
+			SocketService.getInstance.emit('emote', this.emoji);
 		}
 	}
 }

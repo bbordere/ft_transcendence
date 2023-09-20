@@ -8,11 +8,11 @@
 						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
-					<FriendList v-else :socket="socket" :updateTimestamp="updateTimestamp"/>
+					<FriendList v-else :updateTimestamp="updateTimestamp"/>
 				</div>
 			</div>
 			<Chat :selectedChannel="selectedChannel" :sender="sender"
-				:socket="socket" @removeChannel="removeChannel" @displayChannelOption="displayChannelOption"></Chat>
+				@removeChannel="removeChannel" @displayChannelOption="displayChannelOption"></Chat>
 		</div>
 	</div>
 </template>
@@ -29,6 +29,7 @@ import ModalManager from '../components/ModalManager.vue';
 import FriendList from '@/components/FriendList.vue';
 import Chat from '@/components/Chat.vue';
 import PlayButton from '@/components/PlayButton.vue';
+import { SocketService } from '@/services/SocketService.ts'
 
 interface User {
 	id: number;
@@ -49,7 +50,7 @@ interface Channel {
 	name: string;
 	admin: number;
 	messages: Message[],
-	protected: boolean,
+	protected: boolean,instance
 }
 
 export enum State {
@@ -73,7 +74,6 @@ export default defineComponent({
 	data() {
 		return {
 			showChannelDiv: false,
-			socket: null as any,
 			sender: {} as User,
 			channels: [] as Channel[],
 			selectedChannel: {} as Channel,
@@ -117,8 +117,10 @@ export default defineComponent({
 
 	methods: {
 		init() {
-			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/', {query: {userId: this.sender.id}});
-			this.socket.on('message',
+			SocketService.setSocket('http://' + import.meta.env.VITE_HOST + ':3000/', {query: {userId: this.sender.id}});
+			this.$emit('socketReady');
+			// this.socket = SocketService.getInstance;
+			SocketService.getInstance.on('message',
 				(data: {
 					channelId: number,
 					text: string,
@@ -138,7 +140,7 @@ export default defineComponent({
 						});
 					}
 				});
-			this.socket.on('kick', (data: { channelId: number, userId: number, ban: boolean }) => {
+				SocketService.getInstance.on('kick', (data: { channelId: number, userId: number, ban: boolean }) => {
 				const { channelId, userId, ban } = data;
 				if (this.sender.id === userId) {
 					for (let i = 0; i < this.channels.length; i++) {
@@ -160,7 +162,7 @@ export default defineComponent({
 					}
 				}
 			});
-			this.socket.on('changeAdmin', (data: { channel_id: number, new_admin_id: number }) => {
+			SocketService.getInstance.on('changeAdmin', (data: { channel_id: number, new_admin_id: number }) => {
 				const { channel_id, new_admin_id } = data;
 				if (this.sender.id === new_admin_id) {
 					for (let i = 0; i < this.channels.length; i++) {
@@ -234,7 +236,7 @@ export default defineComponent({
 						try {
 							const new_admin_id = (await admin_response.json())['id'];
 							let channel_id = this.channels[i].id;
-							this.socket.emit('changeAdmin', { channel_id, new_admin_id });
+							SocketService.getInstance.emit('changeAdmin', { channel_id, new_admin_id });
 						}
 						catch { }
 					}
@@ -284,7 +286,7 @@ export default defineComponent({
 		},
 
 		notifyKick(channelId: number, userId: number, ban: boolean) {
-			this.socket.emit('kick', { channelId, userId, ban });
+			SocketService.getInstance.emit('kick', { channelId, userId, ban });
 		},
 
 	},
@@ -330,7 +332,7 @@ h1 {
 	height: 80%;
 	width: 100%;
 	background-color: #ffffff;
-	border: 3px solid #BC0002;
+	border: 3px solid #515151;
 	border-radius: 10px;
 }
 

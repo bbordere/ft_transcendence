@@ -1,28 +1,61 @@
 <template>
 	<body>
 		<Head v-if="!$route.fullPath.includes('auth') && $route.fullPath.length !== 1" :updateTimestamp="timestampRef"></Head>
+		<div v-if="displayModalInvite" class="invite_modal">
+			<div class="invite_modal_content">
+				Invitation de {{ senderName }}
+				<div>
+					<button>Accepter</button>
+					<button>Refuser</button>
+				</div>
+			</div>
+		</div>
+		<div v-if="displayModalSend" class="invite_modal">
+			EN ATTENTE
+		</div>
 		<notifications position="top center" group="notif-center" max="2"/>
 		<notifications position="top right" group="friend"/>
 		<router-view v-slot="{ Component }" appear>
 			<transition name="grow-in" mode="out-in">
-				<Component :key="$route.fullPath" :is="Component" @update="test"/>
+				<Component :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady"/>
 			</transition>
 		</router-view>
-
 	</body>
 </template>
 
 <script setup lang="ts">
 
 import { ref } from 'vue'
-
 import Head from './components/Head.vue';
+import { SocketService } from './services/SocketService';
 
-const timestampRef = ref('me')
+const isSocketReady = ref(false);
+
+const timestampRef = ref()
+
+const displayModalInvite = ref(false)
+const displayModalSend = ref(false)
+const senderName = ref("");
+// const displayModalInvite = ref(false)
+
+function socketReady(){
+	isSocketReady.value = true;
+	SocketService.getInstance.on('displayInvite', (isSender: boolean, name: string) =>{
+		console.log(name);
+		senderName.value = name;
+		const ref = isSender ? displayModalSend : displayModalInvite;
+		ref.value = true;
+		setTimeout(() =>{
+			ref.value = false;
+		}, 5000);
+	})
+}
 
 function test(){
 	timestampRef.value = Date.now();
 }
+
+
 
 </script>
 
@@ -115,8 +148,7 @@ body::-webkit-scrollbar{
 //   }
 // }
 
-.grow-in-enter-from,
-.grow-in-leave-to {
+.grow-in-enter-from{
 	opacity: 0;
 	transform: scale(0.3);
 }
@@ -124,6 +156,22 @@ body::-webkit-scrollbar{
 .grow-in-enter-active,
 .grow-in-leave-active {
 	transition: 0.2s ease-out;
+}
+
+.invite_modal{
+	position: absolute;
+	height: 10vh;
+	width: 100vw;
+	display: flex;
+	justify-content: center;
+	z-index: 5;
+}
+
+.invite_modal_content{
+	text-align: center;
+	background: pink;
+	border-radius: 10px;
+	height: 100%;
 }
 
 </style>

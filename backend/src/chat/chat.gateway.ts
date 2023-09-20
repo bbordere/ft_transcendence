@@ -81,4 +81,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		await this.handleGetStatus(client, client.data.userId);
 		this.logger.log(`Client connected: ${client.id}`);
 	}
+	
+	@SubscribeMessage('pongInvite')
+	async sendPongInvite(client: Socket, payload: any){
+		console.log(payload);
+		// client.emit('displayInvite');
+		this.clients.get(payload[0]).client_socket.emit('displayInvite', true, payload[2]);
+		this.clients.get(payload[1]).client_socket.emit('displayInvite', false, payload[2]);
+	}
 }

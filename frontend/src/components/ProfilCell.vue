@@ -4,10 +4,11 @@ import Hamburger from '../components/Hamburger.vue'
 import Invite from '../components/Invite.vue'
 import router from '@/router';
 import { State } from '@/views/Home.vue';
+import { SocketService } from '@/services/SocketService';
 
 
 export default defineComponent({
-		props: ["profilObject", "myid", "blockList", "print", 'socket'],
+		props: ["profilObject", "myid", "blockList", "print",],
 	components: {
 		Hamburger,
 		Invite,
@@ -26,6 +27,8 @@ export default defineComponent({
 			dataLoaded: false,
 			stateId: -1,
 			state: -1,
+			myUser: {} as any,
+			friendUser: {} as any,
 		}
 	},
 	methods: {
@@ -84,7 +87,9 @@ export default defineComponent({
 				credentials: 'include'
 			});
 			const userData = await response.json();
+			this.myUser = userData;
 			this.username = userData.name;
+			console.log(this.username);
 			this.avatar = userData.avatarLink;
 		},
 
@@ -93,6 +98,7 @@ export default defineComponent({
 				credentials: 'include'
 			});
 			const userData = await response.json();
+			this.friendUser = userData;
 			this.friendUsername = userData.name;
 		},
 	},
@@ -109,8 +115,10 @@ export default defineComponent({
 		}
 		await this.friendInfo();
 		this.dataLoaded = true;
-		this.socket.emit('getStatus', this.friendId);
-		this.socket.on('getStatus', (data: {userId: number, state: State}) => {
+		await this.userInfo(this.userId);
+		console.log(this.username, this.friendUsername);
+		SocketService.getInstance.emit('getStatus', this.friendId);
+		SocketService.getInstance.on('getStatus', (data: {userId: number, state: State}) => {
 			const {userId, state} = data;
 			if (userId === this.friendId) {
 				if (state === State.OFFLINE)
@@ -141,7 +149,7 @@ export default defineComponent({
 			<font-awesome-icon icon="fa-solid fa-xmark"/>
 		</div>
 		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger>
-		<invite :show="modalInvite" @close="modalInvite = false" :myId="myid" :friendId="friendId"></invite>
+		<invite :show="modalInvite" @close="modalInvite = false" :myId="myid" :friendId="friendId" :senderName="myUser['name']"></invite>
 	</div>
 	<div class="box" v-else-if="dataLoaded && print === 1 && profilObject.FriendId === myid && profilObject.Status === 'pending' && !blockList.includes(friendId)">
 		<div class="img_user">

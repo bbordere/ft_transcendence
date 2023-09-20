@@ -1,20 +1,27 @@
 <script lang="ts">
 
+import { Socket } from 'socket.io-client';
 import BlueButton from './BlueButton.vue';
+import { SocketService } from '@/services/SocketService';
 
 export default {
 	components: {
 		BlueButton,
 	},
-	props: {
-		myId: Number,
-		friendId: Number,
-		show: Boolean,
-	},
+
+	props: ["myId", "friendId", "show", "senderName"],
+	// props: {
+	// 	myId: Number,
+	// 	friendId: Number,
+	// 	show: Boolean,
+	// 	senderName: "",
+	// },
 
 	methods: {
 		goToPong(mode: string){
-			this.$router.push({ path: '/pong', query: { mode: mode, id: this.myId}});
+			SocketService.getInstance.emit('pongInvite', this.myId, this.friendId, this.senderName);
+			this.$emit('close');
+			// this.$router.push({ path: '/pong', query: { mode: mode, id: this.myId}});
 		}
 	}
 }
