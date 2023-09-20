@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Delete, Get, Query, Patch, Param } from '@nestjs/common';
 import { FriendService } from './friend.service';
 import { friendDto } from './dtos/friend.dto';
-import { Friend } from './friend.entity';
+
 
 @Controller('friend')
 export class FriendController {
@@ -9,7 +9,7 @@ export class FriendController {
 
 	@Post('/add')
 	async addFriend(@Body() friendDto: friendDto) {
-		return {data: await this.friendService.addFriend(friendDto.username, friendDto.sender)};
+		return await this.friendService.addFriend(friendDto.username, friendDto.sender);
 	}
 
 	@Patch('/accept')
@@ -23,7 +23,7 @@ export class FriendController {
 	}
 
 	@Get('/:id/list')
-	async friendlist(@Param('id') id: number): Promise<Friend[]> {
-		return await this.friendService.friendlist(id);
+	async getFriend(@Param('id') id: number) {
+		return await this.friendService.getFriend(id);
 	}
 }

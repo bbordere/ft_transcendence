@@ -3,6 +3,11 @@ import { defineComponent } from 'vue';
 import ProfilCell from './ProfilCell.vue';
 import BlockListCell from './BlockListCell.vue';
 
+interface friendTab {
+	userId: number;
+	status: string;
+}
+
 export default defineComponent({
 	components: {
 		ProfilCell,
@@ -11,7 +16,7 @@ export default defineComponent({
 	props: ['updateTimestamp', 'socket'],
 	data() {
 		return {
-			friends: [],
+			friends: [] as friendTab[],
 			blockList: [],
 			sender: -1 as number,
 			block: false as boolean,

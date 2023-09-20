@@ -4,6 +4,10 @@ import { Repository } from 'typeorm';
 import { Friend } from './friend.entity';
 import { UserService } from '../user/user.service';
 
+export interface friendTab {
+	userId: number;
+	status: string;
+}
 
 @Injectable()
 export class FriendService {
@@ -81,6 +85,25 @@ export class FriendService {
 				friends.push(friendship.FriendId);
 			else
 				friends.push(friendship.UserId);
+		}
+		return (friends);
+	}
+
+	async getFriend(id: number) {
+		const friendships = await this.friendRepository.find({
+			where: [
+				{ UserId: id },
+				{ FriendId: id },
+			]
+		});
+		const friends: friendTab[] = [];
+
+		for (let friendship of friendships) {
+			const friend: friendTab = {
+				userId: friendship.UserId === id ? friendship.FriendId : friendship.UserId,
+				status: friendship.Status,
+			};
+			friends.push(friend);
 		}
 		return (friends);
 	}
