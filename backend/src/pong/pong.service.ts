@@ -9,17 +9,16 @@ import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class PongGame {
-	
-	constructor(private readonly userService: UserService) {}
 
-	randomPos(){
+	constructor(private readonly userService: UserService) { }
+
+	randomPos() {
 		const randomNumber = Math.random();
 		const sign = Math.random() < 0.5 ? -1 : 1;
-	  	return sign * (0.5 + randomNumber * 0.5);
+		return sign * (0.5 + randomNumber * 0.5);
 	}
 
 	resetBall(room: Room) {
-		console.log("RESET");
 		room.ball.radius = 10;
 		room.ball.position.x = PongConstants.CANVAS_WIDTH / 2;
 		room.ball.position.y = PongConstants.CANVAS_HEIGHT / 2;
@@ -30,30 +29,30 @@ export class PongGame {
 	}
 
 	resetRacket(room: Room) {
-		if (room.players[0]){
+		if (room.players[0]) {
 			room.players[0].racket.pos.x = (PongConstants.RACKET_WIDTH);
 			room.players[0].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);
 			room.players[0].racket.size = PongConstants.RACKET_HEIGHT;
 			room.players[0].racket.width = PongConstants.RACKET_WIDTH;
-			if (room.players[0].racket.effectTimeout){
+			if (room.players[0].racket.effectTimeout) {
 				clearTimeout(room.players[0].racket.effectTimeout);
 				room.players[0].racket.effectTimeout = null;
 			}
 		}
-		if (room.players[1]){
+		if (room.players[1]) {
 			room.players[1].racket.pos.x = (PongConstants.CANVAS_WIDTH - (PongConstants.RACKET_WIDTH * 2));
 			room.players[1].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);
 			room.players[1].racket.size = PongConstants.RACKET_HEIGHT;
 			// room.players[1].racket.size = 2000;
 			room.players[1].racket.width = PongConstants.RACKET_WIDTH;
-			if (room.players[1].racket.effectTimeout){
+			if (room.players[1].racket.effectTimeout) {
 				clearTimeout(room.players[1].racket.effectTimeout);
 				room.players[1].racket.effectTimeout = null;
 			}
 		}
 	}
 
-	racketHandling(racket: Racket, room: Room, dy: number){
+	racketHandling(racket: Racket, room: Room, dy: number) {
 		if (this.hasRacketIntersect(room.ball, racket))
 			return;
 		const canMove: boolean = ((dy > 0 && racket.pos.y + racket.size < room.canvas.height - room.ball.radius) || (dy < 0 && racket.pos.y > room.ball.radius));
@@ -82,7 +81,7 @@ export class PongGame {
 		room.ball.direction.y = Math.sin(angle);
 		if (room.ball.speed != PongConstants.SPEED_BALL_POWERUP)
 			room.ball.speed = Math.min(room.ball.speed += 0.5, PongConstants.MAX_BALL_SPEED);
-		if (playerHit === 0){
+		if (playerHit === 0) {
 			room.ball.position.x = room.players[0].racket.pos.x + room.players[0].racket.width + room.ball.radius + 2;
 		}
 		else {
@@ -90,7 +89,7 @@ export class PongGame {
 		}
 	}
 
-	hasRacketIntersect(ball: Ball, racket: Racket): boolean{
+	hasRacketIntersect(ball: Ball, racket: Racket): boolean {
 		const distX = Math.abs(ball.position.x - racket.pos.x - racket.width / 2);
 		const distY = Math.abs(ball.position.y - racket.pos.y - racket.size / 2);
 		if (distX > (racket.width / 2 + ball.radius))
@@ -106,7 +105,7 @@ export class PongGame {
 		return (dx * dx + dy * dy <= ball.radius * ball.radius);
 	}
 
-	hasPowerupIntersect(ball: Ball, powerup: Powerup): boolean{
+	hasPowerupIntersect(ball: Ball, powerup: Powerup): boolean {
 		const distX = Math.abs(ball.position.x - powerup.pos.x - powerup.radius / 2);
 		const distY = Math.abs(ball.position.y - powerup.pos.y - powerup.radius / 2);
 		if (distX > (powerup.radius / 2 + ball.radius))
@@ -122,9 +121,9 @@ export class PongGame {
 		return (dx * dx + dy * dy <= ball.radius * ball.radius);
 	}
 
-	hasPowerup2Intersect(powerup1: Powerup, powerup2: Powerup): boolean{
+	hasPowerup2Intersect(powerup1: Powerup, powerup2: Powerup): boolean {
 		return powerup1.pos.x <= (powerup2.pos.x + powerup2.radius) && (powerup1.pos.x + powerup1.radius) >= powerup2.pos.x &&
-		powerup1.pos.y <= (powerup2.pos.y + powerup2.radius) && (powerup1.pos.y + powerup1.radius) >= powerup2.pos.y;
+			powerup1.pos.y <= (powerup2.pos.y + powerup2.radius) && (powerup1.pos.y + powerup1.radius) >= powerup2.pos.y;
 	}
 
 	updateBall(room: Room) {
@@ -138,19 +137,19 @@ export class PongGame {
 		else if (room.ball.position.x + next.x < room.ball.radius)
 			indexPlayer = 1;
 
-		if (indexPlayer != -1){
+		if (indexPlayer != -1) {
 			room.players[indexPlayer].score++;
 			room.state = State.COOLDOWN;
 			this.resetBall(room);
 			this.resetRacket(room);
 			return;
 		}
-		
+
 		if (room.ball.position.y + next.y >= room.canvas.height
 			|| room.ball.position.y + next.y <= room.ball.radius * 2) {
-				room.ball.direction.y *= -1;
+			room.ball.direction.y *= -1;
 		}
-			
+
 		if (this.hasRacketIntersect(room.ball, room.players[0].racket))
 			this.racketBallCollision(room, room.players[0].racket, 0);
 
@@ -163,7 +162,7 @@ export class PongGame {
 		}
 	}
 
-	activatePowerup(powerup: Powerup, room: Room){
+	activatePowerup(powerup: Powerup, room: Room) {
 		powerup.activatedBy = Number(room.ball.direction.x < 0);
 		let racket: Racket = room.players[powerup.activatedBy].racket;
 		room.players[powerup.activatedBy].user.stats.totalPowerups += 1;
@@ -176,7 +175,7 @@ export class PongGame {
 					racket.size = PongConstants.RACKET_HEIGHT;
 				}, PongConstants.BIG_PADDLE_DURATION)
 			}
-			break;
+				break;
 			case Effect.LIL_PADDLE: {
 				racket = room.players[Number(!(powerup.activatedBy))].racket;
 				racket.pos.y += PongConstants.LIL_PAD_VALUE;
@@ -185,7 +184,7 @@ export class PongGame {
 					racket.size = PongConstants.RACKET_HEIGHT;
 				}, PongConstants.LIL_PADDLE_DURATION)
 			}
-			break;
+				break;
 			case Effect.SPEEDY_BALL: {
 				const oldSpeed = room.ball.speed;
 				room.ball.speed = PongConstants.SPEED_BALL_POWERUP;
@@ -194,13 +193,13 @@ export class PongGame {
 						room.ball.speed = oldSpeed;
 				}, PongConstants.SPEEDY_BALL_DURATION)
 			}
-			break;
+				break;
 		}
 	}
 
-	powerupsHandling(room: Room){
-		for (let i = 0; i < room.powerups.length; i++){
-			if (this.hasPowerupIntersect(room.ball, room.powerups[i])){
+	powerupsHandling(room: Room) {
+		for (let i = 0; i < room.powerups.length; i++) {
+			if (this.hasPowerupIntersect(room.ball, room.powerups[i])) {
 				this.activatePowerup(room.powerups[i], room);
 				room.powerups.splice(i, 1);
 			}
@@ -212,13 +211,13 @@ export class PongGame {
 		this.updateBall(room);
 		this.updateRacket(client, room, client.data.keyUp, client.data.keyDown);
 		this.powerupsHandling(room);
-		const {["effectTimeout"]: timeOut1, ...racket1} = room.players[0].racket;
-		const {["effectTimeout"]: timeOut2, ...racket2} = room.players[1].racket;
+		const { ["effectTimeout"]: timeOut1, ...racket1 } = room.players[0].racket;
+		const { ["effectTimeout"]: timeOut2, ...racket2 } = room.players[1].racket;
 		client.emit("updateGame", room.ball, racket1, racket2, room.powerups);
 	}
 
 	async initGame(room: Room) {
-		if (!room.ball){
+		if (!room.ball) {
 			room.ball = new Ball();
 			this.resetBall(room);
 		}
@@ -226,8 +225,8 @@ export class PongGame {
 		room.players[0].score = 0;
 		if (!room.players[0].racket)
 			room.players[0].racket = new Racket()
-		
-		if (room.players[1]){
+
+		if (room.players[1]) {
 			room.players[1].score = 0;
 			if (!room.players[1].racket)
 				room.players[1].racket = new Racket()
@@ -239,21 +238,22 @@ export class PongGame {
 		room.canvas.height = PongConstants.CANVAS_HEIGHT;
 	}
 
-	formatTime(total: number, mode: Mode): string{
+	formatTime(total: number, mode: Mode): string {
 		let time;
 		if (mode !== Mode.RANKED)
 			time = PongConstants.GAME_DURATION - total;
 		else
 			time = total;
+		time = Math.max(time, 0);
 		const minutes = Math.floor(time / 60);
-		const seconds = time % 60;	  
+		const seconds = time % 60;
 		const formattedMinutes = String(minutes).padStart(2, "0");
 		const formattedSeconds = String(seconds).padStart(2, "0");
 		return `${formattedMinutes}:${formattedSeconds}`;
 	}
 
-	async startTimer(room: Room){
-		if (room.players.length != 2){
+	async startTimer(room: Room) {
+		if (room.players.length != 2) {
 			return;
 		}
 		room.timerInterval = setInterval(() => {
@@ -261,7 +261,7 @@ export class PongGame {
 			room.players[0].socket.emit('time', this.formatTime(room.time, room.mode));
 			room.players[1].socket.emit('time', this.formatTime(room.time, room.mode));
 		}, 1000);
-		if (room.mode !== Mode.RANKED){
+		if (room.mode !== Mode.RANKED) {
 			room.timerTimeout = setTimeout(() => {
 				room.state = State.ENDGAME;
 				room.players[0].socket.emit('time', this.formatTime(room.time + 1, room.mode));
@@ -276,15 +276,17 @@ export class PongGame {
 		return Math.floor(Math.random() * (max - min + 1) + min)
 	}
 
-	isValidPowerupPos(powerup: Powerup, room: Room): Powerup{
+	isValidPowerupPos(powerup: Powerup, room: Room): Powerup {
 		let iteration = 0;
 		let hasCollide = true;
-		while (hasCollide && iteration < 20){
+		while (hasCollide && iteration < 20) {
 			iteration++;
-			powerup.pos = {x: this.randInt(200, room.canvas.width - 200),
-				y: this.randInt(100, room.canvas.height - 100)};
+			powerup.pos = {
+				x: this.randInt(200, room.canvas.width - 200),
+				y: this.randInt(100, room.canvas.height - 100)
+			};
 			hasCollide = false;
-			for (let power of room.powerups){
+			for (let power of room.powerups) {
 				hasCollide = hasCollide || this.hasPowerup2Intersect(power, powerup);
 			}
 		}
@@ -293,16 +295,16 @@ export class PongGame {
 		return (powerup);
 	}
 
-	generatePowerup(room: Room): Powerup | undefined{
-		const possibilities = [{name:"Grande Raquette", color: "#1A2E61", effect: Effect.BIG_PADDLE},
-								{name:"Petite Raquette", color: "#B38ED3", effect: Effect.LIL_PADDLE}, 
-								{name:"Balle Rapide", color: "#F44E1A", effect: Effect.SPEEDY_BALL}];
+	generatePowerup(room: Room): Powerup | undefined {
+		const possibilities = [{ name: "Grande Raquette", color: "#1A2E61", effect: Effect.BIG_PADDLE },
+		{ name: "Petite Raquette", color: "#B38ED3", effect: Effect.LIL_PADDLE },
+		{ name: "Balle Rapide", color: "#F44E1A", effect: Effect.SPEEDY_BALL }];
 		const choice = possibilities[this.randInt(0, 2)];
 		const res: Powerup = {
 			name: choice.name,
 			effect: choice.effect,
 			activatedBy: -1,
-			pos: {x: -1, y: -1},
+			pos: { x: -1, y: -1 },
 			radius: 64,
 			color: choice.color,
 		}
@@ -315,10 +317,10 @@ export class PongGame {
 		const it = setInterval(() => {
 			if (room.state === State.FINAL)
 				clearInterval(it);
-			if (room.time % 15 === 7){
-					const power = this.generatePowerup(room);
-					if (power)
-						room.powerups.push(power);
+			if (room.time % 15 === 7) {
+				const power = this.generatePowerup(room);
+				if (power)
+					room.powerups.push(power);
 			}
 		}, 1000)
 	}

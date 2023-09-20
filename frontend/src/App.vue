@@ -1,23 +1,27 @@
 <template>
 	<body>
-		<Head v-if="!$route.fullPath.includes('auth') && $route.fullPath.length !== 1" :updateTimestamp="timestampRef"></Head>
+
+		<Head v-if="!$route.fullPath.includes('auth') && $route.fullPath.length !== 1" :updateTimestamp="timestampRef">
+		</Head>
 		<div v-if="displayModalInvite" class="invite_modal">
 			<div class="invite_modal_content">
-				Invitation de {{ senderName }}
+				Invitation de {{ senderName }} en mode {{ modeRef }}
 				<div>
-					<button>Accepter</button>
-					<button>Refuser</button>
+					<button @click="handleClick(true)">Accepter</button>
+					<button @click="handleClick(false)">Refuser</button>
 				</div>
 			</div>
 		</div>
-		<div v-if="displayModalSend" class="invite_modal">
-			EN ATTENTE
+		<div v-else-if="displayModalSend" class="invite_modal">
+			<div class="invite_modal_content">
+				En attente ...
+			</div>
 		</div>
-		<notifications position="top center" group="notif-center" max="2"/>
-		<notifications position="top right" group="friend"/>
+		<notifications position="top center" group="notif-center" max="2" />
+		<notifications position="top right" group="friend" />
 		<router-view v-slot="{ Component }" appear>
 			<transition name="grow-in" mode="out-in">
-				<Component :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady"/>
+				<Component :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady" />
 			</transition>
 		</router-view>
 	</body>
@@ -28,30 +32,50 @@
 import { ref } from 'vue'
 import Head from './components/Head.vue';
 import { SocketService } from './services/SocketService';
+import router from '@/router';
 
-const isSocketReady = ref(false);
 
 const timestampRef = ref()
 
 const displayModalInvite = ref(false)
 const displayModalSend = ref(false)
 const senderName = ref("");
-// const displayModalInvite = ref(false)
+const modeRef = ref("");
 
-function socketReady(){
-	isSocketReady.value = true;
-	SocketService.getInstance.on('displayInvite', (isSender: boolean, name: string) =>{
-		console.log(name);
+let timeoutId: number = -1;
+
+function socketReady() {
+	SocketService.getInstance.on('displayInvite', (isSender: boolean, name: string, mode: string) => {
 		senderName.value = name;
 		const ref = isSender ? displayModalSend : displayModalInvite;
 		ref.value = true;
-		setTimeout(() =>{
+		modeRef.value = mode;
+		if (timeoutId !== -1)
+			clearTimeout(timeoutId);
+		timeoutId = setTimeout(() => {
 			ref.value = false;
+			SocketService.getInstance.emit('handlingInvite', false);
 		}, 5000);
 	})
+
+	SocketService.getInstance.on('joinGame', (senderId: number, mode: string) => {
+		router.push({ path: '/pong', query: { mode: mode, id: senderId } });
+	});
+
+	SocketService.getInstance.on('closeInvite', () => {
+		displayModalSend.value = false;
+	});
 }
 
-function test(){
+function handleClick(value: boolean) {
+	if (value)
+		SocketService.getInstance.emit('handlingInvite', true);
+	else
+		SocketService.getInstance.emit('handlingInvite', false);
+	displayModalInvite.value = false;
+}
+
+function test() {
 	timestampRef.value = Date.now();
 }
 
@@ -60,7 +84,6 @@ function test(){
 </script>
 
 <style scoped lang="scss">
-
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 
 .anim-enter-from,
@@ -73,7 +96,7 @@ function test(){
 	transition: opacity 0.3s ease-out;
 }
 
-*{
+* {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
@@ -82,28 +105,28 @@ function test(){
 
 body {
 	margin: -8px;
-    position: absolute;
+	position: absolute;
 	height: 100vh;
 	width: 100vw;
-//   --sinus:0.57357643635;
-//   --d:50000px;
-//   background-color: #000;
-//   background: repeating-linear-gradient(35deg,	#c4e8f6e0,
-// 												#9ccef2e0,
-// 												#c4e8f6e0,
-// 												#509ac9e0,
-// 												#206fade0,
-// 												#c4e8f6e0 var(--d));
-//   background-size: calc(var(--d)/var(--sinus)) 100%;
-//   animation: AnimationName 10s linear infinite reverse;
-  overflow: scroll;
+	//   --sinus:0.57357643635;
+	//   --d:50000px;
+	//   background-color: #000;
+	//   background: repeating-linear-gradient(35deg,	#c4e8f6e0,
+	// 												#9ccef2e0,
+	// 												#c4e8f6e0,
+	// 												#509ac9e0,
+	// 												#206fade0,
+	// 												#c4e8f6e0 var(--d));
+	//   background-size: calc(var(--d)/var(--sinus)) 100%;
+	//   animation: AnimationName 10s linear infinite reverse;
+	overflow: scroll;
 
-  background: linear-gradient(125deg, #c4e8f6e0, #509ac9e0, #2a8cd8e0,);
-    background-size: 600% 600%;
-    -webkit-animation: AnimationName 10s ease infinite;
-    -moz-animation: AnimationName 10s ease infinite;
-    -o-animation: AnimationName 10s ease infinite;
-    animation: AnimationName 10s ease infinite;
+	background: linear-gradient(125deg, #c4e8f6e0, #509ac9e0, #2a8cd8e0, );
+	background-size: 600% 600%;
+	-webkit-animation: AnimationName 10s ease infinite;
+	-moz-animation: AnimationName 10s ease infinite;
+	-o-animation: AnimationName 10s ease infinite;
+	animation: AnimationName 10s ease infinite;
 
 
 }
@@ -117,28 +140,63 @@ body {
 //     animation: AnimationName 27s ease infinite;
 // }
 @-webkit-keyframes AnimationName {
-    0%{background-position:0% 52%}
-    50%{background-position:100% 49%}
-    100%{background-position:0% 52%}
+	0% {
+		background-position: 0% 52%
+	}
+
+	50% {
+		background-position: 100% 49%
+	}
+
+	100% {
+		background-position: 0% 52%
+	}
 }
+
 @-moz-keyframes AnimationName {
-    0%{background-position:0% 52%}
-    50%{background-position:100% 49%}
-    100%{background-position:0% 52%}
+	0% {
+		background-position: 0% 52%
+	}
+
+	50% {
+		background-position: 100% 49%
+	}
+
+	100% {
+		background-position: 0% 52%
+	}
 }
+
 @-o-keyframes AnimationName {
-    0%{background-position:0% 52%}
-    50%{background-position:100% 49%}
-    100%{background-position:0% 52%}
+	0% {
+		background-position: 0% 52%
+	}
+
+	50% {
+		background-position: 100% 49%
+	}
+
+	100% {
+		background-position: 0% 52%
+	}
 }
+
 @keyframes AnimationName {
-    0%{background-position:0% 52%}
-    50%{background-position:100% 49%}
-    100%{background-position:0% 52%}
+	0% {
+		background-position: 0% 52%
+	}
+
+	50% {
+		background-position: 100% 49%
+	}
+
+	100% {
+		background-position: 0% 52%
+	}
 }
 
 
-body::-webkit-scrollbar{
+body::-webkit-scrollbar {
 	display: none;
 }
 
@@ -148,7 +206,7 @@ body::-webkit-scrollbar{
 //   }
 // }
 
-.grow-in-enter-from{
+.grow-in-enter-from {
 	opacity: 0;
 	transform: scale(0.3);
 }
@@ -158,7 +216,7 @@ body::-webkit-scrollbar{
 	transition: 0.2s ease-out;
 }
 
-.invite_modal{
+.invite_modal {
 	position: absolute;
 	height: 10vh;
 	width: 100vw;
@@ -167,17 +225,15 @@ body::-webkit-scrollbar{
 	z-index: 5;
 }
 
-.invite_modal_content{
+.invite_modal_content {
 	text-align: center;
 	background: pink;
 	border-radius: 10px;
 	height: 100%;
 }
-
 </style>
 
 <style>
-
 .fade-enter-from,
 .fade-leave-to {
 	opacity: 0;

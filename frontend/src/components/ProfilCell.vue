@@ -8,7 +8,7 @@ import { SocketService } from '@/services/SocketService';
 
 
 export default defineComponent({
-		props: ["profilObject", "myid", "blockList", "print",],
+	props: ["profilObject", "myid", "blockList", "print",],
 	components: {
 		Hamburger,
 		Invite,
@@ -40,7 +40,7 @@ export default defineComponent({
 		},
 
 		redirecToProfil(name: string) {
-			router.push({path:'/profile', query: { user: name }});
+			router.push({ path: '/profile', query: { user: name } });
 		},
 
 		getAvatarUrl(id: number) {
@@ -48,7 +48,7 @@ export default defineComponent({
 		},
 
 		async unblockUser() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/unblock`,{
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/unblock`, {
 				credentials: 'include',
 				method: 'PATCH',
 				headers: {
@@ -63,7 +63,7 @@ export default defineComponent({
 		},
 
 		async acceptFriend() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/accept?id1=${this.profilObject.UserId}&id2=${this.profilObject.FriendId}`,{
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/accept?id1=${this.profilObject.UserId}&id2=${this.profilObject.FriendId}`, {
 				credentials: 'include',
 				method: 'PATCH',
 				headers: {
@@ -73,7 +73,7 @@ export default defineComponent({
 		},
 
 		async deleteUser() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/delete?id1=${this.profilObject.UserId}&id2=${this.profilObject.FriendId}`,{
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/delete?id1=${this.profilObject.UserId}&id2=${this.profilObject.FriendId}`, {
 				credentials: 'include',
 				method: 'DELETE',
 				headers: {
@@ -83,7 +83,7 @@ export default defineComponent({
 		},
 
 		async userInfo(userid: number) {
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + userid,{ 
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + userid, {
 				credentials: 'include'
 			});
 			const userData = await response.json();
@@ -94,7 +94,7 @@ export default defineComponent({
 		},
 
 		async friendInfo() {
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + this.friendId,{ 
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + this.friendId, {
 				credentials: 'include'
 			});
 			const userData = await response.json();
@@ -115,11 +115,11 @@ export default defineComponent({
 		}
 		await this.friendInfo();
 		this.dataLoaded = true;
-		await this.userInfo(this.userId);
+		// await this.userInfo(this.userId);
 		console.log(this.username, this.friendUsername);
 		SocketService.getInstance.emit('getStatus', this.friendId);
-		SocketService.getInstance.on('getStatus', (data: {userId: number, state: State}) => {
-			const {userId, state} = data;
+		SocketService.getInstance.on('getStatus', (data: { userId: number, state: State }) => {
+			const { userId, state } = data;
 			if (userId === this.friendId) {
 				if (state === State.OFFLINE)
 					this.borderColor = 'grey';
@@ -135,23 +135,28 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="box" v-if="dataLoaded && print === 0 && profilObject.Status === 'accepted' && !blockList.includes(friendId)">
+	<div class="box"
+		v-if="dataLoaded && print === 0 && profilObject.Status === 'accepted' && !blockList.includes(friendId)">
 		<div class="img_user">
-			<img class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friendId)" @click="redirecToProfil(friendUsername)">
+			<img class="img_user_profil" :style="{ 'border-color': borderColor }" :src="getAvatarUrl(friendId)"
+				@click="redirecToProfil(friendUsername)">
 		</div>
 		<div class="name">
 			{{ username }}
 		</div>
-		<div :style="{'color': borderColor}" v-on:click=handleClick>
-			<font-awesome-icon icon="fa-solid fa-gamepad"/>
+		<div :style="{ 'color': borderColor }" v-on:click=handleClick>
+			<font-awesome-icon icon="fa-solid fa-gamepad" />
 		</div>
 		<div v-on:click="modalHamburger = true" class="menu-button">
-			<font-awesome-icon icon="fa-solid fa-xmark"/>
+			<font-awesome-icon icon="fa-solid fa-xmark" />
 		</div>
-		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId" :username="username"></hamburger>
-		<invite :show="modalInvite" @close="modalInvite = false" :myId="myid" :friendId="friendId" :senderName="myUser['name']"></invite>
+		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId"
+			:username="username"></hamburger>
+		<invite :show="modalInvite" @close="modalInvite = false" :myId="myid" :friendId="friendId"
+			:senderName="myUser['name']"></invite>
 	</div>
-	<div class="box" v-else-if="dataLoaded && print === 1 && profilObject.FriendId === myid && profilObject.Status === 'pending' && !blockList.includes(friendId)">
+	<div class="box"
+		v-else-if="dataLoaded && print === 1 && profilObject.FriendId === myid && profilObject.Status === 'pending' && !blockList.includes(friendId)">
 		<div class="img_user">
 			<img class="img_user_profil" :src="getAvatarUrl(friendId)" @click="redirecToProfil(friendUsername)">
 		</div>
@@ -161,10 +166,8 @@ export default defineComponent({
 		<button v-on:click="acceptFriend">V</button>
 		<button v-on:click="deleteUser">D</button>
 	</div>
-
 </template>
 <style>
-
 .box {
 	margin-top: 10px;
 	width: 90%;
@@ -216,5 +219,4 @@ export default defineComponent({
 	margin: 3px;
 	transition: 0.4s;
 }
-
 </style>

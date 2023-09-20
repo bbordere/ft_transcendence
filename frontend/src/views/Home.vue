@@ -5,23 +5,22 @@
 				<PlayButton />
 				<div class="friend_list">
 					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel" @kick="notifyKick"
-						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
+						ref="ModalManager" @click="updateTimestamp = Date.now()" />
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
-					<FriendList v-else :updateTimestamp="updateTimestamp"/>
+					<FriendList v-else :updateTimestamp="updateTimestamp" />
 				</div>
 			</div>
-			<Chat :selectedChannel="selectedChannel" :sender="sender"
-				@removeChannel="removeChannel" @displayChannelOption="displayChannelOption"></Chat>
+			<Chat :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
+				@displayChannelOption="displayChannelOption"></Chat>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import io from 'socket.io-client';
 import ModalAdd from '../components/ModalAdd.vue'
 import ModalAddFriend from '../components/ModalAddFriend.vue'
-import { defineComponent } from 'vue';
+import { defineComponent, setTransitionHooks } from 'vue';
 import { useNotification } from "@kyvg/vue3-notification";
 import PlayModal from '@/components/PlayModal.vue';
 import ChannelList from '../components/ChannelList.vue';
@@ -50,7 +49,7 @@ interface Channel {
 	name: string;
 	admin: number;
 	messages: Message[],
-	protected: boolean,instance
+	protected: boolean, instance
 }
 
 export enum State {
@@ -105,6 +104,9 @@ export default defineComponent({
 		this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
+		setInterval(() => {
+			fetch('http://' + import.meta.env.VITE_HOST + ':3000/auth/refresh', { credentials: 'include', method: 'POST' })
+		}, 1000 * 60 * 10);
 	},
 
 	updated() {
@@ -117,7 +119,7 @@ export default defineComponent({
 
 	methods: {
 		init() {
-			SocketService.setSocket('http://' + import.meta.env.VITE_HOST + ':3000/', {query: {userId: this.sender.id}});
+			SocketService.setSocket('http://' + import.meta.env.VITE_HOST + ':3000/', { query: { userId: this.sender.id } });
 			this.$emit('socketReady');
 			// this.socket = SocketService.getInstance;
 			SocketService.getInstance.on('message',
@@ -140,7 +142,7 @@ export default defineComponent({
 						});
 					}
 				});
-				SocketService.getInstance.on('kick', (data: { channelId: number, userId: number, ban: boolean }) => {
+			SocketService.getInstance.on('kick', (data: { channelId: number, userId: number, ban: boolean }) => {
 				const { channelId, userId, ban } = data;
 				if (this.sender.id === userId) {
 					for (let i = 0; i < this.channels.length; i++) {

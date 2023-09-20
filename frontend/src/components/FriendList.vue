@@ -24,7 +24,7 @@ export default defineComponent({
 		await this.fetchBlockList();
 		await this.fetchFriends();
 	},
-	
+
 	methods: {
 		async fetchFriends() {
 			const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/friend/" + this.sender + "/list", { credentials: 'include' });
@@ -45,7 +45,7 @@ export default defineComponent({
 			deep: true,
 		},
 		updateTimestamp: {
-			handler(){
+			handler() {
 				this.print = 0;
 			},
 			deep: true
@@ -70,7 +70,8 @@ export default defineComponent({
 		<BlockListCell v-for="block in blockList" :block=block :myid=sender></BlockListCell>
 	</div>
 	<div v-else class="list_friend">
-		<ProfilCell v-for="friend in friends" :profilObject="friend" :myid=sender :blockList=blockList :print=print></ProfilCell>
+		<ProfilCell v-for="friend in friends" :profilObject="friend" :myid=sender :blockList=blockList :print=print>
+		</ProfilCell>
 	</div>
 </template>
 

@@ -9,10 +9,10 @@ import { SocketService } from '@/services/SocketService';
 
 
 export default {
-	props: ["emoji"],
+	props: ["emoji", "socket"],
 	methods: {
-		test(){
-			SocketService.getInstance.emit('emote', this.emoji);
+		test() {
+			this.socket.emit('emote', this.emoji);
 		}
 	}
 }
@@ -20,8 +20,7 @@ export default {
 </script>
 
 <style>
-
-.emoteContainer{
+.emoteContainer {
 	position: relative;
 	overflow: hidden;
 	background-color: #229EE6;
@@ -35,5 +34,4 @@ export default {
 	background-color: #91CEF2;
 	cursor: pointer;
 }
-
 </style>
