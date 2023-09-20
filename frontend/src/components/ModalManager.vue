@@ -46,7 +46,7 @@ export default {
 
 	data() {
 		return {
-			listView: true,
+			listView: false,
 			showModalFriend: false,
 			showModal: false,
 			showKickModal: false,

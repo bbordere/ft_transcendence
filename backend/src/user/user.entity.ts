@@ -3,6 +3,12 @@ import * as bcrypt from 'bcrypt';
 import { StatsDetail } from '../stats/stats.entity';
 import { Channel } from "src/chat/entities/channel.entity";
 
+export enum State {
+	OFFLINE,
+	ONLINE,
+	INGAME,
+}
+
 @Entity()
 export class User {
 	@PrimaryColumn()
@@ -18,10 +24,7 @@ export class User {
 	@Column({ default: ""})
 	public password: string;
 
-	@Column({ default: true})
-	public isOnline: boolean
-
-	@Column({ default: false})
+	@Column({ default: false })
 	public auth2f: boolean
 
 	@Column({ default: ""})
