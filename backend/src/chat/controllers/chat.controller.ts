@@ -86,4 +86,34 @@ export class ChatController {
 			message: 'admin removed from channel',
 		}
 	}
+
+	@Post('/:userId/:channelId/removePassword')
+	async removePassword(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		try {await this.chatService.removePassword(userId, channelId);}
+		catch (e) {
+			return {
+				ok: false,
+				message: e.message,
+			};
+		}
+		return {
+			ok: true,
+			message: 'Password has been removed.';
+		};
+	}
+
+	@Post('/:userId/:channelId/changePassword')
+	async changePassword(@Param('userId') userId: number, @Param('channelId') channelId: number, @Body('password') password: string) {
+		try {await this.chatService.changePassword(userId, channelId, password);}
+		catch (e) {
+			return {
+				ok: false,
+				message: e.message,
+			};
+		}
+		return {
+			ok: true,
+			message: 'Password has been changed.',
+		};
+	}
 }

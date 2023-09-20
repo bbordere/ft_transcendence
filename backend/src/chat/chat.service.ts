@@ -128,4 +128,36 @@ export class ChatService {
 		channel.admins.splice(channel.admins.indexOf(user), 1);
 		return (await this.channelRepository.save(channel));
 	}
+
+	async removePassword(userId: number, channelId: number) {
+		const user = await this.userRepository.findOne({where: {id: userId}});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+
+		if (!user)
+			throw new Error('Could not find user.');
+		if (!channel)
+			throw new Error("Could not find channel.");
+		if (!channel.protected)
+			throw new Error("Channel is already not protected.");
+		if (user.id !== channel.owner.id)
+			throw new Error('User is not the owner of the channel');
+		channel.protected = false;
+		channel.password = '';
+		return (await this.channelRepository.save(channel));
+	}
+
+	async changePassword(userId: number, channelId: number, password: string) {
+		const user = await this.userRepository.findOne({where: {id: userId}});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+
+		if (!user)
+			throw new Error('Could not find user.');
+		if (!channel)
+			throw new Error("Could not find channel.");
+		if (user.id !== channel.owner.id)
+			throw new Error('User is not the owner of the channel');
+		channel.protected = true;
+		channel.password = await bcrypt.hash(password, 8);
+		return (await this.channelRepository.save(channel));
+	}
 }
