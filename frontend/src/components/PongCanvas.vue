@@ -13,6 +13,7 @@ const TPI = 6.2831853;
 import type { ball } from '@/interfaces/ball.interface'
 import type { gameInfos } from '@/interfaces/gameInfos.interface'
 import type { paddle } from '@/interfaces/paddle.interface'
+import confetti from 'canvas-confetti';
 
 export default {
 	props: ["socket", "playId1", "playId2", "score1", "score2"],
@@ -67,6 +68,31 @@ export default {
 
 		animateEnd(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
 			ctx.clearRect(0,0,canvas.width, canvas.height)
+			var end = Date.now() + (1000 * 3);
+
+			(function frame() {
+				let drift = Math.random() * 5
+			confetti({
+				particleCount: 5,
+				angle: 60,
+				spread: 70,
+				origin: { x: 0 },
+				gravity: 0.8,
+				drift: drift,
+			});
+			confetti({
+				particleCount: 5,
+				angle: 120,
+				spread: 70,
+				origin: { x: 1 },
+				gravity: 0.8,
+				drift: -drift,
+			});
+
+			if (Date.now() < end) {
+				requestAnimationFrame(frame);
+			}
+			}());
 			ctx.drawImage(this.sprites[3], 0, 0);
 			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId1, {credentials: 'include'})
 			.then(res => res.json())
@@ -80,12 +106,13 @@ export default {
 			.then((res) => {this.user2Img.src = res["avatarLink"]
 							this.user2Name = res["name"]})
 			.then(() => {ctx.drawImage(this.user2Img, canvas.width - canvas.width / 3,canvas.height / 3, 200, 200)})
-			.then(() => {ctx.font = "0px poppins";
+			.then(() => {ctx.font = "60px poppins";
 						ctx.fillText(this.user2Name, canvas.width - canvas.width / 4, canvas.height - canvas.height / 5)})
 			ctx.fillStyle = 'white dark'
 			ctx.font = "150px poppins";
 			ctx.textBaseline = "middle";
 			ctx.textAlign = "center";
+
 			let offsetX1;
 			let offsetX2;
 			this.score1 <= 9 ? offsetX1 = 70 : offsetX1 = 105;
@@ -104,6 +131,8 @@ export default {
 				ctx.fillText("Egalité", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 				ctx.fillText("Egalité", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 			}
+
+
 		},
 
 
