@@ -115,10 +115,6 @@ export default defineComponent({
 		}
 	},
 
-	unmounted() {
-		this.socket.disconnect();
-	},
-
 	methods: {
 		init() {
 			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/', {query: {userId: this.sender.id}});
