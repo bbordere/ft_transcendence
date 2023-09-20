@@ -4,6 +4,10 @@ import { Repository } from 'typeorm';
 import { Friend } from './friend.entity';
 import { UserService } from '../user/user.service';
 
+// interface retHandle {
+// 	error: string;
+// }
+
 @Injectable()
 export class FriendService {
 	
