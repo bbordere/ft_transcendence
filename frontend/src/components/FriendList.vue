@@ -8,7 +8,7 @@ export default defineComponent({
 		ProfilCell,
 		BlockListCell
 	},
-	props: ['updateTimestamp'],
+	props: ['updateTimestamp', 'socket'],
 	data() {
 		return {
 			friends: [],
@@ -70,7 +70,7 @@ export default defineComponent({
 		<BlockListCell v-for="block in blockList" :block=block :myid=sender></BlockListCell>
 	</div>
 	<div v-else class="list_friend">
-		<ProfilCell v-for="friend in friends" :profilObject="friend" :myid=sender :blockList=blockList :print=print></ProfilCell>
+		<ProfilCell v-for="friend in friends" :socket='socket' :profilObject="friend" :myid=sender :blockList=blockList :print=print></ProfilCell>
 	</div>
 </template>
 

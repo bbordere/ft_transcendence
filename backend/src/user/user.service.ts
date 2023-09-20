@@ -216,19 +216,4 @@ export class UserService {
 		let user = await this.usersRepository.findOne({where: {id: userId}});
 		return (user.blockList);
 	}
-
-	async getState(userId: number) {
-		const user = await this.usersRepository.findOne({where: {id: userId}});
-		if (!user)
-			return (undefined);
-		return (user.state);
-	}
-
-	async changeState(userId: number, state: number) {
-		const user = await this.usersRepository.findOne({where: {id: userId}});
-		if (!user)
-			return (undefined);
-		user.state = state;
-		return (await this.usersRepository.save(user));
-	}
 }

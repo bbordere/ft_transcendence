@@ -9,8 +9,13 @@ import {
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
-import { UserService } from 'src/user/user.service';
 import { State } from 'src/user/user.entity';
+import { FriendService } from 'src/friend/friend.service';
+
+interface StateInfo {
+	client_socket: Socket;
+	state: State;
+}
 
 @WebSocketGateway({
 	cors: {
@@ -20,10 +25,11 @@ import { State } from 'src/user/user.entity';
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private readonly chatService: ChatService,
-		private readonly userService: UserService,
+		private readonly friendService: FriendService,
 	) {}
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('ChatGateway');
+	private clients: Map<number, StateInfo> = new Map<number, StateInfo>;
 
 	@SubscribeMessage('message')
 	handleMessage(client: Socket, payload: any) {
@@ -34,12 +40,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return (payload);
 	}
 
-	@SubscribeMessage('changeState')
-	handleChangeState(client: Socket, payload: any[]) {
-		client.data.user = payload[0];
-		this.server.emit('changeState', payload[1]);
-		this.userService.changeState(payload[1]['userId'], payload[1]['state']);
-		return (payload);
+	@SubscribeMessage('getStatus')
+	async handleGetStatus(client: Socket, payload: number) {
+		const friends = await this.friendService.getFriendsFromUser(Number(payload));
+		for (let friend of friends) {
+			const user = this.clients.get(payload);
+			if (!user)
+				this.clients.get(friend)?.client_socket.emit('getStatus', {userId: payload, state: State.OFFLINE});
+			else
+				this.clients.get(friend)?.client_socket.emit('getStatus', {userId: payload, state: user.state});
+		}
 	}
 
 	@SubscribeMessage('kick')
@@ -50,7 +60,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('changeAdmin')
 	handleChangeAdmin(client: Socket, payload: any) {
-		this.server.emit('changeAdmin', payload[1]);
+		this.server.emit('changeAdmin', payload);
 		return (payload);
 	}
 
@@ -59,12 +69,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleDisconnect(client: Socket) {
-		this.server.emit('changeState', State.OFFLINE);
-		await this.userService.changeState(client.data.user, State.OFFLINE);
+		// this.clients.set(client.data.userId, {client_socket: client, state: State.OFFLINE});
+		this.clients.delete(client.data.userId);
+		await this.handleGetStatus(client, client.data.userId);
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 
-	handleConnection(client: Socket, ...args: any[]) {
+	async handleConnection(client: Socket, ...args: any[]) {
+		client.data.userId = Number(client.handshake.query['userId']);
+		this.clients.set(client.data.userId, {client_socket: client, state: State.ONLINE});
+		await this.handleGetStatus(client, client.data.userId);
 		this.logger.log(`Client connected: ${client.id}`);
 	}
 }

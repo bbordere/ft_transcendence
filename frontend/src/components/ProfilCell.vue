@@ -3,10 +3,11 @@ import { defineComponent, resolveDirective } from 'vue';
 import Hamburger from '../components/Hamburger.vue'
 import Invite from '../components/Invite.vue'
 import router from '@/router';
+import { State } from '@/views/Home.vue';
 
 
 export default defineComponent({
-		props: ["profilObject", "myid", "blockList", "print"],
+		props: ["profilObject", "myid", "blockList", "print", 'socket'],
 	components: {
 		Hamburger,
 		Invite,
@@ -21,7 +22,7 @@ export default defineComponent({
 			friendId: this.profilObject.FriendId as number,
 			modalHamburger: false,
 			modalInvite: false,
-			borderColor: "green" as string,
+			borderColor: "grey" as string,
 			dataLoaded: false,
 			stateId: -1,
 			state: -1,
@@ -97,6 +98,7 @@ export default defineComponent({
 	},
 
 	async mounted() {
+		// JULO BORDEL !!!!!!!!!!!
 		if (this.profilObject.UserId === this.myid) {
 			await this.userInfo(this.profilObject.FriendId);
 		}
@@ -107,6 +109,18 @@ export default defineComponent({
 		}
 		await this.friendInfo();
 		this.dataLoaded = true;
+		this.socket.emit('getStatus', this.friendId);
+		this.socket.on('getStatus', (data: {userId: number, state: State}) => {
+			const {userId, state} = data;
+			if (userId === this.friendId) {
+				if (state === State.OFFLINE)
+					this.borderColor = 'grey';
+				else if (state === State.ONLINE)
+					this.borderColor = 'green';
+				else if (state === State.INGAME)
+					this.borderColor = 'cyan';
+			}
+		});
 	}
 });
 

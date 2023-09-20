@@ -15,7 +15,4 @@ export class Friend {
 
 	@Column( { default: 'pending'})
 	public Status: string;
-
-	// @Column({default: State.OFFLINE})
-	// public State: State;
 };

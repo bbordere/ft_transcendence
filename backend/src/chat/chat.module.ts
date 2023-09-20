@@ -8,11 +8,12 @@ import { ChatService } from './chat.service';
 import { MessageController } from './controllers/message.controller';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
-import { AuthService } from 'src/auth/auth.service';
+import { FriendService } from 'src/friend/friend.service';
+import { Friend } from 'src/friend/friend.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Channel, Message, User])],
-  providers: [ChatGateway, ChatService, UserService],
+  imports: [TypeOrmModule.forFeature([Channel, Message, User, Friend])],
+  providers: [ChatGateway, ChatService, UserService, FriendService],
   controllers: [MessageController, ChatController],
   exports: [ChatService],
 })

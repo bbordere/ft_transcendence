@@ -52,7 +52,7 @@ interface Channel {
 	protected: boolean,
 }
 
-enum State {
+export enum State {
 	OFFLINE,
 	ONLINE,
 	INGAME,
@@ -121,19 +121,7 @@ export default defineComponent({
 
 	methods: {
 		init() {
-			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/');
-			this.socket.on('connect', () => {
-				this.socket.emit('changeState', this.sender.id, {
-					userId: this.sender.id,
-					state: State.ONLINE,
-				});
-			});
-			this.socket.on('disconnect', () => {
-				this.socket.emit('changeState', {
-					userId: this.sender.id,
-					state: State.OFFLINE,
-				});
-			});
+			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/', {query: {userId: this.sender.id}});
 			this.socket.on('message',
 				(data: {
 					channelId: number,

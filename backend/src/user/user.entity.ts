@@ -24,9 +24,6 @@ export class User {
 	@Column({ default: ""})
 	public password: string;
 
-	@Column({ default: State.OFFLINE })
-	public state: State;
-
 	@Column({ default: false })
 	public auth2f: boolean
 
