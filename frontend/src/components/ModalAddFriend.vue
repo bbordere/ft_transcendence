@@ -1,4 +1,7 @@
 <script lang="ts">
+
+import { useNotification } from "@kyvg/vue3-notification";
+
 export default {
 	props: {
 		show: Boolean
@@ -7,6 +10,7 @@ export default {
 		return {
 			username: '' as string,
 			sender: -1 as number,
+			textNotif: '' as string,
 		}
 	},
 	methods: {
@@ -23,10 +27,34 @@ export default {
 					sender: this.sender,
 				})
 			})
+			const ret = await response.json();
+			if (ret.length() == 0)
+				this.addFriendNotif("Demande d'ami envoyé", "sucess");
+			else
+				this.addFriendNotif(ret["datawefw"], "error");
+		},
+
+		addFriendNotif (text: string, status: string) {
+			const notification = useNotification()
+			notification.notify({
+				title: text,
+				text: text,
+				type: status,
+				group: 'notif-center'
+			});
 		}
 	}
 }
 </script>
+
+<!-- getInfos(){
+	fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' })
+	.then(res => res.json())
+	.then((data) => {
+		this.name = data["name"];
+		this.avatar = data["avatarLink"];
+	})
+}, -->
 
 <template>
 	<Transition name="slide-fade" mode="out-in">
