@@ -21,7 +21,7 @@ export class PongController {
 		const statusObject = await this.roomService.hasDisconnect(user["email"]);
 		const room: Room = await this.roomService.getRoomById(statusObject["roomId"]);
 		if (room)
-			return {disconnect: statusObject["status"], mode: room.mode};
+			return {disconnect: statusObject["status"], mode: room.mode, id: room.id};
 		else
 			return {disconnect: false, mode: -1};
 	}

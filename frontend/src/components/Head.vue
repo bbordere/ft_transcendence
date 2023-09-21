@@ -107,7 +107,7 @@ export default defineComponent({
 .profile::before{
 	content: "";
 	z-index: 1;
-	background-color: #a5d6e9e0;
+	background-color: #97d4ece0;
 	width: 0;
 	height: 9vh;
 	position: absolute;

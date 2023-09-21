@@ -102,8 +102,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async sendPongInvite(client: Socket, payload: any) {
 		if (this.invites.get(payload[1]) || this.invites.get(payload[0]) || !client.data.canInvite)
 			return;
-		this.clients.get(payload[0]).client_socket.emit('displayInvite', true, payload[2], payload[3]);
-		this.clients.get(payload[1]).client_socket.emit('displayInvite', false, payload[2], payload[3]);
+		this.clients.get(payload[0])?.client_socket.emit('displayInvite', true, payload[2], payload[3]);
+		this.clients.get(payload[1])?.client_socket.emit('displayInvite', false, payload[2], payload[3]);
 		this.invites.set(payload[1], { userId: payload[0], mode: payload[3] });
 		client.data.canInvite = false;
 	}

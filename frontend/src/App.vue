@@ -19,6 +19,11 @@
 		</div>
 		<notifications position="top center" group="notif-center" max="2" />
 		<notifications position="top right" group="friend" />
+
+		<!-- <SlidingDiag></SlidingDiag> -->
+		<FloatingSquares></FloatingSquares>
+
+
 		<router-view v-slot="{ Component }" appear>
 			<transition name="grow-in" mode="out-in">
 				<Component :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady" />
@@ -33,6 +38,9 @@ import { ref } from 'vue'
 import Head from './components/Head.vue';
 import { SocketService } from './services/SocketService';
 import router from '@/router';
+
+import SlidingDiag from './components/SlidingDiag.vue';
+import FloatingSquares from './components/FloatingSquares.vue';
 
 
 const timestampRef = ref()
@@ -121,12 +129,12 @@ body {
 	//   animation: AnimationName 10s linear infinite reverse;
 	overflow: scroll;
 
-	background: linear-gradient(125deg, #c4e8f6e0, #509ac9e0, #2a8cd8e0, );
-	background-size: 600% 600%;
-	-webkit-animation: AnimationName 10s ease infinite;
-	-moz-animation: AnimationName 10s ease infinite;
-	-o-animation: AnimationName 10s ease infinite;
-	animation: AnimationName 10s ease infinite;
+	// background: linear-gradient(125deg, #c4e8f6aa, #509ac9aa, #2a8cd8aa, );
+	// background-size: 600% 600%;
+	// -webkit-animation: AnimationName 10s ease infinite;
+	// -moz-animation: AnimationName 10s ease infinite;
+	// -o-animation: AnimationName 10s ease infinite;
+	// animation: AnimationName 10s ease infinite;
 
 
 }
@@ -206,7 +214,7 @@ body::-webkit-scrollbar {
 //   }
 // }
 
-.grow-in-enter-from {
+.grow-in-enter-from, .grow-in-leave-to {
 	opacity: 0;
 	transform: scale(0.3);
 }
