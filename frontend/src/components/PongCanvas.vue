@@ -23,6 +23,8 @@ export default {
 			ball: { speed: -1 } as ball,
 			user1Img: new Image,
 			user2Img: new Image,
+			user1Id: 0,
+			user2Id: 0,
 			user1Name: "",
 			user2Name: "",
 			pad1: {} as paddle,
@@ -32,6 +34,8 @@ export default {
 			angle: 0,
 			offsetX: 0,
 			isInGame: false,
+			confettiId: -1,
+			discoUserId: -1,
 		}
 	},
 	methods: {
@@ -64,11 +68,8 @@ export default {
 			ctx.drawImage(this.sprites[6], this.offsetX, offsetY - canvas.height / 6);
 		},
 
-		animateEnd(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
-			ctx.clearRect(0,0,canvas.width, canvas.height)
-			var end = Date.now() + (1000 * 3);
 
-			(function frame() {
+		confettiEffect(end: number) {
 				let drift = Math.random() * 5
 			confetti({
 				particleCount: 5,
@@ -88,24 +89,11 @@ export default {
 			});
 
 			if (Date.now() < end) {
-				requestAnimationFrame(frame);
+				this.confettiId = requestAnimationFrame(() => {this.confettiEffect(end)});
 			}
-			}());
-			ctx.drawImage(this.sprites[3], 0, 0);
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId1, {credentials: 'include'})
-			.then(res => res.json())
-			.then((res) => {this.user1Img.src = res["avatarLink"]
-							this.user1Name = res["name"]})
-			.then(() => {ctx.drawImage(this.user1Img, canvas.width / 6, canvas.height / 3, 200, 200)})
-			.then(() => {ctx.font = "60px poppins";
-						ctx.fillText(this.user1Name, canvas.width / 4, canvas.height - canvas.height / 5)})
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId2, {credentials: 'include'})
-			.then(res => res.json())
-			.then((res) => {this.user2Img.src = res["avatarLink"]
-							this.user2Name = res["name"]})
-			.then(() => {ctx.drawImage(this.user2Img, canvas.width - canvas.width / 3,canvas.height / 3, 200, 200)})
-			.then(() => {ctx.font = "60px poppins";
-						ctx.fillText(this.user2Name, canvas.width - canvas.width / 4, canvas.height - canvas.height / 5)})
+			},
+
+		drawEndPage(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
 			ctx.fillStyle = 'white dark'
 			ctx.font = "150px poppins";
 			ctx.textBaseline = "middle";
@@ -119,18 +107,52 @@ export default {
 			ctx.fillText(this.score2, canvas.width - offsetX2, canvas.height / 2 + canvas.height / 20);
 			ctx.fillText(this.user1Name, canvas.width / 4, canvas.height - canvas.height / 6)
 			ctx.font = "100px poppins";
-			if (this.score1 > this.score2) {
+			console.log(this.user1Id, this.user2Id);
+			if (this.score1 > this.score2 && this.discoUserId === -1) {
 				ctx.fillText("Victoire", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 				ctx.fillText("Défaite", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-			} else if (this.score2 > this.score1) {
+			} else if (this.score2 > this.score1 && this.discoUserId === -1) {
 				ctx.fillText("Défaite", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 				ctx.fillText("Victoire", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-			} else {
+			} else if (this.discoUserId === -1) {
 				ctx.fillText("Egalité", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 				ctx.fillText("Egalité", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 			}
 
+		},
 
+		animateEnd(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+			ctx.clearRect(0,0,canvas.width, canvas.height)
+			ctx.drawImage(this.sprites[3], 0, 0);
+			var end = Date.now() + (1000 * 5);
+			this.confettiEffect(end);
+
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId1, {credentials: 'include'})
+			.then(res => res.json())
+			.then((res) => {this.user1Id = res["id"]
+							this.user1Name = res["name"]
+							this.user1Img.src = res["avatarLink"]
+							if (this.user1Id === this.discoUserId) {
+								ctx.fillText("DNF", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+								ctx.fillText("Victoire", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+							}})
+			.then(() => {ctx.drawImage(this.user1Img, canvas.width / 6, canvas.height / 3, 200, 200)})
+			.then(() => {ctx.font = "60px poppins";
+						ctx.fillText(this.user1Name, canvas.width / 4, canvas.height - canvas.height / 5)})
+			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId2, {credentials: 'include'})
+			.then(res => res.json())
+			.then((res) => {this.user2Id = res["id"]
+							this.user2Name = res["name"]
+							this.user2Img.src = res["avatarLink"]
+							if (this.user2Id === this.discoUserId) {
+								ctx.fillText("Victoire", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+								ctx.fillText("DNF", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+							}})
+			.then(() => {ctx.drawImage(this.user2Img, canvas.width - canvas.width / 3,canvas.height / 3, 200, 200)})
+			.then(() => {ctx.font = "60px poppins";
+						ctx.fillText(this.user2Name, canvas.width - canvas.width / 4, canvas.height - canvas.height / 5)})
+			
+			this.drawEndPage(ctx, canvas);
 		},
 
 
@@ -246,13 +268,17 @@ export default {
 				requestAnimationFrame(() => { this.animateEnd(ctx, canvas) })
 			}
 		});
+
+		this.socket.on('userDisco', (id: string) =>{
+			this.discoUserId = parseInt(id);
+		})
 	},
 	unmounted() {
 		if (this.animId !== -1)
 			cancelAnimationFrame(this.animId);
+			cancelAnimationFrame(this.confettiId)
 	},
 }
-
 </script>
 
 <style>

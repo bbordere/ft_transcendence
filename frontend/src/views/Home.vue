@@ -104,9 +104,9 @@ export default defineComponent({
 		this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
-		setInterval(() => {
-			fetch('http://' + import.meta.env.VITE_HOST + ':3000/auth/refresh', { credentials: 'include', method: 'POST' })
-		}, 1000 * 60 * 10);
+		// setInterval(() => {
+		// 	fetch('http://' + import.meta.env.VITE_HOST + ':3000/auth/refresh', { credentials: 'include', method: 'POST' })
+		// }, 1000 * 60 * 10);
 	},
 
 	updated() {

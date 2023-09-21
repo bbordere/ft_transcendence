@@ -24,7 +24,7 @@
 					</div>
 
 					<div class="forgive_button">
-						<router-link to="/">
+						<router-link to="/" draggable="false">
 							<button id="exit_button" role="link">Quitter la partie</button>
 						</router-link>
 					</div>
@@ -139,7 +139,7 @@ export default {
 			this.$router.push('notfound');
 			return;
 		}
-		this.timer = mode === "ranked" ? "00:00" : "03:00";
+		this.timer = mode === "ranked" ? "00:00" : "01:00";
 
 		this.myUser = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' })).json()
 		if (!SocketService.getStatus) {
@@ -269,7 +269,7 @@ export default {
 	margin-right: 1vw;
 	border-radius: 40px;
 	border-color: #229EE6;
-	font-family: "Poppins", sans-serif
+	font-family: "Poppins", sans-serif;
 }
 
 #exit_button:hover {
@@ -288,6 +288,7 @@ export default {
 	width: 100%;
 	justify-content: center;
 	gap: 20%;
+	padding-bottom: 20px;
 	font-size: 3em;
 	margin-top: -35px;
 	margin-bottom: 5px;
