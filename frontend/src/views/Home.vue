@@ -20,7 +20,7 @@
 <script lang="ts">
 import ModalAdd from '../components/ModalAdd.vue'
 import ModalAddFriend from '../components/ModalAddFriend.vue'
-import { defineComponent, setTransitionHooks } from 'vue';
+import { defineComponent } from 'vue';
 import { useNotification } from "@kyvg/vue3-notification";
 import PlayModal from '@/components/PlayModal.vue';
 import ChannelList from '../components/ChannelList.vue';
@@ -49,7 +49,7 @@ interface Channel {
 	name: string;
 	admin: number;
 	messages: Message[],
-	protected: boolean, instance
+	protected: boolean,
 }
 
 export enum State {
@@ -86,7 +86,8 @@ export default defineComponent({
 	},
 
 	async mounted() {
-		SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE);
+		if (SocketService.getStatus)
+			SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE);
 		this.ModalManagerData = this.$refs['ModalManager'];
 		const user = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json()
 		this.sender.id = user['id'];

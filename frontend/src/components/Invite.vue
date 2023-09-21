@@ -1,6 +1,5 @@
 <script lang="ts">
 
-import { Socket } from 'socket.io-client';
 import BlueButton from './BlueButton.vue';
 import { SocketService } from '@/services/SocketService';
 
@@ -9,7 +8,7 @@ export default {
 		BlueButton,
 	},
 
-	props: ["myId", "friendId", "show", "senderName"],
+	props: ["myId", "friendId", "show"],
 	// props: {
 	// 	myId: Number,
 	// 	friendId: Number,
@@ -20,7 +19,7 @@ export default {
 	methods: {
 		goToPong(mode: string) {
 			SocketService.getInstance.emit('pongInvite', this.myId, this.friendId,
-				this.senderName, mode);
+				SocketService.getUser.name, mode);
 			this.$emit('close');
 			// this.$router.push({ path: '/pong', query: { mode: mode, id: this.myId}});
 		}

@@ -71,11 +71,10 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 2%;
+	gap: 1%;
 	height: 7%;
 	padding-left: 3px;
 	width: 97%;
-
 }
 
 .add_friend .spe {
@@ -83,8 +82,8 @@ export default {
 	align-items: center;
 	justify-content: center;
 	color: white;
-	background-color: black;
-	height: 80%;
+	background-color: #046280;
+	height: 90%;
 	flex-shrink: 0;
 	width: 37%;
 	overflow: hidden;
@@ -94,6 +93,6 @@ export default {
 }
 
 .spe:hover {
-	background-color: rgb(6, 56, 56);
+	background-color: #032f3d;
 }
 </style>
