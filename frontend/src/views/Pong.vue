@@ -142,9 +142,6 @@ export default {
 		this.timer = mode === "ranked" ? "00:00" : "03:00";
 
 		this.myUser = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' })).json()
-		if (!SocketService.getStatus) {
-			SocketService.setSocket('http://' + import.meta.env.VITE_HOST + ':3000/', { query: { userId: this.myUser["id"] } });
-		}
 		SocketService.getInstance.emit('setStatus', this.myUser["id"], State.INGAME);
 
 		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong", { query: { userId: this.myUser["id"] } }); //CHANGE TO GET ID

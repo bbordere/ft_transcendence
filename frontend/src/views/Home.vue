@@ -86,6 +86,7 @@ export default defineComponent({
 	},
 
 	async mounted() {
+		SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE);
 		this.ModalManagerData = this.$refs['ModalManager'];
 		const user = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json()
 		this.sender.id = user['id'];
@@ -101,12 +102,12 @@ export default defineComponent({
 				protected: channels_json[i]['protected'],
 			});
 		}
-		this.init();
+		await this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
-		setInterval(() => {
-			fetch('http://' + import.meta.env.VITE_HOST + ':3000/auth/refresh', { credentials: 'include', method: 'POST' })
-		}, 1000 * 60 * 10);
+		// setInterval(() => {
+		// 	fetch('http://' + import.meta.env.VITE_HOST + ':3000/auth/refresh', { credentials: 'include', method: 'POST' })
+		// }, 1000 * 60 * 10);
 	},
 
 	updated() {
@@ -118,8 +119,7 @@ export default defineComponent({
 	},
 
 	methods: {
-		init() {
-			SocketService.setSocket('http://' + import.meta.env.VITE_HOST + ':3000/', { query: { userId: this.sender.id } });
+		async init() {
 			this.$emit('socketReady');
 			// this.socket = SocketService.getInstance;
 			SocketService.getInstance.on('message',

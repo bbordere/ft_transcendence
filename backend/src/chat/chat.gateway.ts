@@ -27,6 +27,7 @@ interface InviteInfo {
 		origin: true,
 	}
 })
+
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private readonly chatService: ChatService,

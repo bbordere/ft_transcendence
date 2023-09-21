@@ -1,5 +1,6 @@
 <script lang="ts">
 import router from '@/router';
+import { SocketService } from '@/services/SocketService';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -13,13 +14,11 @@ export default defineComponent({
 	props: ["updateTimestamp"],
 
 	methods: {
-		getInfos(){
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' })
-			.then(res => res.json())
-			.then((data) => {
-				this.name = data["name"];
-				this.avatar = data["avatarLink"];
-			})
+		async getInfos(){
+			await SocketService.fetchUser();
+			this.name = SocketService.getUser["name"];
+			this.avatar = SocketService.getUser["avatarLink"];
+			await SocketService.setSocket('http://' + import.meta.env.VITE_HOST + ':3000/', { query: { userId: SocketService.getUser.id } });
 		},
 		redirectToHome(){
 			router.push('/home')
@@ -27,13 +26,13 @@ export default defineComponent({
 	},
 
 	watch: {
-		updateTimestamp() {
-			this.getInfos();
+		async updateTimestamp() {
+			await this.getInfos();
 		}
 	},
 
-	mounted() {
-		this.getInfos();
+	async mounted() {
+		await this.getInfos();
 	},
 })
 </script>
