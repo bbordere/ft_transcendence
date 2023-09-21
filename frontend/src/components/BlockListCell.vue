@@ -4,12 +4,10 @@ import router from '@/router';
 
 
 export default defineComponent({
-		props: ["block", "myid"],
+		props: ["block", "myId"],
 	data() {
 		return {
 			friendUsername: "" as string,
-			userId: this.myid,
-			friendId: this.block,
 		}
 	},
 	methods: {
@@ -30,14 +28,14 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					userId: this.userId,
-					unblockId: this.friendId,
+					userId: this.myId,
+					unblockId: this.block,
 				}),
 			});
 		},
 
 		async friendInfo() {
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + this.friendId,{ 
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + this.block,{ 
 				credentials: 'include'
 			});
 			const userData = await response.json();
@@ -55,7 +53,7 @@ export default defineComponent({
 <template>
 	<div class="box">
 		<div class="img_user">
-			<img class="img_user_profil" :src="getAvatarUrl(friendId)" @click="redirecToProfil(friendUsername)">
+			<img class="img_user_profil" :src="getAvatarUrl(block)" @click="redirecToProfil(friendUsername)">
 		</div>
 		<div class="name">
 			{{ friendUsername }}

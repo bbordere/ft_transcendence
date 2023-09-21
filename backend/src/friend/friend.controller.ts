@@ -2,7 +2,6 @@ import { Controller, Post, Body, Delete, Get, Query, Patch, Param } from '@nestj
 import { FriendService } from './friend.service';
 import { friendDto } from './dtos/friend.dto';
 
-
 @Controller('friend')
 export class FriendController {
 	constructor(private friendService: FriendService) {}

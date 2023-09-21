@@ -3,9 +3,11 @@ import { defineComponent } from 'vue';
 import ProfilCell from './ProfilCell.vue';
 import BlockListCell from './BlockListCell.vue';
 
-interface friendTab {
-	userId: number;
+export interface friendTab {
+	id: number;
 	status: string;
+	username: string;
+	request: number;
 }
 
 export default defineComponent({
@@ -13,7 +15,7 @@ export default defineComponent({
 		ProfilCell,
 		BlockListCell
 	},
-	props: ['updateTimestamp', 'socket'],
+	props: ['updateTimestamp', 'socket', 'colorOn'],
 	data() {
 		return {
 			friends: [] as friendTab[],
@@ -72,14 +74,15 @@ export default defineComponent({
 		<button class="tri" @click="print = 2;">Bloqué</button>
 	</div>
 	<div v-if="print === 2" class="list_friend">
-		<BlockListCell v-for="block in blockList" :block=block :myid=sender></BlockListCell>
+		<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
 	</div>
 	<div v-else class="list_friend">
-		<ProfilCell v-for="friend in friends" :socket='socket' :profilObject="friend" :myid=sender :blockList=blockList :print=print></ProfilCell>
+		<ProfilCell v-for="friend in friends" :socket='socket' :friend="friend" :myId=sender :blockList=blockList :print=print></ProfilCell>
 	</div>
 </template>
 
 <style>
+
 .list_friend {
 	display: flex;
 	align-items: center;
@@ -93,8 +96,8 @@ export default defineComponent({
 	align-items: center;
 	justify-content: center;
 	color: white;
-	background-color: black;
-	height: 70%;
+	background-color: #046280;
+	height: 65%;
 	flex-shrink: 0;
 	width: 45%;
 	overflow: hidden;
@@ -104,6 +107,6 @@ export default defineComponent({
 }
 
 .tri:hover {
-	background-color: rgb(6, 56, 56);
+	background-color: #032f3d;
 }
 </style>

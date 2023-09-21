@@ -5,8 +5,10 @@ import { Friend } from './friend.entity';
 import { UserService } from '../user/user.service';
 
 export interface friendTab {
-	userId: number;
+	id: number;
 	status: string;
+	username: string;
+	request: number;
 }
 
 @Injectable()
@@ -96,15 +98,21 @@ export class FriendService {
 				{ FriendId: id },
 			]
 		});
+		let friendId: number;
 		const friends: friendTab[] = [];
-
 		for (let friendship of friendships) {
+			if (friendship.UserId == id)
+				friendId = friendship.FriendId;
+			else
+				friendId = friendship.UserId;
 			const friend: friendTab = {
-				userId: friendship.UserId === id ? friendship.FriendId : friendship.UserId,
+				id: friendId,
 				status: friendship.Status,
+				username: (await this.userService.getById(friendId)).name,
+				request: friendship.UserId,
 			};
 			friends.push(friend);
 		}
-		return (friends);
+		return friends;
 	}
 }

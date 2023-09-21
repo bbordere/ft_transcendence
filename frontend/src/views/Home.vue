@@ -7,7 +7,7 @@
 					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel" @kick="notifyKick"
 						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
-						:selectedChannel="selectedChannel" @showChannel="showChannel" />
+						:selectedChannel="selectedChannel" :colorOn="ModalManagerData.listView" @showChannel="showChannel"/>
 					<FriendList v-else :socket="socket" :updateTimestamp="updateTimestamp"/>
 				</div>
 			</div>
