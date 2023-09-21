@@ -10,10 +10,7 @@ export class FriendController {
 	@Post('/add')
 	async addFriend(@Body() friendDto: friendDto) {
 		const ret = await this.friendService.addFriend(friendDto.username, friendDto.sender);
-		if (ret instanceof Friend)
-			console.log("OUI");
-		else
-			console.log(ret);
+		ret instanceof Friend ? console.log("OUI") : console.log(ret);
 	}
 
 	@Patch('/accept')

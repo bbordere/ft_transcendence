@@ -1,9 +1,7 @@
 <template>
-
 	<div class="pong_screen">
 		<canvas id="pongCanvas" width="1200" height="600"></canvas>
 	</div>
-
 </template>
 
 <script lang="ts">
@@ -22,13 +20,13 @@ export default {
 		return {
 			sprites: [] as Array<HTMLImageElement>,
 			animId: -1,
-			ball: {speed: -1} as ball,
+			ball: { speed: -1 } as ball,
 			user1Img: new Image,
 			user2Img: new Image,
 			user1Name: "",
 			user2Name: "",
-			pad1: {} as paddle, 
-			pad2: {} as paddle, 
+			pad1: {} as paddle,
+			pad2: {} as paddle,
 			gameInfos: {} as gameInfos,
 			lastUpdate: -1 as number,
 			angle: 0,
@@ -38,10 +36,10 @@ export default {
 	},
 	methods: {
 		async loadImage(path: string): Promise<HTMLImageElement> {
-  			return new Promise(r => { let i = new Image(); i.onload = (() => r(i)); i.src = path; });
+			return new Promise(r => { let i = new Image(); i.onload = (() => r(i)); i.src = path; });
 		},
 
-		async spritesInit(){
+		async spritesInit() {
 			this.sprites.push(await this.loadImage("/powerups/big_pad.png"));
 			this.sprites.push(await this.loadImage("/powerups/lil_pad.png"));
 			this.sprites.push(await this.loadImage("/powerups/speed.png"));
@@ -52,19 +50,19 @@ export default {
 		},
 
 		animate(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
-			this.animId = requestAnimationFrame(() => {this.animate(ctx, canvas)});
+			this.animId = requestAnimationFrame(() => { this.animate(ctx, canvas) });
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(this.sprites[5], 0, 0, canvas.width, canvas.height);
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.drawImage(this.sprites[5], 0, 0, canvas.width, canvas.height);
 
 			this.angle += 0.02;
 			this.offsetX += 1;
-            let offsetY = canvas.height / 2 + Math.sin(this.angle) * 20;
+			let offsetY = canvas.height / 2 + Math.sin(this.angle) * 20;
 			if (this.offsetX > canvas.width - this.sprites[6].width / 8) {
-                this.offsetX = -this.sprites[6].width;
-            }
-            ctx.drawImage(this.sprites[6], this.offsetX, offsetY - canvas.height/6);
-        },
+				this.offsetX = -this.sprites[6].width;
+			}
+			ctx.drawImage(this.sprites[6], this.offsetX, offsetY - canvas.height / 6);
+		},
 
 		animateEnd(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
 			ctx.clearRect(0,0,canvas.width, canvas.height)
@@ -144,7 +142,7 @@ export default {
 			ctx.closePath();
 		},
 
-		drawText(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, text: string){
+		drawText(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, text: string) {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.font = "200px serif";
 			ctx.fillText(text, 50, canvas.height / 2);
@@ -162,22 +160,22 @@ export default {
 			ctx.closePath();
 		},
 
-		drawPowerups(ctx: CanvasRenderingContext2D){
+		drawPowerups(ctx: CanvasRenderingContext2D) {
 			if (!this.gameInfos.powerups)
 				return;
-			for (var item of this.gameInfos.powerups as any[]){
+			for (var item of this.gameInfos.powerups as any[]) {
 				ctx.drawImage(this.sprites[item.effect], item.pos.x, item.pos.y, item.radius, item.radius);
 			}
 		},
 
-		draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, time: number){
-			this.animId = requestAnimationFrame((current) => {this.draw(ctx, canvas, current)});
-			if (this.lastUpdate === -1){
+		draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, time: number) {
+			if (this.lastUpdate === -1) {
 				this.lastUpdate = time;
 			}
+			// console.log(time - this.lastUpdate);
 			this.lastUpdate = time;
-			if (Object.keys(this.gameInfos).length){
-				if (this.ball.speed === -1){
+			if (Object.keys(this.gameInfos).length) {
+				if (this.ball.speed === -1) {
 					this.ball = this.gameInfos.ball;
 					this.pad1 = this.gameInfos.pad1;
 					this.pad2 = this.gameInfos.pad2;
@@ -200,9 +198,9 @@ export default {
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.drawImage(this.sprites[3], 0, 0);
 				ctx.drawImage(this.sprites[4], this.pad1.pos.x, this.pad1.pos.y,
-								pad1.width, pad1.size);
-				ctx.drawImage(this.sprites[4], this.pad2.pos.x, this.pad2.pos.y, 
-				 				pad2.width, pad2.size);
+					pad1.width, pad1.size);
+				ctx.drawImage(this.sprites[4], this.pad2.pos.x, this.pad2.pos.y,
+					pad2.width, pad2.size);
 
 				// this.drawRect(ctx, this.pad1.pos.x, this.pad1.pos.y, 
 				// 				pad1.width, pad1.size, "#5151510F");
@@ -213,11 +211,12 @@ export default {
 					this.ball.radius, this.ball.speed === 30 ? "#F44E1A" : "#515151");
 
 				this.drawPowerups(ctx);
+				this.animId = requestAnimationFrame((current) => { this.draw(ctx, canvas, current) });
 			}
 		},
 	},
 	async mounted() {
-		const canvas = <HTMLCanvasElement> document.getElementById('pongCanvas');
+		const canvas = <HTMLCanvasElement>document.getElementById('pongCanvas');
 		if (!canvas)
 			return; // ERROR HANDLING
 		const ctx = canvas.getContext('2d');
@@ -226,14 +225,14 @@ export default {
 
 		await this.spritesInit();
 		this.socket.on('updateGame', (ball: ball, racket1: paddle, racket2: paddle, powerups: []) => {
-			this.gameInfos = {ball: ball, pad1: racket1, pad2: racket2, powerups: powerups};
-			if (this.animId === -1 || !this.isInGame){
+			this.gameInfos = { ball: ball, pad1: racket1, pad2: racket2, powerups: powerups };
+			if (this.animId === -1 || !this.isInGame) {
 				if (this.animId !== -1)
 					cancelAnimationFrame(this.animId);
 				this.isInGame = true;
-				this.animId = requestAnimationFrame((current) => {this.draw(ctx, canvas, current)});
+				this.animId = requestAnimationFrame((current) => { this.draw(ctx, canvas, current) });
 			}
-			
+
 		});
 
 		this.socket.on('text', (data: string) => {
@@ -242,13 +241,13 @@ export default {
 			this.animId = -1;
 			var x = 0;
 			if (data === "QUEUEING" || data === "WAITING") {
-				this.animId = requestAnimationFrame(() => {this.animate(ctx, canvas)});
+				this.animId = requestAnimationFrame(() => { this.animate(ctx, canvas) });
 			} else if (data === "FINISHED") {
-				requestAnimationFrame(() => {this.animateEnd(ctx, canvas)})
+				requestAnimationFrame(() => { this.animateEnd(ctx, canvas) })
 			}
 		});
 	},
-	unmounted(){
+	unmounted() {
 		if (this.animId !== -1)
 			cancelAnimationFrame(this.animId);
 	},
@@ -257,7 +256,6 @@ export default {
 </script>
 
 <style>
-
 .pong_screen {
 	margin-top: -6px;
 	max-width: 100%;
@@ -267,9 +265,9 @@ export default {
 	border-radius: 20px;
 	overflow: hidden;
 }
+
 #pongCanvas {
 	width: 100%;
 	height: 100%;
 }
-
 </style>

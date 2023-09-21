@@ -1,4 +1,5 @@
 import { Column, Entity, Generated, PrimaryColumn } from "typeorm";
+import { State } from "src/user/user.entity";
 
 @Entity()
 export class Friend {
@@ -14,5 +15,4 @@ export class Friend {
 
 	@Column( { default: 'pending'})
 	public Status: string;
-
 };

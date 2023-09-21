@@ -6,14 +6,15 @@
 			</div>
 			<div class="middle_column">
 				<div class="timer">
-					<label>{{timer}}</label>
+					<label>{{ timer }}</label>
 				</div>
 				<div class="scores">
-					<span id="score1">{{score1}}</span>
+					<span id="score1">{{ score1 }}</span>
 					-
-					<span id="score1">{{score2}}</span>
+					<span id="score1">{{ score2 }}</span>
 				</div>
-				<PongCanvas v-if="dataLoaded" :socket="this.socket" :playId1="this.player1Id" :playId2="this.player2Id" :score1="score1" :score2="score2"/>
+				<PongCanvas v-if="dataLoaded" :socket="this.socket" :playId1="this.player1Id" :playId2="this.player2Id"
+					:score1="score1" :score2="score2" />
 				<div class="button_panel">
 					<div class="reaction_panel">
 						<EmoteButton emoji="🤣" :socket="socket"></EmoteButton>
@@ -30,7 +31,8 @@
 				</div>
 			</div>
 			<div class="right_column">
-				<PongPlayerCard v-if="dataLoaded && player2Id.length !== 0" :id="player2Id" side="1" :emote="emote2.emoji"></PongPlayerCard>
+				<PongPlayerCard v-if="dataLoaded && player2Id.length !== 0" :id="player2Id" side="1" :emote="emote2.emoji">
+				</PongPlayerCard>
 			</div>
 		</div>
 	</div>
@@ -43,8 +45,10 @@ import { useRoute } from 'vue-router';
 import PongPlayerCard from '@/components/PongPlayerCard.vue';
 import EmoteButton from '@/components/EmoteButton.vue'
 import PongCanvas from '@/components/PongCanvas.vue'
+import { SocketService } from '@/services/SocketService';
+import { State } from './Home.vue';
 
-interface emote{
+interface emote {
 	emoji: string,
 	changed: Boolean,
 	timeout: ReturnType<typeof setTimeout>,
@@ -52,15 +56,17 @@ interface emote{
 
 export default {
 	data() {
-		return {player1Id: "",
-				player2Id: "",
-				dataLoaded: false,
-				socket: io(),
-				timer: "00:00",
-				score1: 0,
-				score2: 0,
-				emote1: {emoji: ''} as emote,
-				emote2: {emoji: ''} as emote,
+		return {
+			myUser: {} as any,
+			player1Id: "",
+			player2Id: "",
+			dataLoaded: false,
+			socket: io(),
+			timer: "00:00",
+			score1: 0,
+			score2: 0,
+			emote1: { emoji: '' } as emote,
+			emote2: { emoji: '' } as emote,
 		};
 	},
 	components: {
@@ -69,19 +75,19 @@ export default {
 		PongCanvas,
 	},
 	methods: {
-		getIdMode(mode: string){
+		getIdMode(mode: string) {
 			const modes: string[] = ["classic", "arcade", "ranked", "duelClassic", "duelArcade"];
-			if (!modes.includes(mode)){
+			if (!modes.includes(mode)) {
 				this.$router.push('/notfound');
 				return;
 			}
 			return modes.indexOf(mode);
 		},
 
-		emoteHandling(side: number, emoji: string){
-			let emote = side === 1 ? this.emote1 : this.emote2 ;
-			if (emote.emoji !== ''){
-				if (!emote.changed){
+		emoteHandling(side: number, emoji: string) {
+			let emote = side === 1 ? this.emote1 : this.emote2;
+			if (emote.emoji !== '') {
+				if (!emote.changed) {
 					emote.emoji = '';
 					emote.changed = true;
 					setTimeout(() => {
@@ -93,14 +99,14 @@ export default {
 			else
 				emote.emoji = emoji;
 			if (emote.timeout)
-				clearTimeout(emote.timeout);			
+				clearTimeout(emote.timeout);
 			emote.timeout = setTimeout(() => {
 				emote.emoji = "";
 			}, 2000);
 		},
 
 
-		initKeyHandler(){
+		initKeyHandler() {
 			var keyArrowUp: Boolean = false
 			var keyArrowDown: Boolean = false
 			document.addEventListener('keydown', (event) => {
@@ -125,26 +131,32 @@ export default {
 			});
 		},
 	},
-	mounted() {
+	async mounted() {
 
 		const route = useRoute();
 		const mode: string | undefined = route.query["mode"]?.toString();
-		if (!mode){
+		if (!mode) {
 			this.$router.push('notfound');
 			return;
 		}
 		this.timer = mode === "ranked" ? "00:00" : "03:00";
 
-		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong");	
+		this.myUser = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' })).json()
+		if (!SocketService.getStatus) {
+			SocketService.setSocket('http://' + import.meta.env.VITE_HOST + ':3000/', { query: { userId: this.myUser["id"] } });
+		}
+		SocketService.getInstance.emit('setStatus', this.myUser["id"], State.INGAME);
+
+		this.socket = io("http://" + import.meta.env.VITE_HOST + ":3000/pong", { query: { userId: this.myUser["id"] } }); //CHANGE TO GET ID
 		this.socket.emit('onJoinGame', sessionStorage.getItem('token'), this.getIdMode(mode), route.query["id"]);
-	
+
 		this.initKeyHandler();
 
 		this.socket.on('disconnect', () => {
 			this.socket.disconnect();
 			console.log('Vous avez été déconnecté du jeu.');
 		});
-		
+
 		this.socket.on('ids', (player1: string, player2: string) => {
 			this.player1Id = player1;
 			this.player2Id = player2;
@@ -167,7 +179,7 @@ export default {
 				this.emoteHandling(2, emoji);
 		});
 	},
-	beforeUnmount(){
+	beforeUnmount() {
 		this.socket.disconnect();
 		this.dataLoaded = false;
 	}
@@ -175,13 +187,12 @@ export default {
 </script>
 
 <style>
-
-.image{
-		filter: drop-shadow(0 0 8px #1f81dd);
-		aspect-ratio: 1;
-		width: 100%;
-		border-radius: 50%;
-		border: 2px solid #b5dbdb;
+.image {
+	filter: drop-shadow(0 0 8px #1f81dd);
+	aspect-ratio: 1;
+	width: 100%;
+	border-radius: 50%;
+	border: 2px solid #b5dbdb;
 }
 
 .pong_body {
@@ -205,7 +216,8 @@ export default {
 	border-radius: 20px;
 }
 
-.left_column, .right_column {
+.left_column,
+.right_column {
 	height: 100%;
 	width: 15%;
 	display: flex;
@@ -265,12 +277,12 @@ export default {
 	cursor: pointer;
 }
 
-@font-face{
- font-family:'digital-clock-font';
- src: url('./fonts/digital-7.mono.ttf');
+@font-face {
+	font-family: 'digital-clock-font';
+	src: url('./fonts/digital-7.mono.ttf');
 }
 
-.scores{
+.scores {
 	display: flex;
 	flex-direction: row;
 	width: 100%;
@@ -281,5 +293,4 @@ export default {
 	margin-bottom: 5px;
 	font-family: 'digital-clock-font', regular;
 }
-
 </style>
