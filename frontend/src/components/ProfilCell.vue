@@ -27,12 +27,6 @@ export default defineComponent({
 	},
 	methods: {
 
-		handleClick() {
-			if (this.borderColor === 'green') {
-				this.modalInvite = true;
-			}
-		},
-
 		redirecToProfil(name: string) {
 			router.push({ path: '/profile', query: { user: name } });
 		},
@@ -104,8 +98,8 @@ export default defineComponent({
 		<div class="name">
 			{{ friend.username }}
 		</div>
-		<div :style="{ 'color': borderColor }" v-on:click=handleClick>
-			<font-awesome-icon icon="fa-solid fa-gamepad" />
+		<div :style="{ 'color': borderColor }">
+			<font-awesome-icon icon="fa-solid fa-gamepad" :class="{'inviteButton': borderColor === 'green'}" @click="borderColor === 'green' ? (modalInvite = true) : null"></font-awesome-icon>
 		</div>
 		<div v-on:click="modalHamburger = true" class="menu-button">
 			<font-awesome-icon icon="fa-solid fa-xmark" />
@@ -139,6 +133,10 @@ export default defineComponent({
 	background-color: #F0F8FF;
 }
 
+.font-awesome-icon {
+	cursor: pointer;
+}
+
 .name {
 	font-family: 'Poppins', sans-serif;
 	font-weight: bold;
@@ -169,6 +167,10 @@ export default defineComponent({
 	cursor: pointer;
 	justify-content: center;
 	margin-right: 7%;
+}
+
+.inviteButton {
+	cursor: pointer;
 }
 
 .bar {
