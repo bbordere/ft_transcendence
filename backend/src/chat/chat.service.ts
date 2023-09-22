@@ -125,8 +125,13 @@ export class ChatService {
 			throw new Error("Could not find user.");
 		if (channel.admins.includes(user))
 			throw new Error("User is banned.");
-		channel.admins.splice(channel.admins.indexOf(user), 1);
-		return (await this.channelRepository.save(channel));
+		for (let admin of channel.admins) {
+			if (admin.id === user.id) {
+				channel.admins.splice(channel.admins.indexOf(user), 1);
+				return (await this.channelRepository.save(channel));
+			}
+		}
+		throw new Error('User is not an admin.');
 	}
 
 	async removePassword(userId: number, channelId: number) {
@@ -159,5 +164,13 @@ export class ChatService {
 		channel.protected = true;
 		channel.password = await bcrypt.hash(password, 8);
 		return (await this.channelRepository.save(channel));
+	}
+
+	async getAdmins(channelId: number): Promise<User[]> {
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admins']});
+
+		if (!channel)
+			return (undefined);
+		return (channel.admins);
 	}
 }

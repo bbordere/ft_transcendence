@@ -22,6 +22,9 @@
 			<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;">
 			</UnBanUserModal>
 		</Teleport>
+		<Teleport to="body">
+			<MuteModal :show="showMuteModal" :channelId="selectedChannel.id" @close="showMuteModal = false" />
+		</Teleport>
 	</div>
 </template>
 <script lang="ts">
@@ -31,6 +34,7 @@ import ModalAdd from './ModalAdd.vue';
 import KickUserModal from './KickUserModal.vue';
 import BanUserModal from './BanUserModal.vue';
 import UnBanUserModal from './UnBanUserModal.vue';
+import MuteModal from './MuteModal.vue';
 
 export default {
 	components: {
@@ -40,6 +44,7 @@ export default {
 		KickUserModal,
 		BanUserModal,
 		UnBanUserModal,
+		MuteModal,
 	},
 
 	props: ['selectedChannel'],
@@ -52,6 +57,7 @@ export default {
 			showKickModal: false,
 			showBanModal: false,
 			showUnBanModal: false,
+			showMuteModal: false,
 		}
 	},
 
@@ -71,11 +77,10 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 2%;
+	gap: 1%;
 	height: 7%;
 	padding-left: 3px;
 	width: 97%;
-
 }
 
 .add_friend .spe {
@@ -83,8 +88,8 @@ export default {
 	align-items: center;
 	justify-content: center;
 	color: white;
-	background-color: black;
-	height: 80%;
+	background-color: #046280;
+	height: 90%;
 	flex-shrink: 0;
 	width: 37%;
 	overflow: hidden;
@@ -94,6 +99,6 @@ export default {
 }
 
 .spe:hover {
-	background-color: rgb(6, 56, 56);
+	background-color: #032f3d;
 }
 </style>

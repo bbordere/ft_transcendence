@@ -5,20 +5,19 @@
 				<PlayButton />
 				<div class="friend_list">
 					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel" @kick="notifyKick"
-						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
+						ref="ModalManager" @click="updateTimestamp = Date.now()" />
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
-					<FriendList v-else :socket="socket" :updateTimestamp="updateTimestamp"/>
+					<FriendList v-else :updateTimestamp="updateTimestamp" />
 				</div>
 			</div>
-			<Chat :selectedChannel="selectedChannel" :sender="sender"
-				:socket="socket" @removeChannel="removeChannel" @displayChannelOption="displayChannelOption"></Chat>
+			<Chat :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
+				@displayChannelOption="displayChannelOption"></Chat>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import io from 'socket.io-client';
 import ModalAdd from '../components/ModalAdd.vue'
 import ModalAddFriend from '../components/ModalAddFriend.vue'
 import { defineComponent } from 'vue';
@@ -29,6 +28,7 @@ import ModalManager from '../components/ModalManager.vue';
 import FriendList from '@/components/FriendList.vue';
 import Chat from '@/components/Chat.vue';
 import PlayButton from '@/components/PlayButton.vue';
+import { SocketService } from '@/services/SocketService.ts'
 
 interface User {
 	id: number;
@@ -50,7 +50,7 @@ interface Channel {
 	owner: number;
 	messages: Message[],
 	protected: boolean,
-	// admin: number[];
+	admins: number[];
 }
 
 export enum State {
@@ -74,7 +74,6 @@ export default defineComponent({
 	data() {
 		return {
 			showChannelDiv: false,
-			socket: null as any,
 			sender: {} as User,
 			channels: [] as Channel[],
 			selectedChannel: {} as Channel,
@@ -88,6 +87,8 @@ export default defineComponent({
 	},
 
 	async mounted() {
+		if (SocketService.getStatus)
+			SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE);
 		this.ModalManagerData = this.$refs['ModalManager'];
 		const user = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json()
 		this.sender.id = user['id'];
@@ -101,26 +102,19 @@ export default defineComponent({
 				name: channels_json[i]['name'],
 				messages: await this.getChannelMessages(channels_json[i]['id']),
 				protected: channels_json[i]['protected'],
+				admins: await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/getAdmins', { credentials: 'include' })).json(),
 			});
-			console.log(this.channels[i].owner);
+			console.log(this.channels[i].admins);
 		}
+		await this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
-		this.init();
-	},
-
-	updated() {
-		if (this.selectedChannel.messages) {
-			const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
-			if (lastMessage)
-				lastMessage[0].scrollIntoView();
-		}
 	},
 
 	methods: {
-		init() {
-			this.socket = io('http://' + import.meta.env.VITE_HOST + ':3000/', {query: {token: sessionStorage.getItem('token')}});
-			this.socket.on('message',
+		async init() {
+			this.$emit('socketReady');
+			SocketService.getInstance.on('message',
 				(data: {
 					channelId: number,
 					text: string,
@@ -140,7 +134,7 @@ export default defineComponent({
 						});
 					}
 				});
-			this.socket.on('kick', (data: { channelId: number, userId: number, ban: boolean }) => {
+			SocketService.getInstance.on('kick', (data: { channelId: number, userId: number, ban: boolean }) => {
 				const { channelId, userId, ban } = data;
 				if (this.sender.id === userId) {
 					for (let i = 0; i < this.channels.length; i++) {
@@ -162,7 +156,7 @@ export default defineComponent({
 					}
 				}
 			});
-			this.socket.on('changeAdmin', (data: { channel_id: number, new_owner_id: number }) => {
+			SocketService.getInstance.on('changeAdmin', (data: { channel_id: number, new_owner_id: number }) => {
 				const { channel_id, new_owner_id } = data;
 				if (this.sender.id === new_owner_id) {
 					for (let i = 0; i < this.channels.length; i++) {
@@ -230,7 +224,7 @@ export default defineComponent({
 						try {
 							const new_owner_id = (await owner_response.json())['id'];
 							let channel_id = this.channels[i].id;
-							this.socket.emit('changeAdmin', { channel_id, new_owner_id });
+							SocketService.getInstance.emit('changeAdmin', { channel_id, new_owner_id });
 						}
 						catch { }
 					}
@@ -249,6 +243,8 @@ export default defineComponent({
 				this.ModalManagerData.showBanModal = true;
 			else if (str === 'unban')
 				this.ModalManagerData.showUnBanModal = true;
+			else if (str === 'mute')
+				this.ModalManagerData.showMuteModal = true;
 		},
 
 		findChannel(id: number): Channel | null {
@@ -280,7 +276,7 @@ export default defineComponent({
 		},
 
 		notifyKick(channelId: number, userId: number, ban: boolean) {
-			this.socket.emit('kick', { channelId, userId, ban });
+			SocketService.getInstance.emit('kick', { channelId, userId, ban });
 		},
 
 	},
@@ -326,7 +322,7 @@ h1 {
 	height: 80%;
 	width: 100%;
 	background-color: #ffffff;
-	border: 3px solid #BC0002;
+	border: 3px solid #515151;
 	border-radius: 10px;
 }
 

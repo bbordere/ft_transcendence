@@ -3,15 +3,22 @@ import { defineComponent } from 'vue';
 import ProfilCell from './ProfilCell.vue';
 import BlockListCell from './BlockListCell.vue';
 
+export interface friendTab {
+	id: number;
+	status: string;
+	username: string;
+	request: number;
+}
+
 export default defineComponent({
 	components: {
 		ProfilCell,
 		BlockListCell
 	},
-	props: ['updateTimestamp', 'socket'],
+	props: ['updateTimestamp', 'socket', 'colorOn'],
 	data() {
 		return {
-			friends: [],
+			friends: [] as friendTab[],
 			blockList: [],
 			sender: -1 as number,
 			block: false as boolean,
@@ -24,7 +31,7 @@ export default defineComponent({
 		await this.fetchBlockList();
 		await this.fetchFriends();
 	},
-	
+
 	methods: {
 		async fetchFriends() {
 			const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/friend/" + this.sender + "/list", { credentials: 'include' });
@@ -45,7 +52,7 @@ export default defineComponent({
 			deep: true,
 		},
 		updateTimestamp: {
-			handler(){
+			handler() {
 				this.print = 0;
 			},
 			deep: true
@@ -67,14 +74,15 @@ export default defineComponent({
 		<button class="tri" @click="print = 2;">Bloqué</button>
 	</div>
 	<div v-if="print === 2" class="list_friend">
-		<BlockListCell v-for="block in blockList" :block=block :myid=sender></BlockListCell>
+		<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
 	</div>
 	<div v-else class="list_friend">
-		<ProfilCell v-for="friend in friends" :socket='socket' :profilObject="friend" :myid=sender :blockList=blockList :print=print></ProfilCell>
+		<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print></ProfilCell>
 	</div>
 </template>
 
 <style>
+
 .list_friend {
 	display: flex;
 	align-items: center;
@@ -88,8 +96,8 @@ export default defineComponent({
 	align-items: center;
 	justify-content: center;
 	color: white;
-	background-color: black;
-	height: 70%;
+	background-color: #046280;
+	height: 65%;
 	flex-shrink: 0;
 	width: 45%;
 	overflow: hidden;
@@ -99,6 +107,6 @@ export default defineComponent({
 }
 
 .tri:hover {
-	background-color: rgb(6, 56, 56);
+	background-color: #032f3d;
 }
 </style>

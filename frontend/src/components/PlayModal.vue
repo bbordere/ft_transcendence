@@ -47,11 +47,11 @@ export default{
 .modal {
 	text-align: center;
 	background-color: white;
-	height: 30%;
-	width: 30%;
+	/* height: 30%; */
+	/* width: 30%; */
 	margin-top: auto;
 	margin-bottom: auto;
-	padding: 20px 0;
+	padding: 40px;
 	border-radius: 20px;
 	display: flex;
 	flex-direction: column;

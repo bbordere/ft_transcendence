@@ -1,5 +1,4 @@
-import { Column, Entity, Generated, PrimaryColumn, OneToOne, JoinColumn } from "typeorm";
-import { Channel } from "src/chat/entities/channel.entity";
+import { Column, Entity, Generated, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Friend {
@@ -15,8 +14,4 @@ export class Friend {
 
 	@Column( { default: 'pending'})
 	public Status: string;
-
-	@OneToOne(() => Channel, {eager: true})
-	@JoinColumn()
-	channel: Channel;
 };

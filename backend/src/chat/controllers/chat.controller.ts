@@ -48,7 +48,7 @@ export class ChatController {
 	}
 
 	@Get('/:id/owner')
-	async getAdmin(@Param('id') id: number) {
+	async getOwner(@Param('id') id: number) {
 		return (await this.chatService.getChannelOwner(id));
 	}
 
@@ -98,8 +98,13 @@ export class ChatController {
 		}
 		return {
 			ok: true,
-			message: 'Password has been removed.';
+			message: 'Password has been removed.',
 		};
+	}
+
+	@Get('/:channelId/getAdmins')
+	async getAdmins(@Param('channelId') channelId: number) {
+		return (await this.chatService.getAdmins(channelId));
 	}
 
 	@Post('/:userId/:channelId/changePassword')

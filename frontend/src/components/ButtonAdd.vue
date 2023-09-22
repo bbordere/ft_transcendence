@@ -17,7 +17,7 @@ export default{
 	justify-content: center;
 	align-items: center;
 	border-radius: 120px;
-	background-color: black;
+	background-color: #046280;
 	height: 75%;
 	width: 25%;;
 	color: white;
@@ -28,7 +28,7 @@ export default{
 }
 
 .add-button:hover {
-	background-color: rgb(47, 49, 49);;
+	background-color: #032f3d;
 }
 
 </style>

@@ -24,7 +24,6 @@ export default {
 	height: 100%;
 	margin-top: 2%;
 	align-items: center;
-	background-color: rgb(255, 255, 255);
 	overflow-y: scroll;
 }
 

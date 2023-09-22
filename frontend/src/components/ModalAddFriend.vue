@@ -1,4 +1,7 @@
 <script lang="ts">
+
+import { useNotification } from "@kyvg/vue3-notification";
+
 export default {
 	props: {
 		show: Boolean
@@ -7,6 +10,7 @@ export default {
 		return {
 			username: '' as string,
 			sender: -1 as number,
+			textNotif: '' as string,
 		}
 	},
 	methods: {
@@ -23,6 +27,26 @@ export default {
 					sender: this.sender,
 				})
 			})
+			if (response.status == 406) {
+				this.addFriendNotif("Veuillez insérer un nom", "error");
+				return ;
+			}
+			const ret = await (await response.blob()).text();
+			if (ret.length == 0) {
+				this.addFriendNotif("Demande d'ami envoyé", "success");
+				this.$emit('close');
+			}
+			else
+				this.addFriendNotif(ret, "error");
+		},
+
+		addFriendNotif (text: string, status: string) {
+			const notification = useNotification()
+			notification.notify({
+				title: text,
+				type: status,
+				group: 'notif-center'
+			});
 		}
 	}
 }
@@ -37,7 +61,7 @@ export default {
 				</div>
 				<div class="non">
 					<input class="entry_friend" type="text" placeholder="Username" v-model="username">
-					<button v-on:click="addUser(); $emit('close')">Ajouter</button>
+					<button v-on:click="addUser()">Ajouter</button>
 				</div>
 		</div>
 	</div>
@@ -94,7 +118,7 @@ export default {
 .modal_overlay_friend {
 	position: fixed;
 	display: flex;
-	z-index: 9998;
+	z-index: 2;
 	left: 0;
 	top: 0;
 	width: 100%;
