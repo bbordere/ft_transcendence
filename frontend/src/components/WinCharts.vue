@@ -50,7 +50,10 @@ export default{
 
 <style>
 	.chart{
-		margin-top: 20%;
+		/* margin-top: 20%; */
+		/* margin-top: 1vh; */
+		padding-top: 1%;
+		margin-bottom: -5%;
 		display: flex;
 		justify-content: center;
 		align-items: center;

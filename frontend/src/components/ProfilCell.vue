@@ -54,6 +54,8 @@ export default defineComponent({
 				}),
 			});
 			this.modalHamburger = false;
+			SocketService.getInstance.emit('refreshFriendListId', this.myId);
+			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},
 
 		async acceptFriend() {
@@ -64,6 +66,8 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 			});
+			SocketService.getInstance.emit('refreshFriendListId', this.myId);
+			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},
 
 		async deleteUser() {
@@ -74,6 +78,8 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 			});
+			SocketService.getInstance.emit('refreshFriendListId', this.myId);
+			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},
 	},
 

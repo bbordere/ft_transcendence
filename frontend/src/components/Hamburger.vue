@@ -1,4 +1,6 @@
 <script lang="ts">
+import { SocketService } from '@/services/SocketService';
+
 export default {
 	props: {
 		id1: Number,
@@ -16,6 +18,8 @@ export default {
 					'Content-Type': 'application/json'
 				},
 			});
+			SocketService.getInstance.emit('refreshFriendListId', this.id1);
+			SocketService.getInstance.emit('refreshFriendListId', this.id2);
 		},
 
 		async blockUser() {
@@ -30,6 +34,8 @@ export default {
 					blockId: this.id2,
 				}),
 			});
+			SocketService.getInstance.emit('refreshFriendListId', this.id1);
+			SocketService.getInstance.emit('refreshFriendListId', this.id2);
 		},
 	}
 }

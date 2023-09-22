@@ -1,6 +1,8 @@
 <script lang="ts">
 
 import { useNotification } from "@kyvg/vue3-notification";
+import { SocketService } from "@/services/SocketService";
+import { Socket } from "socket.io-client";
 
 export default {
 	props: {
@@ -35,6 +37,7 @@ export default {
 			if (ret.length == 0) {
 				this.addFriendNotif("Demande d'ami envoyé", "success");
 				this.$emit('close');
+				SocketService.getInstance.emit('refreshFriendList', this.username);
 			}
 			else
 				this.addFriendNotif(ret, "error");

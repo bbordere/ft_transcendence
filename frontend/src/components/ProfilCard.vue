@@ -123,9 +123,9 @@ export default{
 <style>
 	.card{
 		display: flex;
+		border: 2px solid #515151;
 		justify-content: space-between;
 		padding: 2%;
-		height: 100%;
 		align-items: center;
 		background-color: aliceblue;
 		flex-direction: row;

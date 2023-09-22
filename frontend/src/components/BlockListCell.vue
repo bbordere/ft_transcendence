@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import router from '@/router';
+import { SocketService } from '@/services/SocketService';
 
 
 export default defineComponent({
@@ -32,6 +33,8 @@ export default defineComponent({
 					unblockId: this.block,
 				}),
 			});
+			SocketService.getInstance.emit('refreshFriendListId', this.myId);
+			SocketService.getInstance.emit('refreshFriendListId', this.block);
 		},
 
 		async friendInfo() {

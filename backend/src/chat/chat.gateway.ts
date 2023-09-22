@@ -11,6 +11,7 @@ import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
 import { State } from 'src/user/user.entity';
 import { FriendService } from 'src/friend/friend.service';
+import { UserService } from 'src/user/user.service';
 
 interface StateInfo {
 	client_socket: Socket;
@@ -32,6 +33,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	constructor(
 		private readonly chatService: ChatService,
 		private readonly friendService: FriendService,
+		private readonly userService: UserService,
 	) { }
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('ChatGateway');
@@ -125,5 +127,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.clients.get(client.data.userId).client_socket.emit('closeInvite');
 		this.invites.delete(client.data.userId);
 		client.data.canInvite = true;
+	}
+
+	@SubscribeMessage('refreshFriendList')
+	async refreshFriendList(client: Socket, payload: string){
+		const target = await this.userService.getByName(payload);
+		this.clients.get(target.id).client_socket.emit('updateFriendList');
+	}
+
+	@SubscribeMessage('refreshFriendListId')
+	async refreshFriendListId(client: Socket, payload: number){
+		const target = await this.userService.getById(payload);
+		this.clients.get(target.id).client_socket.emit('updateFriendList');
 	}
 }

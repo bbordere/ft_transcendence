@@ -112,13 +112,14 @@ export default{
 		margin-top: 1%;
 		width: 80%;
 		justify-content: space-between;
-		height: 50vh;
+		height: 45vh;
 	}
 
 	.matchHistory{
 		width: 40%;
 		border-radius: 50px;
 		background-color: aliceblue;
+		border: 2px solid #515151;
 	}
 	
 	.statsPanel{
@@ -126,5 +127,6 @@ export default{
 		margin-left: 2%;
 		background-color: aliceblue;
 		border-radius: 50px;
+		border: 2px solid #515151;
 	}
 </style>

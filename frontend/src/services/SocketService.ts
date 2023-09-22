@@ -4,6 +4,15 @@ export class SocketService {
 	private static socket: Socket;
 	private static isUp: boolean = false;
 	private static myUser: any;
+	private static isUpdateNeeded: boolean = false;
+
+	static get getUpdateStatus(){
+		return (this.isUpdateNeeded);
+	}
+
+	static setUpdateStatus(status: boolean){
+		SocketService.isUpdateNeeded = status;
+	}
 
 	static get getInstance(){
 		return (this.socket);

@@ -15,37 +15,32 @@ export default defineComponent({
 		ProfilCell,
 		BlockListCell
 	},
-	props: ['updateTimestamp', 'socket'],
+	props: ['updateTimestamp', 'socket', 'friendTimestamp'],
 	data() {
 		return {
 			friends: [] as friendTab[],
-			blockList: [],
+			blockList: [] as number[],
 			sender: -1 as number,
 			block: false as boolean,
 			print: 0 as number,
-			nbRequest: 0 as number,
 		};
 	},
 
 	computed:{
-		haveRequest(){
+		getFriendRequest(){
 			let number = 0;
 			for (let friend of this.friends) {
-				if (friend.request !== this.sender && friend.status === 'pending')
+				if (friend.request !== this.sender && friend.status === 'pending' && !this.blockList.includes(friend.id))
 					number++;
 			}
 			return (number);
-		}
+		},
 	},
 
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
 		await this.fetchBlockList();
 		await this.fetchFriends();
-		for (let friend of this.friends) {
-			if (friend.request !== this.sender && friend.status === 'pending')
-				this.nbRequest += 1;
-		}
 	},
 
 	methods: {
@@ -61,25 +56,17 @@ export default defineComponent({
 	},
 
 	watch: {
-		friends: {
-			handler() {
+		friendTimestamp: {
+			handler(){
 				this.fetchFriends();
-			},
-			// deep: true,
+				this.fetchBlockList();
+			}
 		},
 		updateTimestamp: {
 			handler() {
 				this.print = 0;
 			},
-			// deep: true
 		},
-		blockList: {
-			handler() {
-				this.fetchBlockList();
-			},
-			// deep: true,
-		},
-
 	},
 });
 
@@ -89,8 +76,8 @@ export default defineComponent({
 	<div class="add_friend">
 		<button class="tri" @click="print = 1;">Demande</button>
 		<button class="tri" @click="print = 2;">Bloqué</button>
-		<div v-if="haveRequest"  class="notifDemande">
-			{{ haveRequest }}
+		<div v-if="getFriendRequest"  class="notifDemande">
+			{{ getFriendRequest }}
 		</div>
 	</div>
 	<div v-if="print === 2" class="list_friend">

@@ -5,10 +5,10 @@
 				<PlayButton />
 				<div class="friend_list">
 					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel" @kick="notifyKick"
-						ref="ModalManager" @click="updateTimestamp = Date.now()" />
+						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
-					<FriendList v-else :updateTimestamp="updateTimestamp" />
+					<FriendList v-else :updateTimestamp="updateTimestamp" :friendTimestamp="refreshTimestamp"/>
 				</div>
 			</div>
 			<Chat :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
@@ -28,7 +28,7 @@ import ModalManager from '../components/ModalManager.vue';
 import FriendList from '@/components/FriendList.vue';
 import Chat from '@/components/Chat.vue';
 import PlayButton from '@/components/PlayButton.vue';
-import { SocketService } from '@/services/SocketService.ts'
+import { SocketService } from '@/services/SocketService'
 
 interface User {
 	id: number;
@@ -78,6 +78,7 @@ export default defineComponent({
 			selectedChannel: {} as Channel,
 			ModalManagerData: null as unknown,
 			updateTimestamp: 0 as number,
+			refreshTimestamp: 0 as number,
 		}
 	},
 
@@ -183,6 +184,10 @@ export default defineComponent({
 						}
 					}
 				}
+			});
+
+			SocketService.getInstance.on('updateFriendList', () => {
+				this.refreshTimestamp = Date.now();
 			});
 
 			// this.socket.on('changeState', (data: any) => {
@@ -292,7 +297,6 @@ export default defineComponent({
 		notifyKick(channelId: number, userId: number, ban: boolean) {
 			SocketService.getInstance.emit('kick', { channelId, userId, ban });
 		},
-
 	},
 });
 
