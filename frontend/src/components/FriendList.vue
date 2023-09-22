@@ -15,7 +15,7 @@ export default defineComponent({
 		ProfilCell,
 		BlockListCell
 	},
-	props: ['updateTimestamp', 'socket', 'colorOn'],
+	props: ['updateTimestamp', 'socket'],
 	data() {
 		return {
 			friends: [] as friendTab[],
@@ -72,6 +72,9 @@ export default defineComponent({
 	<div class="add_friend">
 		<button class="tri" @click="print = 1;">Demande</button>
 		<button class="tri" @click="print = 2;">Bloqué</button>
+		<div class="notifDemande">
+			5
+		</div>
 	</div>
 	<div v-if="print === 2" class="list_friend">
 		<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
@@ -108,5 +111,21 @@ export default defineComponent({
 
 .tri:hover {
 	background-color: #032f3d;
+}
+
+.tri:focus {
+	background-color: #032f3d;
+}
+
+.notifDemande {
+	position: absolute;
+	background: red;
+	border-radius: 50px;
+	width: 20px;
+	font-size: 0.6em;
+	text-align: center;
+	margin-right: 20px;
+	margin-bottom: 20px;
+	color: white;
 }
 </style>
