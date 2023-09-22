@@ -11,6 +11,7 @@ const TPI = 6.2831853;
 import type { ball } from '@/interfaces/ball.interface'
 import type { gameInfos } from '@/interfaces/gameInfos.interface'
 import type { paddle } from '@/interfaces/paddle.interface'
+import confetti from 'canvas-confetti';
 
 export default {
 	props: ["socket", "playId1", "playId2", "score1", "score2"],
@@ -22,6 +23,8 @@ export default {
 			ball: { speed: -1 } as ball,
 			user1Img: new Image,
 			user2Img: new Image,
+			user1Id: 0,
+			user2Id: 0,
 			user1Name: "",
 			user2Name: "",
 			pad1: {} as paddle,
@@ -31,6 +34,8 @@ export default {
 			angle: 0,
 			offsetX: 0,
 			isInGame: false,
+			confettiId: -1,
+			discoUserId: -1,
 		}
 	},
 	methods: {
@@ -63,44 +68,59 @@ export default {
 			ctx.drawImage(this.sprites[6], this.offsetX, offsetY - canvas.height / 6);
 		},
 
-		animateEnd(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
-			ctx.clearRect(0, 0, canvas.width, canvas.height)
-			ctx.drawImage(this.sprites[3], 0, 0);
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId1, { credentials: 'include' })
-				.then(res => res.json())
-				.then((res) => {
-					this.user1Img.src = res["avatarLink"]
-					this.user1Name = res["name"]
-				})
-				.then(() => { ctx.drawImage(this.user1Img, canvas.width / 6, canvas.height / 3, 200, 200) })
-				.then(() => {
-					ctx.font = "60px poppins";
-					ctx.fillText(this.user1Name, canvas.width / 4, canvas.height - canvas.height / 5)
-				})
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId2, { credentials: 'include' })
-				.then(res => res.json())
-				.then((res) => {
-					this.user2Img.src = res["avatarLink"]
-					this.user2Name = res["name"]
-				})
-				.then(() => { ctx.drawImage(this.user2Img, canvas.width - canvas.width / 3, canvas.height / 3, 200, 200) })
-				.then(() => {
-					ctx.font = "0px poppins";
-					ctx.fillText(this.user2Name, canvas.width - canvas.width / 4, canvas.height - canvas.height / 5)
-				})
+
+		confettiEffect(end: number) {
+				let drift = Math.random() * 5
+			confetti({
+				particleCount: 5,
+				angle: 60,
+				spread: 70,
+				origin: { x: 0 },
+				gravity: 0.8,
+				drift: drift,
+			});
+			confetti({
+				particleCount: 5,
+				angle: 120,
+				spread: 70,
+				origin: { x: 1 },
+				gravity: 0.8,
+				drift: -drift,
+			});
+
+			if (Date.now() < end) {
+				this.confettiId = requestAnimationFrame(() => {this.confettiEffect(end)});
+			}
+			},
+
+		async drawEndPage(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
 			ctx.fillStyle = 'white dark'
-			ctx.font = "150px poppins";
 			ctx.textBaseline = "middle";
 			ctx.textAlign = "center";
+
 			let offsetX1;
 			let offsetX2;
 			this.score1 <= 9 ? offsetX1 = 70 : offsetX1 = 105;
 			this.score2 <= 9 ? offsetX2 = 70 : offsetX2 = 105;
+
+			ctx.font = "60px poppins";
+			ctx.fillText(this.user1Name, canvas.width / 4, canvas.height - canvas.height / 5)
+			ctx.fillText(this.user2Name, canvas.width - canvas.width / 4, canvas.height - canvas.height / 5)
+
+			ctx.font = "150px poppins";
 			ctx.fillText(this.score1, offsetX1, canvas.height / 2 + canvas.height / 20);
 			ctx.fillText(this.score2, canvas.width - offsetX2, canvas.height / 2 + canvas.height / 20);
-			ctx.fillText(this.user1Name, canvas.width / 4, canvas.height - canvas.height / 6)
+			ctx.drawImage(this.user1Img, canvas.width / 6, canvas.height / 3, 200, 200)
+			ctx.drawImage(this.user2Img, canvas.width - canvas.width / 3,canvas.height / 3, 200, 200)
+
 			ctx.font = "100px poppins";
-			if (this.score1 > this.score2) {
+			if (this.user1Id === this.discoUserId) {
+				ctx.fillText("DNF", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+				ctx.fillText("Victoire", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+			} else if (this.user2Id === this.discoUserId) {
+				ctx.fillText("Victoire", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+				ctx.fillText("DNF", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+			} else if (this.score1 > this.score2) {
 				ctx.fillText("Victoire", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 				ctx.fillText("Défaite", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 			} else if (this.score2 > this.score1) {
@@ -110,6 +130,26 @@ export default {
 				ctx.fillText("Egalité", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 				ctx.fillText("Egalité", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 			}
+
+		},
+
+		async animateEnd(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+			ctx.clearRect(0,0,canvas.width, canvas.height)
+			ctx.drawImage(this.sprites[3], 0, 0);
+			var end = Date.now() + (1000 * 5);
+			this.confettiEffect(end);
+
+			const player1Json = await (await (fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId1, {credentials: 'include'}))).json();
+			this.user1Id = player1Json["id"];
+			this.user1Name = player1Json["name"]
+			this.user1Img.src = player1Json["avatarLink"]
+
+			const player2Json = await (await (fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId2, {credentials: 'include'}))).json();
+			this.user2Id = player2Json["id"];
+			this.user2Name = player2Json["name"]
+			this.user2Img.src = player2Json["avatarLink"]
+			
+			await this.drawEndPage(ctx, canvas);
 		},
 
 
@@ -221,17 +261,21 @@ export default {
 			var x = 0;
 			if (data === "QUEUEING" || data === "WAITING") {
 				this.animId = requestAnimationFrame(() => { this.animate(ctx, canvas) });
-			} else if (data === "FINISHED") {
-				requestAnimationFrame(() => { this.animateEnd(ctx, canvas) })
+			} else if (data === "ENDGAME") {
+				requestAnimationFrame(async () => { await this.animateEnd(ctx, canvas) })
 			}
 		});
+
+		this.socket.on('userDisco', (id: string) =>{
+			this.discoUserId = parseInt(id);
+		})
 	},
 	unmounted() {
 		if (this.animId !== -1)
 			cancelAnimationFrame(this.animId);
+			cancelAnimationFrame(this.confettiId)
 	},
 }
-
 </script>
 
 <style>

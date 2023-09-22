@@ -69,15 +69,15 @@ async function login(){
 
 	</div>
 	<div class= "co-email">
-		<span class="text">connection</span>
+		<span class="text">Connection</span>
 		<div class="form">
 			<div class="field">
-				<input type="email" id="email" placeholder="email / pseudo" v-model="email" />
+				<input type="email" id="email" placeholder="Email / pseudo" v-model="email" />
 			</div>
 			<div class="field">
-				<input type="password" placeholder="mot de passe" v-model="password" />
+				<input type="password" placeholder="Mot de passe" v-model="password" />
 			</div>
-			<button @click="login">connection</button>
+			<button @click="login">Connection</button>
 		</div>
 		<div class="inscription">
 			<button id="inscription-btn" @click="showModal = true">Inscription</button>
@@ -110,10 +110,10 @@ async function login(){
 
 	padding: 40px 30px;
 
-	background: inear-gradient(32deg,#03a8f4,#f441a6,#ffeb3b,#03a8f4);
+	background: #EBECF0AA;
 	border-radius: 10px;
-	box-shadow:  4px 4px 10px #474747,
-             -4px -4px 10px #eaeaea;
+	box-shadow:  4px 4px 4px #474747,
+             -4px -4px 4px #eaeaea;
 }
 
 .co-42 .logo42 {
@@ -132,6 +132,7 @@ async function login(){
 	height: auto;
 	padding: 40px 30px;
 	gap: 20px;
+	background: #EBECF0AA;
 
 	border-radius: 10px;
 	box-shadow:  4px 4px 4px #474747,
