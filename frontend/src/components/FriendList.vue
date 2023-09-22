@@ -15,7 +15,7 @@ export default defineComponent({
 		ProfilCell,
 		BlockListCell
 	},
-	props: ['updateTimestamp', 'socket', 'colorOn'],
+	props: ['updateTimestamp', 'socket'],
 	data() {
 		return {
 			friends: [] as friendTab[],
@@ -23,13 +23,29 @@ export default defineComponent({
 			sender: -1 as number,
 			block: false as boolean,
 			print: 0 as number,
+			nbRequest: 0 as number,
 		};
+	},
+
+	computed:{
+		haveRequest(){
+			let number = 0;
+			for (let friend of this.friends) {
+				if (friend.request !== this.sender && friend.status === 'pending')
+					number++;
+			}
+			return (number);
+		}
 	},
 
 	async mounted() {
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
 		await this.fetchBlockList();
 		await this.fetchFriends();
+		for (let friend of this.friends) {
+			if (friend.request !== this.sender && friend.status === 'pending')
+				this.nbRequest += 1;
+		}
 	},
 
 	methods: {
@@ -49,20 +65,21 @@ export default defineComponent({
 			handler() {
 				this.fetchFriends();
 			},
-			deep: true,
+			// deep: true,
 		},
 		updateTimestamp: {
 			handler() {
 				this.print = 0;
 			},
-			deep: true
+			// deep: true
 		},
 		blockList: {
 			handler() {
 				this.fetchBlockList();
 			},
-			deep: true,
+			// deep: true,
 		},
+
 	},
 });
 
@@ -72,6 +89,9 @@ export default defineComponent({
 	<div class="add_friend">
 		<button class="tri" @click="print = 1;">Demande</button>
 		<button class="tri" @click="print = 2;">Bloqué</button>
+		<div v-if="haveRequest"  class="notifDemande">
+			{{ haveRequest }}
+		</div>
 	</div>
 	<div v-if="print === 2" class="list_friend">
 		<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
@@ -108,5 +128,21 @@ export default defineComponent({
 
 .tri:hover {
 	background-color: #032f3d;
+}
+
+.tri:focus {
+	background-color: #032f3d;
+}
+
+.notifDemande {
+	position: absolute;
+	background: red;
+	border-radius: 50px;
+	width: 20px;
+	font-size: 0.6em;
+	text-align: center;
+	margin-right: 20px;
+	margin-bottom: 20px;
+	color: white;
 }
 </style>

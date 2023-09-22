@@ -79,7 +79,6 @@ export default defineComponent({
 
 	async mounted() {
 		this.dataLoaded = true;
-		// await this.userInfo(this.userId);
 		SocketService.getInstance.emit('getStatus', this.friend.id);
 		SocketService.getInstance.on('getStatus', (data: { userId: number, state: State }) => {
 			const { userId, state } = data;
