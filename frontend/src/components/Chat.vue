@@ -35,6 +35,8 @@
 	</div>
 </template>
 <script lang="ts">
+import { SocketService } from '@/services/SocketService';
+
 export default {
 
 	data() {
@@ -43,11 +45,11 @@ export default {
 		};
 	},
 
-	props: ['selectedChannel', 'sender', 'socket'],
+	props: ['selectedChannel', 'sender'],
 
 	methods: {
 		sendMessage() {
-			if (this.socket && this.message) {
+			if (SocketService.getStatus && this.message) {
 				const data = {
 					channelId: this.selectedChannel.id,
 					text: this.message,
@@ -55,7 +57,7 @@ export default {
 					sender_name: this.sender.name,
 					sender_img: this.sender.img,
 				};
-				this.socket.emit('message', data);
+				SocketService.getInstance.emit('message', data);
 				this.message = '';
 			}
 		},
@@ -81,7 +83,7 @@ export default {
 	align-items: center;
 	justify-content: space-between;
 	background: #F0F8FF;
-	border: 3px solid #BC0002;
+	border: 3px solid #515151;
 	border-radius: 10px;
 }
 

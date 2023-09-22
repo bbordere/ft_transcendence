@@ -118,7 +118,7 @@ export default {
 .modal_overlay_friend {
 	position: fixed;
 	display: flex;
-	z-index: 9998;
+	z-index: 2;
 	left: 0;
 	top: 0;
 	width: 100%;

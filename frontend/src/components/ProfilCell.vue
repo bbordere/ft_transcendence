@@ -4,10 +4,11 @@ import Hamburger from '../components/Hamburger.vue'
 import Invite from '../components/Invite.vue'
 import router from '@/router';
 import { State } from '@/views/Home.vue';
+import { SocketService } from '@/services/SocketService';
 
 
 export default defineComponent({
-		props: ["friend", "myId", "blockList", "print", 'socket'],
+		props: ["friend", "myId", "blockList", "print", ],
 	components: {
 		Hamburger,
 		Invite,
@@ -20,6 +21,8 @@ export default defineComponent({
 			modalHamburger: false,
 			dataLoaded: false,
 			state: -1,
+			myUser: {} as any,
+			friendUser: {} as any,
 		}
 	},
 	methods: {
@@ -31,7 +34,7 @@ export default defineComponent({
 		},
 
 		redirecToProfil(name: string) {
-			router.push({path:'/profile', query: { user: name }});
+			router.push({ path: '/profile', query: { user: name } });
 		},
 
 		getAvatarUrl(id: number) {
@@ -39,7 +42,7 @@ export default defineComponent({
 		},
 
 		async unblockUser() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/unblock`,{
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/unblock`, {
 				credentials: 'include',
 				method: 'PATCH',
 				headers: {
@@ -76,9 +79,10 @@ export default defineComponent({
 
 	async mounted() {
 		this.dataLoaded = true;
-		this.socket.emit('getStatus', this.friend.id);
-		this.socket.on('getStatus', (data: {userId: number, state: State}) => {
-			const {userId, state} = data;
+		// await this.userInfo(this.userId);
+		SocketService.getInstance.emit('getStatus', this.friend.id);
+		SocketService.getInstance.on('getStatus', (data: { userId: number, state: State }) => {
+			const { userId, state } = data;
 			if (userId === this.friend.id) {
 				if (state === State.OFFLINE)
 					this.borderColor = 'grey';
@@ -101,11 +105,11 @@ export default defineComponent({
 		<div class="name">
 			{{ friend.username }}
 		</div>
-		<div :style="{'color': borderColor}" v-on:click=handleClick>
-			<font-awesome-icon icon="fa-solid fa-gamepad"/>
+		<div :style="{ 'color': borderColor }" v-on:click=handleClick>
+			<font-awesome-icon icon="fa-solid fa-gamepad" />
 		</div>
 		<div v-on:click="modalHamburger = true" class="menu-button">
-			<font-awesome-icon icon="fa-solid fa-xmark"/>
+			<font-awesome-icon icon="fa-solid fa-xmark" />
 		</div>
 		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="myId" :id2="friend.id" :username="friend.username"></hamburger>
 		<invite :show="modalInvite" @close="modalInvite = false" :myId="myId" :friendId="friend.id"></invite>
@@ -120,10 +124,8 @@ export default defineComponent({
 		<button v-on:click="acceptFriend">V</button>
 		<button v-on:click="deleteUser">D</button>
 	</div>
-
 </template>
 <style>
-
 .box {
 	margin-top: 10px;
 	width: 90%;
@@ -175,5 +177,4 @@ export default defineComponent({
 	margin: 3px;
 	transition: 0.4s;
 }
-
 </style>
