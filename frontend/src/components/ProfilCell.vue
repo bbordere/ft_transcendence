@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, resolveDirective } from 'vue';
+import { defineComponent } from 'vue';
 import Hamburger from '../components/Hamburger.vue'
 import Invite from '../components/Invite.vue'
 import router from '@/router';
@@ -8,7 +8,7 @@ import { SocketService } from '@/services/SocketService';
 
 
 export default defineComponent({
-	props: ["profilObject", "myid", "blockList", "print",],
+		props: ["friend", "myId", "blockList", "print", ],
 	components: {
 		Hamburger,
 		Invite,
@@ -16,16 +16,10 @@ export default defineComponent({
 
 	data() {
 		return {
-			avatar: "" as string,
-			username: "" as string,
-			friendUsername: "" as string,
-			userId: this.profilObject.UserId as number,
-			friendId: this.profilObject.FriendId as number,
-			modalHamburger: false,
-			modalInvite: false,
 			borderColor: "grey" as string,
+			modalInvite: false,
+			modalHamburger: false,
 			dataLoaded: false,
-			stateId: -1,
 			state: -1,
 			myUser: {} as any,
 			friendUser: {} as any,
@@ -55,15 +49,15 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					userId: this.userId,
-					unblockId: this.friendId,
+					userId: this.myId,
+					unblockId: this.friend.id,
 				}),
 			});
 			this.modalHamburger = false;
 		},
 
 		async acceptFriend() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/accept?id1=${this.profilObject.UserId}&id2=${this.profilObject.FriendId}`, {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/accept?id1=${this.myId}&id2=${this.friend.id}`,{
 				credentials: 'include',
 				method: 'PATCH',
 				headers: {
@@ -73,7 +67,7 @@ export default defineComponent({
 		},
 
 		async deleteUser() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/delete?id1=${this.profilObject.UserId}&id2=${this.profilObject.FriendId}`, {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/delete?id1=${this.myId}&id2=${this.friend.id}`,{
 				credentials: 'include',
 				method: 'DELETE',
 				headers: {
@@ -81,46 +75,15 @@ export default defineComponent({
 				},
 			});
 		},
-
-		async userInfo(userid: number) {
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + userid, {
-				credentials: 'include'
-			});
-			const userData = await response.json();
-			this.myUser = userData;
-			this.username = userData.name;
-			console.log(this.username);
-			this.avatar = userData.avatarLink;
-		},
-
-		async friendInfo() {
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + this.friendId, {
-				credentials: 'include'
-			});
-			const userData = await response.json();
-			this.friendUser = userData;
-			this.friendUsername = userData.name;
-		},
 	},
 
 	async mounted() {
-		// JULO BORDEL !!!!!!!!!!!
-		if (this.profilObject.UserId === this.myid) {
-			await this.userInfo(this.profilObject.FriendId);
-		}
-		else {
-			await this.userInfo(this.profilObject.UserId);
-			this.userId = this.profilObject.FriendId;
-			this.friendId = this.profilObject.UserId;
-		}
-		await this.friendInfo();
 		this.dataLoaded = true;
 		// await this.userInfo(this.userId);
-		console.log(this.username, this.friendUsername);
-		SocketService.getInstance.emit('getStatus', this.friendId);
+		SocketService.getInstance.emit('getStatus', this.friend.id);
 		SocketService.getInstance.on('getStatus', (data: { userId: number, state: State }) => {
 			const { userId, state } = data;
-			if (userId === this.friendId) {
+			if (userId === this.friend.id) {
 				if (state === State.OFFLINE)
 					this.borderColor = 'grey';
 				else if (state === State.ONLINE)
@@ -135,14 +98,12 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="box"
-		v-if="dataLoaded && print === 0 && profilObject.Status === 'accepted' && !blockList.includes(friendId)">
+	<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)">
 		<div class="img_user">
-			<img class="img_user_profil" :style="{ 'border-color': borderColor }" :src="getAvatarUrl(friendId)"
-				@click="redirecToProfil(friendUsername)">
+			<img class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
 		</div>
 		<div class="name">
-			{{ username }}
+			{{ friend.username }}
 		</div>
 		<div :style="{ 'color': borderColor }" v-on:click=handleClick>
 			<font-awesome-icon icon="fa-solid fa-gamepad" />
@@ -150,18 +111,15 @@ export default defineComponent({
 		<div v-on:click="modalHamburger = true" class="menu-button">
 			<font-awesome-icon icon="fa-solid fa-xmark" />
 		</div>
-		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="userId" :id2="friendId"
-			:username="username"></hamburger>
-		<invite :show="modalInvite" @close="modalInvite = false" :myId="myid" :friendId="friendId"
-			:senderName="myUser['name']"></invite>
+		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="myId" :id2="friend.id" :username="friend.username"></hamburger>
+		<invite :show="modalInvite" @close="modalInvite = false" :myId="myId" :friendId="friend.id"></invite>
 	</div>
-	<div class="box"
-		v-else-if="dataLoaded && print === 1 && profilObject.FriendId === myid && profilObject.Status === 'pending' && !blockList.includes(friendId)">
+	<div class="box" v-else-if="dataLoaded && print === 1 && friend.request !== myId && friend.status === 'pending' && !blockList.includes(friend.id)">
 		<div class="img_user">
-			<img class="img_user_profil" :src="getAvatarUrl(friendId)" @click="redirecToProfil(friendUsername)">
+			<img class="img_user_profil" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
 		</div>
 		<div class="name">
-			{{ username }}
+			{{ friend.username }}
 		</div>
 		<button v-on:click="acceptFriend">V</button>
 		<button v-on:click="deleteUser">D</button>

@@ -4,9 +4,12 @@ import { Repository } from 'typeorm';
 import { Friend } from './friend.entity';
 import { UserService } from '../user/user.service';
 
-// interface retHandle {
-// 	error: string;
-// }
+export interface friendTab {
+	id: number;
+	status: string;
+	username: string;
+	request: number;
+}
 
 @Injectable()
 export class FriendService {
@@ -17,19 +20,20 @@ export class FriendService {
 		private userService: UserService,
 	) { }
 
-	async addFriend(username: string, sender: number): Promise<Friend | string> {
+	async addFriend(username: string, sender: number): Promise<string> {
 		const friendToAdd = await this.userService.getByName(username);
 		if (!friendToAdd)
-			return "Ce nom d'utilisateur n'existe pas !";
+			return ("Ce nom d'utilisateur n'existe pas !");
 		else if (friendToAdd.id === sender)
-			return "Tu ne peux pas t'ajouer en ami !";
+			return ("Tu ne peux pas t'ajouter en ami !");
 		else if (await this.getFriendId(friendToAdd.id, sender))
-			return "Cet utilisateur est dans ta liste d'amis";
+			return ("Cet utilisateur est dans ta liste d'amis !");
 		const friend = new Friend();
 		friend.UserId = sender;
 		friend.FriendId = friendToAdd.id;
 		friend.Status = 'pending';
-		return this.friendRepository.save(friend);
+		this.friendRepository.save(friend);
+		return ('');
 	}
 
 	async deleteFriend(id1: number, id2: number): Promise<void> {
@@ -85,5 +89,30 @@ export class FriendService {
 				friends.push(friendship.UserId);
 		}
 		return (friends);
+	}
+
+	async getFriend(id: number) {
+		const friendships = await this.friendRepository.find({
+			where: [
+				{ UserId: id },
+				{ FriendId: id },
+			]
+		});
+		let friendId: number;
+		const friends: friendTab[] = [];
+		for (let friendship of friendships) {
+			if (friendship.UserId == id)
+				friendId = friendship.FriendId;
+			else
+				friendId = friendship.UserId;
+			const friend: friendTab = {
+				id: friendId,
+				status: friendship.Status,
+				username: (await this.userService.getById(friendId)).name,
+				request: friendship.UserId,
+			};
+			friends.push(friend);
+		}
+		return friends;
 	}
 }
