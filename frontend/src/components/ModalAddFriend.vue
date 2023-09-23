@@ -2,9 +2,14 @@
 
 import { useNotification } from "@kyvg/vue3-notification";
 import { SocketService } from "@/services/SocketService";
-import { Socket } from "socket.io-client";
+import BlueButton from "./BlueButton.vue";
+import SlidingTitle from "./SlidingTitle.vue";
 
 export default {
+	components: {
+		BlueButton,
+		SlidingTitle,
+	},
 	props: {
 		show: Boolean
 	},
@@ -59,12 +64,10 @@ export default {
 	<Transition name="slide-fade" mode="out-in">
 	<div v-if="show" class="modal_overlay_friend" @click="$emit('close')">
 		<div class="modal_friend" @click.stop>
-				<div class="addami">
-					Nom de l'ami
-				</div>
-				<div class="non">
-					<input class="entry_friend" type="text" placeholder="Username" v-model="username">
-					<button v-on:click="addUser()">Ajouter</button>
+				<SlidingTitle text="Ajouter un ami"/>
+				<div class="input_friend">
+					<input class="entry_friend" type="text" placeholder="Pseudo" v-model="username">
+					<BlueButton text="Ajouter" icon="" @click="addUser" />
 				</div>
 		</div>
 	</div>
@@ -73,49 +76,44 @@ export default {
 
 <style scoped>
 
-.non {
+.input_friend {
 	display: flex;
-	margin-top: 5%;
+	/* background: pink; */
+	/* margin-top: 5%; */
 	width: 100%;
-	height: 40%;
+	height: 50%;
 	justify-content: center;
 	align-items: center;
 	gap: 15px;
-	font-size: larger;
+	/* font-size: larger; */
+	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);
 }
 .entry_friend {
 	display: flex;
 	border-radius: 20px;
 	height: 50%;
-	width: 50%;
+	width: 40%;
 	outline: none;
-	border: none;
+	/* border: none; */
 	text-align: center;
 	font-size: larger;
 }
 
-.non button:hover {
-	background-color: rgb(182, 227, 238);
-}
-.non button {
+.input_friend button {
 	font-size: larger;
-	display: flex;
-	justify-content: center;
-	align-items: center;
 	height: 50%;
-	width: 25%;
-	background-color: #036280;;
-	border: 1px solid #000000;
+	text-align: center;
+	/* font-size: 0.5em; */
+	/* width: 25%; */
+	/* background-color: #036280;; */
+	/* border: 1px solid #000000; */
 	border-radius: 20px;
 }
-.addami {
-	display: flex;
-	height: 15%;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	font-size: 2em;
-	padding-top: 5%;
+.title_modal_friend {
+	/* height: 50%; */
+	/* font-size: 2em; */
+	text-align: center;
+	font-size: clamp(0.9375rem, 0.2163rem + 2.3077vw, 1.875rem);
 }
 
 .modal_overlay_friend {
@@ -133,6 +131,8 @@ export default {
 	transition: all 0.4s ease;
 	min-height: 600px;
 	min-width: 500px;
+	font-family: 'poppins';
+	display: flex;
 }
 
 .modal_friend {
@@ -140,14 +140,16 @@ export default {
 	flex-direction: column;
 	width: 40%;
 	height: 30%;
-	background-color: #DBEFFC;
+	background-color: white;
 	border-radius: 20px;
+	justify-content: center;
+	align-items: center;
 }
 
-@media screen and (max-width: 1150px) {
+/* @media screen and (max-width: 1150px) {
 	.modal_friend {
 		width: 75%;
 	}
-}
+} */
 
 </style>

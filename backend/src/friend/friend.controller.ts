@@ -25,4 +25,9 @@ export class FriendController {
 	async getFriend(@Param('id') id: number) {
 		return await this.friendService.getFriend(id);
 	}
+
+	@Post('/isFriend')
+	async isFriend(@Body() friendDto: friendDto) {
+		return await this.friendService.isFriend(friendDto.username, friendDto.sender);
+	}	
 }

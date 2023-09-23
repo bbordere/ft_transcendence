@@ -1,7 +1,11 @@
 <script lang="ts">
 import { SocketService } from '@/services/SocketService';
+import BlueButton from './BlueButton.vue';
 
 export default {
+	components: {
+		BlueButton
+	},
 	props: {
 		id1: Number,
 		id2: Number,
@@ -47,8 +51,8 @@ export default {
 			<div class="modal_friend" @click.stop>
 				<p>Attention, <b> {{ username }}</b> va être :</p>
 				<div class="button_box">
-					<button v-on:click="blockUser(); $emit('close')">Bloquer</button>
-					<button v-on:click="deleteFriend(); $emit('close')">Supprimer</button>
+					<BlueButton text="Bloquer" v-on:click="blockUser(); $emit('close')"></BlueButton>
+					<BlueButton text="Supprimer" v-on:click="deleteFriend(); $emit('close')"></BlueButton>
 				</div>
 			</div>
 		</div>
@@ -65,18 +69,14 @@ export default {
 	font-size: larger;
 }
 
-.button_box button:hover {
-	background-color: rgb(182, 227, 238);
-}
 .button_box button {
-	font-size: larger;
+	/* font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem); */
+	font-size: clamp(0.75rem, 0.6176rem + 0.7059vw, 1.125rem);
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	height: 50%;
-	width: 30%;
-	background-color: #036280;;
-	border: 1px solid #000000;
+	width: 35%;
 	border-radius: 20px;
 }
 
@@ -98,25 +98,20 @@ export default {
 }
 
 .modal_friend {
+	min-width: 300px;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	right: 70%;
 	width: 30%;
 	height: 30%;
-	background-color: #DBEFFC;
+	background-color: white;
 	border-radius: 20px;
 }
 
 .modal_friend p {
 	text-align: center;
 	font-size: 1.3em;
-}
-
-@media screen and (max-width: 1150px) {
-	.modal_friend {
-		width: 75%;
-	}
 }
 
 </style>

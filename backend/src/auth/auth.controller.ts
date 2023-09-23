@@ -78,13 +78,13 @@ export class AuthController {
 		res.statusCode = 201;
 	}
 
-	@Get('2fa/generate')
+	@Post('2fa/generate')
 	@UseGuards(JwtAuthGuard)
 	async generate(@Req() request, @Res({passthrough: true}) res: Response) {
 		const { otpAuthUrl } = await this.authService.generate2FASecret(request.user.user);
 		toFile('qrcode/' + request.user.user.email + '.png', otpAuthUrl);
 		let QRCode = await this.authService.generateQrCode(otpAuthUrl);
-		res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/home");
+		// res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/home");
 	}
 
 	@Post('2fa/on')

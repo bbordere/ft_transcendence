@@ -16,6 +16,7 @@ import { UserService } from 'src/user/user.service';
 interface StateInfo {
 	client_socket: Socket;
 	state: State;
+	displayUpdate: boolean;
 }
 
 interface InviteInfo {
@@ -65,7 +66,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('setStatus')
 	async setStatus(client: Socket, payload: any) {
-		this.clients.set(payload[0], { client_socket: client, state: payload[1] });
+		this.clients.set(payload[0], { client_socket: client, state: payload[1], displayUpdate: false });
 		await this.handleGetStatus(client, payload[0]);
 	}
 
@@ -85,18 +86,34 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.logger.log('Websocket server has started up !');
 	}
 
-	async handleDisconnect(client: Socket) {
+	handleDisconnect(client: Socket) {
 		// this.clients.set(client.data.userId, {client_socket: client, state: State.OFFLINE});
-		this.clients.delete(client.data.userId);
-		await this.handleGetStatus(client, client.data.userId);
 		this.logger.log(`Client disconnected: ${client.id}`);
+		if (!this.clients.get(client.data.userId)){
+			client.disconnect();
+			return;
+		}
+
+		this.clients.get(client.data.userId).displayUpdate = true;
+		if (this.clients.get(client.data.userId)?.displayUpdate){
+			setTimeout(() => {
+				if (this.clients.get(client.data.userId)?.displayUpdate){
+					this.handleGetStatus(client, client.data.userId);
+					this.clients.delete(client.data.userId);
+				}
+			}, 1000);
+		}
+		client.disconnect();
 	}
 
-	async handleConnection(client: Socket, ...args: any[]) {
-		client.data.userId = Number(client.handshake.query['userId']);
-		this.clients.set(client.data.userId, { client_socket: client, state: State.ONLINE });
-		await this.handleGetStatus(client, client.data.userId);
+	handleConnection(client: Socket, ...args: any[]) {
 		this.logger.log(`Client connected: ${client.id}`);
+		client.data.userId = Number(client.handshake.query['userId']);
+		if (!this.clients.get(client.data.userId))
+			this.clients.set(client.data.userId, { client_socket: client, state: State.ONLINE, displayUpdate: false });
+		else
+			this.clients.get(client.data.userId).client_socket = client;
+		this.handleGetStatus(client, client.data.userId);
 		client.data.canInvite = true;
 	}
 

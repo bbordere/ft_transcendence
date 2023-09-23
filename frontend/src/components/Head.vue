@@ -1,6 +1,7 @@
 <script lang="ts">
 import router from '@/router';
 import { SocketService } from '@/services/SocketService';
+import { State } from '@/views/Home.vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -18,7 +19,9 @@ export default defineComponent({
 			await SocketService.fetchUser();
 			this.name = SocketService.getUser["name"];
 			this.avatar = SocketService.getUser["avatarLink"];
-			await SocketService.setSocket('http://' + import.meta.env.VITE_HOST + ':3000/', { query: { userId: SocketService.getUser.id } });
+			if (!SocketService.getStatus)
+				await SocketService.setSocket('http://' + import.meta.env.VITE_HOST + ':3000/', { query: { userId: SocketService.getUser.id } });
+			this.$emit('socketReady');
 		},
 		redirectToHome(){
 			router.push('/home')
@@ -31,9 +34,10 @@ export default defineComponent({
 		}
 	},
 
-	async mounted() {
+	async created() {
 		await this.getInfos();
 	},
+
 })
 </script>
 

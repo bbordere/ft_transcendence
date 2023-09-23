@@ -1,7 +1,7 @@
 <template>
 	<body>
 
-		<Head v-if="!$route.fullPath.includes('auth') && $route.fullPath.length !== 1" :updateTimestamp="timestampRef">
+		<Head v-if="!$route.fullPath.includes('auth') && $route.fullPath.length !== 1" :updateTimestamp="timestampRef" @socketReady="socketReady">
 		</Head>
 		<div v-if="displayModalInvite" class="invite_modal">
 			<div class="invite_modal_content">
@@ -26,7 +26,7 @@
 
 		<router-view v-slot="{ Component }" appear>
 			<transition name="grow-in" mode="out-in">
-				<Component :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady" />
+				<Component v-if="$route.fullPath.includes('auth') || socketReadyRef" :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady"/>
 			</transition>
 		</router-view>
 	</body>
@@ -41,6 +41,7 @@ import router from '@/router';
 
 import SlidingDiag from './components/SlidingDiag.vue';
 import FloatingSquares from './components/FloatingSquares.vue';
+import { State } from './views/Home.vue';
 
 
 const timestampRef = ref()
@@ -49,10 +50,13 @@ const displayModalInvite = ref(false)
 const displayModalSend = ref(false)
 const senderName = ref("");
 const modeRef = ref("");
+const socketReadyRef = ref(false);
 
 let timeoutId: number = -1;
 
 function socketReady() {
+	socketReadyRef.value = true;
+	// SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE); //WTF POURQUOI CA PETE LE CSS DE LA HOME ?
 	SocketService.getInstance.on('displayInvite', (isSender: boolean, name: string, mode: string) => {
 		senderName.value = name;
 		const ref = isSender ? displayModalSend : displayModalInvite;

@@ -6,6 +6,8 @@ import MatchHistory from '@/components/MatchHistory.vue'
 import { useRoute } from 'vue-router';
 import router from '../router';
 import { useNotification } from '@kyvg/vue3-notification';
+import { SocketService } from '@/services/SocketService';
+import { State } from './Home.vue';
 
 
 export default{
@@ -70,6 +72,7 @@ export default{
 	},
 	mounted() {
 		this.getUser();
+		SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE);
 	},
 
 }

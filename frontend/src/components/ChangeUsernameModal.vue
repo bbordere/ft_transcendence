@@ -78,6 +78,7 @@ export default{
 	background-color: #242424d0;
 	transition: opacity 0.3s ease;
 	transition: all 0.3s ease;
+	z-index: 2;
 }
 .modal-username {
 	text-align: center;
@@ -112,10 +113,11 @@ export default{
 .input_username {
 	font-family: 'Poppins', sans-serif;
 	color: #333;
-	font-size: 1em;
+	/* font-size: 1em; */
+	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);
 	border-radius: 10px;
 	background-color: rgb(255, 255, 255);
-	width: 90%;
+	/* width: 90%; */
 	display: block;
 	transition: all 0.3s;
 }

@@ -23,7 +23,6 @@ export default {
 
 .text-sliding{
 	display: block;
-    font-size: 2em;
     margin-top: 0em;
     margin-bottom: 1em;
     margin-left: 0;
@@ -63,7 +62,8 @@ export default {
 
 			.text-sliding {
 				color: #636363;
-				font-size: 32px;
+				font-size: clamp(1.25rem, 0.5288rem + 2.3077vw, 2.1875rem);
+
 				-webkit-animation: mainFadeIn 0.5s forwards;
 				-o-animation: mainFadeIn 0.5s forwards;
 				animation: mainFadeIn 0.5s forwards;
