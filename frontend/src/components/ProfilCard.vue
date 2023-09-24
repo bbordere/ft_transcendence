@@ -152,7 +152,7 @@ export default{
 
 			<Teleport to="body">
 				<transition name="slide-fade" mode="out-in">
-					<ModalQrcode v-show="showQrcode" @close="showQrcode = false"></ModalQrcode>
+					<ModalQrcode v-if="showQrcode" @close="showQrcode = false"></ModalQrcode>
 				</transition>
 			</Teleport>
 

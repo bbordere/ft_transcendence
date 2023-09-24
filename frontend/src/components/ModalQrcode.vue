@@ -23,8 +23,6 @@ import SlidingTitle from './SlidingTitle.vue';
 import InputField from './InputField.vue';
 import { useNotification } from '@kyvg/vue3-notification';
 import { ref } from 'vue';
-import { fas } from '@fortawesome/free-solid-svg-icons';
-
 
 export default {
 	data(){

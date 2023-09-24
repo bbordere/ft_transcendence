@@ -41,7 +41,7 @@ export class AuthController {
 		const tokens: string = await this.authService.getTokenByUser(req.user);
 		if (req.user.auth2f){
 			res.cookie('auth2f_token', tokens, {httpOnly: true, sameSite: "lax"});
-			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/verif?plan=verify");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/verif");
 			
 		}
 		else {

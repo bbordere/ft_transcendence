@@ -3,20 +3,16 @@
 
 		<Head v-if="!$route.fullPath.includes('auth') && $route.fullPath.length !== 1" :updateTimestamp="timestampRef" @socketReady="socketReady">
 		</Head>
-		<div v-if="displayModalInvite" class="invite_modal">
-			<div class="invite_modal_content">
-				Invitation de {{ senderName }} en mode {{ modeRef }}
-				<div>
-					<button @click="handleClick(true)">Accepter</button>
-					<button @click="handleClick(false)">Refuser</button>
+		<transition name="fade" mode="out-in">
+			<div v-if="displayModalInvite" class="invite_modal">
+				<ModalInvite :sender-name="senderName" :mode="modeRef" @close="displayModalInvite = false"></ModalInvite>
+			</div>
+			<div v-else-if="displayModalSend" class="invite_modal">
+				<div class="invite_modal_content">
+					En attente ...
 				</div>
 			</div>
-		</div>
-		<div v-else-if="displayModalSend" class="invite_modal">
-			<div class="invite_modal_content">
-				En attente ...
-			</div>
-		</div>
+		</transition>
 		<notifications position="top center" group="notif-center" max="2" />
 		<notifications position="top right" group="friend" />
 
@@ -42,6 +38,7 @@ import router from '@/router';
 import SlidingDiag from './components/SlidingDiag.vue';
 import FloatingSquares from './components/FloatingSquares.vue';
 import { State } from './views/Home.vue';
+import ModalInvite from './components/ModalInvite.vue'; 
 
 
 const timestampRef = ref()
@@ -78,15 +75,6 @@ function socketReady() {
 		displayModalSend.value = false;
 	});
 }
-
-function handleClick(value: boolean) {
-	if (value)
-		SocketService.getInstance.emit('handlingInvite', true);
-	else
-		SocketService.getInstance.emit('handlingInvite', false);
-	displayModalInvite.value = false;
-}
-
 function test() {
 	timestampRef.value = Date.now();
 }
@@ -230,19 +218,15 @@ body::-webkit-scrollbar {
 
 .invite_modal {
 	position: absolute;
-	height: 10vh;
-	width: 100vw;
-	display: flex;
-	justify-content: center;
+  	left: 50%;
+  	transform: translate(-50%, -50%);
+	background: white;
+	border: 2px #515151 solid;
+	border-radius: 10px;
+	padding: 5px;
 	z-index: 5;
 }
 
-.invite_modal_content {
-	text-align: center;
-	background: pink;
-	border-radius: 10px;
-	height: 100%;
-}
 </style>
 
 <style>

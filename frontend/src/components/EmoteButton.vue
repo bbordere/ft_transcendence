@@ -24,10 +24,10 @@ export default {
 	position: relative;
 	overflow: hidden;
 	background-color: #229EE6;
+	border: #515151 solid 1px;
 	border-radius: 20px;
-	font-size: 2.5vh;
-	padding: 0.7vw;
-	margin-left: 1vw;
+	/* font-size: 2.5vh; */
+	font-size: clamp(0.75rem, 0.4853rem + 1.4118vw, 1.5rem);padding: 3px;
 }
 
 .emoteContainer:hover {

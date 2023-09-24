@@ -20,7 +20,6 @@
 
 <script setup lang="ts">
 	import { ref } from 'vue';
-	
 	let status = ref("");
 	const emit = defineEmits(['complete']);
 	const props = defineProps(['isInvalidCode']);
@@ -43,7 +42,8 @@
 	function handleInput(event: Event){
 		const inputType = (event as InputEvent).inputType;
 		let currentActiveElement = event.target as HTMLInputElement;
-	
+		if (props.isInvalidCode)
+			codeArr = ["", "", "", "", "", ""];
 		if (inputType === "insertText")
 			(currentActiveElement.nextElementSibling as HTMLElement)?.focus();
 		if (inputType === "insertFromPaste" && inputData) {
@@ -69,32 +69,10 @@
 		if (!value)
 			(currentActiveElement.previousElementSibling as HTMLElement)?.focus();
 	}
-	
-	function delay(ms: number) {
-    	return new Promise( resolve => setTimeout(resolve, ms) );
-	}
 
 	async function sendCode(code: string){
 		emit('complete', code);
 		codeArr = ["", "", "", "", "", ""];
-		// const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/" + (props.status ? "off" : "on"),
-		// {
-		// 	method: 'POST',
-		// 	credentials: 'include',
-		// 	headers: {
-		// 		'Content-Type': 'application/json'
-		// 	},
-		// 	body: JSON.stringify({
-		// 		code: code,
-		// 	})
-		// })
-		// const json = await res.json();
-		// console.log(json);
-			// status.value = json["status"];
-			// if (status.value === "Success"){
-			// 	sessionStorage.setItem('tokens', json["token"]);	
-			// 	delay(1000).then(any=>{router.push(route.query.plan === 'verify' ? '/home' : '/profile');});
-			// }
 	}
 	
 	function onPaste(event: Event) {
@@ -138,7 +116,7 @@
 		/* font-size: 1.125rem; */
 		font-size: clamp(0.875rem, 0.25rem + 2vw, 1.375rem);
 		text-align: center;
-		border: 1px solid #ddd;
+		border: 1px solid #515151;
 	}
 	.input-field input:focus {
 		box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);

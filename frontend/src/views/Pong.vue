@@ -254,8 +254,10 @@ export default {
 .reaction_panel {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
-	width: 32%;
+	gap: 10px;
+	margin-left: 20px;
+	/* justify-content: space-between; */
+	/* width: 42%; */
 }
 
 #exit_button {

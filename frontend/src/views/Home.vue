@@ -110,7 +110,7 @@ export default defineComponent({
 		setInterval(async () => {
 			const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 			sessionStorage.setItem('token', await token.text());
-		}, 1000 * 60 * 10);
+		}, 1000 * 10);
 	},
 
 	updated() {

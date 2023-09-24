@@ -37,15 +37,6 @@
 	import { useRoute } from 'vue-router';
 	
 	const route = useRoute();
-	const plans: string[] = ["on", "verify", "off"];
-	const curPlan = route.query.plan?.toString()
-	if (curPlan === undefined){
-		router.push('/invalidParams');
-	}
-	else if (!plans.includes(curPlan)){
-		router.push('/invalidParams');
-	}
-
 	let status = ref("");
 	
 	let codeArr: string[] = ["", "", "", "", "", ""];
@@ -99,7 +90,7 @@
 	}
 
 	async function sendCode(code: string){
-		const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/" + route.query.plan,
+		const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/verify",
 			{
 				method: 'POST',
 				credentials: 'include',
@@ -114,7 +105,7 @@
 			status.value = json["status"];
 			if (status.value === "Success"){
 				sessionStorage.setItem('tokens', json["token"]);	
-				delay(1000).then(any=>{router.push(route.query.plan === 'verify' ? '/home' : '/profile');});
+				delay(1000).then(any=>{router.push('/home');});
 			}
 		}
 	

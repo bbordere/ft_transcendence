@@ -77,7 +77,7 @@ export default defineComponent({
 		<button class="tri" @click="print = 1;">Demande</button>
 		<button class="tri" @click="print = 2;">Bloqué</button>
 		<div v-if="getFriendRequest"  class="notifDemande">
-			{{ getFriendRequest }}
+			<strong>{{ getFriendRequest }}</strong>
 		</div>
 	</div>
 	<div v-if="print === 2" class="list_friend">
