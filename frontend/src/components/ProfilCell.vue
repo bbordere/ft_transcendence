@@ -23,6 +23,8 @@ export default defineComponent({
 			state: -1,
 			myUser: {} as any,
 			friendUser: {} as any,
+			showTooltip: false as boolean,
+			stateText: '' as string,
 		}
 	},
 	methods: {
@@ -77,12 +79,18 @@ export default defineComponent({
 		SocketService.getInstance.on('getStatus', (data: { userId: number, state: State }) => {
 			const { userId, state } = data;
 			if (userId === this.friend.id) {
-				if (state === State.OFFLINE)
+				if (state === State.OFFLINE) {
 					this.borderColor = 'grey';
-				else if (state === State.ONLINE)
+					this.stateText = 'Hors-Ligne';
+				}
+				else if (state === State.ONLINE) {
 					this.borderColor = 'green';
-				else if (state === State.INGAME)
-					this.borderColor = 'cyan';
+					this.stateText = 'En Ligne';
+				}
+				else if (state === State.INGAME) {
+					this.borderColor = 'royalblue';
+					this.stateText = 'En Partie';
+				}
 			}
 		});
 	}
@@ -99,7 +107,8 @@ export default defineComponent({
 			{{ friend.username }}
 		</div>
 		<div :style="{ 'color': borderColor }">
-			<font-awesome-icon icon="fa-solid fa-gamepad" :class="{'inviteButton': borderColor === 'green'}" @click="borderColor === 'green' ? (modalInvite = true) : null"></font-awesome-icon>
+			<font-awesome-icon @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" icon="fa-solid fa-gamepad" :class="{'inviteButton': borderColor === 'green'}" @click="borderColor === 'green' ? (modalInvite = true) : null"></font-awesome-icon>
+			<span class="tooltip" v-if="showTooltip">{{ stateText }}</span>
 		</div>
 		<div v-on:click="modalHamburger = true" class="menu-button">
 			<font-awesome-icon icon="fa-solid fa-xmark" />
@@ -118,7 +127,9 @@ export default defineComponent({
 		<button v-on:click="deleteUser">D</button>
 	</div>
 </template>
+
 <style>
+
 .box {
 	margin-top: 10px;
 	width: 90%;
@@ -178,4 +189,18 @@ export default defineComponent({
 	margin: 3px;
 	transition: 0.4s;
 }
+
+.tooltip {
+	position: absolute;
+	font-family: 'Poppins', sans-serif;
+	font-weight: bold;
+	font-size: 0.6em;
+	color: #ffffff;
+	border: 2px solid #087ee6;
+	border-radius: 5px;
+	background-color: #4596d8;
+	padding: 3px;
+	margin-left: 20px;
+}
+
 </style>
