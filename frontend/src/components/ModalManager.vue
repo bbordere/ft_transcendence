@@ -22,9 +22,6 @@
 			<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;">
 			</UnBanUserModal>
 		</Teleport>
-		<Teleport to="body">
-			<MuteModal :show="showMuteModal" :channelId="selectedChannel.id" @close="showMuteModal = false" />
-		</Teleport>
 	</div>
 </template>
 <script lang="ts">

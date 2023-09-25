@@ -4,7 +4,7 @@
 			<div class="left_column">
 				<PlayButton />
 				<div class="friend_list">
-					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel" @kick="notifyKick"
+					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel"
 						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
@@ -126,6 +126,9 @@ export default defineComponent({
 	methods: {
 		async init() {
 			this.$emit('socketReady');
+			SocketService.getInstance.on('mute', (data: any) => {
+				console.log(data);
+			});
 			SocketService.getInstance.on('message',
 				(data: {
 					channelId: number,
@@ -146,11 +149,13 @@ export default defineComponent({
 						});
 					}
 				});
-			SocketService.getInstance.on('kick', (data: { channelId: number, userId: number, ban: boolean }) => {
-				const { channelId, userId, ban } = data;
+			SocketService.getInstance.on('kick', (data: any) => {
+				const channelId = data[0];
+				const userId = data[1];
+				const ban = data[2];
 				if (this.sender.id === userId) {
 					for (let i = 0; i < this.channels.length; i++) {
-						if (this.channels[i].id === this.selectedChannel.id) {
+						if (this.channels[i].id === channelId) {
 							const channel_name = this.channels[i].name;
 							this.channels.splice(i, 1);
 							if (this.selectedChannel.id === channelId)
@@ -259,8 +264,6 @@ export default defineComponent({
 				this.ModalManagerData.showBanModal = true;
 			else if (str === 'unban')
 				this.ModalManagerData.showUnBanModal = true;
-			else if (str === 'mute')
-				this.ModalManagerData.showMuteModal = true;
 		},
 
 		findChannel(id: number): Channel | null {
@@ -289,10 +292,6 @@ export default defineComponent({
 			catch {
 				return ([] as Message[]);
 			}
-		},
-
-		notifyKick(channelId: number, userId: number, ban: boolean) {
-			SocketService.getInstance.emit('kick', { channelId, userId, ban });
 		},
 	},
 });

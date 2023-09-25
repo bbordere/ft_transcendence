@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { SocketService } from '@/services/SocketService';
 
 export default defineComponent ({
 	data() {
@@ -26,7 +27,7 @@ export default defineComponent ({
 			const response_json = await response.json();
 			this.$emit('close');
 			if (response_json['ok'])
-				this.$emit('kick', this.$props.channelId, user['id'], true);
+				SocketService.getInstance.emit('kick', this.$props.channelId, user['id'], true);
 		}
 	},
 });

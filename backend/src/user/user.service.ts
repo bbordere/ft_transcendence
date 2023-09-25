@@ -172,12 +172,20 @@ export class UserService {
 	}
 	
 	async kickUserFromChannel(userId: number, channelId: number) {
+		console.log(`userId: ${userId}`);
+		console.log(`channelId: ${channelId}`);
 		const user = await this.usersRepository.findOne({where: {id: userId}});
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+		const channel_users = await this.usersRepository.createQueryBuilder('user')
+		.leftJoinAndSelect('user.channels', 'channel')
+		.where('channel.id = ' + channel.id)
+		.getMany();
 		if (!user)
 			return ;
 		if (user.id === channel.owner.id)
 			throw new Error('You cannot kick the owner of the channel.');
+		if (!channel_users.includes(user))
+			throw new Error('User not in channel.');
 		await this.removeUserFromChannel(user.id, channel.id);
 	}
 
@@ -185,8 +193,13 @@ export class UserService {
 		const user = await this.usersRepository.findOne({where: {id: userId}});
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['bannedUsers', 'owner']});
 
+		if (!user || !channel)
+			return ;
 		if (user.id === channel.owner.id)
 			throw new Error('You cannot ban the owner of the channel.');
+		for (let ban of channel.bannedUsers)
+			if (ban.id === user.id)
+				throw new Error('User already banned.');
 		await this.removeUserFromChannel(userId, channelId);
 		channel.bannedUsers.push(user);
 		await this.channelRepository.save(channel);

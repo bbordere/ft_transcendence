@@ -103,9 +103,7 @@ export default defineComponent({
 });
 
 </script>
-<!-- <ModalChat :show="modalChat" @close="modalChat = false"></ModalChat> -->
-<!-- import ModalChat from '../components/ModalChat.vue'
-ModalChat, -->
+
 <template>
 	<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)">
 		<div class="img_user">
