@@ -12,6 +12,7 @@ import { ChatService } from './chat.service';
 import { State } from 'src/user/user.entity';
 import { FriendService } from 'src/friend/friend.service';
 import { UserService } from 'src/user/user.service';
+import { Channel } from './entities/channel.entity';
 
 interface Mute {
 	userId: number,
@@ -27,6 +28,7 @@ interface InviteInfo {
 	userId: number;
 	mode: string;
 }
+
 
 @WebSocketGateway({
 	cors: {
@@ -44,6 +46,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	private clients: Map<number, StateInfo> = new Map<number, StateInfo>;
 	private invites: Map<number, InviteInfo> = new Map<number, InviteInfo>; // invited -> sender
 	private muteds: Map<number, Mute[]> = new Map<number, Mute[]>;
+	private worldChannel: Channel = undefined;
 
 	private searchMute(userId: number, muted_list: Mute[]): Mute {
 		if (!muted_list)
@@ -145,8 +148,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return (payload);
 	}
 
-	afterInit(server: Server) {
+	async afterInit(server: Server) {
 		// Create world channel
+		if (this.worldChannel === undefined)
+			this.worldChannel = await this.chatService.create('#World', '', false, undefined);
 		this.logger.log('Websocket server has started up !');
 	}
 
@@ -161,6 +166,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		client.data.userId = Number(client.handshake.query['userId']);
 		this.clients.set(client.data.userId, { client_socket: client, state: State.ONLINE });
 		await this.handleGetStatus(client, client.data.userId);
+		if (this.worldChannel?.owner === undefined)
+			await this.chatService.setOwner(this.worldChannel?.id, client.data.userId);
+		await this.userService.addUserToChannel(client.data.userId, this.worldChannel?.id, '');
 		this.logger.log(`Client connected: ${client.id}`);
 		client.data.canInvite = true;
 	}

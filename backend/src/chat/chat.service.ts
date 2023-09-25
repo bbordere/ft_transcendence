@@ -177,4 +177,15 @@ export class ChatService {
 			return (undefined);
 		return (channel.admins);
 	}
+
+	async setOwner(channelId: number, userId: number): Promise<Channel> {
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		const user = await this.userRepository.findOne({where: {id: userId}});
+
+		if (!channel || !user)
+			return (undefined);
+		channel.owner = user;
+		this.channelRepository.save(channel);
+		return (channel);
+	}
 }
