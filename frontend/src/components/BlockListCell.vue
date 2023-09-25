@@ -56,15 +56,37 @@ export default defineComponent({
 <template>
 	<div class="box">
 		<div class="img_user">
-			<img class="img_user_profil" :src="getAvatarUrl(block)" @click="redirecToProfil(friendUsername)">
+			<img class="img_user_profil_block" :src="getAvatarUrl(block)">
 		</div>
 		<div class="name">
 			{{ friendUsername }}
 		</div>
-			<button v-on:click="unblockUser">UNBLOCK</button>
+			<button class="unblock" v-on:click="unblockUser">Débloquer</button>
 	</div>
 
 </template>
 <style>
+
+.img_user_profil_block {
+	border-radius: 25px;
+	width: 100%;
+	aspect-ratio: 1;
+	border: 2px solid;
+	border-radius: 50%;
+	display: inline-block;
+	border-color: rgb(107, 106, 106);
+	padding: 2px;
+}
+
+.unblock {
+	cursor: pointer;
+	font-family: 'Poppins', sans-serif;
+	font-weight: bold;
+	font-size: clamp(0.5rem, 0.4118rem + 0.4706vw, 0.75rem);
+	color: #ffffff;
+	border: 2px solid #087ee6;
+	border-radius: 7px;
+	background-color: #4596d8;
+}
 
 </style>

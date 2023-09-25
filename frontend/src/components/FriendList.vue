@@ -111,6 +111,9 @@ export default defineComponent({
 	border-radius: 20px;
 	border: none;
 	cursor: pointer;
+	font-family: 'Poppins', sans-serif;
+	font-weight: bold;
+	font-size: clamp(0.5rem, 0.4118rem + 0.4706vw, 0.75rem);
 }
 
 .tri:hover {

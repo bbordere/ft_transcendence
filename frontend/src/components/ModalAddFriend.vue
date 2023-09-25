@@ -146,10 +146,4 @@ export default {
 	align-items: center;
 }
 
-/* @media screen and (max-width: 1150px) {
-	.modal_friend {
-		width: 75%;
-	}
-} */
-
 </style>

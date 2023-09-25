@@ -103,9 +103,7 @@ export default defineComponent({
 });
 
 </script>
-<!-- <ModalChat :show="modalChat" @close="modalChat = false"></ModalChat> -->
-<!-- import ModalChat from '../components/ModalChat.vue'
-ModalChat, -->
+
 <template>
 	<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)">
 		<div class="img_user">
@@ -176,6 +174,7 @@ ModalChat, -->
 }
 
 .img_user_profil {
+	cursor: pointer;
 	border-radius: 25px;
 	width: 100%;
 	aspect-ratio: 1;
@@ -217,7 +216,7 @@ ModalChat, -->
 	margin-left: 20px;
 }
 
-.buttons_profilCell{
+.buttons_profilCell {
 	display: flex;
 	justify-content: center;
 	align-items: center;
