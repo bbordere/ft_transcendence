@@ -72,10 +72,14 @@ export class ChatService {
 		return (savedMessage);
 	}
 
-	async getChannelMessages(channelId: number): Promise<Message[] | null> {
+	async getChannelMessages(userId: number, channelId: number): Promise<Message[] | null> {
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['messages']});
+		const user = await this.userRepository.findOne({where: {id: userId}});
 		if (!channel)
 			return (null);
+		for (let message of channel.messages)
+			if (user.blockList.includes(message.sender.id))
+				channel.messages.splice(channel.messages.indexOf(message), 1);
 		return (channel.messages);
 	}
 

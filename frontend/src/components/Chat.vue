@@ -32,6 +32,8 @@
 					@click="$emit('displayChannelOption', 'unban')">Unban User</button>
 				<button v-if="selectedChannel.owner === sender.id" type="button"
 					@click="$emit('displayChannelOption', 'mute')">Mute User</button>
+				<button v-if="selectedChannel.protected">Change/Remove Password</button>
+				<button v-else>Add Password</button> 
 			</div>
 		</div>
 	</div>

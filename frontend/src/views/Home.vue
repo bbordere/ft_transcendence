@@ -104,7 +104,6 @@ export default defineComponent({
 				protected: channels_json[i]['protected'],
 				admins: await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/getAdmins', { credentials: 'include' })).json(),
 			});
-			console.log(this.channels[i].admins);
 		}
 		await this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });

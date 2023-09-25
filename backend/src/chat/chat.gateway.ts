@@ -11,6 +11,7 @@ import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
 import { State } from 'src/user/user.entity';
 import { FriendService } from 'src/friend/friend.service';
+import { UserService } from 'src/user/user.service';
 
 interface Mute {
 	userId: number,
@@ -36,6 +37,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	constructor(
 		private readonly chatService: ChatService,
 		private readonly friendService: FriendService,
+		private readonly userService: UserService,
 	) { }
 	@WebSocketServer() server: Server;
 	private logger: Logger = new Logger('ChatGateway');
@@ -68,8 +70,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const muted = this.muteds.get(channelId);
 		const mute_instance = this.searchMute(sender, muted);
 		if (!mute_instance) {
-			for (let user of users)
-				this.clients.get(user.id).client_socket.emit('message', payload);
+			for (let user of users) {
+				if (!user.blockList.includes(sender))
+					this.clients.get(user.id).client_socket.emit('message', payload);
+			}
 			this.chatService.addMessageToChannel({ channelId, text, sender });
 		}
 		else {
