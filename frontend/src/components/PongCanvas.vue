@@ -280,7 +280,7 @@ export default {
 
 <style>
 .pong_screen {
-	margin-top: -6px;
+	margin-top: -20px;
 	max-width: 100%;
 	max-height: 80%;
 	min-width: auto;

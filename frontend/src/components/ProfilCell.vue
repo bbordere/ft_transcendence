@@ -50,6 +50,8 @@ export default defineComponent({
 				}),
 			});
 			this.modalHamburger = false;
+			SocketService.getInstance.emit('refreshFriendListId', this.myId);
+			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},
 
 		async acceptFriend() {
@@ -60,6 +62,8 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 			});
+			SocketService.getInstance.emit('refreshFriendListId', this.myId);
+			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},
 
 		async deleteUser() {
@@ -70,6 +74,8 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 			});
+			SocketService.getInstance.emit('refreshFriendListId', this.myId);
+			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},
 	},
 
@@ -125,8 +131,14 @@ ModalChat, -->
 		<div class="name">
 			{{ friend.username }}
 		</div>
-		<button v-on:click="acceptFriend">V</button>
-		<button v-on:click="deleteUser">D</button>
+		<div class="buttons_profilCell">
+			<button class="green_color" v-on:click="acceptFriend">
+				<font-awesome-icon icon="fa-solid fa-check"/>
+			</button>
+			<button class="red_color" v-on:click="deleteUser">
+				<font-awesome-icon icon="fa-solid fa-xmark"/>
+			</button>
+		</div>
 	</div>
 </template>
 
@@ -203,6 +215,38 @@ ModalChat, -->
 	background-color: #4596d8;
 	padding: 3px;
 	margin-left: 20px;
+}
+
+.buttons_profilCell{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	margin-right: 10px;
+}
+
+.red_color{
+	background-color: red;
+	font-family: 'poppins';
+	border-radius: 250px;
+	text-align: center;
+	font-size: clamp(0.5rem, 0.4118rem + 0.4706vw, 0.75rem);
+	outline: none;
+	border: 2px #515151 solid;
+	cursor: pointer;
+	color: white;
+}
+
+.green_color{
+	background-color: green;
+	font-family: 'poppins';
+	border-radius: 250px;
+	text-align: center;
+	font-size: clamp(0.5rem, 0.4118rem + 0.4706vw, 0.75rem);
+	outline: none;
+	border: 2px #515151 solid;
+	cursor: pointer;
+	color: white;
 }
 
 </style>

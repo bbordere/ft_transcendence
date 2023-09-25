@@ -108,4 +108,13 @@ export class FriendService {
 		}
 		return friends;
 	}
+
+	async isFriend(username: string, requester: number): Promise<boolean>{
+		const friends = await this.getFriend(requester);
+		for (var friend of friends){
+			if (friend.username === username)
+				return (true);
+		}
+		return (false);
+	}
 }

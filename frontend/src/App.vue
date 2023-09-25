@@ -1,27 +1,28 @@
 <template>
 	<body>
 
-		<Head v-if="!$route.fullPath.includes('auth') && $route.fullPath.length !== 1" :updateTimestamp="timestampRef">
+		<Head v-if="!$route.fullPath.includes('auth') && $route.fullPath.length !== 1" :updateTimestamp="timestampRef" @socketReady="socketReady">
 		</Head>
-		<div v-if="displayModalInvite" class="invite_modal">
-			<div class="invite_modal_content">
-				Invitation de {{ senderName }} en mode {{ modeRef }}
-				<div>
-					<button @click="handleClick(true)">Accepter</button>
-					<button @click="handleClick(false)">Refuser</button>
+		<transition name="fade" mode="out-in">
+			<div v-if="displayModalInvite" class="invite_modal">
+				<ModalInvite :sender-name="senderName" :mode="modeRef" @close="displayModalInvite = false"></ModalInvite>
+			</div>
+			<div v-else-if="displayModalSend" class="invite_modal">
+				<div class="invite_modal_content">
+					En attente ...
 				</div>
 			</div>
-		</div>
-		<div v-else-if="displayModalSend" class="invite_modal">
-			<div class="invite_modal_content">
-				En attente ...
-			</div>
-		</div>
+		</transition>
 		<notifications position="top center" group="notif-center" max="2" />
 		<notifications position="top right" group="friend" />
+
+		<!-- <SlidingDiag></SlidingDiag> -->
+		<FloatingSquares></FloatingSquares>
+
+
 		<router-view v-slot="{ Component }" appear>
 			<transition name="grow-in" mode="out-in">
-				<Component :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady" />
+				<Component v-if="$route.fullPath.includes('auth') || socketReadyRef" :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady"/>
 			</transition>
 		</router-view>
 	</body>
@@ -34,6 +35,11 @@ import Head from './components/Head.vue';
 import { SocketService } from './services/SocketService';
 import router from '@/router';
 
+import SlidingDiag from './components/SlidingDiag.vue';
+import FloatingSquares from './components/FloatingSquares.vue';
+import { State } from './views/Home.vue';
+import ModalInvite from './components/ModalInvite.vue'; 
+
 
 const timestampRef = ref()
 
@@ -41,10 +47,13 @@ const displayModalInvite = ref(false)
 const displayModalSend = ref(false)
 const senderName = ref("");
 const modeRef = ref("");
+const socketReadyRef = ref(false);
 
 let timeoutId: number = -1;
 
 function socketReady() {
+	socketReadyRef.value = true;
+	// SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE); //WTF POURQUOI CA PETE LE CSS DE LA HOME ?
 	SocketService.getInstance.on('displayInvite', (isSender: boolean, name: string, mode: string) => {
 		senderName.value = name;
 		const ref = isSender ? displayModalSend : displayModalInvite;
@@ -66,15 +75,6 @@ function socketReady() {
 		displayModalSend.value = false;
 	});
 }
-
-function handleClick(value: boolean) {
-	if (value)
-		SocketService.getInstance.emit('handlingInvite', true);
-	else
-		SocketService.getInstance.emit('handlingInvite', false);
-	displayModalInvite.value = false;
-}
-
 function test() {
 	timestampRef.value = Date.now();
 }
@@ -121,12 +121,12 @@ body {
 	//   animation: AnimationName 10s linear infinite reverse;
 	overflow: scroll;
 
-	background: linear-gradient(125deg, #c4e8f6e0, #509ac9e0, #2a8cd8e0, );
-	background-size: 600% 600%;
-	-webkit-animation: AnimationName 10s ease infinite;
-	-moz-animation: AnimationName 10s ease infinite;
-	-o-animation: AnimationName 10s ease infinite;
-	animation: AnimationName 10s ease infinite;
+	// background: linear-gradient(125deg, #c4e8f6aa, #509ac9aa, #2a8cd8aa, );
+	// background-size: 600% 600%;
+	// -webkit-animation: AnimationName 10s ease infinite;
+	// -moz-animation: AnimationName 10s ease infinite;
+	// -o-animation: AnimationName 10s ease infinite;
+	// animation: AnimationName 10s ease infinite;
 
 
 }
@@ -206,7 +206,7 @@ body::-webkit-scrollbar {
 //   }
 // }
 
-.grow-in-enter-from {
+.grow-in-enter-from, .grow-in-leave-to {
 	opacity: 0;
 	transform: scale(0.3);
 }
@@ -218,19 +218,15 @@ body::-webkit-scrollbar {
 
 .invite_modal {
 	position: absolute;
-	height: 10vh;
-	width: 100vw;
-	display: flex;
-	justify-content: center;
+  	left: 50%;
+  	transform: translate(-50%, -50%);
+	background: white;
+	border: 2px #515151 solid;
+	border-radius: 10px;
+	padding: 5px;
 	z-index: 5;
 }
 
-.invite_modal_content {
-	text-align: center;
-	background: pink;
-	border-radius: 10px;
-	height: 100%;
-}
 </style>
 
 <style>

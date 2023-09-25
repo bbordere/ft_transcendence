@@ -44,7 +44,8 @@ export default{
 	border: none;
 	transition: all .3s ease-in-out;
 	overflow: hidden;
-	overflow-wrap: anywhere;
+	/* overflow-wrap: anywhere; */
+	overflow-wrap: break-word;
 	cursor: pointer;
 }
 
@@ -64,11 +65,5 @@ export default{
 	width: 100%;
 	opacity: 50%;
 }
-
-/* @media screen and (max-width: 930px) {
-	.blue-button-text{
-		font-size: 1.4vw;
-	}
-} */
 
 </style>

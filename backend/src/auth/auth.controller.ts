@@ -41,7 +41,7 @@ export class AuthController {
 		const tokens: string = await this.authService.getTokenByUser(req.user);
 		if (req.user.auth2f){
 			res.cookie('auth2f_token', tokens, {httpOnly: true, sameSite: "lax"});
-			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/verif?plan=verify");
+			res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/verif");
 			
 		}
 		else {
@@ -78,13 +78,13 @@ export class AuthController {
 		res.statusCode = 201;
 	}
 
-	@Get('2fa/generate')
+	@Post('2fa/generate')
 	@UseGuards(JwtAuthGuard)
 	async generate(@Req() request, @Res({passthrough: true}) res: Response) {
 		const { otpAuthUrl } = await this.authService.generate2FASecret(request.user.user);
 		toFile('qrcode/' + request.user.user.email + '.png', otpAuthUrl);
 		let QRCode = await this.authService.generateQrCode(otpAuthUrl);
-		res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/home");
+		// res.redirect("http://" + process.env.HOST + ":" + process.env.PORT + "/auth/2fa/home");
 	}
 
 	@Post('2fa/on')
@@ -144,6 +144,7 @@ export class AuthController {
 	@Post('/refresh')
 	@UseGuards(JwtAuthGuard)
 	async refreshToken(@Req() req, @Res({passthrough: true}) res: Response){
+		console.log(req["user"]);
 		const tokens: string = await this.authService.getTokenByUser(req["user"]);
 		res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
 	}

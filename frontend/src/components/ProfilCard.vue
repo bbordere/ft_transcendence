@@ -7,6 +7,8 @@ import BlueButton from './BlueButton.vue';
 import router from '../router';
 import { useNotification } from "@kyvg/vue3-notification";
 import Switch from './switch.vue';
+import { SocketService } from '@/services/SocketService';
+import  ModalQrcode from '@/components/ModalQrcode.vue';
 
 export default{
 	components: {
@@ -15,29 +17,41 @@ export default{
 		BlueButton,
 		ChangeUsernameModal,
 		Switch,
+		ModalQrcode,
 	},
 	props: ["editable", "username"],
 	data(){
 		return ({user: "", 
 				showModal: false,
-				isMyPage: false,
+				isMyPage: true,
 				windowWidth: window.innerWidth,
+				showQrcode: false,
 			});
 	},
 	methods: {
 		logout(){
 			router.push("/auth/logout");
 		},
-		getUser(){
+		async getUser(){
 			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.username, {credentials: 'include'})
 			.then(res => res.json())
 			.then(data => {this.user = data;})
 			.then(() => this.$emit('update', this.user.name));
 		},
-		isMe(){
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", {credentials: 'include'})
-			.then(res => res.json())
-			.then(res => {this.isMyPage = (res["name"] === this.user["name"])});
+		async isMe(){
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/friend/isFriend',{
+				credentials: 'include',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					username: this.username,
+					sender: SocketService.getUser["id"],
+				})
+			})
+			const ret = await (await response.blob()).text();
+			this.isMyPage = this.username === 'me' || this.username === SocketService.getUser["name"] || (ret !== "false");
 		},
 		failure(){
 			const notification = useNotification()
@@ -81,12 +95,40 @@ export default{
 		handle2fa(){
 			router.push('/auth/2fa/home');
 		},
+		addFriendNotif (text: string, status: string) {
+			const notification = useNotification()
+			notification.notify({
+				title: text,
+				type: status,
+				group: 'notif-center'
+			});
+		},
+		async addUser() {
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/friend/add',{
+				credentials: 'include',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					username: this.username,
+					sender: SocketService.getUser["id"],
+				})
+			})
+			const ret = await (await response.blob()).text();
+			if (ret.length == 0) {
+				this.addFriendNotif("Demande d'ami envoyé", "success");
+				this.$emit('close');
+				SocketService.getInstance.emit('refreshFriendList', this.username);
+				this.isMyPage = true;
+			}
+		},
 
 	},
-	beforeMount(){
+	async created(){
 		window.addEventListener('resize', this.handleResize);
-		this.getUser();
-		this.isMe();
+		await this.getUser();
+		await this.isMe();
     },
 }
 
@@ -107,13 +149,20 @@ export default{
 					</ChangeUsernameModal>
 				</transition>
 			</Teleport>
+
+			<Teleport to="body">
+				<transition name="slide-fade" mode="out-in">
+					<ModalQrcode v-if="showQrcode" @close="showQrcode = false"></ModalQrcode>
+				</transition>
+			</Teleport>
+
 			<div class="buttons-items" v-if="editable != 0"> 
 				<BlueButton class="button-profile" text="Changer Nom " icon="fa-solid fa-pen" :display-text="windowWidth >= 930" @click="showModal = true"></BlueButton>
-				<BlueButton class="button-profile" text="Double Authentification " icon="fa-solid fa-lock" :display-text="windowWidth >= 930" @click="handle2fa"></BlueButton>
+				<BlueButton class="button-profile" text="Double Authentification " icon="fa-solid fa-lock" :display-text="windowWidth >= 930" @click="showQrcode = true"></BlueButton>
 				<BlueButton class="button-profile"  text="Déconnection " icon="fa-solid fa-right-from-bracket" @click="logout" :display-text="windowWidth >= 930"></BlueButton>
 			</div>
 			<div v-else-if="!isMyPage">
-				<BlueButton text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 930" ></BlueButton>
+				<BlueButton @click="addUser" text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 930" ></BlueButton>
 			</div>
 		</div>
 	</div>
@@ -123,9 +172,9 @@ export default{
 <style>
 	.card{
 		display: flex;
+		border: 2px solid #515151;
 		justify-content: space-between;
 		padding: 2%;
-		height: 100%;
 		align-items: center;
 		background-color: aliceblue;
 		flex-direction: row;

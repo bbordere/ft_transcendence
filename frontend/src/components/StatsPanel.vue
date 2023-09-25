@@ -3,7 +3,7 @@
 		<div class="left-panel">
 			<div class="centered-panel-item">
 				<div v-if="dataLoaded && (stats.wins + stats.looses)">
-					<div v-if="windowWidth >= 700">
+					<div v-if="windowWidth >= 700" class="chart">
 						<WinCharts :wins="stats.wins" :looses="stats.looses" :show="dataLoaded"></WinCharts>
 					</div>
 					<div v-else class="small-winrate">
@@ -224,6 +224,11 @@ h5{
 
 h3{
 	font-size: clamp(0.6875rem, -0.0764rem + 2.4444vw, 1.375rem);
+}
+
+.chart{
+	/* background: pink; */
+	/* height: 200%; */
 }
 
 

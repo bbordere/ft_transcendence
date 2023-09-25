@@ -22,6 +22,7 @@ interface Mute {
 interface StateInfo {
 	client_socket: Socket;
 	state: State;
+	displayUpdate: boolean;
 }
 
 interface InviteInfo {
@@ -131,7 +132,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('setStatus')
 	async setStatus(client: Socket, payload: any) {
-		this.clients.set(payload[0], { client_socket: client, state: payload[1] });
+		this.clients.set(payload[0], { client_socket: client, state: payload[1], displayUpdate: false });
 		await this.handleGetStatus(client, payload[0]);
 	}
 
@@ -155,30 +156,47 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.logger.log('Websocket server has started up !');
 	}
 
-	async handleDisconnect(client: Socket) {
-		this.clients.delete(client.data.userId);
-		await this.handleGetStatus(client, client.data.userId);
+	handleDisconnect(client: Socket) {
+		// this.clients.set(client.data.userId, {client_socket: client, state: State.OFFLINE});
 		this.logger.log(`Client disconnected: ${client.id}`);
+		if (!this.clients.get(client.data.userId)){
+			client.disconnect();
+			return;
+		}
+
+		this.clients.get(client.data.userId).displayUpdate = true;
+		if (this.clients.get(client.data.userId)?.displayUpdate){
+			setTimeout(() => {
+				if (this.clients.get(client.data.userId)?.displayUpdate){
+					this.handleGetStatus(client, client.data.userId);
+					this.clients.delete(client.data.userId);
+				}
+			}, 1000);
+		}
+		client.disconnect();
 	}
 
 	async handleConnection(client: Socket, ...args: any[]) {
 		// join new user into the world channel
 		client.data.userId = Number(client.handshake.query['userId']);
-		this.clients.set(client.data.userId, { client_socket: client, state: State.ONLINE });
+		if (!this.clients.get(client.data.userId))
+			this.clients.set(client.data.userId, { client_socket: client, state: State.ONLINE, displayUpdate: false });
+		else
+			this.clients.get(client.data.userId).client_socket = client;
+		client.data.canInvite = true;
 		await this.handleGetStatus(client, client.data.userId);
 		if (this.worldChannel?.owner === undefined)
 			await this.chatService.setOwner(this.worldChannel?.id, client.data.userId);
 		await this.userService.addUserToChannel(client.data.userId, this.worldChannel?.id, '');
 		this.logger.log(`Client connected: ${client.id}`);
-		client.data.canInvite = true;
 	}
 
 	@SubscribeMessage('pongInvite')
 	async sendPongInvite(client: Socket, payload: any) {
 		if (this.invites.get(payload[1]) || this.invites.get(payload[0]) || !client.data.canInvite)
 			return;
-		this.clients.get(payload[0]).client_socket.emit('displayInvite', true, payload[2], payload[3]);
-		this.clients.get(payload[1]).client_socket.emit('displayInvite', false, payload[2], payload[3]);
+		this.clients.get(payload[0])?.client_socket.emit('displayInvite', true, payload[2], payload[3]);
+		this.clients.get(payload[1])?.client_socket.emit('displayInvite', false, payload[2], payload[3]);
 		this.invites.set(payload[1], { userId: payload[0], mode: payload[3] });
 		client.data.canInvite = false;
 	}
@@ -200,5 +218,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.clients.get(client.data.userId).client_socket.emit('closeInvite');
 		this.invites.delete(client.data.userId);
 		client.data.canInvite = true;
+	}
+
+	@SubscribeMessage('refreshFriendList')
+	async refreshFriendList(client: Socket, payload: string){
+		const target = await this.userService.getByName(payload);
+		this.clients.get(target.id).client_socket.emit('updateFriendList');
+	}
+
+	@SubscribeMessage('refreshFriendListId')
+	async refreshFriendListId(client: Socket, payload: number){
+		const target = await this.userService.getById(payload);
+		this.clients.get(target.id).client_socket.emit('updateFriendList');
 	}
 }

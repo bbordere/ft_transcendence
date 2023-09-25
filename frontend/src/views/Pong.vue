@@ -209,7 +209,7 @@ export default {
 	align-items: center;
 	background: #F0F8FF;
 	/* background: #fff9cf; */
-	border: 3px solid #BC0002;
+	border: 3px solid #515151;
 	border-radius: 20px;
 }
 
@@ -254,8 +254,10 @@ export default {
 .reaction_panel {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
-	width: 32%;
+	gap: 10px;
+	margin-left: 20px;
+	/* justify-content: space-between; */
+	/* width: 42%; */
 }
 
 #exit_button {

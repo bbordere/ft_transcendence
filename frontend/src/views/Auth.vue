@@ -51,7 +51,7 @@ async function login(){
 			break;
 		}
 		case 207:{
-			router.push({path:'/auth/2fa/verif', query: { plan: 'verify' }});
+			router.push({path:'/auth/2fa/verif'});
 			break;
 		}
 	}

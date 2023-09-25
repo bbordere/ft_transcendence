@@ -19,6 +19,7 @@
     "apexcharts": "^3.40.0",
     "aws-sdk": "^2.1434.0",
     "bcrypt": "^5.1.0",
+    "canvas-confetti": "^1.6.0",
     "mock-aws-s3": "^4.0.2",
     "nock": "^13.3.2",
     "socket.io-client": "^4.6.2",

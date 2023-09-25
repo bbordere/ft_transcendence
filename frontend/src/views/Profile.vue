@@ -6,6 +6,8 @@ import MatchHistory from '@/components/MatchHistory.vue'
 import { useRoute } from 'vue-router';
 import router from '../router';
 import { useNotification } from '@kyvg/vue3-notification';
+import { SocketService } from '@/services/SocketService';
+import { State } from './Home.vue';
 
 
 export default{
@@ -70,6 +72,7 @@ export default{
 	},
 	mounted() {
 		this.getUser();
+		SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE);
 	},
 
 }
@@ -112,13 +115,14 @@ export default{
 		margin-top: 1%;
 		width: 80%;
 		justify-content: space-between;
-		height: 50vh;
+		height: 45vh;
 	}
 
 	.matchHistory{
 		width: 40%;
 		border-radius: 50px;
 		background-color: aliceblue;
+		border: 2px solid #515151;
 	}
 	
 	.statsPanel{
@@ -126,5 +130,6 @@ export default{
 		margin-left: 2%;
 		background-color: aliceblue;
 		border-radius: 50px;
+		border: 2px solid #515151;
 	}
 </style>
