@@ -205,7 +205,7 @@ export default {
 				this.ball.position.x += (targetBall.position.x - this.ball.position.x) * 0.5;
 				this.ball.position.y += (targetBall.position.y - this.ball.position.y) * 0.5;
 
-				// this.ball = targetBall;
+				this.ball = targetBall;
 				// console.log(this.ball.position, this.gameInfos.ball.position);
 
 				this.pad1.pos.x += (pad1.pos.x - this.pad1.pos.x) * 0.2;
@@ -243,8 +243,8 @@ export default {
 			return; // ERROR HANDLING
 
 		await this.spritesInit();
-		this.socket.on('updateGame', (ball: ball, racket1: paddle, racket2: paddle, powerups: []) => {
-			this.gameInfos = { ball: ball, pad1: racket1, pad2: racket2, powerups: powerups };
+		this.socket.on('updateGame', (ball: ball, racket1: paddle, racket2: paddle, powerups: string) => {
+			this.gameInfos = { ball: ball, pad1: racket1, pad2: racket2, powerups: JSON.parse(powerups)};
 			if (this.animId === -1 || !this.isInGame) {
 				if (this.animId !== -1)
 					cancelAnimationFrame(this.animId);

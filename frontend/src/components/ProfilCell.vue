@@ -29,8 +29,8 @@ export default defineComponent({
 	},
 	methods: {
 
-		redirecToProfil(name: string) {
-			router.push({ path: '/profile', query: { user: name } });
+		redirecToProfil(name_cell: string) {
+			router.push({ path: '/profile', query: { user: name_cell } });
 		},
 
 		getAvatarUrl(id: number) {
@@ -111,7 +111,7 @@ ModalChat, -->
 		<div class="img_user">
 			<img class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
 		</div>
-		<div class="name">
+		<div class="name_cell">
 			{{ friend.username }}
 		</div>
 		<div :style="{ 'color': borderColor }">
@@ -128,7 +128,7 @@ ModalChat, -->
 		<div class="img_user">
 			<img class="img_user_profil" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
 		</div>
-		<div class="name">
+		<div class="name_cell">
 			{{ friend.username }}
 		</div>
 		<div class="buttons_profilCell">
@@ -162,10 +162,16 @@ ModalChat, -->
 	cursor: pointer;
 }
 
-.name {
+.name_cell {
 	font-family: 'Poppins', sans-serif;
 	font-weight: bold;
-	font-size: 1em;
+	text-align: center;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	font-size: clamp(0.5rem, 0.1875rem + 1vw, 0.75rem);
+	width: 45%;
+	margin-left: 5px;
+	margin-right: -5px;
 }
 
 .img_user {
@@ -192,10 +198,15 @@ ModalChat, -->
 	cursor: pointer;
 	justify-content: center;
 	margin-right: 7%;
+    overflow: hidden;
+	font-size: clamp(0.625rem, 0.1563rem + 1.5vw, 1rem);
 }
 
 .inviteButton {
 	cursor: pointer;
+    overflow: hidden;
+	font-size: clamp(0.625rem, 0.1563rem + 1.5vw, 1rem);
+	text-align: center;
 }
 
 .bar {

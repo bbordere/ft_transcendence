@@ -108,11 +108,11 @@ export class GameService {
 
 				case State.COOLDOWN: {
 					room.powerups = [];
-					this.roomService.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, room.powerups);
+					this.roomService.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, JSON.stringify(room.powerups));
 					if (needUpdate) {
 						needUpdate = false;
 						this.pongGame.resetBall(room);
-						this.roomService.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, room.powerups);
+						this.roomService.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, JSON.stringify(room.powerups));
 						this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
 					}
 					if (room.timerInterval) {
