@@ -41,7 +41,7 @@ export default {
 			<div class="modal_friend" @click.stop>
 				<p>Attention, <b> {{ username }}</b> va être :</p>
 				<div class="button_box">
-					<button v-on:click="blockUser(); $emit('close')">Bloquer</button>
+					<button v-on:click="blockUser(); deleteFriend(); $emit('close')">Bloquer</button>
 					<button v-on:click="deleteFriend(); $emit('close')">Supprimer</button>
 				</div>
 			</div>

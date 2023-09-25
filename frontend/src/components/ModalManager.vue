@@ -101,4 +101,8 @@ export default {
 .spe:hover {
 	background-color: #032f3d;
 }
+
+.spe:focus {
+	background-color: #032f3d;
+}
 </style>

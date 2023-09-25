@@ -6,9 +6,9 @@ import router from '@/router';
 import { State } from '@/views/Home.vue';
 import { SocketService } from '@/services/SocketService';
 
-
 export default defineComponent({
-		props: ["friend", "myId", "blockList", "print", ],
+	props: ["friend", "myId", "blockList", "print", ],
+
 	components: {
 		Hamburger,
 		Invite,
@@ -23,15 +23,11 @@ export default defineComponent({
 			state: -1,
 			myUser: {} as any,
 			friendUser: {} as any,
+			showTooltip: false as boolean,
+			stateText: '' as string,
 		}
 	},
 	methods: {
-
-		handleClick() {
-			if (this.borderColor === 'green') {
-				this.modalInvite = true;
-			}
-		},
 
 		redirecToProfil(name: string) {
 			router.push({ path: '/profile', query: { user: name } });
@@ -79,24 +75,31 @@ export default defineComponent({
 
 	async mounted() {
 		this.dataLoaded = true;
-		// await this.userInfo(this.userId);
 		SocketService.getInstance.emit('getStatus', this.friend.id);
 		SocketService.getInstance.on('getStatus', (data: { userId: number, state: State }) => {
 			const { userId, state } = data;
 			if (userId === this.friend.id) {
-				if (state === State.OFFLINE)
+				if (state === State.OFFLINE) {
 					this.borderColor = 'grey';
-				else if (state === State.ONLINE)
+					this.stateText = 'Hors-Ligne';
+				}
+				else if (state === State.ONLINE) {
 					this.borderColor = 'green';
-				else if (state === State.INGAME)
-					this.borderColor = 'cyan';
+					this.stateText = 'En Ligne';
+				}
+				else if (state === State.INGAME) {
+					this.borderColor = 'royalblue';
+					this.stateText = 'En Partie';
+				}
 			}
 		});
 	}
 });
 
 </script>
-
+<!-- <ModalChat :show="modalChat" @close="modalChat = false"></ModalChat> -->
+<!-- import ModalChat from '../components/ModalChat.vue'
+ModalChat, -->
 <template>
 	<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)">
 		<div class="img_user">
@@ -105,8 +108,9 @@ export default defineComponent({
 		<div class="name">
 			{{ friend.username }}
 		</div>
-		<div :style="{ 'color': borderColor }" v-on:click=handleClick>
-			<font-awesome-icon icon="fa-solid fa-gamepad" />
+		<div :style="{ 'color': borderColor }">
+			<font-awesome-icon @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" icon="fa-solid fa-gamepad" :class="{'inviteButton': borderColor === 'green'}" @click="borderColor === 'green' ? (modalInvite = true) : null"></font-awesome-icon>
+			<span class="tooltip" v-if="showTooltip">{{ stateText }}</span>
 		</div>
 		<div v-on:click="modalHamburger = true" class="menu-button">
 			<font-awesome-icon icon="fa-solid fa-xmark" />
@@ -125,7 +129,9 @@ export default defineComponent({
 		<button v-on:click="deleteUser">D</button>
 	</div>
 </template>
+
 <style>
+
 .box {
 	margin-top: 10px;
 	width: 90%;
@@ -138,6 +144,10 @@ export default defineComponent({
 
 .box:hover {
 	background-color: #F0F8FF;
+}
+
+.font-awesome-icon {
+	cursor: pointer;
 }
 
 .name {
@@ -172,9 +182,27 @@ export default defineComponent({
 	margin-right: 7%;
 }
 
+.inviteButton {
+	cursor: pointer;
+}
+
 .bar {
 	width: 22px;
 	margin: 3px;
 	transition: 0.4s;
 }
+
+.tooltip {
+	position: absolute;
+	font-family: 'Poppins', sans-serif;
+	font-weight: bold;
+	font-size: 0.6em;
+	color: #ffffff;
+	border: 2px solid #087ee6;
+	border-radius: 5px;
+	background-color: #4596d8;
+	padding: 3px;
+	margin-left: 20px;
+}
+
 </style>
