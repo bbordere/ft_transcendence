@@ -18,7 +18,7 @@ export default {
 
 	data() {
 		return {
-			sprites: [] as Array<HTMLImageElement>,
+			sprites: [] as Array<ImageBitmap>,
 			animId: -1,
 			ball: { speed: -1 } as ball,
 			user1Img: new Image,
@@ -36,6 +36,8 @@ export default {
 			isInGame: false,
 			confettiId: -1,
 			discoUserId: -1,
+			offScreen: { } as OffscreenCanvas,
+			ctx2: {} as OffscreenCanvasRenderingContext2D,
 		}
 	},
 	methods: {
@@ -44,13 +46,14 @@ export default {
 		},
 
 		async spritesInit() {
-			this.sprites.push(await this.loadImage("/powerups/big_pad.png"));
-			this.sprites.push(await this.loadImage("/powerups/lil_pad.png"));
-			this.sprites.push(await this.loadImage("/powerups/speed.png"));
-			this.sprites.push(await this.loadImage("pong_background.png"));
-			this.sprites.push(await this.loadImage("paddle.png"));
-			this.sprites.push(await this.loadImage("queueing_background.png"));
-			this.sprites.push(await this.loadImage("queueing_ananas.png"));
+			this.sprites.push( await createImageBitmap(await this.loadImage("/powerups/big_pad.png")));
+			this.sprites.push( await createImageBitmap(await this.loadImage("/powerups/lil_pad.png")));
+			this.sprites.push( await createImageBitmap(await this.loadImage("/powerups/speed.png")));
+			this.sprites.push( await createImageBitmap(await this.loadImage("pong_background.png")));
+			this.sprites.push( await createImageBitmap(await this.loadImage("paddle.png")));
+			this.sprites.push( await createImageBitmap(await this.loadImage("queueing_background.png")));
+			this.sprites.push( await createImageBitmap(await this.loadImage("queueing_ananas.png")));
+			this.$emit('toggleBackground');
 		},
 
 		animate(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
@@ -136,7 +139,7 @@ export default {
 		async animateEnd(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
 			ctx.clearRect(0,0,canvas.width, canvas.height)
 			ctx.drawImage(this.sprites[3], 0, 0);
-			var end = Date.now() + (1000 * 5);
+			var end = Date.now() + (1000 * 1);
 			this.confettiEffect(end);
 
 			const player1Json = await (await (fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.playId1, {credentials: 'include'}))).json();
@@ -168,7 +171,7 @@ export default {
 			ctx.fillStyle = 'white'
 		},
 
-		drawCircle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
+		drawCircle(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
 			ctx.beginPath();
 			ctx.arc(x, y, radius, 0, TPI);
 			ctx.fillStyle = color;
@@ -179,7 +182,7 @@ export default {
 			ctx.closePath();
 		},
 
-		drawPowerups(ctx: CanvasRenderingContext2D) {
+		drawPowerups(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
 			if (!this.gameInfos.powerups)
 				return;
 			for (var item of this.gameInfos.powerups as any[]) {
@@ -191,7 +194,7 @@ export default {
 			if (this.lastUpdate === -1) {
 				this.lastUpdate = time;
 			}
-			// console.log(time - this.lastUpdate);
+			console.log((time - this.lastUpdate) > 16.66);
 			this.lastUpdate = time;
 			if (Object.keys(this.gameInfos).length) {
 				if (this.ball.speed === -1) {
@@ -205,7 +208,7 @@ export default {
 				this.ball.position.x += (targetBall.position.x - this.ball.position.x) * 0.5;
 				this.ball.position.y += (targetBall.position.y - this.ball.position.y) * 0.5;
 
-				this.ball = targetBall;
+				// this.ball = targetBall;
 				// console.log(this.ball.position, this.gameInfos.ball.position);
 
 				this.pad1.pos.x += (pad1.pos.x - this.pad1.pos.x) * 0.2;
@@ -214,11 +217,12 @@ export default {
 				this.pad2.pos.x += (pad2.pos.x - this.pad2.pos.x) * 0.2;
 				this.pad2.pos.y += (pad2.pos.y - this.pad2.pos.y) * 0.2;
 
+				this.ctx2.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				ctx.drawImage(this.sprites[3], 0, 0);
-				ctx.drawImage(this.sprites[4], this.pad1.pos.x, this.pad1.pos.y,
+				this.ctx2.drawImage(this.sprites[3], 0, 0);
+				this.ctx2.drawImage(this.sprites[4], ~~this.pad1.pos.x, ~~this.pad1.pos.y,
 					pad1.width, pad1.size);
-				ctx.drawImage(this.sprites[4], this.pad2.pos.x, this.pad2.pos.y,
+				this.ctx2.drawImage(this.sprites[4], ~~this.pad2.pos.x, ~~this.pad2.pos.y,
 					pad2.width, pad2.size);
 
 				// this.drawRect(ctx, this.pad1.pos.x, this.pad1.pos.y, 
@@ -226,10 +230,11 @@ export default {
 				// this.drawRect(ctx, this.pad2.pos.x, this.pad2.pos.y, 
 				// 				pad2.width, pad2.size, "#515151");
 
-				this.drawCircle(ctx, this.ball.position.x, this.ball.position.y,
+				this.drawCircle(this.ctx2, ~~this.ball.position.x, ~~this.ball.position.y,
 					this.ball.radius, this.ball.speed === 30 ? "#F44E1A" : "#515151");
 
-				this.drawPowerups(ctx);
+				this.drawPowerups(this.ctx2);
+				ctx.drawImage(this.offScreen, 0, 0);
 				this.animId = requestAnimationFrame((current) => { this.draw(ctx, canvas, current) });
 			}
 		},
@@ -243,6 +248,9 @@ export default {
 			return; // ERROR HANDLING
 
 		await this.spritesInit();
+		this.offScreen = new OffscreenCanvas(1200, 600) as OffscreenCanvas;
+		this.ctx2 = this.offScreen.getContext('2d') as OffscreenCanvasRenderingContext2D;
+
 		this.socket.on('updateGame', (ball: ball, racket1: paddle, racket2: paddle, powerups: string) => {
 			this.gameInfos = { ball: ball, pad1: racket1, pad2: racket2, powerups: JSON.parse(powerups)};
 			if (this.animId === -1 || !this.isInGame) {
@@ -274,6 +282,7 @@ export default {
 		if (this.animId !== -1)
 			cancelAnimationFrame(this.animId);
 			cancelAnimationFrame(this.confettiId)
+		this.$emit('toggleBackground');
 	},
 }
 </script>
