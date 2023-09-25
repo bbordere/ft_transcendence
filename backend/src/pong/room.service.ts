@@ -212,6 +212,9 @@ export class RoomService {
 		else if (leaverEmail && room.players[1].user["email"] === leaverEmail)
 			matchDto.leaverId = matchDto.player2Id;
 		room.state = State.FINAL;
+		if (matchDto.leaverId !== -1){
+			this.emitToPlayers(room, 'userDisco', matchDto.leaverId);
+		}
 		this.matchService.createMatch(matchDto, room.mode === Mode.RANKED);
 	}
 
