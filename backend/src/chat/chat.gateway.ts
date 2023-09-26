@@ -72,9 +72,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!mute_instance) {
 			for (let user of users) {
 				if (!user.blockList.includes(sender))
-					this.clients.get(user.id).client_socket.emit('message', payload);
+					this.clients.get(user.id)?.client_socket.emit('message', payload);
 			}
-			this.chatService.addMessageToChannel({ channelId, text, sender });
+			await this.chatService.addMessageToChannel({ channelId, text, sender });
 			this.logger.log(`message received: ${text}`);
 		}
 		return (payload);

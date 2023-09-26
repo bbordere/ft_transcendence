@@ -22,26 +22,25 @@
 			<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;">
 			</UnBanUserModal>
 		</Teleport>
+		<Teleport to="body">
+			<AddAdminModal :show="showAddAdminModal" :channelId="selectedChannel.id" @close="showAddAdminModal = false;"/>
+		</Teleport>
 	</div>
 </template>
 <script lang="ts">
 import ButtonAdd from './ButtonAdd.vue';
 import ModalAddFriend from './ModalAddFriend.vue';
 import ModalAdd from './ModalAdd.vue';
-import KickUserModal from './KickUserModal.vue';
-import BanUserModal from './BanUserModal.vue';
 import UnBanUserModal from './UnBanUserModal.vue';
-import MuteModal from './MuteModal.vue';
+import AddAdminModal from './AddAdminModal.vue';
 
 export default {
 	components: {
 		ButtonAdd,
 		ModalAddFriend,
 		ModalAdd,
-		KickUserModal,
-		BanUserModal,
 		UnBanUserModal,
-		MuteModal,
+		AddAdminModal,
 	},
 
 	props: ['selectedChannel'],
@@ -55,6 +54,7 @@ export default {
 			showBanModal: false,
 			showUnBanModal: false,
 			showMuteModal: false,
+			showAddAdminModal: false,
 		}
 	},
 

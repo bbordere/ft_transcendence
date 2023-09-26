@@ -191,9 +191,11 @@ export default defineComponent({
 					}
 				}
 			});
-
-			SocketService.getInstance.on('updateFriendList', () => {
+			SocketService.getInstance.on('updateFriendList', async () => {
 				this.refreshTimestamp = Date.now();
+				for (let channel of this.channels) {
+					channel.messages = await this.getChannelMessages(channel.id);
+				}
 			});
 		},
 
@@ -258,12 +260,12 @@ export default defineComponent({
 		},
 
 		displayChannelOption(str: string) {
-			if (str === 'kick')
-				this.ModalManagerData.showKickModal = true;
-			else if (str === 'ban')
-				this.ModalManagerData.showBanModal = true;
-			else if (str === 'unban')
+			if (str === 'unban')
 				this.ModalManagerData.showUnBanModal = true;
+			else if (str === 'add_admin')
+				this.ModalManagerData.showAddAdminModal = true;
+			else if (str === 'remove_admin')
+				this.ModalManagerData.showRemoveAdminModal = true;
 		},
 
 		findChannel(id: number): Channel | null {

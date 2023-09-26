@@ -1,6 +1,6 @@
 <template>
 	<Teleport to="body">
-		<ModalChat :show="modalChat" @close="modalChat = false" :connected_user="connected_user" :friendId="friendId" :username="username" :channelId="selectedChannel.id" />
+		<ModalChat :show="modalChat" @close="modalChat = false" :connected_user="connected_user" :friendId="friendId" :username="username" :selectedChannel="selectedChannel" />
 	</Teleport>
 	<div class="chat">
 		<h1>{{ selectedChannel.name }}</h1>
@@ -29,8 +29,12 @@
 				<button type="button" @click="quitChannel(sender.id)">Quit Channel</button>
 				<button v-if="selectedChannel.owner === sender.id" type="button"
 					@click="$emit('displayChannelOption', 'unban')">Unban User</button>
+				<button v-if="selectedChannel.owner === sender.id" type="button"
+					@click="$emit('displayChannelOption', 'add_admin')">Add admin</button>
+				<button v-if="selectedChannel.owner === sender.id" type="button"
+					@click="$emit('displayChannelOption', 'remove_admin')">Remove admin</button>
 				<button v-if="selectedChannel.protected">Change/Remove Password</button>
-				<button v-else>Add Password</button>
+				<button v-else-if="selectedChannel.owner === sender.id">Add Password</button>
 			</div>
 		</div>
 	</div>
@@ -94,6 +98,8 @@ export default {
 		},
 
 		showChatModal(msg: any) {
+			if (msg.sender === this.sender.id)
+				return ;
 			this.friendId = msg.sender;
 			this.username = msg.sender_name;
 			this.modalChat = true;

@@ -69,7 +69,6 @@ export class ChatService {
 		message.sender = senderUser;
 		const savedMessage = await this.messageRepository.save(message);
 		channel.messages.push(savedMessage);
-		await this.channelRepository.save(channel);
 		return (savedMessage);
 	}
 

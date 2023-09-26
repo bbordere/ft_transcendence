@@ -7,7 +7,7 @@ import MuteModal from './MuteModal.vue';
 import { SocketService } from '@/services/SocketService';
 
 export default {
-	props: ["connected_user", "friendId", "username", "show", "channelId"],
+	props: ["connected_user", "friendId", "username", "show", "selectedChannel"],
 
 	components: {
 		BlueButton,
@@ -59,11 +59,11 @@ export default {
 				return;
 			}
 			const user = await user_resp.json();
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/kick', { credentials: 'include', method: 'POST' });
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.selectedChannel.id + '/kick', { credentials: 'include', method: 'POST' });
 			const response_json = await response.json();
 			console.log(response_json);
 			if (response_json['ok']) {
-				SocketService.getInstance.emit('kick', this.$props.channelId, user['id'], false);
+				SocketService.getInstance.emit('kick', this.$props.selectedChannel.id, user['id'], false);
 				this.$emit('close');
 			}
 		},
@@ -75,11 +75,11 @@ export default {
 				return;
 			}
 			const user = await user_resp.json();
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/ban', { credentials: 'include', method: 'POST' });
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.selectedChannel.id + '/ban', { credentials: 'include', method: 'POST' });
 			const response_json = await response.json();
 			this.$emit('close');
 			if (response_json['ok']) {
-				SocketService.getInstance.emit('kick', this.$props.channelId, user['id'], true);
+				SocketService.getInstance.emit('kick', this.$props.selectedChannel.id, user['id'], true);
 				this.$emit('close');
 			}
 		},
@@ -97,9 +97,9 @@ export default {
 						<BlueButton :text="'Profil de ' + username" @click="redirecToProfil(username); $emit('close')" />
 						<BlueButton text="Inviter à jouer" @click="modalInvite = true" />
 						<BlueButton text="Bloquer" @click="blockUser(); deleteFriend(); $emit('close')" />
-						<BlueButton text="Mettre en sourdine" @click="showMuteModal = true;" />
-						<BlueButton text="Exclure" @click="kickUser()" />
-						<BlueButton text="Bannir" @click="banUser()" />
+						<BlueButton v-if="connected_user.id === selectedChannel.owner" text="Mettre en sourdine" @click="showMuteModal = true;" />
+						<BlueButton v-if="connected_user.id === selectedChannel.owner" text="Exclure" @click="kickUser()" />
+						<BlueButton v-if="connected_user.id === selectedChannel.owner" text="Bannir" @click="banUser()" />
 					</div>
 				</div>
 			</div>
@@ -107,7 +107,7 @@ export default {
 		</div>
 	</Transition>
 	<Teleport to="body">
-		<MuteModal :channelId="channelId" :username="username" :show="showMuteModal" @close="showMuteModal = false;" />
+		<MuteModal :channelId="selectedChannel.id" :username="username" :show="showMuteModal" @close="showMuteModal = false;" />
 	</Teleport>
 </template>
 
