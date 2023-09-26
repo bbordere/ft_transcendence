@@ -1,10 +1,11 @@
 import { Inject, Injectable, UseInterceptors } from "@nestjs/common";
 import { Channel } from "./entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, getConnection } from "typeorm";
 import { Message } from "./entities/message.entity";
 import { User } from "src/user/user.entity";
 import * as bcrypt from 'bcrypt';
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class ChatService {
@@ -73,14 +74,27 @@ export class ChatService {
 	}
 
 	async getChannelMessages(userId: number, channelId: number): Promise<Message[] | null> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['messages']});
 		const user = await this.userRepository.findOne({where: {id: userId}});
-		if (!channel)
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		if (!user || !channel)
 			return (null);
-		for (let message of channel.messages)
-			if (user.blockList.includes(message.sender.id))
-				channel.messages.splice(channel.messages.indexOf(message), 1);
-		return (channel.messages);
+		let messages: Message[];
+		if (user.blockList.length) {
+			messages = await this.messageRepository.createQueryBuilder('message')
+				.select(['message.id', 'sender', 'message.text'])
+				.leftJoin('message.sender', 'sender')
+				.where(`message.channel = ${channel.id}`)
+				.andWhere(`(sender.id NOT IN (:...blockList))`, {blockList: user.blockList})
+				.getRawMany()
+		}
+		else {
+			messages = await this.messageRepository.createQueryBuilder('message')
+				.select(['message.id', 'sender', 'message.text'])
+				.leftJoin('message.sender', 'sender')
+				.where(`message.channel = ${channel.id}`)
+				.getRawMany()
+		}
+		return (messages);
 	}
 
 	async getChannelOwner(channelId: number): Promise<User | null> {

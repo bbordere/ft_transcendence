@@ -281,10 +281,10 @@ export default defineComponent({
 				for (let i = 0; i < messages_json.length; i++) {
 					messages.push({
 						channelId: channelId,
-						text: messages_json[i].text,
-						sender: messages_json[i].sender.id,
-						sender_name: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].sender.id, { credentials: 'include' })).json())['name'],
-						sender_img: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].sender.id, { credentials: 'include' })).json())['avatarLink'],
+						text: messages_json[i].message_text,
+						sender: messages_json[i].sender_id,
+						sender_name: messages_json[i].sender_name,
+						sender_img: messages_json[i].sender_avatarLink,
 					});
 				}
 				return (messages);
