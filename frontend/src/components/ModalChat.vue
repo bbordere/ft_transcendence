@@ -83,6 +83,20 @@ export default {
 				this.$emit('close');
 			}
 		},
+
+		userIsAdmin(userId: number): boolean {
+			for (let admin of this.selectedChannel.admins)
+				if (admin.id === userId)
+					return (true);
+			return (false);
+		},
+
+		displayButton(): boolean {
+			return (this.connected_user.id === this.selectedChannel.owner
+				|| (this.userIsAdmin(this.connected_user.id)
+				&& this.friendId !== this.selectedChannel.owner
+				&& !this.userIsAdmin(this.friendId)));
+		}
 	}
 }
 
@@ -97,9 +111,9 @@ export default {
 						<BlueButton :text="'Profil de ' + username" @click="redirecToProfil(username); $emit('close')" />
 						<BlueButton text="Inviter à jouer" @click="modalInvite = true" />
 						<BlueButton text="Bloquer" @click="blockUser(); deleteFriend(); $emit('close')" />
-						<BlueButton v-if="connected_user.id === selectedChannel.owner" text="Mettre en sourdine" @click="showMuteModal = true;" />
-						<BlueButton v-if="connected_user.id === selectedChannel.owner" text="Exclure" @click="kickUser()" />
-						<BlueButton v-if="connected_user.id === selectedChannel.owner" text="Bannir" @click="banUser()" />
+						<BlueButton v-if="displayButton()" text="Mettre en sourdine" @click="showMuteModal = true;" />
+						<BlueButton v-if="displayButton()" text="Exclure" @click="kickUser()" />
+						<BlueButton v-if="displayButton()" text="Bannir" @click="banUser()" />
 					</div>
 				</div>
 			</div>

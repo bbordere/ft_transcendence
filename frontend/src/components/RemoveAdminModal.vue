@@ -17,19 +17,18 @@ export default defineComponent({
 	},
 
 	methods: {
-		async addAdmin() {
+		async removeAdmin() {
 			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, { credentials: 'include' });
 			if (!user_resp['ok'] || this.username == '') {
 				this.$emit('close');
-				this.username = '';
 				return;
 			}
-			this.username = '';
 			try {
 				let user;
 				try { user = await user_resp.json(); }
 				catch { throw new Error('Utilisateur inconnu.'); }
-				const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/addAdmin/' + user['id'], { credentials: 'include', method: 'POST' });
+				const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/removeAdmin/' + user['id'], { credentials: 'include', method: 'POST' });
+				// Check if user is in channel
 				const response_json = await response.json();
 				this.$emit('close');
 				if (response_json['ok']) {
@@ -61,11 +60,11 @@ export default defineComponent({
 			<div class="modal" @click.stop>
 				<div class="form">
 					<div class="field">
-						<h1>Ajouter un admin</h1>
+						<h1>Enlever un admin</h1>
 						<input v-model="username" class="entry" type="text" placeholder="Utilisateur" />
 					</div>
 					<div class="choice">
-						<button @click="addAdmin()">Confirmer</button>
+						<button @click="removeAdmin()">Confirmer</button>
 					</div>
 				</div>
 			</div>

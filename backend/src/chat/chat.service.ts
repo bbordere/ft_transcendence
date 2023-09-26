@@ -201,4 +201,8 @@ export class ChatService {
 		this.channelRepository.save(channel);
 		return (channel);
 	}
+
+	async isUserInChannel(userId: number): Promise<boolean> {
+		return (true);
+	}
 }

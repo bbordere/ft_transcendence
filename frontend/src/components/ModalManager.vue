@@ -11,19 +11,12 @@
 			<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannelForwarder"></ModalAdd>
 		</Teleport>
 		<Teleport to="body">
-			<KickUserModal :show="showKickModal" :channelId="selectedChannel.id" @close="showKickModal = false;"
-				@kick="notifyKickForwarder"></KickUserModal>
-		</Teleport>
-		<Teleport to="body">
-			<BanUserModal :show="showBanModal" :channelId="selectedChannel.id"
-				@close="showBanModal = false;" @kick="notifyKickForwarder"></BanUserModal>
-		</Teleport>
-		<Teleport to="body">
 			<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;">
 			</UnBanUserModal>
 		</Teleport>
 		<Teleport to="body">
 			<AddAdminModal :show="showAddAdminModal" :channelId="selectedChannel.id" @close="showAddAdminModal = false;"/>
+			<RemoveAdminModal :show="showRemoveAdminModal" :channelId="selectedChannel.id" @close='showRemoveAdminModal = false;' />
 		</Teleport>
 	</div>
 </template>
@@ -33,6 +26,7 @@ import ModalAddFriend from './ModalAddFriend.vue';
 import ModalAdd from './ModalAdd.vue';
 import UnBanUserModal from './UnBanUserModal.vue';
 import AddAdminModal from './AddAdminModal.vue';
+import RemoveAdminModal from './RemoveAdminModal.vue';
 
 export default {
 	components: {
@@ -41,6 +35,7 @@ export default {
 		ModalAdd,
 		UnBanUserModal,
 		AddAdminModal,
+		RemoveAdminModal,
 	},
 
 	props: ['selectedChannel'],
@@ -50,11 +45,10 @@ export default {
 			listView: false,
 			showModalFriend: false,
 			showModal: false,
-			showKickModal: false,
-			showBanModal: false,
 			showUnBanModal: false,
 			showMuteModal: false,
 			showAddAdminModal: false,
+			showRemoveAdminModal: false,
 		}
 	},
 
