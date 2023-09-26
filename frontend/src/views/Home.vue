@@ -332,6 +332,7 @@ h1 {
 }
 
 .friend_list {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	height: 80%;

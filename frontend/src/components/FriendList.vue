@@ -73,19 +73,22 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="add_friend">
-		<button class="tri" @click="print = 1;">Demande</button>
-		<button class="tri" @click="print = 2;">Bloqué</button>
-		<div v-if="getFriendRequest"  class="notifDemande">
-			<strong>{{ getFriendRequest }}</strong>
+	<div class="friend_list_container">
+		<div class="add_friend_list">
+			<button class="tri" @click="print = 1;">Demande</button>
+			<button class="tri" @click="print = 2;">Bloqué</button>
+			<div v-if="getFriendRequest"  class="notifDemande">
+				<strong>{{ getFriendRequest }}</strong>
+			</div>
+		</div>
+		<div v-if="print === 2" class="list_friend">
+			<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
+		</div>
+		<div v-else class="list_friend">
+			<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print></ProfilCell>
 		</div>
 	</div>
-	<div v-if="print === 2" class="list_friend">
-		<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
-	</div>
-	<div v-else class="list_friend">
-		<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print></ProfilCell>
-	</div>
+
 </template>
 
 <style>
@@ -98,13 +101,32 @@ export default defineComponent({
 	height: 100%;
 }
 
-.add_friend .tri {
+.friend_list_container{
+	height: 100%;
+	/* background-color: rebeccapurple; */
+}
+
+.add_friend_list{
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+	justify-content: center;
+	align-items: center;
+	margin-top: -5px;
+	/* background: red; */
+	height: 10%;
+	/* background: red; */
+	/* padding: 100px; */
+}
+
+.add_friend_list .tri {
+	
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	color: white;
 	background-color: #046280;
-	height: 65%;
+	height: 50%;
 	flex-shrink: 0;
 	width: 45%;
 	overflow: hidden;

@@ -79,8 +79,8 @@ export default {
 	justify-content: center;
 	gap: 1%;
 	height: 7%;
-	padding-left: 3px;
-	width: 97%;
+	padding: 3px;
+	/* background: pink; */
 }
 
 .add_friend .spe {
