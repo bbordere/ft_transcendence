@@ -20,6 +20,9 @@ export class Channel {
 	@Column({ default: false, nullable: false })
 	public protected: boolean;
 
+	@Column({ default: false, nullable: false })
+	public isPrivate: boolean;
+
 	@OneToMany(() => Message, message => message.channel, {
 		cascade: true,
 		onDelete: 'CASCADE',

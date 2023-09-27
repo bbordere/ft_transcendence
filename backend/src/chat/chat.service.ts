@@ -30,7 +30,7 @@ export class ChatService {
 		return (this.channelRepository.findOneBy({ name }));
 	}
 
-	async create(name: string, password: string, protect: boolean, creator: User): Promise<Channel | null> {
+	async create(name: string, password: string, protect: boolean, creator: User, isPrivate: boolean = false): Promise<Channel | null> {
 		if (name.match('/^\s*$/'))
 			throw new Error('wrong name format.');
 		if (await this.getByName(name) !== null)
@@ -40,6 +40,7 @@ export class ChatService {
 		channel.password = (protect ? await bcrypt.hash(password, 8) : '');
 		channel.protected = protect;
 		channel.owner = creator
+		channel.isPrivate = isPrivate;
 		const createdChannel = await this.channelRepository.save(channel);
 		return (createdChannel);
 	}
@@ -57,10 +58,10 @@ export class ChatService {
 		if (!channel)
 			return (null);
 		const senderUser = await this.userRepository.createQueryBuilder('user')
-			.leftJoinAndSelect('user.channels', 'channels')
-			.where('user.id = ' + sender)
-			.andWhere('channels.id = ' + channelId)
-			.getOne();
+		.leftJoinAndSelect('user.channels', 'channels')
+		.where('user.id = ' + sender)
+		.andWhere('channels.id = ' + channelId)
+		.getOne();
 		if (!senderUser)
 			return (null);
 		const message = new Message();
@@ -87,6 +88,7 @@ export class ChatService {
 				.leftJoin('message.sender', 'sender')
 				.where(`message.channel = ${channel.id}`)
 				.andWhere(`(sender.id NOT IN (:...blockList))`, {blockList: user.blockList})
+				.orderBy('message.id', 'ASC')
 				.getRawMany()
 		}
 		else {
@@ -94,6 +96,7 @@ export class ChatService {
 				.select(['message.id', 'sender', 'message.text'])
 				.leftJoin('message.sender', 'sender')
 				.where(`message.channel = ${channel.id}`)
+				.orderBy('message.id', 'ASC')
 				.getRawMany()
 		}
 		return (messages);

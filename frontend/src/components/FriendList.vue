@@ -2,13 +2,9 @@
 import { defineComponent } from 'vue';
 import ProfilCell from './ProfilCell.vue';
 import BlockListCell from './BlockListCell.vue';
-
-export interface friendTab {
-	id: number;
-	status: string;
-	username: string;
-	request: number;
-}
+import type { Channel } from '@/interfaces/channel.interface';
+import type { Message } from '@/interfaces/message.interface';
+import type { friendTab } from '@/interfaces/friendTab.interface';
 
 export default defineComponent({
 	components: {
@@ -46,12 +42,53 @@ export default defineComponent({
 	methods: {
 		async fetchFriends() {
 			const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/friend/" + this.sender + "/list", { credentials: 'include' });
-			this.friends = await response.json();
+			const friends = await response.json();
+			for (let friend of friends) {
+				const owner: number = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + friend['channel']['id'] + '/owner', {credentials: 'include'})).json())['id'];
+				const messages: Message[] = await this.getChannelMessages(friend['channel']['id']);
+				const admins: number[] = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + friend['channel']['id'] + '/getAdmins', { credentials: 'include' })).json();
+				const channel: Channel = {
+					id: friend['channel']['id'],
+					name: friend['channel']['name'],
+					owner: owner,
+					messages: messages,
+					protected: friend['channel']['protected'],
+					isPrivate: friend['channel']['isPrivate'],
+					admins: admins,
+				}
+				friend['channel'] = channel;
+				this.friends.push(friend);
+			}
 		},
 
 		async fetchBlockList() {
 			const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.sender + "/block/blocklist", { credentials: 'include' });
 			this.blockList = await response.json();
+		},
+
+		async getChannelMessages(channelId: number): Promise<Message[]> {
+			const message_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/' + channelId + '/list', { credentials: 'include' });
+			let messages = [] as Message[];
+			try {
+				const messages_json = await message_response.json();
+				for (let i = 0; i < messages_json.length; i++) {
+					messages.push({
+						channelId: channelId,
+						text: messages_json[i].message_text,
+						sender: messages_json[i].sender_id,
+						sender_name: messages_json[i].sender_name,
+						sender_img: messages_json[i].sender_avatarLink,
+					});
+				}
+				return (messages);
+			}
+			catch {
+				return ([] as Message[]);
+			}
+		},
+
+		showChannelForwarder(channel: Channel): void {
+			this.$emit('showChannel', channel);
 		}
 	},
 
@@ -80,11 +117,12 @@ export default defineComponent({
 			<strong>{{ getFriendRequest }}</strong>
 		</div>
 	</div>
-	<div v-if="print === 2 && blockList.length !== 0" class="list_friend">
+	<div v-if="print === 2" class="list_friend">
 		<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
 	</div>
 	<div v-else class="list_friend">
-		<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print></ProfilCell>
+		<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender
+			:blockList=blockList :print=print @showChannel="showChannelForwarder"></ProfilCell>
 	</div>
 </template>
 

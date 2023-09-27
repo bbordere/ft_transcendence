@@ -63,7 +63,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		channelId = Number(channelId);
 		text = String(text);
 		sender = Number(sender);
-		// dubitatif
 		const users = await this.chatService.getUsersInChannel(channelId);
 		if (!users)
 			return (payload);

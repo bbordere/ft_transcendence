@@ -1,6 +1,6 @@
 import { User } from "src/user/user.entity";
 import { Channel } from "./channel.entity";
-import { Column, Entity, Generated, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, Generated, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Message {

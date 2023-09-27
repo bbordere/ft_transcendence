@@ -4,12 +4,13 @@
 			<div class="left_column">
 				<PlayButton />
 				<div class="friend_list">
-					<ModalManager :selectedChannel="selectedChannel" :sender="sender"
-					@joinChannel="joinChannel" @updateButton='selectedChannel.protected = true;'
-						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
+					<ModalManager :selectedChannel="selectedChannel" :sender="sender" @joinChannel="joinChannel"
+						@updateButton='selectedChannel.protected = true;' ref="ModalManager"
+						@click="updateTimestamp = Date.now()" />
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
-					<FriendList v-else :updateTimestamp="updateTimestamp" :friendTimestamp="refreshTimestamp"/>
+					<FriendList v-else :updateTimestamp="updateTimestamp" :friendTimestamp="refreshTimestamp"
+						@showChannel="showChannel" />
 				</div>
 			</div>
 			<Chat :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
@@ -30,29 +31,9 @@ import FriendList from '@/components/FriendList.vue';
 import Chat from '@/components/Chat.vue';
 import PlayButton from '@/components/PlayButton.vue';
 import { SocketService } from '@/services/SocketService'
-
-interface User {
-	id: number;
-	name: string;
-	img: string;
-}
-
-interface Message {
-	channelId: number;
-	text: string;
-	sender: number;
-	sender_name: string;
-	sender_img: string;
-}
-
-interface Channel {
-	id: number;
-	name: string;
-	owner: number;
-	messages: Message[],
-	protected: boolean,
-	admins: number[];
-}
+import type { Channel } from '@/interfaces/channel.interface';
+import type { Message } from '@/interfaces/message.interface';
+import type { User } from '@/interfaces/user.interface';
 
 export enum State {
 	OFFLINE,
@@ -98,14 +79,16 @@ export default defineComponent({
 		this.sender.img = user['avatarLink'];
 		const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender.id + '/joinedChannels', { credentials: 'include' })).json();
 		for (let i = 0; i < channels_json.length; i++) {
-			this.channels.push({
+			const data = {
 				id: channels_json[i]['id'],
 				owner: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/owner', { credentials: 'include' })).json())['id'],
 				name: channels_json[i]['name'],
 				messages: await this.getChannelMessages(channels_json[i]['id']),
 				protected: channels_json[i]['protected'],
+				isPrivate: channels_json[i]['isPrivate'],
 				admins: await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/getAdmins', { credentials: 'include' })).json(),
-			});
+			}
+			this.channels.push(data);
 		}
 		await this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
@@ -114,16 +97,6 @@ export default defineComponent({
 			const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 			sessionStorage.setItem('token', await token.text());
 		}, 1000 * 10);
-		const response_test = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/count', { credentials: 'include' });
-		console.log(await response_test.json());
-	},
-
-	updated() {
-		if (this.selectedChannel.messages) {
-			const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
-			if (lastMessage)
-				lastMessage[0].scrollIntoView();
-		}
 	},
 
 	methods: {
@@ -142,15 +115,14 @@ export default defineComponent({
 				}) => {
 					const { channelId, text, sender, sender_name, sender_img } = data;
 					const channel = this.findChannel(channelId);
-					if (channel) {
-						channel.messages.push({
-							channelId: channelId,
-							text: text,
-							sender: sender,
-							sender_name: sender_name,
-							sender_img: sender_img,
-						});
-					}
+					console.log(channel);
+					channel?.messages.push({
+						channelId: channelId,
+						text: text,
+						sender: sender,
+						sender_name: sender_name,
+						sender_img: sender_img,
+					});
 				});
 			SocketService.getInstance.on('kick', (data: any) => {
 				const channelId = data[0];
