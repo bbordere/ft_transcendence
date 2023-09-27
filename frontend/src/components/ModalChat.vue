@@ -3,29 +3,33 @@
 import BlueButton from './BlueButton.vue';
 import Invite from './Invite.vue';
 import router from '@/router';
+import MuteModal from './MuteModal.vue';
+import { SocketService } from '@/services/SocketService';
 
 export default {
-	props: ["myId", "friendId", "username", "show"],
+	props: ["connected_user", "friendId", "username", "show", "selectedChannel"],
 
 	components: {
 		BlueButton,
-		Invite
+		Invite,
+		MuteModal,
 	},
 
-	data () {
+	data() {
 		return {
 			modalInvite: false as boolean,
+			showMuteModal: false as boolean,
 		}
 	},
 
 	methods: {
 
 		redirecToProfil(name: string) {
-			router.push({path:'/profile', query: { user: name }});
+			router.push({ path: '/profile', query: { user: name } });
 		},
 
 		async deleteFriend() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/delete?id1=${this.myId}&id2=${this.friendId}`,{
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/delete?id1=${this.connected_user.id}&id2=${this.friendId}`, {
 				credentials: 'include',
 				method: 'DELETE',
 				headers: {
@@ -35,18 +39,64 @@ export default {
 		},
 
 		async blockUser() {
-			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/blocked`,{
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/blocked`, {
 				credentials: 'include',
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					userId: this.myId,
+					userId: this.connected_user.id,
 					blockId: this.friendId,
 				}),
 			});
 		},
+
+		async kickUser() {
+			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.$props.username, { credentials: 'include' });
+			if (!user_resp['ok'] || this.$props.username == '') {
+				this.$emit('close');
+				return;
+			}
+			const user = await user_resp.json();
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.selectedChannel.id + '/kick', { credentials: 'include', method: 'POST' });
+			const response_json = await response.json();
+			console.log(response_json);
+			if (response_json['ok']) {
+				SocketService.getInstance.emit('kick', this.$props.selectedChannel.id, user['id'], false);
+				this.$emit('close');
+			}
+		},
+
+		async banUser() {
+			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.$props.username, { credentials: 'include' });
+			if (!user_resp['ok'] || this.$props.username == '') {
+				this.$emit('close');
+				return;
+			}
+			const user = await user_resp.json();
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.selectedChannel.id + '/ban', { credentials: 'include', method: 'POST' });
+			const response_json = await response.json();
+			this.$emit('close');
+			if (response_json['ok']) {
+				SocketService.getInstance.emit('kick', this.$props.selectedChannel.id, user['id'], true);
+				this.$emit('close');
+			}
+		},
+
+		userIsAdmin(userId: number): boolean {
+			for (let admin of this.selectedChannel.admins)
+				if (admin.id === userId)
+					return (true);
+			return (false);
+		},
+
+		displayButton(): boolean {
+			return (this.connected_user.id === this.selectedChannel.owner
+				|| (this.userIsAdmin(this.connected_user.id)
+				&& this.friendId !== this.selectedChannel.owner
+				&& !this.userIsAdmin(this.friendId)));
+		}
 	}
 }
 
@@ -58,22 +108,24 @@ export default {
 			<div class="modal_chat" @click.stop>
 				<div class="grid">
 					<div class="button-grid">
-						<BlueButton :text="'Profil de ' + username" @click="redirecToProfil(username); $emit('close')"/>
-						<BlueButton text="Inviter à jouer" @click="modalInvite = true"/>
-						<BlueButton text="Bloquer" @click="blockUser(); deleteFriend(); $emit('close')"/>
-						<BlueButton text="Mettre en sourdine"/>
-						<BlueButton text="Exclure"/>
-						<BlueButton text="Bannir"/>
+						<BlueButton :text="'Profil de ' + username" @click="redirecToProfil(username); $emit('close')" />
+						<BlueButton text="Inviter à jouer" @click="modalInvite = true" />
+						<BlueButton text="Bloquer" @click="blockUser(); deleteFriend(); $emit('close')" />
+						<BlueButton v-if="displayButton()" text="Mettre en sourdine" @click="showMuteModal = true;" />
+						<BlueButton v-if="displayButton()" text="Exclure" @click="kickUser()" />
+						<BlueButton v-if="displayButton()" text="Bannir" @click="banUser()" />
 					</div>
 				</div>
 			</div>
-			<invite :show="modalInvite" @close="modalInvite = false" :myId="myId" :friendId="friendId"></invite>
+			<invite :show="modalInvite" @close="modalInvite = false" :myId="connected_user.id" :friendId="friendId"></invite>
 		</div>
 	</Transition>
+	<Teleport to="body">
+		<MuteModal :channelId="selectedChannel.id" :username="username" :show="showMuteModal" @close="showMuteModal = false;" />
+	</Teleport>
 </template>
 
 <style scoped>
-
 .modal_overlay {
 	position: fixed;
 	display: flex;
@@ -97,6 +149,7 @@ export default {
 	align-items: center;
 	width: 100%;
 }
+
 .modal_chat {
 	display: flex;
 	flex-direction: center;
@@ -127,5 +180,4 @@ export default {
 		width: 75%;
 	}
 }
-
 </style>

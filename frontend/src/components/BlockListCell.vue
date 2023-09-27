@@ -18,6 +18,8 @@ export default defineComponent({
 		},
 
 		getAvatarUrl(id: number) {
+			if (!id)
+				return ;
 			return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/id/" + id.toString());
 		},
 

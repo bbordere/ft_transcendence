@@ -13,6 +13,6 @@ export class MessageController {
 	@Get(":channelId/list")
 	async getMessages(@Param('channelId') channelId: number, @Req() request: Request): Promise<Message[] | null> {
 		const user = await this.authService.getUserFromToken(request['cookies']['access_token']);
-		return (this.chatService.getChannelMessages(user.id, channelId));
+		return (await this.chatService.getChannelMessages(user.id, channelId));
 	}
 }

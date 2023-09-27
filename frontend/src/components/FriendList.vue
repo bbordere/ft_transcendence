@@ -80,7 +80,7 @@ export default defineComponent({
 			<strong>{{ getFriendRequest }}</strong>
 		</div>
 	</div>
-	<div v-if="print === 2" class="list_friend">
+	<div v-if="print === 2 && blockList.length !== 0" class="list_friend">
 		<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
 	</div>
 	<div v-else class="list_friend">
