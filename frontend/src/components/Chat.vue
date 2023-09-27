@@ -205,7 +205,7 @@ export default {
 	overflow: hidden;
 }
 
-img:hover {
+.msg_chat_box img:hover {
 	cursor: pointer;
 }
 
