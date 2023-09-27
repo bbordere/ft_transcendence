@@ -6,7 +6,7 @@
 				<li>
 					<div v-for="(msg, index) in selectedChannel.messages" class="single_message"
 						:class="sender.id === msg.sender ? 'sent' : 'received'">
-						<img :src="msg.sender_img">
+						<img :src="msg.sender_img" alt="avatar">
 						<div>
 							<span class="sender_name">{{ msg.sender_name }}</span>
 							<span :ref="`message-${index}`" class="message">{{ msg.text }}</span>
@@ -214,9 +214,9 @@ export default {
 	background-color: white;
 }
 
-@media screen and (max-width: 1150px) {
+/* @media screen and (max-width: 1150px) {
 	.chat {
 		width: 50%;
 	}
-}
+} */
 </style>

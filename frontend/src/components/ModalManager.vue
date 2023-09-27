@@ -1,29 +1,19 @@
 <template>
-	<div class="add_friend">
+	<div class="social_buttons">
 		<button class="spe" @click="listView = true;">Channel</button>
 		<button class="spe" @click="listView = false;">Amitié</button>
-		<ButtonAdd icon="fa-solid fa-user-plus" id="show-modal" @click="showModalFriend = true"></ButtonAdd>
+		<ButtonAdd icon="fa-solid fa-user-plus" @click="showModalFriend = true"></ButtonAdd>
+		<ButtonAdd icon="fa-circle-plus" @click="showModal = true"></ButtonAdd>
 		<Teleport to="body">
 			<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
-		</Teleport>
-		<ButtonAdd icon="fa-circle-plus" id="show-modal" @click="showModal = true"></ButtonAdd>
-		<Teleport to="body">
 			<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannelForwarder"></ModalAdd>
-		</Teleport>
-		<Teleport to="body">
 			<KickUserModal :show="showKickModal" :channelId="selectedChannel.id" @close="showKickModal = false;"
 				@kick="notifyKickForwarder"></KickUserModal>
-		</Teleport>
-		<Teleport to="body">
+				<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;">
+			</UnBanUserModal>
 			<BanUserModal :show="showBanModal" :channelId="selectedChannel.id"
 				@close="showBanModal = false;" @kick="notifyKickForwarder"></BanUserModal>
-		</Teleport>
-		<Teleport to="body">
-			<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;">
-			</UnBanUserModal>
-		</Teleport>
-		<Teleport to="body">
-			<MuteModal :show="showMuteModal" :channelId="selectedChannel.id" @close="showMuteModal = false" />
+				<MuteModal :show="showMuteModal" :channelId="selectedChannel.id" @close="showMuteModal = false" />
 		</Teleport>
 	</div>
 </template>
@@ -73,8 +63,9 @@ export default {
 }
 </script>
 <style>
-.add_friend {
+.social_buttons {
 	display: flex;
+	position: relative;
 	align-items: center;
 	justify-content: center;
 	gap: 1%;
@@ -83,7 +74,7 @@ export default {
 	/* background: pink; */
 }
 
-.add_friend .spe {
+.spe {
 	display: flex;
 	align-items: center;
 	justify-content: center;

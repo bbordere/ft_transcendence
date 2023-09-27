@@ -1,8 +1,8 @@
 <template>
-	<img src="pinaRecipe.svg" class="recipe">
+	<img alt="notFound" src="/public/pinaRecipe.svg" class="recipe">
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { SocketService } from '@/services/SocketService';
 import { State } from './Home.vue';
 

@@ -1,7 +1,7 @@
 <template>
 	<div class="match-card">
 		<div class="player-card">		
-			<img class="avatar-match" draggable="false" :src="getAvatarUrl(matchObject.player1.id)" @click="redirecToProfil(matchObject.player1.name)"/>
+			<img alt="avatar" class="avatar-match" draggable="false" :src="getAvatarUrl(matchObject.player1.id)" @click="redirecToProfil(matchObject.player1.name)"/>
 			{{ matchObject.player1.name }}
 		</div>
 		<div class="score-card">
@@ -19,7 +19,7 @@
 			</div>
 		</div>
 		<div class="player-card">
-			<img class="avatar-match" draggable="false" :src="getAvatarUrl(matchObject.player2.id)" @click="redirecToProfil(matchObject.player2.name)"/>
+			<img alt="avatar" class="avatar-match" draggable="false" :src="getAvatarUrl(matchObject.player2.id)" @click="redirecToProfil(matchObject.player2.name)"/>
 			{{ matchObject.player2.name }}
 		</div>
 	</div>

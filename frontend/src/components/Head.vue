@@ -43,9 +43,9 @@ export default defineComponent({
 
 <template>
 <header class="header">
-	<img class="logo" src="../assets/img/logoPinaColaPong2.png" @click="redirectToHome()" draggable="false">
+	<img class="logo" src="../assets/img/logoPinaColaPong2.png" @click="redirectToHome()" draggable="false" alt="logo">
 	<router-link to="/profile" class="profile" draggable="false">
-		<img class="img_profile" v-bind:src=avatar draggable="false">
+		<img class="img_profile" v-bind:src=avatar draggable="false" alt="avatar">
 		<div class="profile_name">
 			<span class="name">{{ name }}</span>
 		</div>

@@ -38,7 +38,7 @@ import router from '@/router';
 
 import SlidingDiag from './components/SlidingDiag.vue';
 import FloatingSquares from './components/FloatingSquares.vue';
-import { State } from './views/Home.vue';
+import State from './views/Home.vue';
 import ModalInvite from './components/ModalInvite.vue'; 
 
 

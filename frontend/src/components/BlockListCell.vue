@@ -56,7 +56,7 @@ export default defineComponent({
 <template>
 	<div class="box">
 		<div class="img_user">
-			<img class="img_user_profil" :src="getAvatarUrl(block)" @click="redirecToProfil(friendUsername)">
+			<img alt="avatar" class="img_user_profil" :src="getAvatarUrl(block)" @click="redirecToProfil(friendUsername)">
 		</div>
 		<div class="name">
 			{{ friendUsername }}

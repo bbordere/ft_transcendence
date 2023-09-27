@@ -22,9 +22,9 @@ export default {
 	flex-direction: column;
 	width: 100%;
 	height: 100%;
-	margin-top: 2%;
 	align-items: center;
 	overflow-y: scroll;
+	/* background: red; */
 }
 
 .list ul {

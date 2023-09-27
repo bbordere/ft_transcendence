@@ -109,7 +109,7 @@ ModalChat, -->
 <template>
 	<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)">
 		<div class="img_user">
-			<img class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
+			<img alt="avatar" class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
 		</div>
 		<div class="name_cell">
 			{{ friend.username }}
@@ -126,7 +126,7 @@ ModalChat, -->
 	</div>
 	<div class="box" v-else-if="dataLoaded && print === 1 && friend.request !== myId && friend.status === 'pending' && !blockList.includes(friend.id)">
 		<div class="img_user">
-			<img class="img_user_profil" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
+			<img alt="avatar" class="img_user_profil" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
 		</div>
 		<div class="name_cell">
 			{{ friend.username }}

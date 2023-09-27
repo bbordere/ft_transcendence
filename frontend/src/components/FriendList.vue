@@ -74,7 +74,7 @@ export default defineComponent({
 
 <template>
 	<div class="friend_list_container">
-		<div class="add_friend_list">
+		<div class="friend_buttons_container">
 			<button class="tri" @click="print = 1;">Demande</button>
 			<button class="tri" @click="print = 2;">Bloqué</button>
 			<div v-if="getFriendRequest"  class="notifDemande">
@@ -98,7 +98,7 @@ export default defineComponent({
 	align-items: center;
 	flex-direction: column;
 	width: 100%;
-	height: 100%;
+	/* height: 100%; */
 }
 
 .friend_list_container{
@@ -106,28 +106,24 @@ export default defineComponent({
 	/* background-color: rebeccapurple; */
 }
 
-.add_friend_list{
+.friend_buttons_container{
 	display: flex;
 	flex-direction: row;
 	gap: 10px;
 	justify-content: center;
-	align-items: center;
-	margin-top: -5px;
-	/* background: red; */
-	height: 10%;
+	/* align-items: center; */
+	/* margin-top: -5px; */
+	/* background: purple; */
+	/* padding: 10px; */
+	/* margin-bottom: -10px; */
+	height: 6%;
 	/* background: red; */
 	/* padding: 100px; */
 }
 
-.add_friend_list .tri {
-	
-	display: flex;
-	align-items: center;
-	justify-content: center;
+.tri {
 	color: white;
 	background-color: #046280;
-	height: 50%;
-	flex-shrink: 0;
 	width: 45%;
 	overflow: hidden;
 	border-radius: 20px;

@@ -282,7 +282,7 @@ export default {
 
 @font-face {
 	font-family: 'digital-clock-font';
-	src: url('./fonts/digital-7.mono.ttf');
+	src: url('/public/fonts/digital-7.mono.ttf');
 }
 
 .scores {
