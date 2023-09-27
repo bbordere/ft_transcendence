@@ -121,14 +121,14 @@ export default{
 	.matchHistory{
 		width: 40%;
 		border-radius: 50px;
-		background-color: aliceblue;
+		background-color: white;
 		border: 2px solid #515151;
 	}
 	
 	.statsPanel{
 		flex-grow: 1;
 		margin-left: 2%;
-		background-color: aliceblue;
+		background-color: white;
 		border-radius: 50px;
 		border: 2px solid #515151;
 	}

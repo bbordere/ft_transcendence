@@ -176,7 +176,7 @@ export default{
 		justify-content: space-between;
 		padding: 2%;
 		align-items: center;
-		background-color: aliceblue;
+		background-color: white;
 		flex-direction: row;
 		border-radius: 50px;
 		font-size: clamp(0.8125rem, 0.476rem + 1.0769vw, 1.25rem);

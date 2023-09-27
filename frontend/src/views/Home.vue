@@ -340,12 +340,13 @@ h1 {
 	gap: 4%;
 	flex-grow: 0.2;
 	min-width: 175px;
-	max-width: 300px;
+	max-width: 450px;
 }
 
 .chat_container{
-	/* background-color: pink; */
-	max-width: 600px;
+	max-width: 800px;
+	/* width: 100%; */
+	/* height: 100%; */
 }
 
 .friend_list {
