@@ -38,8 +38,6 @@ export default {
 					blockId: this.id2,
 				}),
 			});
-			SocketService.getInstance.emit('refreshFriendListId', this.id1);
-			SocketService.getInstance.emit('refreshFriendListId', this.id2);
 		},
 	}
 }

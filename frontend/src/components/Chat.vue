@@ -1,4 +1,7 @@
 <template>
+	<Teleport to="body">
+		<ModalChat :show="modalChat" @close="modalChat = false" :connected_user="connected_user" :friendId="friendId" :username="username" :selectedChannel="selectedChannel" />
+	</Teleport>
 	<div class="chat">
 		<h1>{{ selectedChannel.name }}</h1>
 		<div class="message_box">
@@ -6,7 +9,7 @@
 				<li>
 					<div v-for="(msg, index) in selectedChannel.messages" class="single_message"
 						:class="sender.id === msg.sender ? 'sent' : 'received'">
-						<img :src="msg.sender_img" alt="avatar">
+						<img alt="avatar" @click="showChatModal(msg)" :src="msg.sender_img">
 						<div>
 							<span class="sender_name">{{ msg.sender_name }}</span>
 							<span :ref="`message-${index}`" class="message">{{ msg.text }}</span>
@@ -25,27 +28,37 @@
 			<div class="channel_options">
 				<button type="button" @click="quitChannel(sender.id)">Quit Channel</button>
 				<button v-if="selectedChannel.owner === sender.id" type="button"
-					@click="$emit('displayChannelOption', 'kick')">Kick User</button>
-				<button v-if="selectedChannel.owner === sender.id" type="button"
-					@click="$emit('displayChannelOption', 'ban')">Ban User</button>
-				<button v-if="selectedChannel.owner === sender.id" type="button"
 					@click="$emit('displayChannelOption', 'unban')">Unban User</button>
 				<button v-if="selectedChannel.owner === sender.id" type="button"
-					@click="$emit('displayChannelOption', 'mute')">Mute User</button>
-				<button v-if="selectedChannel.protected">Change/Remove Password</button>
-				<button v-else>Add Password</button> 
+					@click="$emit('displayChannelOption', 'add_admin')">Add admin</button>
+				<button v-if="selectedChannel.owner === sender.id" type="button"
+					@click="$emit('displayChannelOption', 'remove_admin')">Remove admin</button>
+				<button v-if="selectedChannel.protected && selectedChannel.owner === sender.id"
+					@click="removePassword()">Remove Password</button>
+				<button v-if="selectedChannel.owner === sender.id"
+					@click="$emit('displayChannelOption', 'add_password')"
+					>Add/Change Password</button>
 			</div>
 		</div>
 	</div>
 </template>
 <script lang="ts">
 import { SocketService } from '@/services/SocketService';
+import ModalChat from '../components/ModalChat.vue';
+import { useNotification } from '@kyvg/vue3-notification';
 
 export default {
+	components: {
+		ModalChat,
+	},
 
 	data() {
 		return {
 			message: '' as string,
+			modalChat: false as boolean,
+			connected_user: -1 as number,
+			friendId: -1 as number,
+			username: '' as string,
 		};
 	},
 
@@ -55,6 +68,10 @@ export default {
 			if (lastMessage)
 				lastMessage[0].scrollIntoView();
 		}
+	},
+
+	mounted() {
+		this.connected_user = SocketService.getUser;
 	},
 
 	props: ['selectedChannel', 'sender'],
@@ -82,7 +99,39 @@ export default {
 			const response_json = await response.json();
 			if (response_json['ok'])
 				this.$emit('removeChannel', id);
-		}
+		},
+
+		showChatModal(msg: any) {
+			if (msg.sender === this.sender.id)
+				return ;
+			this.friendId = msg.sender;
+			this.username = msg.sender_name;
+			this.modalChat = true;
+		},
+
+		async removePassword() {
+			const response = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.selectedChannel.id + '/' + this.$props.sender.id + '/removePassword', {
+				credentials: 'include',
+				method: 'POST',
+			} )).json());
+			const notif = useNotification();
+			if (!response['ok']) {
+				notif.notify({
+					title: 'Erreur',
+					text: response['message'],
+					type: 'error',
+					group: 'notif-center',
+				});
+				return ;
+			}
+			notif.notify({
+				title: 'Mot de passe',
+				text: response['message'],
+				type: 'success',
+				group: 'notif-center',
+			});
+			this.$props.selectedChannel.protected = false;
+		},
 	}
 }
 </script>

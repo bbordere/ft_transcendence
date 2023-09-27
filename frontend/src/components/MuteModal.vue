@@ -6,7 +6,6 @@ import { SocketService } from '@/services/SocketService';
 export default defineComponent ({
 	data() {
 		return ({
-			username: '' as string,
 			time: undefined as number | undefined,
 		});
 	},
@@ -14,12 +13,13 @@ export default defineComponent ({
 	props: {
 		show: Boolean,
 		channelId: Number,
+		username: String,
 	},
 
 	methods: {
 		async MuteUser() {
-			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, {credentials: 'include'});
-			if (!user_resp['ok'] || this.username == '') {
+			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.$props.username, {credentials: 'include'});
+			if (!user_resp['ok'] || this.$props.username == '') {
 				this.$emit('close');
 				return ;
 			}
@@ -44,7 +44,6 @@ export default defineComponent ({
 			<div class="form">
 				<div class="field">
 					<h1>Mute un utilisateur</h1>
-					<input v-model="username" class="entry" type="text" placeholder="Utilisateur"/>
 					<input v-model="time" class="entry" type="text" placeholder="Temps (en secondes)">
 				</div>
 				<div class="choice">

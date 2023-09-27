@@ -4,7 +4,8 @@
 			<div class="left_column">
 				<PlayButton />
 				<div class="friend_list">
-					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel" @kick="notifyKick"
+					<ModalManager :selectedChannel="selectedChannel" :sender="sender"
+					@joinChannel="joinChannel" @updateButton='selectedChannel.protected = true;'
 						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
 					<Transition name="fade2" mode="out-in">
 						<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
@@ -130,6 +131,9 @@ export default defineComponent({
 	methods: {
 		async init() {
 			this.$emit('socketReady');
+			SocketService.getInstance.on('mute', (data: any) => {
+				console.log(data);
+			});
 			SocketService.getInstance.on('message',
 				(data: {
 					channelId: number,
@@ -150,11 +154,13 @@ export default defineComponent({
 						});
 					}
 				});
-			SocketService.getInstance.on('kick', (data: { channelId: number, userId: number, ban: boolean }) => {
-				const { channelId, userId, ban } = data;
+			SocketService.getInstance.on('kick', (data: any) => {
+				const channelId = data[0];
+				const userId = data[1];
+				const ban = data[2];
 				if (this.sender.id === userId) {
 					for (let i = 0; i < this.channels.length; i++) {
-						if (this.channels[i].id === this.selectedChannel.id) {
+						if (this.channels[i].id === channelId) {
 							const channel_name = this.channels[i].name;
 							this.channels.splice(i, 1);
 							if (this.selectedChannel.id === channelId)
@@ -190,9 +196,11 @@ export default defineComponent({
 					}
 				}
 			});
-
-			SocketService.getInstance.on('updateFriendList', () => {
+			SocketService.getInstance.on('updateFriendList', async () => {
 				this.refreshTimestamp = Date.now();
+				for (let channel of this.channels) {
+					channel.messages = await this.getChannelMessages(channel.id);
+				}
 			});
 		},
 
@@ -257,14 +265,16 @@ export default defineComponent({
 		},
 
 		displayChannelOption(str: string) {
-			if (str === 'kick')
-				this.ModalManagerData.showKickModal = true;
-			else if (str === 'ban')
-				this.ModalManagerData.showBanModal = true;
-			else if (str === 'unban')
+			if (str === 'unban')
 				this.ModalManagerData.showUnBanModal = true;
-			else if (str === 'mute')
-				this.ModalManagerData.showMuteModal = true;
+			else if (str === 'add_admin')
+				this.ModalManagerData.showAddAdminModal = true;
+			else if (str === 'remove_admin')
+				this.ModalManagerData.showRemoveAdminModal = true;
+			else if (str === 'add_password')
+				this.ModalManagerData.showAddPasswordModal = true;
+			else if (str === 'remove_password')
+				this.ModalManagerData.showRemovePasswordModal = true;
 		},
 
 		findChannel(id: number): Channel | null {
@@ -282,10 +292,10 @@ export default defineComponent({
 				for (let i = 0; i < messages_json.length; i++) {
 					messages.push({
 						channelId: channelId,
-						text: messages_json[i].text,
-						sender: messages_json[i].sender.id,
-						sender_name: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].sender.id, { credentials: 'include' })).json())['name'],
-						sender_img: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].sender.id, { credentials: 'include' })).json())['avatarLink'],
+						text: messages_json[i].message_text,
+						sender: messages_json[i].sender_id,
+						sender_name: messages_json[i].sender_name,
+						sender_img: messages_json[i].sender_avatarLink,
 					});
 				}
 				return (messages);
@@ -293,10 +303,6 @@ export default defineComponent({
 			catch {
 				return ([] as Message[]);
 			}
-		},
-
-		notifyKick(channelId: number, userId: number, ban: boolean) {
-			SocketService.getInstance.emit('kick', { channelId, userId, ban });
 		},
 	},
 });

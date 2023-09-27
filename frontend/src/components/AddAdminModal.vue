@@ -1,8 +1,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { SocketService } from '@/services/SocketService';
+import { useNotification } from '@kyvg/vue3-notification';
 
-export default defineComponent ({
+export default defineComponent({
 	data() {
 		return ({
 			username: '' as string,
@@ -16,18 +17,42 @@ export default defineComponent ({
 	},
 
 	methods: {
-		async banUser() {
-			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, {credentials: 'include'});
+		async addAdmin() {
+			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, { credentials: 'include' });
 			if (!user_resp['ok'] || this.username == '') {
 				this.$emit('close');
-				return ;
+				this.username = '';
+				return;
 			}
-			const user = await user_resp.json();
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/ban', {credentials: 'include', method: 'POST'});
-			const response_json = await response.json();
-			this.$emit('close');
-			if (response_json['ok'])
-				SocketService.getInstance.emit('kick', this.$props.channelId, user['id'], true);
+			this.username = '';
+			try {
+				let user;
+				try { user = await user_resp.json(); }
+				catch { throw new Error('Utilisateur inconnu.'); }
+				const userInChannelResponse = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/isUserInChannel/' + user['id'], { credentials: 'include' });
+				const userInChannel = await userInChannelResponse.json();
+				if (!userInChannel)
+					throw new Error("L'utilisateur n'est pas dans le channel.");
+				const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/addAdmin/' + user['id'], { credentials: 'include', method: 'POST' });
+				const response_json = await response.json();
+				this.$emit('close');
+				if (response_json['ok']) {
+					const data = {
+						channelId: this.$props.channelId,
+						new_owner_id: user['id'],
+					}
+					SocketService.getInstance.emit('changeAdmin', data);
+				}
+			}
+			catch (error: any) {
+				const notif = useNotification();
+				notif.notify({
+					title: 'Erreur',
+					text: error.message,
+					type: 'error',
+					group: 'notif-center',
+				});
+			}
 		}
 	},
 });
@@ -36,28 +61,28 @@ export default defineComponent ({
 
 <template>
 	<Transition name="slide-fade" mode="out-in">
-	<div v-if="show" class="modal_overlay" @click="$emit('close')">
-		<div class="modal" @click.stop>
-			<div class="form">
-				<div class="field">
-					<h1>Bannir un utilisateur</h1>
-					<input v-model="username" class="entry" type="text" placeholder="Utilisateur"/>
-				</div>
-				<div class="choice">
-					<button @click="banUser()">Confirmer</button>
+		<div v-if="show" class="modal_overlay" @click="$emit('close')">
+			<div class="modal" @click.stop>
+				<div class="form">
+					<div class="field">
+						<h1>Ajouter un admin</h1>
+						<input v-model="username" class="entry" type="text" placeholder="Utilisateur" />
+					</div>
+					<div class="choice">
+						<button @click="addAdmin()">Confirmer</button>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 	</Transition>
 </template>
 
 <style scoped>
-
 h1 {
 	width: 100%;
 	text-align: center;
 }
+
 .modal_overlay {
 	position: fixed;
 	display: flex;
@@ -84,6 +109,7 @@ h1 {
 	background-color: #DBEFFC;
 	border-radius: 20px;
 }
+
 .modal button {
 	display: flex;
 	background-color: #DBEFFC;
@@ -99,6 +125,7 @@ h1 {
 .modal button:hover {
 	background-color: rgb(182, 227, 238);
 }
+
 .form {
 	display: flex;
 	border-radius: 20px;
@@ -118,6 +145,7 @@ h1 {
 	align-items: center;
 	padding-top: 2%;
 }
+
 .entry {
 	display: flex;
 	border-radius: 20px;
@@ -141,7 +169,8 @@ h1 {
 	display: flex;
 	width: 25%;
 	height: 80%;
-	background-color: #036280;;
+	background-color: #036280;
+	;
 	border: 1px solid #000000;
 	border-radius: 20px;
 }
@@ -151,5 +180,4 @@ h1 {
 		width: 75%;
 	}
 }
-
 </style>

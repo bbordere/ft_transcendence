@@ -30,7 +30,6 @@ interface InviteInfo {
 	mode: string;
 }
 
-
 @WebSocketGateway({
 	cors: {
 		origin: true,
@@ -47,7 +46,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	private clients: Map<number, StateInfo> = new Map<number, StateInfo>;
 	private invites: Map<number, InviteInfo> = new Map<number, InviteInfo>; // invited -> sender
 	private muteds: Map<number, Mute[]> = new Map<number, Mute[]>;
-	private worldChannel: Channel = undefined;
 
 	private searchMute(userId: number, muted_list: Mute[]): Mute {
 		if (!muted_list)
@@ -61,8 +59,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('message')
 	async handleMessage(client: Socket, payload: any) {
-		// if channel is world
-		// emit on server
 		let { channelId, text, sender } = payload;
 		channelId = Number(channelId);
 		text = String(text);
@@ -76,17 +72,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!mute_instance) {
 			for (let user of users) {
 				if (!user.blockList.includes(sender))
-					this.clients.get(user.id).client_socket.emit('message', payload);
+					this.clients.get(user.id)?.client_socket.emit('message', payload);
 			}
-			this.chatService.addMessageToChannel({ channelId, text, sender });
+			await this.chatService.addMessageToChannel({ channelId, text, sender });
+			this.logger.log(`message received: ${text}`);
 		}
-		else {
-			setTimeout(() => {
-				muted.splice(muted.indexOf(mute_instance), 1);
-				console.log('Mute finished');
-			}, mute_instance.time);
-		}
-		this.logger.log(`message received: ${text}`);
 		return (payload);
 	}
 
@@ -101,19 +91,26 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			console.log('Cannot mute owner');
 			return ;
 		}
+		if (client.data.userId !== channelOwner.id) {
+			console.log("Only the owner of the channel can mute.");
+			return ;
+		}
 		const mute_instance = {
 			userId: userId,
 			time: time * 1000,
 		};
-		const muted = this.muteds.get(channelId);
-		if (!muted) {
+		if (!this.muteds.get(channelId)) {
 			let array: Mute[] = [];
 			array.push(mute_instance);
 			this.muteds.set(channelId, array);
 		}
 		else
-			muted.push(mute_instance);
-		console.log(this.muteds);
+			this.muteds.get(channelId).push(mute_instance);
+		let muted = this.muteds.get(channelId);
+		setTimeout(() => {
+			muted.splice(muted.indexOf(mute_instance), 1);
+			console.log('Mute finished');
+		}, mute_instance.time);
 	}
 
 	@SubscribeMessage('getStatus')
@@ -139,7 +136,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('kick')
 	handleKick(client: Socket, payload: any) {
 		console.log(payload);
-		this.server.emit('kick', payload);
+		// this.server.emit('kick', payload);
+		this.clients.get(Number(payload[1])).client_socket.emit('kick', payload);
 		return (payload);
 	}
 
@@ -151,8 +149,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	async afterInit(server: Server) {
 		// Create world channel
-		if (this.worldChannel === undefined)
-			this.worldChannel = await this.chatService.create('#World', '', false, undefined);
 		this.logger.log('Websocket server has started up !');
 	}
 
@@ -185,9 +181,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.clients.get(client.data.userId).client_socket = client;
 		client.data.canInvite = true;
 		await this.handleGetStatus(client, client.data.userId);
-		if (this.worldChannel?.owner === undefined)
-			await this.chatService.setOwner(this.worldChannel?.id, client.data.userId);
-		await this.userService.addUserToChannel(client.data.userId, this.worldChannel?.id, '');
 		this.logger.log(`Client connected: ${client.id}`);
 	}
 

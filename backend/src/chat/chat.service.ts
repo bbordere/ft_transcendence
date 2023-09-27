@@ -1,10 +1,11 @@
 import { Inject, Injectable, UseInterceptors } from "@nestjs/common";
 import { Channel } from "./entities/channel.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, getConnection } from "typeorm";
 import { Message } from "./entities/message.entity";
 import { User } from "src/user/user.entity";
 import * as bcrypt from 'bcrypt';
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class ChatService {
@@ -68,19 +69,31 @@ export class ChatService {
 		message.sender = senderUser;
 		const savedMessage = await this.messageRepository.save(message);
 		channel.messages.push(savedMessage);
-		await this.channelRepository.save(channel);
 		return (savedMessage);
 	}
 
 	async getChannelMessages(userId: number, channelId: number): Promise<Message[] | null> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['messages']});
 		const user = await this.userRepository.findOne({where: {id: userId}});
-		if (!channel)
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		if (!user || !channel)
 			return (null);
-		for (let message of channel.messages)
-			if (user.blockList.includes(message.sender.id))
-				channel.messages.splice(channel.messages.indexOf(message), 1);
-		return (channel.messages);
+		let messages: Message[];
+		if (user.blockList.length) {
+			messages = await this.messageRepository.createQueryBuilder('message')
+				.select(['message.id', 'sender', 'message.text'])
+				.leftJoin('message.sender', 'sender')
+				.where(`message.channel = ${channel.id}`)
+				.andWhere(`(sender.id NOT IN (:...blockList))`, {blockList: user.blockList})
+				.getRawMany()
+		}
+		else {
+			messages = await this.messageRepository.createQueryBuilder('message')
+				.select(['message.id', 'sender', 'message.text'])
+				.leftJoin('message.sender', 'sender')
+				.where(`message.channel = ${channel.id}`)
+				.getRawMany()
+		}
+		return (messages);
 	}
 
 	async getChannelOwner(channelId: number): Promise<User | null> {
@@ -187,5 +200,17 @@ export class ChatService {
 		channel.owner = user;
 		this.channelRepository.save(channel);
 		return (channel);
+	}
+
+	async isUserInChannel(channelId: number, userId: number): Promise<boolean> {
+		const user = await this.userRepository.findOne({where: {id: userId}});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		if (!user || !channel)
+			return (false); 
+		const result = await this.userRepository.createQueryBuilder('user')
+			.innerJoinAndSelect('user.channels', 'channel', `channel.id = ${channel.id}`)
+			.where(`user.id = ${user.id}`)
+			.getOne();
+		return (!!result);
 	}
 }

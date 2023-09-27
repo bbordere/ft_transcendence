@@ -14,6 +14,10 @@
 			<BanUserModal :show="showBanModal" :channelId="selectedChannel.id"
 				@close="showBanModal = false;" @kick="notifyKickForwarder"></BanUserModal>
 				<MuteModal :show="showMuteModal" :channelId="selectedChannel.id" @close="showMuteModal = false" />
+				<AddAdminModal :show="showAddAdminModal" :channelId="selectedChannel.id" @close="showAddAdminModal = false;"/>
+			<RemoveAdminModal :show="showRemoveAdminModal" :channelId="selectedChannel.id" :sender="sender" @close='showRemoveAdminModal = false;' />
+			<AddPasswordModal :show="showAddPasswordModal" :channelId="selectedChannel.id" :sender="sender" @close="showAddPasswordModal = false;"
+				@updateButton="updateButtonForwarder" />
 		</Teleport>
 	</div>
 </template>
@@ -21,33 +25,34 @@
 import ButtonAdd from './ButtonAdd.vue';
 import ModalAddFriend from './ModalAddFriend.vue';
 import ModalAdd from './ModalAdd.vue';
-import KickUserModal from './KickUserModal.vue';
-import BanUserModal from './BanUserModal.vue';
 import UnBanUserModal from './UnBanUserModal.vue';
-import MuteModal from './MuteModal.vue';
+import AddAdminModal from './AddAdminModal.vue';
+import RemoveAdminModal from './RemoveAdminModal.vue';
+import AddPasswordModal from './AddPasswordModal.vue';
 
 export default {
 	components: {
 		ButtonAdd,
 		ModalAddFriend,
 		ModalAdd,
-		KickUserModal,
-		BanUserModal,
 		UnBanUserModal,
-		MuteModal,
+		AddAdminModal,
+		RemoveAdminModal,
+		AddPasswordModal,
 	},
 
-	props: ['selectedChannel'],
+	props: ['selectedChannel', 'sender'],
 
 	data() {
 		return {
 			listView: false,
 			showModalFriend: false,
 			showModal: false,
-			showKickModal: false,
-			showBanModal: false,
 			showUnBanModal: false,
 			showMuteModal: false,
+			showAddAdminModal: false,
+			showRemoveAdminModal: false,
+			showAddPasswordModal: false,
 		}
 	},
 
@@ -58,6 +63,10 @@ export default {
 
 		notifyKickForwarder(channelId: number, userId: number, ban: boolean) {
 			this.$emit('kick', channelId, userId, ban);
+		},
+
+		updateButtonForwarder() {
+			this.$emit('updateButton');
 		},
 	},
 }

@@ -87,7 +87,7 @@ export class ChatController {
 		}
 	}
 
-	@Post('/:userId/:channelId/removePassword')
+	@Post('/:channelId/:userId/removePassword')
 	async removePassword(@Param('userId') userId: number, @Param('channelId') channelId: number) {
 		try {await this.chatService.removePassword(userId, channelId);}
 		catch (e) {
@@ -98,7 +98,7 @@ export class ChatController {
 		}
 		return {
 			ok: true,
-			message: 'Password has been removed.',
+			message: 'Le mot de passe a ete retire.',
 		};
 	}
 
@@ -107,7 +107,7 @@ export class ChatController {
 		return (await this.chatService.getAdmins(channelId));
 	}
 
-	@Post('/:userId/:channelId/changePassword')
+	@Post('/:channelId/:userId/changePassword')
 	async changePassword(@Param('userId') userId: number, @Param('channelId') channelId: number, @Body('password') password: string) {
 		try {await this.chatService.changePassword(userId, channelId, password);}
 		catch (e) {
@@ -118,7 +118,12 @@ export class ChatController {
 		}
 		return {
 			ok: true,
-			message: 'Password has been changed.',
+			message: 'Le mot de passe a ete change.',
 		};
+	}
+
+	@Get('/:channelId/isUserInChannel/:userId')
+	async isUserInChannel(@Param('channelId') channelId: number, @Param('userId') userId: number) {
+		return (await this.chatService.isUserInChannel(channelId, userId));
 	}
 }

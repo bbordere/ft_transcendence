@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { SocketService } from '@/services/SocketService';
 
 export default defineComponent ({
 	data() {
@@ -24,10 +25,9 @@ export default defineComponent ({
 			const user = await user_resp.json();
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/kick', {credentials: 'include', method: 'POST'});
 			const response_json = await response.json();
-			console.log(response_json);
 			this.$emit('close');
 			if (response_json['ok'])
-				this.$emit('kick', this.$props.channelId, user['id'], false);
+				SocketService.getInstance.emit('kick', this.$props.channelId, user['id'], false);
 		}
 	},
 });

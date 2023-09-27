@@ -88,7 +88,6 @@ export default defineComponent({
 			<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print></ProfilCell>
 		</div>
 	</div>
-
 </template>
 
 <style>
