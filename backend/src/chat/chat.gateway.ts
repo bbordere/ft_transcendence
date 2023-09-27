@@ -148,12 +148,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async afterInit(server: Server) {
-		// Create world channel
 		this.logger.log('Websocket server has started up !');
 	}
 
 	handleDisconnect(client: Socket) {
-		// this.clients.set(client.data.userId, {client_socket: client, state: State.OFFLINE});
 		this.logger.log(`Client disconnected: ${client.id}`);
 		if (!this.clients.get(client.data.userId)){
 			client.disconnect();
@@ -173,7 +171,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	async handleConnection(client: Socket, ...args: any[]) {
-		// join new user into the world channel
 		client.data.userId = Number(client.handshake.query['userId']);
 		if (!this.clients.get(client.data.userId))
 			this.clients.set(client.data.userId, { client_socket: client, state: State.ONLINE, displayUpdate: false });

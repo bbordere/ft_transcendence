@@ -11,8 +11,16 @@ export class MessageController {
 	) {}
 
 	@Get(":channelId/list")
-	async getMessages(@Param('channelId') channelId: number, @Req() request: Request): Promise<Message[] | null> {
+	async getChannelMessages(@Param('channelId') channelId: number, @Req() request: Request): Promise<Message[] | null> {
 		const user = await this.authService.getUserFromToken(request['cookies']['access_token']);
 		return (await this.chatService.getChannelMessages(user.id, channelId));
+	}
+
+	@Get('/count')
+	async getCountMessages(@Req() request: Request): Promise<number> {
+		const user = await this.authService.getUserFromToken(request['cookies']['access_token']);
+		if (!user)
+			return (0);
+		return (await this.chatService.getCountMessages(user.id));
 	}
 }

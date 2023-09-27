@@ -69,6 +69,9 @@ export class ChatService {
 		message.sender = senderUser;
 		const savedMessage = await this.messageRepository.save(message);
 		channel.messages.push(savedMessage);
+		const user = await this.userRepository.findOne({where: {id: sender}, relations: ['stats']});
+		user.stats.totalMessages++;
+		await this.userRepository.save(user);
 		return (savedMessage);
 	}
 
@@ -212,5 +215,12 @@ export class ChatService {
 			.where(`user.id = ${user.id}`)
 			.getOne();
 		return (!!result);
+	}
+
+	async getCountMessages(userId: number): Promise<number> {
+		const user = await this.userRepository.findOne({where: {id: userId}, relations: ['stats']});
+		if (!user)
+			return (0);
+		return (user.stats.totalMessages);
 	}
 }
