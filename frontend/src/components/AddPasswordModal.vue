@@ -1,56 +1,50 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { SocketService } from '@/services/SocketService';
 import { useNotification } from '@kyvg/vue3-notification';
 
 export default defineComponent({
 	data() {
 		return ({
-			username: '' as string,
-			channelId: -1 as number,
+			password: '' as string,
 		});
 	},
 
-	props: {
-		show: Boolean,
-		channelId: Number,
-	},
+	props: ['show', 'channelId', 'sender'],
 
 	methods: {
-		async removeAdmin() {
-			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, { credentials: 'include' });
-			if (!user_resp['ok'] || this.username == '') {
-				this.$emit('close');
-				return;
-			}
-			try {
-				let user;
-				try { user = await user_resp.json(); }
-				catch { throw new Error('Utilisateur inconnu.'); }
-				const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/removeAdmin/' + user['id'], { credentials: 'include', method: 'POST' });
-				const userInChannelResponse = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/isUserInChannel/' + user['id'], { credentials: 'include' });
-				const userInChannel = await userInChannelResponse.json();
-				if (!userInChannel)
-					throw new Error("L'utilisateur n'est pas dans le channel.");
-				const response_json = await response.json();
-				this.$emit('close');
-				if (response_json['ok']) {
-					const data = {
-						channelId: this.$props.channelId,
-						new_owner_id: user['id'],
-					}
-					SocketService.getInstance.emit('changeAdmin', data);
-				}
-			}
-			catch (error: any) {
-				const notif = useNotification();
+		async addPassword() {
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + "/" + this.$props.sender.id + '/changePassword', {
+				credentials: 'include',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					'password': this.password,
+				}),
+			});
+			const response_json = await response.json();
+			const notif = useNotification();
+			this.password = '';
+			if (!response_json['ok']) {
 				notif.notify({
 					title: 'Erreur',
-					text: error.message,
+					text: response_json['message'],
 					type: 'error',
 					group: 'notif-center',
 				});
+				return ;
 			}
+			else {
+				notif.notify({
+					title: 'Nouveau mot de passe',
+					text: response_json['message'],
+					type: 'success',
+					group: 'notif-center',
+				});
+				this.$emit('updateButton');
+			}
+			this.$emit('close');
 		}
 	},
 });
@@ -63,11 +57,11 @@ export default defineComponent({
 			<div class="modal" @click.stop>
 				<div class="form">
 					<div class="field">
-						<h1>Enlever un admin</h1>
-						<input v-model="username" class="entry" type="text" placeholder="Utilisateur" />
+						<h1>Ajouter/changer le mot de passe</h1>
+						<input v-model="password" class="entry" type="text" placeholder="Mot de passe" />
 					</div>
 					<div class="choice">
-						<button @click="removeAdmin()">Confirmer</button>
+						<button @click="addPassword()">Confirmer</button>
 					</div>
 				</div>
 			</div>

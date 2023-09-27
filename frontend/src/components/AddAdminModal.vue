@@ -29,6 +29,10 @@ export default defineComponent({
 				let user;
 				try { user = await user_resp.json(); }
 				catch { throw new Error('Utilisateur inconnu.'); }
+				const userInChannelResponse = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/isUserInChannel/' + user['id'], { credentials: 'include' });
+				const userInChannel = await userInChannelResponse.json();
+				if (!userInChannel)
+					throw new Error("L'utilisateur n'est pas dans le channel.");
 				const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/addAdmin/' + user['id'], { credentials: 'include', method: 'POST' });
 				const response_json = await response.json();
 				this.$emit('close');

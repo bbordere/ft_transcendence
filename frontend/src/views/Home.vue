@@ -4,7 +4,8 @@
 			<div class="left_column">
 				<PlayButton />
 				<div class="friend_list">
-					<ModalManager :selectedChannel="selectedChannel" @joinChannel="joinChannel"
+					<ModalManager :selectedChannel="selectedChannel" :sender="sender"
+					@joinChannel="joinChannel" @updateButton='selectedChannel.protected = true;'
 						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
 					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
@@ -266,6 +267,10 @@ export default defineComponent({
 				this.ModalManagerData.showAddAdminModal = true;
 			else if (str === 'remove_admin')
 				this.ModalManagerData.showRemoveAdminModal = true;
+			else if (str === 'add_password')
+				this.ModalManagerData.showAddPasswordModal = true;
+			else if (str === 'remove_password')
+				this.ModalManagerData.showRemovePasswordModal = true;
 		},
 
 		findChannel(id: number): Channel | null {
