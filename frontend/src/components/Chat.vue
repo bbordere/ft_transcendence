@@ -33,8 +33,11 @@
 					@click="$emit('displayChannelOption', 'add_admin')">Add admin</button>
 				<button v-if="selectedChannel.owner === sender.id" type="button"
 					@click="$emit('displayChannelOption', 'remove_admin')">Remove admin</button>
-				<button v-if="selectedChannel.protected">Change/Remove Password</button>
-				<button v-else-if="selectedChannel.owner === sender.id">Add Password</button>
+				<button v-if="selectedChannel.protected && selectedChannel.owner === sender.id"
+					@click="removePassword()">Remove Password</button>
+				<button v-if="selectedChannel.owner === sender.id"
+					@click="$emit('displayChannelOption', 'add_password')"
+					>Add/Change Password</button>
 			</div>
 		</div>
 	</div>
@@ -42,6 +45,7 @@
 <script lang="ts">
 import { SocketService } from '@/services/SocketService';
 import ModalChat from '../components/ModalChat.vue';
+import { useNotification } from '@kyvg/vue3-notification';
 
 export default {
 	components: {
@@ -103,6 +107,30 @@ export default {
 			this.friendId = msg.sender;
 			this.username = msg.sender_name;
 			this.modalChat = true;
+		},
+
+		async removePassword() {
+			const response = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.selectedChannel.id + '/' + this.$props.sender.id + '/removePassword', {
+				credentials: 'include',
+				method: 'POST',
+			} )).json());
+			const notif = useNotification();
+			if (!response['ok']) {
+				notif.notify({
+					title: 'Erreur',
+					text: response['message'],
+					type: 'error',
+					group: 'notif-center',
+				});
+				return ;
+			}
+			notif.notify({
+				title: 'Mot de passe',
+				text: response['message'],
+				type: 'success',
+				group: 'notif-center',
+			});
+			this.$props.selectedChannel.protected = false;
 		},
 	}
 }

@@ -202,7 +202,15 @@ export class ChatService {
 		return (channel);
 	}
 
-	async isUserInChannel(userId: number): Promise<boolean> {
-		return (true);
+	async isUserInChannel(channelId: number, userId: number): Promise<boolean> {
+		const user = await this.userRepository.findOne({where: {id: userId}});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		if (!user || !channel)
+			return (false); 
+		const result = await this.userRepository.createQueryBuilder('user')
+			.innerJoinAndSelect('user.channels', 'channel', `channel.id = ${channel.id}`)
+			.where(`user.id = ${user.id}`)
+			.getOne();
+		return (!!result);
 	}
 }

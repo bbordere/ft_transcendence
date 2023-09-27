@@ -16,7 +16,9 @@
 		</Teleport>
 		<Teleport to="body">
 			<AddAdminModal :show="showAddAdminModal" :channelId="selectedChannel.id" @close="showAddAdminModal = false;"/>
-			<RemoveAdminModal :show="showRemoveAdminModal" :channelId="selectedChannel.id" @close='showRemoveAdminModal = false;' />
+			<RemoveAdminModal :show="showRemoveAdminModal" :channelId="selectedChannel.id" :sender="sender" @close='showRemoveAdminModal = false;' />
+			<AddPasswordModal :show="showAddPasswordModal" :channelId="selectedChannel.id" :sender="sender" @close="showAddPasswordModal = false;"
+				@updateButton="updateButtonForwarder" />
 		</Teleport>
 	</div>
 </template>
@@ -27,6 +29,7 @@ import ModalAdd from './ModalAdd.vue';
 import UnBanUserModal from './UnBanUserModal.vue';
 import AddAdminModal from './AddAdminModal.vue';
 import RemoveAdminModal from './RemoveAdminModal.vue';
+import AddPasswordModal from './AddPasswordModal.vue';
 
 export default {
 	components: {
@@ -36,9 +39,10 @@ export default {
 		UnBanUserModal,
 		AddAdminModal,
 		RemoveAdminModal,
+		AddPasswordModal,
 	},
 
-	props: ['selectedChannel'],
+	props: ['selectedChannel', 'sender'],
 
 	data() {
 		return {
@@ -49,6 +53,7 @@ export default {
 			showMuteModal: false,
 			showAddAdminModal: false,
 			showRemoveAdminModal: false,
+			showAddPasswordModal: false,
 		}
 	},
 
@@ -59,6 +64,10 @@ export default {
 
 		notifyKickForwarder(channelId: number, userId: number, ban: boolean) {
 			this.$emit('kick', channelId, userId, ban);
+		},
+
+		updateButtonForwarder() {
+			this.$emit('updateButton');
 		},
 	},
 }
