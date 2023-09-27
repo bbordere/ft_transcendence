@@ -46,6 +46,7 @@
 import { SocketService } from '@/services/SocketService';
 import ModalChat from '../components/ModalChat.vue';
 import { useNotification } from '@kyvg/vue3-notification';
+import router from '@/router';
 
 export default {
 	components: {
@@ -77,6 +78,11 @@ export default {
 	props: ['selectedChannel', 'sender'],
 
 	methods: {
+
+		redirecToProfil(name: string) {
+			router.push({ path: '/profile', query: { user: name } });
+		},
+
 		sendMessage() {
 			if (SocketService.getStatus && this.message) {
 				const data = {
@@ -102,8 +108,10 @@ export default {
 		},
 
 		showChatModal(msg: any) {
-			if (msg.sender === this.sender.id)
+			if (msg.sender === this.sender.id) {
+				this.redirecToProfil(msg.send_name);
 				return ;
+			}
 			this.friendId = msg.sender;
 			this.username = msg.sender_name;
 			this.modalChat = true;
@@ -195,6 +203,10 @@ export default {
 	height: 40px;
 	border-radius: 50%;
 	overflow: hidden;
+}
+
+img:hover {
+	cursor: pointer;
 }
 
 .sender_name {

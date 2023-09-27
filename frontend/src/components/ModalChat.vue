@@ -107,7 +107,7 @@ export default {
 		<div v-if="show" class="modal_overlay" @click="$emit('close')">
 			<div class="modal_chat" @click.stop>
 				<div class="grid">
-					<div class="button-grid">
+					<div :class="displayButton() ? 'button_grid_column' : 'button_grid_row'">
 						<BlueButton :text="'Profil de ' + username" @click="redirecToProfil(username); $emit('close')" />
 						<BlueButton text="Inviter à jouer" @click="modalInvite = true" />
 						<BlueButton text="Bloquer" @click="blockUser(); deleteFriend(); $emit('close')" />
@@ -166,9 +166,18 @@ export default {
 	font-size: 1.3em;
 }
 
-.button-grid {
+.button_grid_column {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
+	grid-template-columns: repeat(3, 1fr);
+	row-gap: 20%;
+	column-gap: 10%;
+	width: 80%;
+	height: 50%;
+}
+
+.button_grid_row {
+	display: grid;
+	grid-template-rows: repeat(3, 1fr);
 	row-gap: 20%;
 	column-gap: 10%;
 	width: 80%;
