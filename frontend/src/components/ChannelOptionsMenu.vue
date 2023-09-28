@@ -58,7 +58,7 @@
 	flex-direction: column;
 	right: 0;
 	top: 40px;
-	/* background: pink; */
+	background: white;
 	border-radius: 20px;
 	border: #515151 1px solid;
 	padding: 10px;

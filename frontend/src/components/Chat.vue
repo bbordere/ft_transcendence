@@ -4,6 +4,7 @@
 			<ModalChat :show="modalChat" @close="modalChat = false" :connected_user="connected_user" :friendId="friendId" :username="username" :selectedChannel="selectedChannel" />
 		</Teleport>
 		<div class="top_chat_container">
+			<!-- {{ selectedChannel.admins }} -->
 			<div class="channel_name">{{ selectedChannel.name }}</div>
 			<ChannelOptionsMenu v-if="selectedChannel.name" :isAdmin="selectedChannel.owner === sender.id"
 			:showMenu="showMenu" :isProtected="selectedChannel.protected"
@@ -11,15 +12,13 @@
 			@removePassword="removePassword()" @displayChannelOption="emitToModalManager"></ChannelOptionsMenu>
 		</div>
 		<div class="message_box">
-			<ul class="msg_chat_box">
-					<div v-for="(msg, index) in selectedChannel.messages" class="single_message" :class="sender.id === msg.sender ? 'sent' : 'received'">
-						<img v-if="sender.id !== msg.sender" alt="avatar" @click="showChatModal(msg)" :src="msg.sender_img">
-						<div class="msg_txt_box">
-							<span v-if="sender.id !== msg.sender" class="sender_name">{{ msg.sender_name }}</span>
-							<span :class="sender.id === msg.sender ? 'sent_txt' : 'received_txt'" :ref="`message-${index}`" class="message">{{ msg.text }}</span>
-						</div>
+				<div v-for="(msg, index) in selectedChannel.messages" class="single_message" :class="sender.id === msg.sender ? 'sent' : 'received'">
+					<img v-if="sender.id !== msg.sender" alt="avatar" @click="showChatModal(msg)" :src="msg.sender_img">
+					<div class="msg_txt_box">
+						<span v-if="sender.id !== msg.sender" class="sender_name">{{ msg.sender_name }}</span>
+						<span :class="sender.id === msg.sender ? 'sent_txt' : 'received_txt'" :ref="`message-${index}`" class="message">{{ msg.text }}</span>
 					</div>
-			</ul>
+				</div>
 		</div>
 		<div class="send_container" v-if="selectedChannel.name">
 			<form v-on:submit.prevent="sendMessage">
@@ -100,8 +99,6 @@ export default {
 		},
 
 		showChatModal(msg: any) {
-			if (msg.sender === this.sender.id)
-				return ;
 			this.friendId = msg.sender;
 			this.username = msg.sender_name;
 			this.modalChat = true;
@@ -189,7 +186,7 @@ export default {
 	margin-bottom: 10px;
 	height: 100%;
 	max-height: 100%;
-	overflow-y: auto;
+	overflow-y: scroll;
 	scrollbar-width: none;
 	/* background-color: #d4eefd; */
 }
