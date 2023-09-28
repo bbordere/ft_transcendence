@@ -1,5 +1,8 @@
 <script lang="ts">
+
 import { defineComponent } from 'vue';
+import BlueButton from "./BlueButton.vue";
+import SlidingTitle from "./SlidingTitle.vue";
 
 export default defineComponent ({
 	data() {
@@ -7,6 +10,11 @@ export default defineComponent ({
 			channel_name: '' as string,
 			channel_password: '' as string,
 		});
+	},
+
+	components: {
+		BlueButton,
+		SlidingTitle,
 	},
 
 	props: {
@@ -50,20 +58,16 @@ export default defineComponent ({
 
 <template>
 	<Transition name="slide-fade" mode="out-in">
-	<div v-if="show" class="modal_overlay" @click="$emit('close')">
-		<div class="modal" @click.stop>
-			<div class="form">
-				<div class="field">
-					<h1>Nom du Channel</h1>
-					<input v-model="channel_name" class="entry" type="text" placeholder="Mon Channel"/>
-				</div>
-				<div class="field">
-					<h1>Mot de Passe</h1>
-					<input class="entry" type="password" placeholder="Champ optionnel" v-model="channel_password"/>
-				</div>
-				<div class="choice">
-					<button @click="addChannel()">Confirmer</button>
-				</div>
+	<div v-if="show" class="modal_overlay_channel" @click="$emit('close')">
+		<div class="modal_channel" @click.stop>
+			<div class="field_channel">
+				<SlidingTitle text="Nom du channel"/>
+				<input v-model="channel_name" class="entry_channel" type="text" placeholder="Mon Channel"/>
+			</div>
+			<SlidingTitle text="Mot de Passe"/>
+			<div class="field_channel">
+				<input class="entry_channel" type="password" placeholder="Champ optionnel" v-model="channel_password"/>
+				<BlueButton text="Confirmer" icon="" @click="addChannel()" />
 			</div>
 		</div>
 	</div>
@@ -72,10 +76,40 @@ export default defineComponent ({
 
 <style scoped>
 
-.modal_overlay {
+.entry_channel {
+	display: flex;
+	border-radius: 20px;
+	height: 30%;
+	width: 100%;
+	outline: none;
+	text-align: center;
+	font-size: larger;
+}
+
+.field_channel {
+	display: flex;
+	flex-direction: column;
+	width: 50%;
+	height: 30%;
+	justify-content: space-around;
+	align-items: center;
+	margin-bottom: 5%;
+
+	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);
+}
+.field_channel button {
+	font-size: larger;
+	height: 30%;
+	width: 70%;
+	text-align: center;
+	border-radius: 20px;
+	font-size: clamp(1.2rem, 0.3654rem + 1.2308vw, 1.25rem);
+}
+
+.modal_overlay_channel {
 	position: fixed;
 	display: flex;
-	z-index: 9998;
+	z-index: 2;
 	left: 0;
 	top: 0;
 	width: 100%;
@@ -87,81 +121,22 @@ export default defineComponent ({
 	transition: all 0.4s ease;
 	min-height: 600px;
 	min-width: 500px;
+	font-family: 'poppins';
 }
 
-.modal {
+.modal_channel {
 	display: flex;
 	flex-direction: column;
-	align-items: end;
-	width: 40%;
-	height: 70%;
-	background-color: #DBEFFC;
+	height: 55%;
+	width: 37%;
+	background-color: white;
 	border-radius: 20px;
-}
-.modal button {
-	display: flex;
-	background-color: #DBEFFC;
-	height: 6%;
-	width: 6%;
-	align-items: center;
-	justify-content: center;
-	border: none;
-	font-size: 1.3em;
-	border-radius: 20px;
-}
-
-.modal button:hover {
-	background-color: rgb(182, 227, 238);
-}
-.form {
-	display: flex;
-	border-radius: 20px;
-	width: 100%;
-	height: 80%;
-	flex-direction: column;
-	align-items: center;
-	padding-top: 5%;
-}
-
-.field {
-	display: flex;
-	flex-direction: column;
-	width: 70%;
-	height: 70%;
-	gap: 12%;
-	align-items: center;
-	padding-top: 2%;
-}
-.entry {
-	display: flex;
-	border-radius: 20px;
-	width: 100%;
-	height: 30%;
-	outline: none;
-	border: none;
-	text-align: center;
-	font-size: larger;
-}
-
-.choice {
-	display: flex;
 	justify-content: center;
 	align-items: center;
-	width: 100%;
-	height: 25%;
-}
-
-.choice button {
-	display: flex;
-	width: 25%;
-	height: 80%;
-	background-color: #036280;;
-	border: 1px solid #000000;
-	border-radius: 20px;
 }
 
 @media screen and (max-width: 1150px) {
-	.modal {
+	.modal_channel {
 		width: 75%;
 	}
 }
