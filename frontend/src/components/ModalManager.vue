@@ -29,6 +29,7 @@ import UnBanUserModal from './UnBanUserModal.vue';
 import AddAdminModal from './AddAdminModal.vue';
 import RemoveAdminModal from './RemoveAdminModal.vue';
 import AddPasswordModal from './AddPasswordModal.vue';
+import BanUserModal from './BanUserModal.vue';
 
 export default {
 	components: {
@@ -39,6 +40,7 @@ export default {
 		AddAdminModal,
 		RemoveAdminModal,
 		AddPasswordModal,
+		BanUserModal
 	},
 
 	props: ['selectedChannel', 'sender'],
@@ -49,10 +51,12 @@ export default {
 			showModalFriend: false,
 			showModal: false,
 			showUnBanModal: false,
+			showBanModal: false,
 			showMuteModal: false,
 			showAddAdminModal: false,
 			showRemoveAdminModal: false,
 			showAddPasswordModal: false,
+			showKickModal: false,
 		}
 	},
 
