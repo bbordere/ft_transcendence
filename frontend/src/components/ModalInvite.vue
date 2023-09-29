@@ -48,7 +48,6 @@ function handleClick(value: boolean) {
 	justify-content: space-between;
 	gap: 4px;
 	align-items: center;
-
 }
 
 .invite_modal_content {
@@ -96,9 +95,11 @@ function handleClick(value: boolean) {
 	border: 2px #515151 solid;
 	cursor: pointer;
 	color: white;
+	font-weight: bold;
 }
 
 .green_color{
+	font-weight: bold;
 	background-color: green;
 	font-family: 'poppins';
 	border-radius: 250px;

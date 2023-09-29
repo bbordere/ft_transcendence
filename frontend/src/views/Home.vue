@@ -7,12 +7,16 @@
 					<ModalManager :selectedChannel="selectedChannel" :sender="sender"
 					@joinChannel="joinChannel" @updateButton='selectedChannel.protected = true;'
 						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
-					<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
+					<Transition name="fade2" mode="out-in">
+						<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
 					<FriendList v-else :updateTimestamp="updateTimestamp" :friendTimestamp="refreshTimestamp"/>
+						
+					</Transition>
+					
 				</div>
 			</div>
-			<Chat :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
+			<Chat  class="chat_container" :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
 				@displayChannelOption="displayChannelOption"></Chat>
 		</div>
 	</div>
@@ -263,6 +267,8 @@ export default defineComponent({
 		displayChannelOption(str: string) {
 			if (str === 'unban')
 				this.ModalManagerData.showUnBanModal = true;
+			else if (str === 'ban')
+				this.ModalManagerData.showBanModal = true;
 			else if (str === 'add_admin')
 				this.ModalManagerData.showAddAdminModal = true;
 			else if (str === 'remove_admin')
@@ -331,13 +337,22 @@ h1 {
 .left_column {
 	display: flex;
 	height: 100%;
-	width: 10%;
+	width: 20%;
 	flex-direction: column;
 	gap: 4%;
 	flex-grow: 0.2;
+	min-width: 175px;
+	max-width: 450px;
+}
+
+.chat_container{
+	max-width: 800px;
+	/* width: 100%; */
+	/* height: 100%; */
 }
 
 .friend_list {
+	/* position: relative; */
 	display: flex;
 	flex-direction: column;
 	height: 80%;
@@ -347,11 +362,11 @@ h1 {
 	border-radius: 10px;
 }
 
-@media screen and (max-width: 1150px) {
+/* @media screen and (max-width: 1150px) {
 	.left_column {
 		flex-grow: 0.6;
 	}
-}
+} */
 
 .slide-fade-enter-from {
 	opacity: 0;
@@ -365,5 +380,15 @@ h1 {
 .slide-fade-leave-to .modal-container {
 	-webkit-transform: scale(1.5);
 	transform: scale(1.5);
+}
+
+.fade2-enter-from,
+.fade2-leave-to {
+	opacity: 0;
+}
+
+.fade2-enter-active,
+.fade2-leave-active {
+	transition: opacity 0.15s ease;
 }
 </style>

@@ -17,12 +17,13 @@
 		<notifications position="top right" group="friend" />
 
 		<!-- <SlidingDiag></SlidingDiag> -->
-		<FloatingSquares></FloatingSquares>
+		<FloatingSquares v-if="displayBackground"></FloatingSquares>
+		<div v-else class="background"></div>
 
 
 		<router-view v-slot="{ Component }" appear>
 			<transition name="grow-in" mode="out-in">
-				<Component v-if="$route.fullPath.includes('auth') || socketReadyRef" :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady"/>
+				<Component v-if="$route.fullPath.includes('auth') || socketReadyRef" :key="$route.fullPath" :is="Component" @update="test" @socketReady="socketReady" @toggleBackground="displayBackground = !displayBackground"/>
 			</transition>
 		</router-view>
 	</body>
@@ -37,7 +38,7 @@ import router from '@/router';
 
 import SlidingDiag from './components/SlidingDiag.vue';
 import FloatingSquares from './components/FloatingSquares.vue';
-import { State } from './views/Home.vue';
+import State from './views/Home.vue';
 import ModalInvite from './components/ModalInvite.vue'; 
 
 
@@ -48,6 +49,7 @@ const displayModalSend = ref(false)
 const senderName = ref("");
 const modeRef = ref("");
 const socketReadyRef = ref(false);
+const displayBackground = ref(true);
 
 let timeoutId: number = -1;
 
@@ -108,6 +110,7 @@ body {
 	position: absolute;
 	height: 100vh;
 	width: 100vw;
+	
 	//   --sinus:0.57357643635;
 	//   --d:50000px;
 	//   background-color: #000;
@@ -130,7 +133,9 @@ body {
 
 
 }
-
+.background{
+    background: #92ccf0;
+}
 // .css-selector {
 //     background: linear-gradient(125deg, #f9c683, #ecead5, #8edae6);
 //     background-size: 600% 600%;

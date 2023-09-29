@@ -73,18 +73,20 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="add_friend">
-		<button class="tri" @click="print = 1;">Demande</button>
-		<button class="tri" @click="print = 2;">Bloqué</button>
-		<div v-if="getFriendRequest"  class="notifDemande">
-			<strong>{{ getFriendRequest }}</strong>
+	<div class="friend_list_container">
+		<div class="friend_buttons_container">
+			<button class="tri" @click="print = 1;">Demande</button>
+			<button class="tri" @click="print = 2;">Bloqué</button>
+			<div v-if="getFriendRequest"  class="notifDemande">
+				<strong>{{ getFriendRequest }}</strong>
+			</div>
 		</div>
-	</div>
-	<div v-if="print === 2 && blockList.length !== 0" class="list_friend">
-		<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
-	</div>
-	<div v-else class="list_friend">
-		<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print></ProfilCell>
+		<div v-if="print === 2" class="list_friend">
+			<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
+		</div>
+		<div v-else class="list_friend">
+			<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print></ProfilCell>
+		</div>
 	</div>
 </template>
 
@@ -95,17 +97,32 @@ export default defineComponent({
 	align-items: center;
 	flex-direction: column;
 	width: 100%;
-	height: 100%;
+	/* height: 100%; */
 }
 
-.add_friend .tri {
+.friend_list_container{
+	height: 100%;
+	/* background-color: rebeccapurple; */
+}
+
+.friend_buttons_container{
 	display: flex;
-	align-items: center;
+	flex-direction: row;
+	gap: 10px;
 	justify-content: center;
+	/* align-items: center; */
+	/* margin-top: -5px; */
+	/* background: purple; */
+	/* padding: 10px; */
+	/* margin-bottom: -10px; */
+	height: 6%;
+	/* background: red; */
+	/* padding: 100px; */
+}
+
+.tri {
 	color: white;
 	background-color: #046280;
-	height: 65%;
-	flex-shrink: 0;
 	width: 45%;
 	overflow: hidden;
 	border-radius: 20px;

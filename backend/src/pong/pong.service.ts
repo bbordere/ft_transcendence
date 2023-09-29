@@ -6,6 +6,7 @@ import { Effect, Powerup } from './interface/powerup.interface';
 
 import { PongConstants } from './interface/constants.interface';
 import { UserService } from 'src/user/user.service';
+import { max } from 'class-validator';
 
 @Injectable()
 export class PongGame {
@@ -131,20 +132,6 @@ export class PongGame {
 			x: room.ball.direction.x * room.ball.speed + room.ball.radius,
 			y: room.ball.direction.y * room.ball.speed + room.ball.radius,
 		}
-		let indexPlayer = -1;
-		if (room.ball.position.x + next.x > room.canvas.width)
-			indexPlayer = 0;
-		else if (room.ball.position.x + next.x < room.ball.radius)
-			indexPlayer = 1;
-
-		if (indexPlayer != -1) {
-			room.players[indexPlayer].score++;
-			room.state = State.COOLDOWN;
-			this.resetBall(room);
-			this.resetRacket(room);
-			return;
-		}
-
 		if (room.ball.position.y + next.y >= room.canvas.height
 			|| room.ball.position.y + next.y <= room.ball.radius * 2) {
 			room.ball.direction.y *= -1;
@@ -159,6 +146,19 @@ export class PongGame {
 		else {
 			room.ball.position.x += room.ball.direction.x * room.ball.speed;
 			room.ball.position.y += room.ball.direction.y * room.ball.speed;
+		}
+		let indexPlayer = -1;
+		if (room.ball.position.x > room.canvas.width)
+			indexPlayer = 0;
+		else if (room.ball.position.x < room.ball.radius)
+			indexPlayer = 1;
+
+		if (indexPlayer != -1) {
+			room.players[indexPlayer].score++;
+			room.state = State.COOLDOWN;
+			this.resetBall(room);
+			this.resetRacket(room);
+			return;
 		}
 	}
 
@@ -179,7 +179,10 @@ export class PongGame {
 			case Effect.LIL_PADDLE: {
 				racket = room.players[Number(!(powerup.activatedBy))].racket;
 				racket.pos.y += PongConstants.LIL_PAD_VALUE;
+				const oldSize = racket.size;
 				racket.size -= PongConstants.LIL_PAD_VALUE * 2;
+				if (racket.size <= 0)
+					racket.size = oldSize;
 				racket.effectTimeout = setTimeout(() => {
 					racket.size = PongConstants.RACKET_HEIGHT;
 				}, PongConstants.LIL_PADDLE_DURATION)
@@ -187,7 +190,7 @@ export class PongGame {
 				break;
 			case Effect.SPEEDY_BALL: {
 				const oldSpeed = room.ball.speed;
-				room.ball.speed = PongConstants.SPEED_BALL_POWERUP;
+				room.ball.speed += 2;
 				setTimeout(() => {
 					if (room.ball.speed === PongConstants.SPEED_BALL_POWERUP)
 						room.ball.speed = oldSpeed;
@@ -213,7 +216,7 @@ export class PongGame {
 		this.powerupsHandling(room);
 		const { ["effectTimeout"]: timeOut1, ...racket1 } = room.players[0].racket;
 		const { ["effectTimeout"]: timeOut2, ...racket2 } = room.players[1].racket;
-		client.emit("updateGame", room.ball, racket1, racket2, room.powerups);
+		client.emit("updateGame", room.ball, racket1, racket2, JSON.stringify(room.powerups));
 	}
 
 	async initGame(room: Room) {
@@ -287,7 +290,7 @@ export class PongGame {
 			};
 			hasCollide = false;
 			for (let power of room.powerups) {
-				hasCollide = hasCollide || this.hasPowerup2Intersect(power, powerup);
+				hasCollide = hasCollide || this.hasPowerup2Intersect(power, powerup) || this.hasPowerupIntersect(room.ball, power);
 			}
 		}
 		if (iteration === 20)
@@ -317,7 +320,7 @@ export class PongGame {
 		const it = setInterval(() => {
 			if (room.state === State.FINAL)
 				clearInterval(it);
-			if (room.time % 15 === 7) {
+			if (room.time % 2 === 1) {
 				const power = this.generatePowerup(room);
 				if (power)
 					room.powerups.push(power);

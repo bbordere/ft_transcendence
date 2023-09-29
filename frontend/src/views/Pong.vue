@@ -4,7 +4,7 @@
 			<div class="left_column">
 				<PongPlayerCard v-if="dataLoaded" :id="player1Id" side="0" :emote="emote1.emoji"></PongPlayerCard>
 			</div>
-			<div class="middle_column">
+			<div class="middle_column" v-if="dataLoaded">
 				<div class="timer">
 					<label>{{ timer }}</label>
 				</div>
@@ -13,8 +13,8 @@
 					-
 					<span id="score1">{{ score2 }}</span>
 				</div>
-				<PongCanvas v-if="dataLoaded" :socket="this.socket" :playId1="this.player1Id" :playId2="this.player2Id"
-					:score1="score1" :score2="score2" />
+				<PongCanvas :socket="this.socket" :playId1="this.player1Id" :playId2="this.player2Id"
+					:score1="score1" :score2="score2" @toggleBackground="toggleBackground"/>
 				<div class="button_panel">
 					<div class="reaction_panel">
 						<EmoteButton emoji="🤣" :socket="socket"></EmoteButton>
@@ -82,6 +82,10 @@ export default {
 				return;
 			}
 			return modes.indexOf(mode);
+		},
+
+		toggleBackground(){
+			this.$emit('toggleBackground');
 		},
 
 		emoteHandling(side: number, emoji: string) {
@@ -278,7 +282,7 @@ export default {
 
 @font-face {
 	font-family: 'digital-clock-font';
-	src: url('./fonts/digital-7.mono.ttf');
+	src: url('/public/fonts/digital-7.mono.ttf');
 }
 
 .scores {

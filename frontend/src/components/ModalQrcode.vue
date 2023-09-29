@@ -5,7 +5,7 @@
 			<div class="instructions">
 				Scannez le code avec l'application Google Authenticator sur mobile.
 			</div>
-			<img v-if="isDataLoaded" :src="getUrl()" class="qrcode">
+			<img alt="qrcode" v-if="isDataLoaded" :src="getUrl()" class="qrcode">
 			<div class="instructions">
 				Entrez le code présent sur l'application.
 			</div>

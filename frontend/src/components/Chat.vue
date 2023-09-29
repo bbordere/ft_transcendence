@@ -1,44 +1,32 @@
 <template>
-	<Teleport to="body">
-		<ModalChat :show="modalChat" @close="modalChat = false" :connected_user="connected_user" :friendId="friendId" :username="username" :selectedChannel="selectedChannel" />
-	</Teleport>
-	<div class="chat">
-		<h1>{{ selectedChannel.name }}</h1>
+	<div class="chat" @click="showMenu = false">
+		<Teleport to="body">
+			<ModalChat :show="modalChat" @close="modalChat = false" :connected_user="connected_user" :friendId="friendId" :username="username" :selectedChannel="selectedChannel" />
+		</Teleport>
+		<div class="top_chat_container">
+			<!-- {{ selectedChannel.admins }} -->
+			<div class="channel_name">{{ selectedChannel.name }}</div>
+			<ChannelOptionsMenu v-if="selectedChannel.name" :isAdmin="selectedChannel.owner === sender.id"
+			:showMenu="showMenu" :isProtected="selectedChannel.protected"
+			@openMenu="toggleMenu" @quitChannel="quitChannel(sender.id)" 
+			@removePassword="removePassword()" @displayChannelOption="emitToModalManager"></ChannelOptionsMenu>
+		</div>
 		<div class="message_box">
-			<ul class="msg_chat_box">
-				<li>
-					<div v-for="(msg, index) in selectedChannel.messages" class="single_message"
-						:class="sender.id === msg.sender ? 'sent' : 'received'">
-						<img @click="showChatModal(msg)" :src="msg.sender_img">
-						<div>
-							<span class="sender_name">{{ msg.sender_name }}</span>
-							<span :ref="`message-${index}`" class="message">{{ msg.text }}</span>
-						</div>
+				<div v-for="(msg, index) in selectedChannel.messages" class="single_message" :class="sender.id === msg.sender ? 'sent' : 'received'">
+					<img v-if="sender.id !== msg.sender" alt="avatar" @click="showChatModal(msg)" :src="msg.sender_img">
+					<div class="msg_txt_box">
+						<span v-if="sender.id !== msg.sender" class="sender_name">{{ msg.sender_name }}</span>
+						<span :class="sender.id === msg.sender ? 'sent_txt' : 'received_txt'" :ref="`message-${index}`" class="message">{{ msg.text }}</span>
 					</div>
-				</li>
-			</ul>
+				</div>
 		</div>
 		<div class="send_container" v-if="selectedChannel.name">
 			<form v-on:submit.prevent="sendMessage">
 				<div class="sendbox">
-					<input type="text" v-model="message">
-					<button type="button" @click="sendMessage()">&#8593;</button>
+					<input type="text" v-model="message" :placeholder="'Envoyer un message dans ' + [[selectedChannel.name]]">
+					<!-- <button type="button" @click="sendMessage()">&#8593;</button> -->
 				</div>
 			</form>
-			<div class="channel_options">
-				<button type="button" @click="quitChannel(sender.id)">Quit Channel</button>
-				<button v-if="selectedChannel.owner === sender.id" type="button"
-					@click="$emit('displayChannelOption', 'unban')">Unban User</button>
-				<button v-if="selectedChannel.owner === sender.id" type="button"
-					@click="$emit('displayChannelOption', 'add_admin')">Add admin</button>
-				<button v-if="selectedChannel.owner === sender.id" type="button"
-					@click="$emit('displayChannelOption', 'remove_admin')">Remove admin</button>
-				<button v-if="selectedChannel.protected && selectedChannel.owner === sender.id"
-					@click="removePassword()">Remove Password</button>
-				<button v-if="selectedChannel.owner === sender.id"
-					@click="$emit('displayChannelOption', 'add_password')"
-					>Add/Change Password</button>
-			</div>
 		</div>
 	</div>
 </template>
@@ -47,10 +35,12 @@ import { SocketService } from '@/services/SocketService';
 import ModalChat from '../components/ModalChat.vue';
 import { useNotification } from '@kyvg/vue3-notification';
 import router from '@/router';
+import ChannelOptionsMenu from '@/components/ChannelOptionsMenu.vue'
 
 export default {
 	components: {
 		ModalChat,
+		ChannelOptionsMenu,
 	},
 
 	data() {
@@ -60,6 +50,7 @@ export default {
 			connected_user: -1 as number,
 			friendId: -1 as number,
 			username: '' as string,
+			showMenu: false,
 		};
 	},
 
@@ -83,6 +74,12 @@ export default {
 			router.push({ path: '/profile', query: { user: name } });
 		},
 
+		toggleMenu(){
+			this.showMenu = !this.showMenu;
+		},
+		emitToModalManager(modalToggled: string){
+			this.$emit('displayChannelOption', modalToggled);
+		},
 		sendMessage() {
 			if (SocketService.getStatus && this.message) {
 				const data = {
@@ -146,28 +143,62 @@ export default {
 <style>
 .chat {
 	display: flex;
-	height: 100%;
-	width: 45%;
 	flex-direction: column;
 	align-items: center;
 	justify-content: space-between;
-	background: #F0F8FF;
+	background: white;
+	width: 60%;
+	height: 100%;
 	border: 3px solid #515151;
 	border-radius: 10px;
+}
+.top_chat_container{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* background-color: blue; */
+	width: 100%;
+	height: 40px;
+	position: relative;
+}
+
+.channel_name{
+	width: 100%;
+	padding-left: 10px;
+	font-weight: bold;
+	font-size: clamp(1rem, 0.4231rem + 1.8462vw, 1.75rem);
 }
 
 .message {
 	text-align: left;
-	word-wrap: break-word;
+	/* word-wrap: break-word; */
+	padding: 10px;
+	font-size: clamp(0.75rem, 0.5577rem + 0.6154vw, 1rem);
+	/* max-width: 80%; */
+	/* overflow-wrap: break-word; */
+}
+
+.sent_txt{
+	background: rgb(187, 214, 255);
+	border-radius: 20px 20px 0px 20px;
+	align-self: flex-end;
+}
+
+.received_txt{
+	background-color: #d4eefd;
+	border-radius: 20px 20px 20px 0px;
 }
 
 .message_box {
-	padding-right: 20px;
-	width: 90%;
+	/* padding-right: 20px; */
+	/* display: flex; */
+	width: 95%;
 	margin-bottom: 10px;
+	height: 100%;
 	max-height: 100%;
-	overflow-y: auto;
+	overflow-y: scroll;
 	scrollbar-width: none;
+	/* background-color: #d4eefd; */
 }
 
 ::-webkit-scrollbar {
@@ -179,21 +210,22 @@ export default {
 	margin: 0;
 	padding: 0;
 	list-style-type: none;
-}
-
-.message_box ul li {
 	padding: 5px;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: end;
 }
 
 .single_message {
 	display: flex;
+	align-items: end;
 	margin-top: 10px;
 }
 
 .single_message div {
 	display: flex;
 	flex-direction: column;
-	max-width: 50%;
 }
 
 .single_message img {
@@ -202,7 +234,7 @@ export default {
 	width: 40px;
 	height: 40px;
 	border-radius: 50%;
-	overflow: hidden;
+	/* overflow: hidden; */
 }
 
 .msg_chat_box img:hover {
@@ -211,11 +243,15 @@ export default {
 
 .sender_name {
 	font-size: 10px;
+	margin-left: 10px;
+	/* text-align: center; */
 }
 
 .sent {
 	text-align: right;
+	display: flex;
 	justify-content: end;
+	align-items: end;
 	flex-direction: row-reverse;
 }
 
@@ -229,23 +265,30 @@ export default {
 
 .send_container form {
 	width: 80%;
+	border-radius: 10px;
 }
 
 .sendbox {
 	width: 100%;
-	background-color: white;
+	/* border: #515151 1px solid; */
+
 	text-align: center;
 	display: flex;
 	flex-direction: row;
-	align-items: center;
+	align-items: end;
 }
 
 .sendbox input {
-	width: 90%;
+	width: 100%;
 	height: 50px;
+	/* border: #acacac 1px solid; */
 	border: none;
+	border-radius: 500px;
+	background-color: #ebebeb;
+	/* background: rgb(155, 155, 245); */
 	padding-left: 15px;
-	border-right: 1px solid rgba(0, 0, 0, 0.1);
+	/* border-right: 1px solid rgba(0, 0, 0, 0.1); */
+	/* background-color: red; */
 }
 
 .sendbox input:focus {
@@ -253,7 +296,7 @@ export default {
 }
 
 .sendbox button {
-	padding-left: 20px;
+	/* padding-left: 20px; */
 	border: none;
 	background-color: transparent;
 	font-size: 20px;
@@ -266,18 +309,28 @@ export default {
 	flex-direction: row;
 	width: 80%;
 	flex-wrap: wrap;
+	margin-top: 10px;
 }
 
 .channel_options button {
 	flex: 1;
 	padding: 10px;
 	border: 1px solid rgba(0, 0, 0, 0.1);
-	background-color: white;
+	/* background-color: white; */
 }
 
-@media screen and (max-width: 1150px) {
+.msg_txt_box{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: start;
+	max-width: 70%;
+	/* background: red; */
+}
+
+/* @media screen and (max-width: 1150px) {
 	.chat {
 		width: 50%;
 	}
-}
+} */
 </style>
