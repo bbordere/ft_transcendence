@@ -5,27 +5,11 @@ import StatsPanel from '@/components/StatsPanel.vue'
 import MatchHistory from '@/components/MatchHistory.vue'
 import { useRoute } from 'vue-router';
 import router from '../router';
-import { useNotification } from '@kyvg/vue3-notification';
 import { SocketService } from '@/services/SocketService';
 import { State } from './Home.vue';
 
 
 export default{
-	beforeRouteEnter(to, from, next) {
-        next(() => {
-			if (!Object.keys(from.query).length || from.query["plan"] === undefined)
-				return
-
-			let message: string = from.query["plan"] === "on" ? "Double Authentification activée !" : "Double Authentification désactivée !"
-
-			const notification = useNotification()
-			notification.notify({
-				title: message,
-				type: 'success',
-				group: 'notif-center'
-			});	
-        });
-    },
 	components: {
 		ProfileCard,
 		StatsPanel,
@@ -40,7 +24,7 @@ export default{
 			return (this.username === "me");
 		},
 
-		getUser(){
+		async getUser(){
 			let names: String[];
 			let exist: boolean;
 			let username: string;
@@ -51,18 +35,27 @@ export default{
 				this.dataLoaded = true;
 				return;
 			}
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/")
-			.then(res => res.json())
-			.then(data => {names = data})
-			.then(() => {username = route.query["user"]})
-			.then(() => {exist = names.includes(username) || username === "me"})
-			.then(() => {
-				if (!exist)
-					router.push('/invalidParams');
-				else
-					this.username = username;
+
+			const data = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + route.query["user"]);
+			try {
+				const json = await data.json()
+				this.username = json["name"];
 				this.dataLoaded = true;
-			})
+			} catch (error) {
+				router.push('/invalidParams');
+			}
+			// fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/")
+			// .then(res => res.json())
+			// .then(data => {names = data})
+			// .then(() => {username = route.query["user"]})
+			// .then(() => {exist = names.includes(username) || username === "me"})
+			// .then(() => {
+			// 	if (!exist)
+			// 		router.push('/invalidParams');
+			// 	else
+			// 		this.username = username;
+			// 	this.dataLoaded = true;
+			// })
 		},
 
 		updateUsername(newUsername: string){
@@ -70,8 +63,8 @@ export default{
 			this.$emit('update', newUsername);
 		}
 	},
-	mounted() {
-		this.getUser();
+	async mounted() {
+		await this.getUser();
 		SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE);
 	},
 
@@ -89,7 +82,7 @@ export default{
 				<MatchHistory :username="username" :updateTimestamp="updateTimestamp"/>
 			</div>
 			<div class="statsPanel" v-if="dataLoaded">
-				<StatsPanel :username="username"></StatsPanel>
+				<StatsPanel :username="username"></StatsPanel>````
 			</div>
 		</div>
 	</div>

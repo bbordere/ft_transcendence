@@ -104,7 +104,7 @@ export default {
 
 <template>
 	<Transition name="slide-fade" mode="out-in">
-		<div v-if="show" class="modal_overlay" @click="$emit('close')">
+		<div v-if="show" class="modal_overlay_chat" @click="$emit('close')">
 			<div class="modal_chat" @click.stop>
 				<div class="grid">
 					<div :class="displayButton() ? 'button_grid_column' : 'button_grid_row'">
@@ -126,7 +126,7 @@ export default {
 </template>
 
 <style scoped>
-.modal_overlay {
+.modal_overlay_chat {
 	position: fixed;
 	display: flex;
 	z-index: 9998;
@@ -161,14 +161,9 @@ export default {
 	border-radius: 20px;
 }
 
-.modal_friend p {
-	text-align: center;
-	font-size: 1.3em;
-}
-
 .button_grid_column {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(2, 1fr);
 	row-gap: 20%;
 	column-gap: 10%;
 	width: 80%;
@@ -184,9 +179,4 @@ export default {
 	height: 50%;
 }
 
-@media screen and (max-width: 1150px) {
-	.modal_friend {
-		width: 75%;
-	}
-}
 </style>

@@ -10,7 +10,7 @@ import Switch from './switch.vue';
 import { SocketService } from '@/services/SocketService';
 import  ModalQrcode from '@/components/ModalQrcode.vue';
 
-export default{
+export default {
 	components: {
 		Avatar,
 		ModalSettings,
@@ -26,17 +26,21 @@ export default{
 				isMyPage: true,
 				windowWidth: window.innerWidth,
 				showQrcode: false,
+				showBlockButton: true,
 			});
 	},
+
 	methods: {
 		logout(){
 			router.push("/auth/logout");
 		},
 		async getUser(){
-			fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.username, {credentials: 'include'})
-			.then(res => res.json())
-			.then(data => {this.user = data;})
-			.then(() => this.$emit('update', this.user.name));
+			const json = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.username, {credentials: 'include'})).json()
+			this.user = json;
+			this.$emit('update', this.user.name);
+			const blockListJson = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + SocketService.getUser.id + "/block/blocklist", { credentials: 'include' })).json();
+			this.showBlockButton = !blockListJson.includes(this.user.id) && this.username !== SocketService.getUser.name;
+			this.isMyPage = !this.showBlockButton;
 		},
 		async isMe(){
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/friend/isFriend',{
@@ -51,7 +55,7 @@ export default{
 				})
 			})
 			const ret = await (await response.blob()).text();
-			this.isMyPage = this.username === 'me' || this.username === SocketService.getUser["name"] || (ret !== "false");
+			this.isMyPage = this.isMyPage || this.username === 'me' || this.username === SocketService.getUser["name"] || (ret !== "false");
 		},
 		failure(){
 			const notification = useNotification()
@@ -123,13 +127,40 @@ export default{
 				this.isMyPage = true;
 			}
 		},
+		async deleteFriend() {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/friend/delete?id1=${this.user.id}&id2=${SocketService.getUser.id}`,{
+				credentials: 'include',
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+			});
+			SocketService.getInstance.emit('refreshFriendListId', this.user.id);
+			SocketService.getInstance.emit('refreshFriendListId', SocketService.getUser.id);
+		},
 
+		async blockUser() {
+			const response = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/block/blocked`,{
+				credentials: 'include',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					userId: SocketService.getUser.id,
+					blockId: this.user.id,
+				}),
+			});
+			this.showBlockButton = false;
+			this.isMyPage = true;
+			await this.deleteFriend();
+		},
 	},
 	async created(){
 		window.addEventListener('resize', this.handleResize);
 		await this.getUser();
 		await this.isMe();
-    },
+	},
 }
 
 </script>
@@ -139,6 +170,7 @@ export default{
 		<Avatar :editable="editable" :path="user.avatarLink" @updated="getUser" @failure="failure" ></Avatar>
 		<div class="userInfos">
 			<h1>{{ user.name }}</h1>
+			{{ isBlocked }}
 		</div>
 		<div class="buttons">
 			<Teleport to="body">
@@ -161,33 +193,34 @@ export default{
 				<BlueButton class="button-profile" text="Double Authentification " icon="fa-solid fa-lock" :display-text="windowWidth >= 930" @click="showQrcode = true"></BlueButton>
 				<BlueButton class="button-profile"  text="Déconnection " icon="fa-solid fa-right-from-bracket" @click="logout" :display-text="windowWidth >= 930"></BlueButton>
 			</div>
-			<div v-else-if="!isMyPage">
-				<BlueButton @click="addUser" text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 930" ></BlueButton>
+			<div v-else class="buttons-items">
+				<BlueButton class="button-profile" v-if="!isMyPage" @click="addUser" text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 930" ></BlueButton>
+				<BlueButton class="button-profile" v-if="showBlockButton" @click="blockUser" text="Bloquer" icon="fa-solid fa-user-group" :display-text="windowWidth >= 930" ></BlueButton>
 			</div>
 		</div>
 	</div>
-
 </template>
 
 <style>
-	.card{
-		display: flex;
-		border: 2px solid #515151;
-		justify-content: space-between;
-		padding: 2%;
-		align-items: center;
-		background-color: aliceblue;
-		flex-direction: row;
-		border-radius: 50px;
-		font-size: clamp(0.8125rem, 0.476rem + 1.0769vw, 1.25rem);
-	}
 
-	.buttons{
-		display: flex;
-		flex-direction: column;
-	}
+.card {
+	display: flex;
+	border: 2px solid #515151;
+	justify-content: space-between;
+	padding: 2%;
+	align-items: center;
+	background-color: aliceblue;
+	flex-direction: row;
+	border-radius: 50px;
+	font-size: clamp(0.8125rem, 0.476rem + 1.0769vw, 1.25rem);
+}
 
-	.slide-fade-default-button {
+.buttons {
+	display: flex;
+	flex-direction: column;
+}
+
+.slide-fade-default-button {
 	float: right;
 }
 
@@ -205,11 +238,11 @@ export default{
 	transform: scale(1.5);
 }
 
-.button-profile{
+.button-profile {
 	margin: 10px;
 }
 
-.buttons{
+.buttons {
 	display: flex;
 	width: 15%;
 }
@@ -230,19 +263,10 @@ export default{
 	font-size: 1em;
 }
 
-.tfa-extra{
+.tfa-extra {
 	display: flex;
 	gap: 30px;
 	align-items: center;
-}
-
-@media (max-width: 500px) {
-	.tfa-extra{
-		display: none;
-	}
-	.buttons {
-		
-	}
 }
 
 .buttons-items {
