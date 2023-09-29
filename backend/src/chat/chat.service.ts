@@ -73,6 +73,7 @@ export class ChatService {
 		const user = await this.userRepository.findOne({where: {id: sender}, relations: ['stats']});
 		user.stats.totalMessages++;
 		await this.userRepository.save(user);
+		await this.channelRepository.save(channel);
 		return (savedMessage);
 	}
 

@@ -144,7 +144,6 @@ export class UserService {
 		if (channel.protected && await bcrypt.compare(password, channel.password) === false)
 			throw new Error('Mauvais mot de passe.');
 		user.channels.push(channel);
-		console.log("USER CHANS:", user.channels);
 		await this.usersRepository.save(user);
 	}
 

@@ -87,8 +87,8 @@ export default defineComponent({
 			}
 		},
 
-		showChannelForwarder(channel: Channel): void {
-			this.$emit('showChannel', channel);
+		showChannelForwarder(channelId: number): void {
+			this.$emit('showPrivateMessage', channelId);
 		}
 	},
 

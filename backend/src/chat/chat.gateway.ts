@@ -218,6 +218,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('refreshFriendListId')
 	async refreshFriendListId(client: Socket, payload: number){
 		const target = await this.userService.getById(payload);
-		this.clients.get(target.id).client_socket.emit('updateFriendList');
+		this.clients.get(target?.id)?.client_socket.emit('updateFriendList');
 	}
 }

@@ -82,7 +82,7 @@ export default defineComponent({
 		},
 
 		showChannel(friend: friendTab) {
-			this.$emit('showChannel', friend.channel);
+			this.$emit('showChannel', friend.channel.id);
 		}
 	},
 

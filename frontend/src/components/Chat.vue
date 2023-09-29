@@ -25,7 +25,7 @@
 					<button type="button" @click="sendMessage()">&#8593;</button>
 				</div>
 			</form>
-			<div class="channel_options" v-if="!selectedChannel.isPrivate">
+			<div class="channel_options">
 				<button type="button" @click="quitChannel(sender.id)">Quit Channel</button>
 				<button v-if="selectedChannel.owner === sender.id" type="button"
 					@click="$emit('displayChannelOption', 'unban')">Unban User</button>
@@ -80,7 +80,7 @@ export default {
 		sendMessage() {
 			if (SocketService.getStatus && this.message) {
 				const data = {
-					channel: this.selectedChannel,
+					channelId: this.selectedChannel.id,
 					text: this.message,
 					sender: this.sender.id,
 					sender_name: this.sender.name,

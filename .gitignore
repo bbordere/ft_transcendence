@@ -6,3 +6,4 @@ backend/avatars/*
 backend/qrcode/*
 .Identifier
 .charset_channel
+.vscode/

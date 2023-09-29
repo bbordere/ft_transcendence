@@ -37,8 +37,6 @@ export class FriendService {
 		friend.FriendId = friendToAdd.id;
 		friend.Status = 'pending';
 		friend.channel = await this.chatService.create(`${friend.FriendId}_${friend.UserId}`, '', false, friendToAdd, true);
-		await this.userService.addUserToChannel(friend.FriendId, friend.channel.id, '');
-		await this.userService.addUserToChannel(friend.UserId, friend.channel.id, '');
 		await this.friendRepository.save(friend);
 		return ('');
 	}
@@ -62,6 +60,8 @@ export class FriendService {
 		if (!friendship)
 			return ;
 		friendship.Status = 'accepted';		
+		await this.userService.addUserToChannel(friendship.FriendId, friendship.channel.id, '');
+		await this.userService.addUserToChannel(friendship.UserId, friendship.channel.id, '');
 		await this.friendRepository.save(friendship);
 	}
 
