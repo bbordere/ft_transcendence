@@ -82,7 +82,7 @@ export default{
 				<MatchHistory :username="username" :updateTimestamp="updateTimestamp"/>
 			</div>
 			<div class="statsPanel" v-if="dataLoaded">
-				<StatsPanel :username="username"></StatsPanel>````
+				<StatsPanel :username="username"></StatsPanel>
 			</div>
 		</div>
 	</div>
