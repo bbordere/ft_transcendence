@@ -77,7 +77,7 @@ export default defineComponent({
 		this.sender.id = user['id'];
 		this.sender.name = user['name'];
 		this.sender.img = user['avatarLink'];
-		await this.getJoinedChannels();
+		this.channels = await this.getJoinedChannels();
 		await this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
@@ -167,7 +167,8 @@ export default defineComponent({
 			});
 			SocketService.getInstance.on('updateFriendList', async () => {
 				this.refreshTimestamp = Date.now();
-				await this.getJoinedChannels();
+				this.channels = [];
+				this.channels = await this.getJoinedChannels();
 				for (let channel of this.channels) {
 					channel.messages = await this.getChannelMessages(channel.id);
 				}
@@ -179,10 +180,11 @@ export default defineComponent({
 			this.selectedChannel = chan;
 		},
 
-		async getJoinedChannels(): Promise<void> {
+		async getJoinedChannels(): Promise<Channel[]> {
 			const channels_json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.sender.id + '/joinedChannels', { credentials: 'include' })).json();
+			let channels: Channel[] = [];
 			for (let i = 0; i < channels_json.length; i++) {
-				this.channels.push({
+				channels.push({
 					id: channels_json[i]['id'],
 					owner: (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/owner', { credentials: 'include' })).json())['id'],
 					name: channels_json[i]['name'],
@@ -192,6 +194,7 @@ export default defineComponent({
 					admins: await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/getAdmins', { credentials: 'include' })).json(),
 				});
 			}
+			return (channels);
 		},
 
 		async joinChannel(channel: Channel, password: string) {
@@ -275,12 +278,13 @@ export default defineComponent({
 			try {
 				const messages_json = await message_response.json();
 				for (let i = 0; i < messages_json.length; i++) {
+					const user = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].message_sender, { credentials: 'include' })).json();
 					messages.push({
 						channelId: channelId,
 						text: messages_json[i].message_text,
-						sender: messages_json[i].sender_id,
-						sender_name: messages_json[i].sender_name,
-						sender_img: messages_json[i].sender_avatarLink,
+						sender: user['id'],
+						sender_name: user['name'],
+						sender_img: user['avatarLink'],
 					});
 				}
 				return (messages);

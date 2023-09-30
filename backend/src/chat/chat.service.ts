@@ -67,7 +67,7 @@ export class ChatService {
 		const message = new Message();
 		message.text = text;
 		message.channel = channel;
-		message.sender = senderUser;
+		message.sender = senderUser.id;
 		const savedMessage = await this.messageRepository.save(message);
 		channel.messages.push(savedMessage);
 		const user = await this.userRepository.findOne({where: {id: sender}, relations: ['stats']});
@@ -85,20 +85,18 @@ export class ChatService {
 		let messages: Message[];
 		if (user.blockList.length) {
 			messages = await this.messageRepository.createQueryBuilder('message')
-				.select(['message.id', 'sender', 'message.text'])
-				.leftJoin('message.sender', 'sender')
+				.select(['message.id', 'message.sender', 'message.text'])
 				.where(`message.channel = ${channel.id}`)
-				.andWhere(`(sender.id NOT IN (:...blockList))`, {blockList: user.blockList})
+				.andWhere(`(message.sender NOT IN (:...blockList))`, {blockList: user.blockList})
 				.orderBy('message.id', 'ASC')
 				.getRawMany()
 		}
 		else {
-			messages = await this.messageRepository.createQueryBuilder('message')
-				.select(['message.id', 'sender', 'message.text'])
-				.leftJoin('message.sender', 'sender')
+			messages = await this.messageRepository.createQueryBuilder("message")
+				.select(['message.id', 'message.sender', 'message.text'])
 				.where(`message.channel = ${channel.id}`)
 				.orderBy('message.id', 'ASC')
-				.getRawMany()
+				.getRawMany();
 		}
 		return (messages);
 	}

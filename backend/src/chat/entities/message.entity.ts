@@ -18,11 +18,13 @@ export class Message {
 	@Column()
 	public text: string;
 
-	@ManyToOne(() => User, {
-		nullable: false,
-		cascade: true,
-		eager: true,
-	})
-	@JoinColumn({ name: 'sender' })
-	public sender: User;
+	// @ManyToOne(() => User, {
+	// 	nullable: false,
+	// 	cascade: true,
+	// 	eager: true,
+	// })
+	// @JoinColumn({ name: 'sender' })
+	// public sender: User;
+	@Column()
+	public sender: number;
 }
