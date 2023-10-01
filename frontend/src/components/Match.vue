@@ -27,11 +27,15 @@
 	
 <script lang="ts">
 	import router from '@/router';
+import { SocketService } from '@/services/SocketService';
 	export default{
 		props: ["matchObject", "updateTimestamp"],
 		methods:{
 			redirecToProfil(name: string){
-				router.push({path:'/profile', query: { user: name }});
+				if (SocketService.getUser.name === name)
+					router.push({path:'/profile'});
+				else
+					router.push({path:'/profile', query: { user: name }});
 			},
 			getAvatarUrl(id: number){
 				return ("http://" + import.meta.env.VITE_HOST + ":3000/avatar/user/id/" + id.toString() + "?" + this.updateTimestamp);
@@ -91,6 +95,7 @@
 
 .avatar-match:hover{
 	opacity: 0.5;
+	cursor: pointer;
 }
 
 @media screen and (max-width: 950px) {

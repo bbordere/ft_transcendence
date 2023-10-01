@@ -63,8 +63,6 @@
 					{{ this.stats["totalMessages"] }}
 					<h5>Nombre de Emotes Envoyes</h5>
 					{{ this.stats["totalEmotes"] }}
-					<h5>Nombre de Channel Rejoints</h5>
-					{{  }}  NOT IMPLEMENTED YET
 				</div>
 			</div>
 		</div>
@@ -79,26 +77,20 @@ export default{
 	components:{
 		WinCharts
 	},
-	props: ["username"],
+	props: ["user"],
 	data(){
 		return {stats: Object, dataLoaded: false, windowWidth: window.innerWidth,};
 	},
 
 	methods:{
-		async getStats(){
-			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/stats/" + this.username, {credentials: 'include'})
-			const text = await res.text();
-			const data = await JSON.parse(text);
-			this.stats = data;
-			this.dataLoaded = true;
-		},
 		handleResize() {
 			this.windowWidth = window.innerWidth;
 		},
 	},
 	mounted(){
 		window.addEventListener('resize', this.handleResize);
-		this.getStats();
+		this.stats = this.user.stats;
+		this.dataLoaded = true;
 	},
 }
 
@@ -225,29 +217,5 @@ h5{
 h3{
 	font-size: clamp(0.6875rem, -0.0764rem + 2.4444vw, 1.375rem);
 }
-
-.chart{
-	/* background: pink; */
-	/* height: 200%; */
-}
-
-
-/* @media screen and (max-width: 950px) {
-	h5{
-	}
-	h3{
-		font-size: 2vw;
-		margin-top: 0;
-	}
-	.list-stats{
-		font-size: 2vw;
-	}
-	.titleRank{
-		font-size: 2.3vw;
-	}
-	.rank-stat{
-		font-size: 2vw;
-	}
-} */
 
 </style>

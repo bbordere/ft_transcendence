@@ -47,6 +47,8 @@ export class FriendService {
 		let friendship = await this.friendRepository.findOne({where: {UserId: id1, FriendId: id2}});
 		if (!friendship)
 			friendship = await this.friendRepository.findOne({where: {UserId: id2, FriendId: id1}});
+		if (!friendship)
+			return;
 		await this.chatService.delete(friendship.channel.name);
 		await this.friendRepository.delete({ UserId: id1, FriendId: id2 });
 		await this.friendRepository.delete({ UserId: id2, FriendId: id1 });

@@ -104,8 +104,9 @@ h1 {
 	display: flex;
 	flex-direction: column;
 	align-items: end;
-	width: 40%;
+	width: 75%;
 	height: 70%;
+	max-width: 500px;
 	background-color: #DBEFFC;
 	border-radius: 20px;
 }
@@ -175,9 +176,4 @@ h1 {
 	border-radius: 20px;
 }
 
-@media screen and (max-width: 1150px) {
-	.modal {
-		width: 75%;
-	}
-}
 </style>

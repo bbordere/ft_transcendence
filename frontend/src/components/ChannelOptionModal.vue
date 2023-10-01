@@ -146,10 +146,4 @@ h1 {
 	border-radius: 20px;
 }
 
-@media screen and (max-width: 1150px) {
-	.modal {
-		width: 75%;
-	}
-}
-
 </style>

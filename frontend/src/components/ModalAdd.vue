@@ -128,17 +128,12 @@ export default defineComponent ({
 	display: flex;
 	flex-direction: column;
 	height: 55%;
-	width: 37%;
+	width: 75%;
+	max-width: 600px;
 	background-color: white;
 	border-radius: 20px;
 	justify-content: center;
 	align-items: center;
-}
-
-@media screen and (max-width: 1150px) {
-	.modal_channel {
-		width: 75%;
-	}
 }
 
 </style>

@@ -19,9 +19,9 @@ export default {
 		Switch,
 		ModalQrcode,
 	},
-	props: ["editable", "username"],
+	props: ["editable", "user"],
 	data(){
-		return ({user: "", 
+		return ({
 				showModal: false,
 				isMyPage: true,
 				windowWidth: window.innerWidth,
@@ -34,29 +34,6 @@ export default {
 		logout(){
 			router.push("/auth/logout");
 		},
-		async getUser(){
-			const json = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + this.username, {credentials: 'include'})).json()
-			this.user = json;
-			this.$emit('update', this.user.name);
-			const blockListJson = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + SocketService.getUser.id + "/block/blocklist", { credentials: 'include' })).json();
-			this.showBlockButton = !blockListJson.includes(this.user.id) && this.username !== SocketService.getUser.name;
-			this.isMyPage = !this.showBlockButton;
-		},
-		async isMe(){
-			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/friend/isFriend',{
-				credentials: 'include',
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					username: this.username,
-					sender: SocketService.getUser["id"],
-				})
-			})
-			const ret = await (await response.blob()).text();
-			this.isMyPage = this.isMyPage || this.username === 'me' || this.username === SocketService.getUser["name"] || (ret !== "false");
-		},
 		failure(){
 			const notification = useNotification()
 			notification.notify({
@@ -67,13 +44,14 @@ export default {
 			});
 		},
 		updateNotif(){
-			this.getUser();
+			// this.getUser();
 			const notification = useNotification()
 			notification.notify({
 				title: "Nom d'utilisateur changé !",
 				type: 'success',
 				group: 'notif-center'
 			});
+			this.$emit('update');
 		},
 		alreadyExistNotif(){
 			const notification = useNotification()
@@ -115,7 +93,7 @@ export default {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					username: this.username,
+					username: this.user.name,
 					sender: SocketService.getUser["id"],
 				})
 			})
@@ -123,7 +101,7 @@ export default {
 			if (ret.length == 0) {
 				this.addFriendNotif("Demande d'ami envoyé", "success");
 				this.$emit('close');
-				SocketService.getInstance.emit('refreshFriendList', this.username);
+				SocketService.getInstance.emit('refreshFriendList', this.user.name);
 				this.isMyPage = true;
 			}
 		},
@@ -158,8 +136,6 @@ export default {
 	},
 	async created(){
 		window.addEventListener('resize', this.handleResize);
-		await this.getUser();
-		await this.isMe();
 	},
 }
 
@@ -167,10 +143,9 @@ export default {
 
 <template>
 	<div class="card">
-		<Avatar :editable="editable" :path="user.avatarLink" @updated="getUser" @failure="failure" ></Avatar>
+		<Avatar :editable="editable" :path="user.avatarLink" @updated="$emit('update')" @failure="failure" ></Avatar>
 		<div class="userInfos">
 			<h1>{{ user.name }}</h1>
-			{{ isBlocked }}
 		</div>
 		<div class="buttons">
 			<Teleport to="body">
@@ -209,7 +184,7 @@ export default {
 	justify-content: space-between;
 	padding: 2%;
 	align-items: center;
-	background-color: aliceblue;
+	background-color: white;
 	flex-direction: row;
 	border-radius: 50px;
 	font-size: clamp(0.8125rem, 0.476rem + 1.0769vw, 1.25rem);

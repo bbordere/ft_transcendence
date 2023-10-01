@@ -16,19 +16,21 @@ export default{
 		MatchHistory,
 	},
 	data(){
-		return {username: "", dataLoaded: false, updateTimestamp: 0 as number};
+		return {dataLoaded: false,
+				updateTimestamp: 0 as number,
+				user: {} as any};
 	},
 	methods:{
 
 		getEditableStatus(){
-			return (this.username === "me");
+			return (this.user.id === SocketService.getUser.id);
 		},
 
 		async getUser(){
 			const route = useRoute();
 			this.updateTimestamp = Date.now();
 			if (!route.query["user"]){
-				this.username = "me";
+				this.user = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + SocketService.getUser.id)).json();
 				this.dataLoaded = true;
 				return;
 			}
@@ -36,14 +38,20 @@ export default{
 			const data = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/" + route.query["user"]);
 			try {
 				const json = await data.json()
-				this.username = json["name"];
 				this.dataLoaded = true;
+				this.user = json;
 			} catch (error) {
 				router.push('/invalidParams');
 			}
 		},
 
-		updateUsername(newUsername: string){
+		async fetchUser(){
+			this.user = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/id/" + this.user.id)).json();
+		},
+
+		async updateUsername(newUsername: string){
+			console.log("TEST");
+			await this.fetchUser();
 			this.updateTimestamp = Date.now();
 			this.$emit('update', newUsername);
 		}
@@ -60,14 +68,15 @@ export default{
 <template>
 	<div class="container">
 		<div class="profileCard" v-if="dataLoaded">
-			<ProfileCard :editable="getEditableStatus()" :username="username" @update="updateUsername"/>
+			<ProfileCard :editable="getEditableStatus()"
+				:user="user" @update="updateUsername"/>
 		</div>
 		<div class="subCard">
 			<div class="matchHistory" v-if="dataLoaded">
-				<MatchHistory :username="username" :updateTimestamp="updateTimestamp"/>
+				<MatchHistory :user="user" :updateTimestamp="updateTimestamp"/>
 			</div>
 			<div class="statsPanel" v-if="dataLoaded">
-				<StatsPanel :username="username"></StatsPanel>
+				<StatsPanel :user="user"></StatsPanel>
 			</div>
 		</div>
 	</div>

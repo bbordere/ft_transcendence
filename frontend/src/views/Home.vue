@@ -362,12 +362,6 @@ h1 {
 	border-radius: 10px;
 }
 
-/* @media screen and (max-width: 1150px) {
-	.left_column {
-		flex-grow: 0.6;
-	}
-} */
-
 .slide-fade-enter-from {
 	opacity: 0;
 }

@@ -19,26 +19,24 @@
 			Match
 		},
 
-		props: ["username", "updateTimestamp"],
+		props: ["user", "updateTimestamp"],
 
 		data() {
 			return {matches: ""}
 		},
 
 		methods:{
-			getUser(){
-				fetch("http://" + import.meta.env.VITE_HOST + ":3000/match/" + this.username, {credentials: "include"})
-				.then(res => res.json())
-				.then(res => {this.matches = res});
+			async getMatches(){
+				this.matches = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/match/" + this.user.name, {credentials: "include"})).json()
 			}
 		},
-		created() {
-			this.getUser();
+		async created() {
+			await this.getMatches();
 		},
 
 		watch: {
-			updateTimestamp() {
-				this.getUser();
+			async updateTimestamp() {
+				await this.getMatches();
 			}
 		},
 	}
