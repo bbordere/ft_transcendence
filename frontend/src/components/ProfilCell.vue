@@ -63,7 +63,6 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 			});
-			console.log("Bonsoir michel !");
 			SocketService.getInstance.emit('refreshFriendListId', this.myId);
 			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},
@@ -76,7 +75,6 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 			});
-			console.log("Bonsoir michel !");
 			SocketService.getInstance.emit('refreshFriendListId', this.myId);
 			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},

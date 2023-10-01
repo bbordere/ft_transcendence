@@ -62,7 +62,7 @@ export default defineComponent ({
 		<div class="modal_channel" @click.stop>
 			<div class="field_channel">
 				<SlidingTitle text="Nom du channel"/>
-				<input v-model="channel_name" class="entry_channel" type="text" placeholder="Mon Channel"/>
+				<input v-model="channel_name" class="entry_channel" type="text" maxlength="15" placeholder="Nom du channel"/>
 			</div>
 			<SlidingTitle text="Mot de Passe"/>
 			<div class="field_channel">

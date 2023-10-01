@@ -43,6 +43,7 @@ export default defineComponent({
 		async fetchFriends() {
 			const response = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/friend/" + this.sender + "/list", { credentials: 'include' });
 			const friends = await response.json();
+			this.friends = friends;
 			for (let friend of friends) {
 				const owner: number = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + friend['channel']['id'] + '/owner', {credentials: 'include'})).json())['id'];
 				const messages: Message[] = await this.getChannelMessages(friend['channel']['id']);
@@ -57,7 +58,6 @@ export default defineComponent({
 					admins: admins,
 				}
 				friend['channel'] = channel;
-				this.friends.push(friend);
 			}
 		},
 
@@ -94,9 +94,10 @@ export default defineComponent({
 
 	watch: {
 		friendTimestamp: {
-			handler(){
-				this.fetchFriends();
-				this.fetchBlockList();
+			async handler(){
+				await this.fetchFriends();
+				await this.fetchBlockList();
+				console.log("update");
 			}
 		},
 		updateTimestamp: {
@@ -134,12 +135,11 @@ export default defineComponent({
 	align-items: center;
 	flex-direction: column;
 	width: 100%;
-	/* height: 100%; */
+	height: 94%;
 }
 
 .friend_list_container{
 	height: 100%;
-	/* background-color: rebeccapurple; */
 }
 
 .friend_buttons_container{
@@ -147,14 +147,7 @@ export default defineComponent({
 	flex-direction: row;
 	gap: 10px;
 	justify-content: center;
-	/* align-items: center; */
-	/* margin-top: -5px; */
-	/* background: purple; */
-	/* padding: 10px; */
-	/* margin-bottom: -10px; */
 	height: 6%;
-	/* background: red; */
-	/* padding: 100px; */
 }
 
 .tri {

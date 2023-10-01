@@ -5,8 +5,8 @@
 		</Teleport>
 		<div class="top_chat_container">
 			<!-- {{ selectedChannel.admins }} -->
-			<div class="channel_name">{{ selectedChannel.name }}</div>
-			<ChannelOptionsMenu v-if="selectedChannel.name" :isAdmin="selectedChannel.owner === sender.id"
+			<div class="channel_name">{{ channelName }}</div>
+			<ChannelOptionsMenu v-if="selectedChannel.name && selectedChannel.name.length <= 16" :isAdmin="selectedChannel.owner === sender.id"
 			:showMenu="showMenu" :isProtected="selectedChannel.protected"
 			@openMenu="toggleMenu" @quitChannel="quitChannel(sender.id)" 
 			@removePassword="removePassword()" @displayChannelOption="emitToModalManager"></ChannelOptionsMenu>
@@ -23,7 +23,7 @@
 		<div class="send_container" v-if="selectedChannel.name">
 			<form v-on:submit.prevent="sendMessage">
 				<div class="sendbox">
-					<input type="text" v-model="message" :placeholder="'Envoyer un message dans ' + [[selectedChannel.name]]">
+					<input type="text" v-model="message" :placeholder="'Envoyer un message ' + inputString">
 					<button type="button" @click="sendMessage()">
 						<font-awesome-icon icon="fa-solid fa-paper-plane" />
 					</button>
@@ -32,7 +32,9 @@
 		</div>
 	</div>
 </template>
+
 <script lang="ts">
+
 import { SocketService } from '@/services/SocketService';
 import ModalChat from '../components/ModalChat.vue';
 import { useNotification } from '@kyvg/vue3-notification';
@@ -53,11 +55,14 @@ export default {
 			friendId: -1 as number,
 			username: '' as string,
 			showMenu: false,
+			channelName: "",
+			inputString: "",
 		};
 	},
 
-	updated() {
+	async updated() {
 		if (this.selectedChannel.messages) {
+			await this.getChanName();
 			const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
 			if (lastMessage)
 				lastMessage[0].scrollIntoView();
@@ -66,6 +71,8 @@ export default {
 
 	mounted() {
 		this.connected_user = SocketService.getUser;
+		this.channelName = "";
+		this.inputString = "";
 	},
 
 	props: ['selectedChannel', 'sender'],
@@ -96,6 +103,24 @@ export default {
 				};
 				SocketService.getInstance.emit('message', data);
 				this.message = '';
+			}
+		},
+
+		async getChanName(){
+			if (this.selectedChannel.name.length <= 16){
+				this.channelName = this.selectedChannel.name;
+				this.inputString = "dans " + this.selectedChannel.name;
+			}
+			const json = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/chat/" + this.selectedChannel.id + '/getUsers',
+				{method: "get", credentials: "include"})).json();
+			console.log(json);
+			if (json[0].id === SocketService.getUser.id){
+				this.channelName = json[1].name;
+				this.inputString = "à @" + json[1].name;
+			}
+			else {
+				this.channelName = json[0].name;
+				this.inputString = "à @" + json[0].name;
 			}
 		},
 

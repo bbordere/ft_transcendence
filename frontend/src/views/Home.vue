@@ -171,7 +171,6 @@ export default defineComponent({
 			});
 			SocketService.getInstance.on('updateFriendList', async () => {
 				this.refreshTimestamp = Date.now();
-				this.channels = [];
 				this.channels = await this.getJoinedChannels();
 				for (let channel of this.channels) {
 					channel.messages = await this.getChannelMessages(channel.id);

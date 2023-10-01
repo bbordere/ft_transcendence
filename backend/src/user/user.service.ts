@@ -8,7 +8,6 @@ import { StatsDetail } from 'src/stats/stats.entity';
 import { validate } from 'class-validator';
 import { Channel } from 'src/chat/entities/channel.entity';
 import * as bcrypt from 'bcrypt';
-import { Console } from 'console';
 
 @Injectable()
 export class UserService {

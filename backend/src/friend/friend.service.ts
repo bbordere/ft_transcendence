@@ -5,6 +5,8 @@ import { Friend } from './friend.entity';
 import { UserService } from '../user/user.service';
 import { Channel } from 'src/chat/entities/channel.entity';
 import { ChatService } from 'src/chat/chat.service';
+import * as bcrypt from 'bcrypt';
+
 
 export interface friendTab {
 	id: number;
@@ -36,7 +38,7 @@ export class FriendService {
 		friend.UserId = sender;
 		friend.FriendId = friendToAdd.id;
 		friend.Status = 'pending';
-		friend.channel = await this.chatService.create(`${friend.FriendId}_${friend.UserId}`, '', false, friendToAdd, true);
+		friend.channel = await this.chatService.create(await bcrypt.hash(`${friend.FriendId}_${friend.UserId}`, 8), '', false, friendToAdd, true);
 		await this.friendRepository.save(friend);
 		return ('');
 	}
