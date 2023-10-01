@@ -1,10 +1,10 @@
 <template>
 	<div class="pong_body">
 		<div class="pong_content">
-			<div class="left_column">
+			<div class="left_column_pong">
 				<PongPlayerCard v-if="dataLoaded" :id="player1Id" side="0" :emote="emote1.emoji"></PongPlayerCard>
 			</div>
-			<div class="middle_column" v-if="dataLoaded">
+			<div class="middle_column_pong" v-if="dataLoaded">
 				<div class="timer">
 					<label>{{ timer }}</label>
 				</div>
@@ -30,7 +30,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="right_column">
+			<div class="right_column_pong">
 				<PongPlayerCard v-if="dataLoaded && player2Id.length !== 0" :id="player2Id" side="1" :emote="emote2.emoji">
 				</PongPlayerCard>
 			</div>
@@ -197,8 +197,8 @@ export default {
 }
 
 .pong_body {
-	width: 100vw;
-	height: 88vh;
+	/* width: 100vw; */
+	height: 90%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -208,27 +208,27 @@ export default {
 	height: 90%;
 	width: 90%;
 	display: flex;
-	flex-direction: row;
 	justify-content: center;
 	align-items: center;
 	background: #F0F8FF;
+	/* background-color: red; */
 	/* background: #fff9cf; */
 	border: 3px solid #515151;
 	border-radius: 20px;
+	gap: 10px;
 }
 
-.left_column,
-.right_column {
+.left_column_pong, .right_column_pong {
+	/* background-color: purple; */
 	height: 100%;
 	width: 15%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 40px;
 	justify-content: center;
 }
 
-.middle_column {
+.middle_column_pong {
 	height: 100%;
 	width: 70%;
 	display: flex;
@@ -296,5 +296,36 @@ export default {
 	margin-top: -35px;
 	margin-bottom: 5px;
 	font-family: 'digital-clock-font', regular;
+}
+
+@media screen and (max-width: 800px) {
+	.pong_content{
+		/* background: red; */
+		/* flex-direction: column; */
+		display: grid;
+		/* grid-template-columns: repeat(3, 1fr); */
+		/* grid-template-rows: repeat(5, 1fr); */
+		/* grid-template-rows: 1fr min-content; */
+		grid-column-gap: 0px;
+		grid-row-gap: 0px;
+		/* background: yellow; */
+	}
+
+	.left_column_pong {
+		width: 100%;
+		grid-area: 1 / 1 / 2 / 2;
+		/* background: yellow; */
+	}
+	
+	.middle_column_pong {
+		width: 100%;
+		grid-area: 3 / 1 / 6 / 4;
+		/* background: blue; */
+	}
+
+	.right_column_pong {
+		width: 100%;
+		grid-area: 1 / 3 / 2 / 4;
+	}
 }
 </style>

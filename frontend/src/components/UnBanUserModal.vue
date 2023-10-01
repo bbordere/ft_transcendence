@@ -1,7 +1,12 @@
 <script lang="ts">
-import { defineComponent } from 'vue';
 
-export default defineComponent ({
+import { useNotification } from '@kyvg/vue3-notification';
+import ChannelOptionModal from './ChannelOptionModal.vue';
+
+export default {
+	components:{
+		ChannelOptionModal
+	},
 	data() {
 		return ({
 			username: '' as string,
@@ -15,36 +20,42 @@ export default defineComponent ({
 	},
 
 	methods: {
-		async UnbanUser() {
-			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, {credentials: 'include'});
-			if (!user_resp['ok'] || this.username == '') {
+		async UnbanUser(username: string) {
+			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + username, {credentials: 'include'});
+			if (!user_resp['ok'] || username == '') {
 				this.$emit('close');
 				return ;
 			}
-			const user = await user_resp.json();
-			await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/unban', {credentials: 'include', method: 'POST'});
-			this.$emit('close');
+			const notif = useNotification();
+			try {
+				const user = await user_resp.json();
+				await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/unban', {credentials: 'include', method: 'POST'});
+				this.$emit('close');
+				notif.notify({
+					text: "Bannissement révoqué !",
+					type: 'success',
+					group: 'notif-center',
+				});
+			} catch (error) {
+				notif.notify({
+					title: 'Erreur',
+					text: "Cet utilisateur n'existe pas !",
+					type: 'error',
+					group: 'notif-center',
+				});
+			}
 		}
 	},
-});
+};
 
 </script>
 
 <template>
 	<Transition name="slide-fade" mode="out-in">
-	<div v-if="show" class="modal_overlay" @click="$emit('close')">
-		<div class="modal" @click.stop>
-			<div class="form">
-				<div class="field">
-					<h1>Debannir un utilisateur</h1>
-					<input v-model="username" class="entry" type="text" placeholder="Utilisateur"/>
-				</div>
-				<div class="choice">
-					<button @click="UnbanUser()">Confirmer</button>
-				</div>
-			</div>
+		
+		<div v-if="show" class="modal_overlay" @click="$emit('close')">
+			<ChannelOptionModal @click.stop title="Débannir un utilisateur" placeholder="Nom d'utilisateur" @callback="UnbanUser" ></ChannelOptionModal>
 		</div>
-	</div>
 	</Transition>
 </template>
 
@@ -57,7 +68,6 @@ h1 {
 .modal_overlay {
 	position: fixed;
 	display: flex;
-	z-index: 9998;
 	left: 0;
 	top: 0;
 	width: 100%;
@@ -69,13 +79,15 @@ h1 {
 	transition: all 0.4s ease;
 	min-height: 600px;
 	min-width: 500px;
+	z-index: 3;
 }
 
 .modal {
 	display: flex;
 	flex-direction: column;
 	align-items: end;
-	width: 40%;
+	width: 75%;
+	max-width: 500px;
 	height: 70%;
 	background-color: #DBEFFC;
 	border-radius: 20px;
@@ -141,11 +153,4 @@ h1 {
 	border: 1px solid #000000;
 	border-radius: 20px;
 }
-
-@media screen and (max-width: 1150px) {
-	.modal {
-		width: 75%;
-	}
-}
-
 </style>

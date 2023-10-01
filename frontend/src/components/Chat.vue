@@ -4,7 +4,6 @@
 			<ModalChat :show="modalChat" @close="modalChat = false" :connected_user="connected_user" :friendId="friendId" :username="username" :selectedChannel="selectedChannel" />
 		</Teleport>
 		<div class="top_chat_container">
-			<!-- {{ selectedChannel.admins }} -->
 			<div class="channel_name">{{ channelName }}</div>
 			<ChannelOptionsMenu v-if="selectedChannel.name && selectedChannel.name.length <= 16" :isAdmin="selectedChannel.owner === sender.id"
 			:showMenu="showMenu" :isProtected="selectedChannel.protected"
@@ -110,10 +109,10 @@ export default {
 			if (this.selectedChannel.name.length <= 16){
 				this.channelName = this.selectedChannel.name;
 				this.inputString = "dans " + this.selectedChannel.name;
+				return;
 			}
 			const json = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/chat/" + this.selectedChannel.id + '/getUsers',
 				{method: "get", credentials: "include"})).json();
-			console.log(json);
 			if (json[0].id === SocketService.getUser.id){
 				this.channelName = json[1].name;
 				this.inputString = "à @" + json[1].name;
@@ -160,7 +159,6 @@ export default {
 				return ;
 			}
 			notif.notify({
-				title: 'Mot de passe',
 				text: response['message'],
 				type: 'success',
 				group: 'notif-center',
@@ -271,8 +269,9 @@ input:placeholder-shown {
 	border-radius: 50%;
 }
 
-.msg_chat_box img:hover {
+.single_message img:hover {
 	cursor: pointer;
+	opacity: 0.5;
 }
 
 .sender_name {

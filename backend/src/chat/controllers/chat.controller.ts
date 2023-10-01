@@ -98,7 +98,7 @@ export class ChatController {
 		}
 		return {
 			ok: true,
-			message: 'Le mot de passe a ete retire.',
+			message: 'Le mot de passe a été retiré !',
 		};
 	}
 
@@ -118,7 +118,7 @@ export class ChatController {
 		}
 		return {
 			ok: true,
-			message: 'Le mot de passe a ete change.',
+			message: 'Le mot de passe a été changé !',
 		};
 	}
 

@@ -1,14 +1,18 @@
 <script lang="ts">
-import { defineComponent } from 'vue';
 import { SocketService } from '@/services/SocketService';
 import { useNotification } from '@kyvg/vue3-notification';
+import ChannelOptionModal from './ChannelOptionModal.vue';
 
-export default defineComponent({
+
+export default {
 	data() {
 		return ({
-			username: '' as string,
 			channelId: -1 as number,
 		});
+	},
+
+	components: {
+		ChannelOptionModal
 	},
 
 	props: {
@@ -17,22 +21,20 @@ export default defineComponent({
 	},
 
 	methods: {
-		async addAdmin() {
-			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, { credentials: 'include' });
-			if (!user_resp['ok'] || this.username == '') {
+		async addAdmin(username: string) {
+			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + username, { credentials: 'include' });
+			if (!user_resp['ok'] || username == '') {
 				this.$emit('close');
-				this.username = '';
 				return;
 			}
-			this.username = '';
 			try {
 				let user;
 				try { user = await user_resp.json(); }
-				catch { throw new Error('Utilisateur inconnu.'); }
+				catch { throw new Error("Cet utilisateur n'existe pas !");}
 				const userInChannelResponse = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/isUserInChannel/' + user['id'], { credentials: 'include' });
 				const userInChannel = await userInChannelResponse.json();
 				if (!userInChannel)
-					throw new Error("L'utilisateur n'est pas dans le channel.");
+					throw new Error("Cet utilisateur n'est pas dans le channel !");
 				const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/addAdmin/' + user['id'], { credentials: 'include', method: 'POST' });
 				const response_json = await response.json();
 				this.$emit('close');
@@ -42,6 +44,12 @@ export default defineComponent({
 						new_owner_id: user['id'],
 					}
 					SocketService.getInstance.emit('changeAdmin', data);
+					const notif = useNotification();
+					notif.notify({
+						text: 'Admin ajouté !',
+						type: 'success',
+						group: 'notif-center',
+					});
 				}
 			}
 			catch (error: any) {
@@ -55,24 +63,14 @@ export default defineComponent({
 			}
 		}
 	},
-});
+};
 
 </script>
 
 <template>
 	<Transition name="slide-fade" mode="out-in">
 		<div v-if="show" class="modal_overlay" @click="$emit('close')">
-			<div class="modal" @click.stop>
-				<div class="form">
-					<div class="field">
-						<h1>Ajouter un admin</h1>
-						<input v-model="username" class="entry" type="text" placeholder="Utilisateur" />
-					</div>
-					<div class="choice">
-						<button @click="addAdmin()">Confirmer</button>
-					</div>
-				</div>
-			</div>
+			<ChannelOptionModal @click.stop title="Ajouter un admin" placeholder="Nom d'utilisateur" @callback="addAdmin" ></ChannelOptionModal>
 		</div>
 	</Transition>
 </template>
@@ -86,7 +84,6 @@ h1 {
 .modal_overlay {
 	position: fixed;
 	display: flex;
-	z-index: 9998;
 	left: 0;
 	top: 0;
 	width: 100%;
@@ -98,6 +95,7 @@ h1 {
 	transition: all 0.4s ease;
 	min-height: 600px;
 	min-width: 500px;
+	z-index: 3;
 }
 
 .modal {

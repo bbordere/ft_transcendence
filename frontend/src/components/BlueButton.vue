@@ -1,9 +1,9 @@
 <template>
 	<button class="blue-button">
-		<font-awesome-icon v-if="this.icon" :icon="this.icon"/>
 		<div class="blue-button-text" v-if="this.displayText"> 
 			{{ this.text }}
 		</div>
+		<font-awesome-icon class="icon" v-if="this.icon" :icon="this.icon"/>
 	</button>
 </template>
 
@@ -40,13 +40,19 @@ export default{
 	background-repeat: no-repeat;
 	box-sizing: border-box;
 	color: #fff;
-	/* width: 100%; */
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	border: none;
 	transition: all .3s ease-in-out;
 	overflow: hidden;
-	/* overflow-wrap: anywhere; */
 	overflow-wrap: break-word;
 	cursor: pointer;
+}
+
+
+.blue-button-text{
+	width: 100%;
 }
 
 .blue-button::before{
@@ -64,6 +70,12 @@ export default{
 .blue-button:hover::before {
 	width: 100%;
 	opacity: 50%;
+}
+
+.icon{
+	/* flex-grow: 1; */
+	/* background-color: red; */
+	width: 30%;
 }
 
 </style>

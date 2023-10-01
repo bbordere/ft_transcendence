@@ -61,7 +61,6 @@ h1 {
 .modal_overlay {
 	position: fixed;
 	display: flex;
-	z-index: 9998;
 	left: 0;
 	top: 0;
 	width: 100%;

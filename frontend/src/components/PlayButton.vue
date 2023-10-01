@@ -62,6 +62,7 @@ export default {
 .play_button {
 	font-family: 'Poppins', sans-serif;
 	width: 100%;
+	min-width: max-content;
 	height: 20%;
 	border: 3px solid #515151;
 	border-radius: 75px;

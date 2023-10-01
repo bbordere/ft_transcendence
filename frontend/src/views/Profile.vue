@@ -94,9 +94,11 @@ export default{
 	.profileCard{
 		padding-top: 2.5%;
 		width: 80%;
+		min-width: 450px;
 	}
 	
 	.subCard{
+		min-width: 450px;
 		display: flex;
 		flex-direction: row;
 		margin-top: 1%;

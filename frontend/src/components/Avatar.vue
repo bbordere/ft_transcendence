@@ -61,11 +61,7 @@
 		cursor: pointer;
 		border: none;
 		border-radius: 20px;
+		font-size: clamp(0.75rem, 0.5577rem + 0.6154vw, 1rem);
 	}
 
-	@media screen and (max-width: 580px) {
-		.change-button{
-			font-size: 50%;
-		}
-	}
 </style>

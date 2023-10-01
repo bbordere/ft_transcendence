@@ -108,12 +108,12 @@ export default {
 			<div class="modal_chat" @click.stop>
 				<div class="grid">
 					<div :class="displayButton() ? 'button_grid_column' : 'button_grid_row'">
-						<BlueButton :text="'Profil de ' + username" @click="redirecToProfil(username); $emit('close')" />
-						<BlueButton text="Inviter à jouer" @click="modalInvite = true" />
-						<BlueButton text="Bloquer" @click="blockUser(); deleteFriend(); $emit('close')" />
-						<BlueButton v-if="displayButton()" text="Mettre en sourdine" @click="showMuteModal = true;" />
-						<BlueButton v-if="displayButton()" text="Exclure" @click="kickUser()" />
-						<BlueButton v-if="displayButton()" text="Bannir" @click="banUser()" />
+						<BlueButton class="modal_chat_button" :text="'Profil de ' + username" @click="redirecToProfil(username); $emit('close')" />
+						<BlueButton class="modal_chat_button" text="Inviter à jouer" @click="modalInvite = true" />
+						<BlueButton class="modal_chat_button" text="Bloquer" @click="blockUser(); deleteFriend(); $emit('close')" />
+						<BlueButton class="modal_chat_button" v-if="displayButton()" text="Mettre en sourdine" @click="showMuteModal = true;" />
+						<BlueButton class="modal_chat_button" v-if="displayButton()" text="Exclure" @click="kickUser()" />
+						<BlueButton class="modal_chat_button" v-if="displayButton()" text="Bannir" @click="banUser()" />
 					</div>
 				</div>
 			</div>
@@ -129,7 +129,6 @@ export default {
 .modal_overlay_chat {
 	position: fixed;
 	display: flex;
-	z-index: 9998;
 	left: 0;
 	top: 0;
 	width: 100%;
@@ -141,6 +140,7 @@ export default {
 	transition: all 0.4s ease;
 	min-height: 600px;
 	min-width: 500px;
+	z-index: 3;
 }
 
 .grid {
@@ -154,10 +154,10 @@ export default {
 	display: flex;
 	flex-direction: center;
 	justify-content: center;
-	right: 70%;
 	width: 40%;
-	height: 65%;
-	background-color: #DBEFFC;
+	min-width: 400px;
+	height: 50%;
+	background-color: white;
 	border-radius: 20px;
 }
 
@@ -167,7 +167,7 @@ export default {
 	row-gap: 20%;
 	column-gap: 10%;
 	width: 80%;
-	height: 50%;
+	height: 60%;
 }
 
 .button_grid_row {
@@ -175,8 +175,13 @@ export default {
 	grid-template-rows: repeat(3, 1fr);
 	row-gap: 20%;
 	column-gap: 10%;
-	width: 80%;
-	height: 50%;
+	width: 60%;
+	max-width: 250px;
+	height: 60%;
+}
+
+.modal_chat_button{
+	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);
 }
 
 </style>

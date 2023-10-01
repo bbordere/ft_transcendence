@@ -164,13 +164,13 @@ export default {
 			</Teleport>
 
 			<div class="buttons-items" v-if="editable != 0"> 
-				<BlueButton class="button-profile" text="Changer Nom " icon="fa-solid fa-pen" :display-text="windowWidth >= 930" @click="showModal = true"></BlueButton>
-				<BlueButton class="button-profile" text="Double Authentification " icon="fa-solid fa-lock" :display-text="windowWidth >= 930" @click="showQrcode = true"></BlueButton>
-				<BlueButton class="button-profile"  text="Déconnection " icon="fa-solid fa-right-from-bracket" @click="logout" :display-text="windowWidth >= 930"></BlueButton>
+				<BlueButton class="button-profile" text="Changer Nom " icon="fa-solid fa-pen" :display-text="windowWidth >= 1250" @click="showModal = true"></BlueButton>
+				<BlueButton class="button-profile" text="Double Authentification " icon="fa-solid fa-lock" :display-text="windowWidth >= 1250" @click="showQrcode = true"></BlueButton>
+				<BlueButton class="button-profile"  text="Déconnection " icon="fa-solid fa-right-from-bracket" @click="logout" :display-text="windowWidth >= 1250"></BlueButton>
 			</div>
 			<div v-else class="buttons-items">
-				<BlueButton class="button-profile" v-if="!isMyPage" @click="addUser" text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 930" ></BlueButton>
-				<BlueButton class="button-profile" v-if="showBlockButton" @click="blockUser" text="Bloquer" icon="fa-solid fa-user-group" :display-text="windowWidth >= 930" ></BlueButton>
+				<BlueButton class="button-profile" v-if="!isMyPage" @click="addUser" text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 1250" ></BlueButton>
+				<BlueButton class="button-profile" v-if="showBlockButton" @click="blockUser" text="Bloquer" icon="fa-solid fa-user-group" :display-text="windowWidth >= 1250" ></BlueButton>
 			</div>
 		</div>
 	</div>
@@ -193,6 +193,7 @@ export default {
 .buttons {
 	display: flex;
 	flex-direction: column;
+	min-width: 70px;
 }
 
 .slide-fade-default-button {
@@ -215,6 +216,7 @@ export default {
 
 .button-profile {
 	margin: 10px;
+	/* font-size: clamp(0.75rem, 0.5577rem + 0.6154vw, 1rem); */
 }
 
 .buttons {

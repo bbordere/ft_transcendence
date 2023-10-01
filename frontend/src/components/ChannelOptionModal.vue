@@ -1,149 +1,64 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import SlidingTitle from './SlidingTitle.vue';
+import BlueButton from './BlueButton.vue';
 
 export default defineComponent ({
 	components: {
-		SlidingTitle
+		SlidingTitle,
+		BlueButton
 	},
 	data() {
 		return ({
-			username: '' as string,
+			input: '' as string,
 			channelId: -1 as number,
 		});
 	},
 
-	props: {
-		show: Boolean,
-		title: String,
-	},
+	props: ['title', 'show', 'placeholder', 'callback'],
 
 	methods: {
-		async UnbanUser() {
-			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.username, {credentials: 'include'});
-			if (!user_resp['ok'] || this.username == '') {
-				this.$emit('close');
-				return ;
-			}
-			const user = await user_resp.json();
-			await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/unban', {credentials: 'include', method: 'POST'});
-			this.$emit('close');
-		}
 	},
 });
 
 </script>
 
 <template>
-	<Transition name="slide-fade" mode="out-in">
-	<div v-if="show" class="modal_overlay" @click="$emit('close')">
-		<div class="modal" @click.stop>
-			<div class="form">
-				<div class="field">
-					<SlidingTitle :text="title"/>
-					<input v-model="username" class="entry" type="text" placeholder="Utilisateur"/>
-				</div>
-				<div class="choice">
-					<button @click="UnbanUser()">Confirmer</button>
-				</div>
-			</div>
-		</div>
+	<div class="channel_options_modal">
+		<SlidingTitle class="channel_options_title" :text="title"></SlidingTitle>
+		<input v-model="input" class="channel_options_input" type="text" :placeholder=placeholder />
+		<BlueButton class="channel_options_button" text="Confirmer" @click="$emit('callback', input)"></BlueButton>
 	</div>
-	</Transition>
 </template>
 
-<style scoped>
+<style>
 
-h1 {
-	width: 100%;
-	text-align: center;
-}
-.modal_overlay {
-	position: fixed;
+.channel_options_modal{
 	display: flex;
-	z-index: 9998;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.5);
-	align-items: center;
+	flex-direction: column;
 	justify-content: center;
-	transition: opacity 0.4s ease;
-	transition: all 0.4s ease;
-	min-height: 600px;
-	min-width: 500px;
-}
-
-.modal {
-	display: flex;
-	flex-direction: column;
-	align-items: end;
-	width: 40%;
-	height: 70%;
-	background-color: #DBEFFC;
-	border-radius: 20px;
-}
-.modal button {
-	display: flex;
-	background-color: #DBEFFC;
-	height: 6%;
-	width: 6%;
 	align-items: center;
-	justify-content: center;
-	border: none;
-	font-size: 1.3em;
+	width: 75%;
+	max-width: 500px;
+	height: 50%;
+	background-color: white;
 	border-radius: 20px;
+	gap: 15%;
 }
 
-.modal button:hover {
-	background-color: rgb(182, 227, 238);
-}
-.form {
-	display: flex;
+.channel_options_input {
 	border-radius: 20px;
-	width: 100%;
-	height: 80%;
-	flex-direction: column;
-	align-items: center;
-	padding-top: 5%;
-}
-
-.field {
-	display: flex;
-	flex-direction: column;
 	width: 70%;
-	height: 70%;
-	gap: 12%;
-	align-items: center;
-	padding-top: 2%;
-}
-.entry {
-	display: flex;
-	border-radius: 20px;
-	width: 100%;
-	height: 30%;
-	outline: none;
-	border: none;
+	height: 15%;
 	text-align: center;
 	font-size: larger;
 }
 
-.choice {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	height: 25%;
-}
-
-.choice button {
-	display: flex;
-	width: 25%;
-	height: 80%;
-	background-color: #036280;;
-	border: 1px solid #000000;
-	border-radius: 20px;
+.channel_options_button{
+	border: none;
+	height: 15%;
+	width: 60%;
+	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);
 }
 
 </style>

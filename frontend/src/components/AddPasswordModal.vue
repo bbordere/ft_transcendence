@@ -1,18 +1,17 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useNotification } from '@kyvg/vue3-notification';
+import ChannelOptionModal from './ChannelOptionModal.vue';
 
 export default defineComponent({
-	data() {
-		return ({
-			password: '' as string,
-		});
-	},
-
 	props: ['show', 'channelId', 'sender'],
 
+	components: {
+		ChannelOptionModal
+	},
+
 	methods: {
-		async addPassword() {
+		async addPassword(password: string) {
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + "/" + this.$props.sender.id + '/changePassword', {
 				credentials: 'include',
 				method: 'POST',
@@ -20,12 +19,11 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					'password': this.password,
+					'password': password,
 				}),
 			});
 			const response_json = await response.json();
 			const notif = useNotification();
-			this.password = '';
 			if (!response_json['ok']) {
 				notif.notify({
 					title: 'Erreur',
@@ -37,7 +35,6 @@ export default defineComponent({
 			}
 			else {
 				notif.notify({
-					title: 'Nouveau mot de passe',
 					text: response_json['message'],
 					type: 'success',
 					group: 'notif-center',
@@ -54,17 +51,7 @@ export default defineComponent({
 <template>
 	<Transition name="slide-fade" mode="out-in">
 		<div v-if="show" class="modal_overlay" @click="$emit('close')">
-			<div class="modal" @click.stop>
-				<div class="form">
-					<div class="field">
-						<h1>Ajouter/changer le mot de passe</h1>
-						<input v-model="password" class="entry" type="text" placeholder="Mot de passe" />
-					</div>
-					<div class="choice">
-						<button @click="addPassword()">Confirmer</button>
-					</div>
-				</div>
-			</div>
+			<ChannelOptionModal @click.stop title="Modifier le mot de passe" placeholder="Nouveau mot de passe" @callback="addPassword" ></ChannelOptionModal>
 		</div>
 	</Transition>
 </template>
@@ -78,7 +65,6 @@ h1 {
 .modal_overlay {
 	position: fixed;
 	display: flex;
-	z-index: 9998;
 	left: 0;
 	top: 0;
 	width: 100%;

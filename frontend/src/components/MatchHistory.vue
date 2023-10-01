@@ -1,15 +1,15 @@
 <template>
-
-	<div class="history" v-if="matches.length">
-		<div class="history-title">Historique de Match</div>
-		<div class="matches">
-			<Match v-for="match in matches" class="match" :match-object="match" :update-timestamp="updateTimestamp"></Match >
+	<div class="history_container">
+		<div class="history" v-if="matches.length">
+			<div class="history-title">Historique de Match</div>
+			<div class="matches">
+				<Match v-for="match in matches" class="match" :match-object="match" :update-timestamp="updateTimestamp"></Match >
+			</div>
+		</div>
+		<div v-else class="no-match">
+			Pas de matchs joues ! 
 		</div>
 	</div>
-	<div v-else class="no-match">
-		Pas de matchs joues ! 
-	</div>
-
 </template>
 
 <script lang="ts">
@@ -48,16 +48,23 @@
 
 }
 
+.history_container{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+}
+
 .no-match{
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	background-color: rgba(34, 158, 230, 0.103);
 	border-radius: 50px;
-	height: 96%;
+	/* flex: 1; */
 	width: 96%;
-	margin-top: 2%;
-	margin-left: 2%;
+	height: 96%;
 }
 
 .matches{
