@@ -1,7 +1,7 @@
 <template>
 	<div class="list">
 		<ul>
-			<li :class="clickedChannel(channel['id'])" @click="$emit('showChannel', channel)" v-for="channel in channels">
+			<li v-for="channel in channels_computed" :class="clickedChannel(channel['id'])" @click="$emit('showChannel', channel)">
 				<span>{{ channel['name'] }}</span></li>
 		</ul>
 	</div>
@@ -9,6 +9,17 @@
 <script lang="ts">
 export default {
 	props: ['channels', 'selectedChannel'],
+
+	computed: {
+		channels_computed() {
+			let channels: any[] = [];
+			for (const channel of this.$props.channels)
+				if (!channel.isPrivate)
+					channels.push(channel);
+			return (channels)
+		}
+	},
+
 	methods: {
 		clickedChannel(channelId: number) {
 			return (this.selectedChannel['id'] === channelId ? 'selectedChannel' : '');

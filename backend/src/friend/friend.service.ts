@@ -11,6 +11,7 @@ export interface friendTab {
 	status: string;
 	username: string;
 	request: number;
+	channel: Channel;
 }
 
 @Injectable()
@@ -35,11 +36,16 @@ export class FriendService {
 		friend.UserId = sender;
 		friend.FriendId = friendToAdd.id;
 		friend.Status = 'pending';
-		this.friendRepository.save(friend);
+		friend.channel = await this.chatService.create(`${friend.FriendId}_${friend.UserId}`, '', false, friendToAdd, true);
+		await this.friendRepository.save(friend);
 		return ('');
 	}
 
 	async deleteFriend(id1: number, id2: number): Promise<void> {
+		let friendship = await this.friendRepository.findOne({where: {UserId: id1, FriendId: id2}});
+		if (!friendship)
+			friendship = await this.friendRepository.findOne({where: {UserId: id2, FriendId: id1}});
+		await this.chatService.delete(friendship.channel.name);
 		await this.friendRepository.delete({ UserId: id1, FriendId: id2 });
 		await this.friendRepository.delete({ UserId: id2, FriendId: id1 });
 	}
@@ -51,7 +57,11 @@ export class FriendService {
 				{ UserId: id2, FriendId: id1 },
 			],
 		});
-		friendship.Status = 'accepted';
+		if (!friendship)
+			return ;
+		friendship.Status = 'accepted';		
+		await this.userService.addUserToChannel(friendship.FriendId, friendship.channel.id, '');
+		await this.userService.addUserToChannel(friendship.UserId, friendship.channel.id, '');
 		await this.friendRepository.save(friendship);
 	}
 
@@ -72,7 +82,7 @@ export class FriendService {
 			where: [
 				{ UserId: userId },
 				{ FriendId: userId },
-			]
+			],
 		});
 		const friends = [];
 		for (let friendship of friendships) {
@@ -89,7 +99,7 @@ export class FriendService {
 			where: [
 				{ UserId: id },
 				{ FriendId: id },
-			]
+			],
 		});
 		let friendId: number;
 		const friends: friendTab[] = [];
@@ -103,6 +113,7 @@ export class FriendService {
 				status: friendship.Status,
 				username: (await this.userService.getById(friendId)).name,
 				request: friendship.UserId,
+				channel: friendship.channel,
 			};
 			friends.push(friend);
 		}

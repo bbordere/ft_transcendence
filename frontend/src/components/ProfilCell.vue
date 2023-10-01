@@ -5,6 +5,7 @@ import Invite from '../components/Invite.vue'
 import router from '@/router';
 import { State } from '@/views/Home.vue';
 import { SocketService } from '@/services/SocketService';
+import type { friendTab } from '@/interfaces/friendTab.interface';
 
 export default defineComponent({
 	props: ["friend", "myId", "blockList", "print", ],
@@ -62,6 +63,7 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 			});
+			console.log("Bonsoir michel !");
 			SocketService.getInstance.emit('refreshFriendListId', this.myId);
 			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},
@@ -74,9 +76,14 @@ export default defineComponent({
 					'Content-Type': 'application/json'
 				},
 			});
+			console.log("Bonsoir michel !");
 			SocketService.getInstance.emit('refreshFriendListId', this.myId);
 			SocketService.getInstance.emit('refreshFriendListId', this.friend.id);
 		},
+
+		showChannel(friend: friendTab) {
+			this.$emit('showChannel', friend.channel.id);
+		}
 	},
 
 	async mounted() {
@@ -105,7 +112,8 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)">
+	<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)"
+		@click="showChannel(friend)">
 		<div class="img_user">
 			<img alt="avatar" class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
 		</div>

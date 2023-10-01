@@ -1,6 +1,6 @@
 import { User } from "src/user/user.entity";
 import { Channel } from "./channel.entity";
-import { Column, Entity, Generated, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, Generated, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Message {
@@ -18,11 +18,13 @@ export class Message {
 	@Column()
 	public text: string;
 
-	@ManyToOne(() => User, {
-		nullable: false,
-		cascade: true,
-		eager: true,
-	})
-	@JoinColumn({ name: 'sender' })
-	public sender: User;
+	// @ManyToOne(() => User, {
+	// 	nullable: false,
+	// 	cascade: true,
+	// 	eager: true,
+	// })
+	// @JoinColumn({ name: 'sender' })
+	// public sender: User;
+	@Column()
+	public sender: number;
 }

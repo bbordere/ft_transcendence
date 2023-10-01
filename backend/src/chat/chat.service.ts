@@ -30,7 +30,7 @@ export class ChatService {
 		return (this.channelRepository.findOneBy({ name }));
 	}
 
-	async create(name: string, password: string, protect: boolean, creator: User): Promise<Channel | null> {
+	async create(name: string, password: string, protect: boolean, creator: User, isPrivate: boolean = false): Promise<Channel | null> {
 		if (name.match('/^\s*$/'))
 			throw new Error('wrong name format.');
 		if (await this.getByName(name) !== null)
@@ -40,6 +40,7 @@ export class ChatService {
 		channel.password = (protect ? await bcrypt.hash(password, 8) : '');
 		channel.protected = protect;
 		channel.owner = creator
+		channel.isPrivate = isPrivate;
 		const createdChannel = await this.channelRepository.save(channel);
 		return (createdChannel);
 	}
@@ -57,18 +58,22 @@ export class ChatService {
 		if (!channel)
 			return (null);
 		const senderUser = await this.userRepository.createQueryBuilder('user')
-			.leftJoinAndSelect('user.channels', 'channels')
-			.where('user.id = ' + sender)
-			.andWhere('channels.id = ' + channelId)
-			.getOne();
+		.leftJoinAndSelect('user.channels', 'channels')
+		.where('user.id = ' + sender)
+		.andWhere('channels.id = ' + channelId)
+		.getOne();
 		if (!senderUser)
 			return (null);
 		const message = new Message();
 		message.text = text;
 		message.channel = channel;
-		message.sender = senderUser;
+		message.sender = senderUser.id;
 		const savedMessage = await this.messageRepository.save(message);
 		channel.messages.push(savedMessage);
+		const user = await this.userRepository.findOne({where: {id: sender}, relations: ['stats']});
+		user.stats.totalMessages++;
+		await this.userRepository.save(user);
+		await this.channelRepository.save(channel);
 		return (savedMessage);
 	}
 
@@ -80,18 +85,18 @@ export class ChatService {
 		let messages: Message[];
 		if (user.blockList.length) {
 			messages = await this.messageRepository.createQueryBuilder('message')
-				.select(['message.id', 'sender', 'message.text'])
-				.leftJoin('message.sender', 'sender')
+				.select(['message.id', 'message.sender', 'message.text'])
 				.where(`message.channel = ${channel.id}`)
-				.andWhere(`(sender.id NOT IN (:...blockList))`, {blockList: user.blockList})
+				.andWhere(`(message.sender NOT IN (:...blockList))`, {blockList: user.blockList})
+				.orderBy('message.id', 'ASC')
 				.getRawMany()
 		}
 		else {
-			messages = await this.messageRepository.createQueryBuilder('message')
-				.select(['message.id', 'sender', 'message.text'])
-				.leftJoin('message.sender', 'sender')
+			messages = await this.messageRepository.createQueryBuilder("message")
+				.select(['message.id', 'message.sender', 'message.text'])
 				.where(`message.channel = ${channel.id}`)
-				.getRawMany()
+				.orderBy('message.id', 'ASC')
+				.getRawMany();
 		}
 		return (messages);
 	}
@@ -212,5 +217,12 @@ export class ChatService {
 			.where(`user.id = ${user.id}`)
 			.getOne();
 		return (!!result);
+	}
+
+	async getCountMessages(userId: number): Promise<number> {
+		const user = await this.userRepository.findOne({where: {id: userId}, relations: ['stats']});
+		if (!user)
+			return (0);
+		return (user.stats.totalMessages);
 	}
 }
