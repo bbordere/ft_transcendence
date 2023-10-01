@@ -25,9 +25,6 @@ export default{
 		},
 
 		async getUser(){
-			let names: String[];
-			let exist: boolean;
-			let username: string;
 			const route = useRoute();
 			this.updateTimestamp = Date.now();
 			if (!route.query["user"]){
@@ -44,18 +41,6 @@ export default{
 			} catch (error) {
 				router.push('/invalidParams');
 			}
-			// fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/")
-			// .then(res => res.json())
-			// .then(data => {names = data})
-			// .then(() => {username = route.query["user"]})
-			// .then(() => {exist = names.includes(username) || username === "me"})
-			// .then(() => {
-			// 	if (!exist)
-			// 		router.push('/invalidParams');
-			// 	else
-			// 		this.username = username;
-			// 	this.dataLoaded = true;
-			// })
 		},
 
 		updateUsername(newUsername: string){

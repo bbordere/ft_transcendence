@@ -12,19 +12,21 @@
 			@removePassword="removePassword()" @displayChannelOption="emitToModalManager"></ChannelOptionsMenu>
 		</div>
 		<div class="message_box">
-				<div v-for="(msg, index) in selectedChannel.messages" class="single_message" :class="sender.id === msg.sender ? 'sent' : 'received'">
-					<img v-if="sender.id !== msg.sender" alt="avatar" @click="showChatModal(msg)" :src="msg.sender_img">
-					<div class="msg_txt_box">
-						<span v-if="sender.id !== msg.sender" class="sender_name">{{ msg.sender_name }}</span>
-						<span :class="sender.id === msg.sender ? 'sent_txt' : 'received_txt'" :ref="`message-${index}`" class="message">{{ msg.text }}</span>
-					</div>
+			<div v-for="(msg, index) in selectedChannel.messages" class="single_message" :class="sender.id === msg.sender ? 'sent' : 'received'">
+				<img v-if="sender.id !== msg.sender" alt="avatar" @click="showChatModal(msg)" :src="msg.sender_img">
+				<div class="msg_txt_box">
+					<span v-if="sender.id !== msg.sender" class="sender_name">{{ msg.sender_name }}</span>
+					<div :class="sender.id === msg.sender ? 'sent_txt' : 'received_txt'" :ref="`message-${index}`" class="message">{{ msg.text }}</div>
 				</div>
+			</div>
 		</div>
 		<div class="send_container" v-if="selectedChannel.name">
 			<form v-on:submit.prevent="sendMessage">
 				<div class="sendbox">
 					<input type="text" v-model="message" :placeholder="'Envoyer un message dans ' + [[selectedChannel.name]]">
-					<!-- <button type="button" @click="sendMessage()">&#8593;</button> -->
+					<button type="button" @click="sendMessage()">
+						<font-awesome-icon icon="fa-solid fa-paper-plane" />
+					</button>
 				</div>
 			</form>
 		</div>
@@ -82,6 +84,9 @@ export default {
 		},
 		sendMessage() {
 			if (SocketService.getStatus && this.message) {
+				if (/^\s+$/i.test(this.message))
+					return;
+				this.message = this.message.trimStart().trimEnd();
 				const data = {
 					channelId: this.selectedChannel.id,
 					text: this.message,
@@ -140,7 +145,13 @@ export default {
 	}
 }
 </script>
+
 <style>
+
+input:placeholder-shown {
+  text-overflow: ellipsis;
+}
+
 .chat {
 	display: flex;
 	flex-direction: column;
@@ -151,12 +162,15 @@ export default {
 	height: 100%;
 	border: 3px solid #515151;
 	border-radius: 10px;
+	background-image: url('/public/chat_background.png');
+	background-size: contain ;
+	background-repeat: no-repeat;
+	background-position: center;
 }
 .top_chat_container{
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	/* background-color: blue; */
 	width: 100%;
 	height: 40px;
 	position: relative;
@@ -171,17 +185,24 @@ export default {
 
 .message {
 	text-align: left;
-	/* word-wrap: break-word; */
+	word-wrap: break-word;
 	padding: 10px;
+	max-width: 100%;
 	font-size: clamp(0.75rem, 0.5577rem + 0.6154vw, 1rem);
-	/* max-width: 80%; */
-	/* overflow-wrap: break-word; */
+	overflow-wrap: anywhere;
+	white-space: break-spaces
+}
+
+.msg_txt_box{
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	max-width: 70%;
 }
 
 .sent_txt{
 	background: rgb(187, 214, 255);
 	border-radius: 20px 20px 0px 20px;
-	align-self: flex-end;
 }
 
 .received_txt{
@@ -190,15 +211,19 @@ export default {
 }
 
 .message_box {
-	/* padding-right: 20px; */
-	/* display: flex; */
+	display: flex;
+	flex-direction: column;	
 	width: 95%;
 	margin-bottom: 10px;
 	height: 100%;
 	max-height: 100%;
 	overflow-y: scroll;
 	scrollbar-width: none;
-	/* background-color: #d4eefd; */
+	min-height: min-content;
+}
+
+.message_box .single_message:first-child {
+    margin-top: auto;
 }
 
 ::-webkit-scrollbar {
@@ -206,26 +231,11 @@ export default {
 	background-color: transparent;
 }
 
-.message_box ul {
-	margin: 0;
-	padding: 0;
-	list-style-type: none;
-	padding: 5px;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	justify-content: end;
-}
-
 .single_message {
 	display: flex;
 	align-items: end;
 	margin-top: 10px;
-}
-
-.single_message div {
-	display: flex;
-	flex-direction: column;
+	overflow-wrap: break-word;
 }
 
 .single_message img {
@@ -234,7 +244,6 @@ export default {
 	width: 40px;
 	height: 40px;
 	border-radius: 50%;
-	/* overflow: hidden; */
 }
 
 .msg_chat_box img:hover {
@@ -244,14 +253,11 @@ export default {
 .sender_name {
 	font-size: 10px;
 	margin-left: 10px;
-	/* text-align: center; */
 }
 
 .sent {
 	text-align: right;
 	display: flex;
-	justify-content: end;
-	align-items: end;
 	flex-direction: row-reverse;
 }
 
@@ -260,35 +266,32 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	width: 100%;
-	margin-bottom: 5%;
+	margin-bottom: 10px;
 }
 
 .send_container form {
-	width: 80%;
+	width: 95%;
 	border-radius: 10px;
 }
 
 .sendbox {
 	width: 100%;
-	/* border: #515151 1px solid; */
-
 	text-align: center;
 	display: flex;
 	flex-direction: row;
-	align-items: end;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
 }
 
 .sendbox input {
 	width: 100%;
 	height: 50px;
-	/* border: #acacac 1px solid; */
 	border: none;
 	border-radius: 500px;
 	background-color: #ebebeb;
-	/* background: rgb(155, 155, 245); */
 	padding-left: 15px;
-	/* border-right: 1px solid rgba(0, 0, 0, 0.1); */
-	/* background-color: red; */
+	font-size: clamp(0.6875rem, 0.4471rem + 0.7692vw, 1rem);
 }
 
 .sendbox input:focus {
@@ -296,41 +299,18 @@ export default {
 }
 
 .sendbox button {
-	/* padding-left: 20px; */
+	padding: 20px;
+	text-align: center;
+	color: white;
+	font-weight: bold;
 	border: none;
-	background-color: transparent;
-	font-size: 20px;
-	padding-right: 20px;
-	color: rgba(0, 0, 0, 0.2);
+	border-radius: 500px;
+	background-color:  #036280;
+	cursor: pointer;
 }
 
-.channel_options {
-	display: flex;
-	flex-direction: row;
-	width: 80%;
-	flex-wrap: wrap;
-	margin-top: 10px;
+.sendbox button:hover {
+	background-color:  #004d64;
 }
 
-.channel_options button {
-	flex: 1;
-	padding: 10px;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	/* background-color: white; */
-}
-
-.msg_txt_box{
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: start;
-	max-width: 70%;
-	/* background: red; */
-}
-
-/* @media screen and (max-width: 1150px) {
-	.chat {
-		width: 50%;
-	}
-} */
 </style>
