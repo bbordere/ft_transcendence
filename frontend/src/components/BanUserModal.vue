@@ -1,5 +1,4 @@
 <script lang="ts">
-import { defineComponent } from 'vue';
 import { SocketService } from '@/services/SocketService';
 import ChannelOptionModal from './ChannelOptionModal.vue';
 import { useNotification } from '@kyvg/vue3-notification';
@@ -60,7 +59,7 @@ export default {
 <template>
 	<Transition name="slide-fade" mode="out-in">
 		<div v-if="show" class="modal_overlay" @click="$emit('close')">
-				<ChannelOptionModal @click.stop title="Bannir un utilisateur" placeholder="Nom d'utilisateur" @callback="banUser" ></ChannelOptionModal>
+			<ChannelOptionModal @click.stop title="Bannir un utilisateur" placeholder="Nom d'utilisateur" @callback="banUser" ></ChannelOptionModal>
 		</div>
 	</Transition>
 </template>
@@ -82,78 +81,6 @@ export default {
 	min-height: 600px;
 	min-width: 500px;
 	z-index: 3;
-}
-
-.modal {
-	display: flex;
-	flex-direction: column;
-	align-items: end;
-	width: 75%;
-	max-width: 500px;
-	height: 70%;
-	background-color: #DBEFFC;
-	border-radius: 20px;
-}
-.modal button {
-	display: flex;
-	background-color: #DBEFFC;
-	height: 6%;
-	width: 6%;
-	align-items: center;
-	justify-content: center;
-	border: none;
-	font-size: 1.3em;
-	border-radius: 20px;
-}
-
-.modal button:hover {
-	background-color: rgb(182, 227, 238);
-}
-.form {
-	display: flex;
-	border-radius: 20px;
-	width: 100%;
-	height: 80%;
-	flex-direction: column;
-	align-items: center;
-	padding-top: 5%;
-}
-
-.field {
-	display: flex;
-	flex-direction: column;
-	width: 70%;
-	height: 70%;
-	gap: 12%;
-	align-items: center;
-	padding-top: 2%;
-}
-.entry {
-	display: flex;
-	border-radius: 20px;
-	width: 100%;
-	height: 30%;
-	outline: none;
-	border: none;
-	text-align: center;
-	font-size: larger;
-}
-
-.choice {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	height: 25%;
-}
-
-.choice button {
-	display: flex;
-	width: 25%;
-	height: 80%;
-	background-color: #036280;;
-	border: 1px solid #000000;
-	border-radius: 20px;
 }
 
 </style>

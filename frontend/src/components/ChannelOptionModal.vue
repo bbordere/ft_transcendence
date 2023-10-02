@@ -3,7 +3,7 @@ import { defineComponent } from 'vue';
 import SlidingTitle from './SlidingTitle.vue';
 import BlueButton from './BlueButton.vue';
 
-export default defineComponent ({
+export default defineComponent({
 	components: {
 		SlidingTitle,
 		BlueButton
@@ -12,13 +12,21 @@ export default defineComponent ({
 		return ({
 			input: '' as string,
 			channelId: -1 as number,
+			inputValue: "",
 		});
 	},
 
-	props: ['title', 'show', 'placeholder', 'callback'],
+	props: ['title', 'show', 'placeholder', 'callback', 'isDigit'],
 
 	methods: {
-	},
+		isNumber(evt: KeyboardEvent): void {
+			const keysAllowed: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+			const keyPressed: string = evt.key;
+			if (!keysAllowed.includes(keyPressed)) {
+				evt.preventDefault();
+			}
+		},
+	}
 });
 
 </script>
@@ -26,14 +34,14 @@ export default defineComponent ({
 <template>
 	<div class="channel_options_modal">
 		<SlidingTitle class="channel_options_title" :text="title"></SlidingTitle>
-		<input v-model="input" class="channel_options_input" type="text" :placeholder=placeholder />
+		<input v-if="isDigit" :maxlength="7" v-model="input" @keypress="isNumber($event)" class="channel_options_input" :placeholder=placeholder />
+		<input v-else v-model="input" class="channel_options_input" type="text" :placeholder=placeholder />
 		<BlueButton class="channel_options_button" text="Confirmer" @click="$emit('callback', input)"></BlueButton>
 	</div>
 </template>
 
 <style>
-
-.channel_options_modal{
+.channel_options_modal {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -54,11 +62,10 @@ export default defineComponent ({
 	font-size: larger;
 }
 
-.channel_options_button{
+.channel_options_button {
 	border: none;
 	height: 15%;
 	width: 60%;
 	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);
 }
-
 </style>

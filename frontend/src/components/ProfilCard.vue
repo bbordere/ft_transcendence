@@ -23,7 +23,7 @@ export default {
 	data(){
 		return ({
 				showModal: false,
-				isMyPage: true,
+				isMyPage: false,
 				windowWidth: window.innerWidth,
 				showQrcode: false,
 				showBlockButton: true,
@@ -133,9 +133,26 @@ export default {
 			this.isMyPage = true;
 			await this.deleteFriend();
 		},
+
+		async isMe(){
+			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/friend/isFriend',{
+				credentials: 'include',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					username: this.user.name,
+					sender: SocketService.getUser["id"],
+				})
+			})
+			const ret = await (await response.blob()).text();
+			this.isMyPage = this.isMyPage || this.user.name === 'me' || this.user.name === SocketService.getUser["name"] || (ret !== "false");
+		},
 	},
 	async created(){
 		window.addEventListener('resize', this.handleResize);
+		await this.isMe();
 	},
 }
 
@@ -170,7 +187,7 @@ export default {
 			</div>
 			<div v-else class="buttons-items">
 				<BlueButton class="button-profile" v-if="!isMyPage" @click="addUser" text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 1250" ></BlueButton>
-				<BlueButton class="button-profile" v-if="showBlockButton" @click="blockUser" text="Bloquer" icon="fa-solid fa-user-group" :display-text="windowWidth >= 1250" ></BlueButton>
+				<BlueButton class="button-profile" v-if="showBlockButton" @click="blockUser" text="Bloquer" icon="fa-solid fa-lock" :display-text="windowWidth >= 1250" ></BlueButton>
 			</div>
 		</div>
 	</div>

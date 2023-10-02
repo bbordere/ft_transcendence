@@ -4,7 +4,7 @@
 			<ModalChat :show="modalChat" @close="modalChat = false" :connected_user="connected_user" :friendId="friendId" :username="username" :selectedChannel="selectedChannel" />
 		</Teleport>
 		<div class="top_chat_container">
-			<div class="channel_name">{{ channelName }}</div>
+			<div class="channel_name" v-if="selectedChannel.name">{{ channelName }}</div>
 			<ChannelOptionsMenu v-if="selectedChannel.name && selectedChannel.name.length <= 16" :isAdmin="selectedChannel.owner === sender.id"
 			:showMenu="showMenu" :isProtected="selectedChannel.protected"
 			@openMenu="toggleMenu" @quitChannel="quitChannel(sender.id)" 
@@ -64,7 +64,7 @@ export default {
 			await this.getChanName();
 			const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
 			if (lastMessage)
-				lastMessage[0].scrollIntoView();
+				lastMessage[0].scrollIntoView(); 
 		}
 	},
 
@@ -172,7 +172,7 @@ export default {
 <style>
 
 input:placeholder-shown {
-  text-overflow: ellipsis;
+	text-overflow: ellipsis;
 }
 
 .chat {
@@ -190,7 +190,7 @@ input:placeholder-shown {
 	background-repeat: no-repeat;
 	background-position: center;
 }
-.top_chat_container{
+.top_chat_container {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -199,7 +199,7 @@ input:placeholder-shown {
 	position: relative;
 }
 
-.channel_name{
+.channel_name {
 	width: 100%;
 	padding-left: 10px;
 	font-weight: bold;
@@ -216,19 +216,19 @@ input:placeholder-shown {
 	white-space: break-spaces
 }
 
-.msg_txt_box{
+.msg_txt_box {
 	display: flex;
 	flex-direction: column;
 	align-items: start;
 	max-width: 70%;
 }
 
-.sent_txt{
+.sent_txt {
 	background: rgb(187, 214, 255);
 	border-radius: 20px 20px 0px 20px;
 }
 
-.received_txt{
+.received_txt {
 	background-color: #d4eefd;
 	border-radius: 20px 20px 20px 0px;
 }

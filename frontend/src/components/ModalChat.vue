@@ -36,6 +36,9 @@ export default {
 					'Content-Type': 'application/json'
 				},
 			});
+			SocketService.getInstance.emit('refreshFriendListId', this.connected_user.id);
+			SocketService.getInstance.emit('refreshFriendListId', this.friendId);
+			SocketService.getInstance.emit('refreshChannels');
 		},
 
 		async blockUser() {
