@@ -50,7 +50,6 @@ export default{
 		},
 
 		async updateUsername(newUsername: string){
-			console.log("TEST");
 			await this.fetchUser();
 			this.updateTimestamp = Date.now();
 			this.$emit('update', newUsername);

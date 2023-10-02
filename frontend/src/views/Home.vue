@@ -4,20 +4,19 @@
 			<div class="left_column">
 				<PlayButton />
 				<div class="friend_list">
-					<ModalManager :selectedChannel="selectedChannel" :sender="sender"
-					@joinChannel="joinChannel" @updateButton='selectedChannel.protected = true;'
-						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
+					<ModalManager :selectedChannel="selectedChannel" :sender="sender" @joinChannel="joinChannel"
+						@updateButton='selectedChannel.protected = true;' ref="ModalManager"
+						@click="updateTimestamp = Date.now()" />
 					<Transition name="fade2" mode="out-in">
 						<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
-						:selectedChannel="selectedChannel" @showChannel="showChannel" />
-					<FriendList v-else :updateTimestamp="updateTimestamp" :friendTimestamp="refreshTimestamp"
-						@showPrivateMessage="showPrivateMessage" />
-						
+							:selectedChannel="selectedChannel" @showChannel="showChannel" />
+						<FriendList v-else :updateTimestamp="updateTimestamp" :friendTimestamp="refreshTimestamp"
+							@showPrivateMessage="showPrivateMessage" />
 					</Transition>
-					
+
 				</div>
 			</div>
-			<Chat  class="chat_container" :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
+			<Chat class="chat_container" :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
 				@displayChannelOption="displayChannelOption"></Chat>
 		</div>
 	</div>
@@ -89,23 +88,30 @@ export default defineComponent({
 			const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 			sessionStorage.setItem('token', await token.text());
 		}, 1000 * 10);
-		// const response_test = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/count', { credentials: 'include' });
-		// console.log(await response_test.json());
-	},
-
-	updated() {
-		if (this.selectedChannel.messages) {
-			const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
-			if (lastMessage)
-				lastMessage[0].scrollIntoView();
-		}
 	},
 
 	methods: {
 		async init() {
 			this.$emit('socketReady');
 			SocketService.getInstance.on('mute', (data: any) => {
-				console.log(data);
+				const { started, channelName, id } = data;
+				let message;
+				const channel = this.findChannel(id);
+				if (started) {
+					message = `Vous avez ete mute du channel: ${channelName}.`;
+					channel.muted = true;
+				}
+				else {
+					message = `Vous avez ete unmute du channel: ${channelName}.`;
+					channel.muted = false;
+				}
+				const notif = useNotification();
+				notif.notify({
+					title: "Mute",
+					type: started ? 'error' : 'success',
+					text: message,
+					group: 'notif-center',
+				});
 			});
 			SocketService.getInstance.on('message',
 				(data: {
@@ -195,6 +201,7 @@ export default defineComponent({
 					isPrivate: channels_json[i]['isPrivate'],
 					protected: channels_json[i]['protected'],
 					admins: await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/getAdmins', { credentials: 'include' })).json(),
+					muted: false,
 				});
 			}
 			return (channels);
@@ -345,14 +352,11 @@ h1 {
 	max-width: 450px;
 }
 
-.chat_container{
+.chat_container {
 	max-width: 800px;
-	/* width: 100%; */
-	/* height: 100%; */
 }
 
 .friend_list {
-	/* position: relative; */
 	display: flex;
 	flex-direction: column;
 	height: 80%;

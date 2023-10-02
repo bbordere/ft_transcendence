@@ -85,13 +85,33 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		userId = Number(userId);
 		channelId = Number(channelId);
 		time = Number(time);
+		const target = this.clients.get(userId);
+		const channel = await this.chatService.getById(channelId);
 		const channelOwner = await this.chatService.getChannelOwner(channelId);
-		if (userId === channelOwner.id || time < 0) {
+		const data = {
+			started: true,
+			channelName: channel.name,
+			id: channelId,
+			error: false,
+			message: '',
+		}
+		if (time <= 0) {
+			data.error = true;
+			data.message = 'Entrez un nombre strictement positif.';
+			target?.client_socket.emit('mute', data);
+			return ;
+		}
+		if (userId === channelOwner.id) {
+			data.error = true;
+			data.message = 'Vous ne pouvez pas mute le owner du channel.';
 			console.log('Cannot mute owner');
+			target?.client_socket.emit('mute', data);
 			return ;
 		}
 		if (client.data.userId !== channelOwner.id) {
-			console.log("Only the owner of the channel can mute.");
+			data.error = true;
+			data.message = 'Seul le owner du channel peut mute.';
+			target?.client_socket.emit('mute', data);
 			return ;
 		}
 		const mute_instance = {
@@ -104,11 +124,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			this.muteds.set(channelId, array);
 		}
 		else
-			this.muteds.get(channelId).push(mute_instance);
+			this.muteds.get(channelId).push(mute_instance);0
 		let muted = this.muteds.get(channelId);
+		target?.client_socket.emit('mute', data);
 		setTimeout(() => {
 			muted.splice(muted.indexOf(mute_instance), 1);
-			console.log('Mute finished');
+			data.started = false;
+			target?.client_socket.emit('mute', data);
 		}, mute_instance.time);
 	}
 

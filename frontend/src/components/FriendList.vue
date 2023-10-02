@@ -19,6 +19,7 @@ export default defineComponent({
 			sender: -1 as number,
 			block: false as boolean,
 			print: 0 as number,
+			selectedFriend: {} as friendTab,
 		};
 	},
 
@@ -89,6 +90,14 @@ export default defineComponent({
 
 		showChannelForwarder(channelId: number): void {
 			this.$emit('showPrivateMessage', channelId);
+		},
+
+		selectFriend(friend: friendTab): void {
+			this.selectedFriend = friend;
+		},
+
+		getSelectedFriendClass(friend: friendTab): string {
+			return (friend === this.selectedFriend ? 'selected' : '');
 		}
 	},
 
@@ -123,7 +132,7 @@ export default defineComponent({
 			<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
 		</div>
 		<div v-else class="list_friend">
-			<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print @showChannel="showChannelForwarder"></ProfilCell>
+			<ProfilCell v-for="friend in friends" :friend="friend" :class="getSelectedFriendClass(friend)" :myId=sender :blockList=blockList :print=print @showChannel="showChannelForwarder" @selectFriend="selectFriend"></ProfilCell>
 		</div>
 	</div>
 </template>
@@ -181,5 +190,9 @@ export default defineComponent({
 	margin-right: 20px;
 	margin-bottom: 20px;
 	color: white;
+}
+
+.selected {
+	background-color: #F0F8FF;
 }
 </style>

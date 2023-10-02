@@ -61,7 +61,6 @@ export default {
 			const user = await user_resp.json();
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.selectedChannel.id + '/kick', { credentials: 'include', method: 'POST' });
 			const response_json = await response.json();
-			console.log(response_json);
 			if (response_json['ok']) {
 				SocketService.getInstance.emit('kick', this.$props.selectedChannel.id, user['id'], false);
 				this.$emit('close');

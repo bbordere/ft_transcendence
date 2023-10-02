@@ -151,7 +151,7 @@ export class UserService {
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
 	
 		user.channels = user.channels.filter((c) => c.id !== channel.id);
-		const users = await this.usersRepository.createQueryBuilder('user')
+		let users = await this.usersRepository.createQueryBuilder('user')
 			.leftJoinAndSelect('user.channels', 'channel')
 			.where('channel.id = ' + channel.id)
 			.getMany();
@@ -171,8 +171,6 @@ export class UserService {
 	}
 	
 	async kickUserFromChannel(userId: number, channelId: number) {
-		console.log(`userId: ${userId}`);
-		console.log(`channelId: ${channelId}`);
 		const user = await this.usersRepository.findOne({where: {id: userId}});
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
 		const channel_users = await this.usersRepository.createQueryBuilder('user')
@@ -183,9 +181,10 @@ export class UserService {
 			return ;
 		if (user.id === channel.owner.id)
 			throw new Error('You cannot kick the owner of the channel.');
-		if (!channel_users.includes(user))
-			throw new Error('User not in channel.');
-		await this.removeUserFromChannel(user.id, channel.id);
+		for (let channel_user of channel_users)
+			if (channel_user.id === user.id)
+				return (await this.removeUserFromChannel(user.id, channel.id));
+		throw new Error("User not in channel.");
 	}
 
 	async banUserFromChannel(userId: number, channelId: number) {
