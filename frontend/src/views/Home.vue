@@ -96,10 +96,6 @@ export default defineComponent({
 		// console.log(await response_test.json());
 	},
 
-	async updated() {
-		// await this.fetchSeletedChannel();
-	},
-
 	methods: {
 		async init() {
 			this.$emit('socketReady');
@@ -354,11 +350,6 @@ export default defineComponent({
 </script>
 
 <style>
-h1 {
-	margin-top: 7%;
-	width: 80%;
-	text-align: left;
-}
 
 .home_body {
 	height: 90%;

@@ -76,11 +76,6 @@ export default {
 </template>
 
 <style scoped>
-h1 {
-	width: 100%;
-	text-align: center;
-}
-
 .modal_overlay {
 	position: fixed;
 	display: flex;

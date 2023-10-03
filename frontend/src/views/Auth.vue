@@ -10,6 +10,7 @@ const password = ref('')
 const showModal = ref(false)
 const status = ref('')
 
+sessionStorage.removeItem('channelId');
 
 async function login(){
 	const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/login",

@@ -1,5 +1,5 @@
 <template>
-	<div class="chat" @click="showMenu = false">
+	<div class="chat" @click="showMenu = false" v-if="selectedChannel.name">
 		<Teleport to="body">
 			<ModalChat :show="modalChat" @close="modalChat = false" :connected_user="connected_user" :friendId="friendId"
 				:username="username" :selectedChannel="selectedChannel" />
@@ -32,6 +32,47 @@
 					</button>
 				</div>
 			</form>
+		</div>
+	</div>
+	<div v-else class="empty_chat">
+		<h1>🍹Bienvenue sur PiñaColaPong !🍹</h1> 
+		<div class="paragraphs">
+			<div class="presentation_paragraph">
+				PiñaColaPong est l'endroit parfait où le fun et l'amitié se rencontrent !
+			</div>
+			<div class="presentation_paragraph">
+				Vous pouvez défier vos amis dans des parties de Pong endiablées 
+				tout en sirotant votre cocktail préféré, comme si vous étiez en
+				vacances sur une île paradisiaque.
+			</div>
+			<div class="presentation_paragraph">
+				Pour cela, <strong>3</strong> modes de jeu vous sont proposés :
+				<br>
+				<br>
+				<strong>Classique 🏓</strong>: Marquez des points dans un jeu simple qui fera
+											ressurgir la nostalgie du Pong d'antan.
+				<br>
+				<br>
+				<strong>Arcade 🌶️</strong>: Une expérience de jeu plus palpitante avec la possibilité 
+										d'utiliser des power-ups pour donner une nouvelle dimension à 
+										vos parties.
+				<br>
+				<br>
+				<strong>Classé 🏆</strong>: Si vous êtes plutôt du genre loup solitaire
+										assoiffé de victoires, alors ce mode est fait pour
+										vous ! Votre adresse ainsi que votre rapidité seront mises
+										à rude épreuve !
+			</div>
+			<br>
+			<div class="presentation_paragraph">
+				Entre deux parties n'hésitez pas à rejoindre des channels. Partagez vos
+				stratégies secrètes, débattez sur vos coups les plus fous, ou tout
+				simplement, discutez et faites vous de nouveaux amis !
+			</div>
+		</div>
+		<div class="creators_names">
+			by <strong>bbordere</strong>, <strong>hubretec</strong>,
+			<strong>jrossett</strong> and <strong>T.O</strong>
 		</div>
 	</div>
 </template>
@@ -192,9 +233,48 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+
 input:placeholder-shown {
 	text-overflow: ellipsis;
+}
+
+.empty_chat h1{
+	font-size: 1.35em;
+}
+.paragraphs {
+	width: 95%;
+	height: 80%;
+	display: flex;
+	gap: 10px;
+	flex-direction: column;
+	/* justify-content: space-evenly; */
+	/* background-color: pink; */
+	align-items: center;
+}
+
+.empty_chat {
+	font-size: clamp(0.625rem, 0.3365rem + 0.9231vw, 1rem);
+	justify-content: center;
+	text-align: justify;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 60%;
+	height: 100%;
+	background-color: white;
+	border: 3px solid #515151;
+	border-radius: 10px;
+	background-image: url('/public/chat_background.png');
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.creators_names {
+	align-self: end;
+	margin-right: 10px;
+	/* margin-top: 10%; */
 }
 
 .chat {
