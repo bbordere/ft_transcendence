@@ -1,5 +1,5 @@
 <template>
-	<div class="home_body">
+	<div class="home_body" v-show="isChannelLoaded">
 		<div class="home_content">
 			<div class="left_column">
 				<PlayButton />
@@ -10,14 +10,12 @@
 					<Transition name="fade2" mode="out-in">
 						<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
-					<FriendList v-else :updateTimestamp="updateTimestamp" :friendTimestamp="refreshTimestamp"
-						@showPrivateMessage="showPrivateMessage" />
-						
+						<FriendList v-else :updateTimestamp="updateTimestamp" :friendTimestamp="refreshTimestamp"
+							@showPrivateMessage="showPrivateMessage" />
 					</Transition>
-					
 				</div>
 			</div>
-			<Chat  class="chat_container" :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
+			<Chat class="chat_container" :selectedChannel="selectedChannel" :sender="sender" @removeChannel="removeChannel"
 				@displayChannelOption="displayChannelOption"></Chat>
 		</div>
 	</div>
@@ -59,13 +57,13 @@ export default defineComponent({
 
 	data() {
 		return {
-			showChannelDiv: false,
 			sender: {} as User,
 			channels: [] as Channel[],
 			selectedChannel: {} as Channel,
 			ModalManagerData: null as unknown,
 			updateTimestamp: 0 as number,
 			refreshTimestamp: 0 as number,
+			isChannelLoaded: false,
 		}
 	},
 
@@ -82,23 +80,24 @@ export default defineComponent({
 		this.sender.name = user['name'];
 		this.sender.img = user['avatarLink'];
 		this.channels = await this.getJoinedChannels();
+		if (sessionStorage.getItem('channelId')){
+			await this.fetchSeletedChannel();
+		}
+		this.isChannelLoaded = true;
 		await this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
 		setInterval(async () => {
 			const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 			sessionStorage.setItem('token', await token.text());
-		}, 1000 * 10);
+			console.log("token");
+		}, 1000 * 60 * 5);
 		// const response_test = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/count', { credentials: 'include' });
 		// console.log(await response_test.json());
 	},
 
-	updated() {
-		if (this.selectedChannel.messages) {
-			const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
-			if (lastMessage)
-				lastMessage[0].scrollIntoView();
-		}
+	async updated() {
+		// await this.fetchSeletedChannel();
 	},
 
 	methods: {
@@ -125,6 +124,8 @@ export default defineComponent({
 							sender_name: sender_name,
 							sender_img: sender_img,
 						});
+						if (this.selectedChannel.id === channelId)
+							this.selectedChannel = channel;
 					}
 				});
 			SocketService.getInstance.on('kick', (data: any) => {
@@ -137,8 +138,7 @@ export default defineComponent({
 							const channel_name = this.channels[i].name;
 							this.channels.splice(i, 1);
 							if (this.selectedChannel.id === channelId)
-								this.selectedChannel = {} as Channel;
-							this.showChannelDiv = false;
+								this.updateSelectedChannel(undefined);
 							const notif = useNotification()
 							notif.notify({
 								title: 'Erreur',
@@ -172,19 +172,22 @@ export default defineComponent({
 			SocketService.getInstance.on('updateFriendList', async () => {
 				this.refreshTimestamp = Date.now();
 				this.channels = await this.getJoinedChannels();
-				var chan: Channel = {} as Channel;
 				for (let channel of this.channels) {
 					channel.messages = await this.getChannelMessages(channel.id);
 					if (channel.id === this.selectedChannel.id)
-						chan = channel;
+						this.updateSelectedChannel(channel)
 				}
-				this.selectedChannel = chan;
+				
 			});
+
+			SocketService.getInstance.on('hideChan', (payload) => {
+				if (this.selectedChannel.name === payload)
+					this.updateSelectedChannel(undefined)
+			})
 		},
 
 		async showChannel(chan: Channel) {
-			this.showChannelDiv = true;
-			this.selectedChannel = chan;
+			this.updateSelectedChannel(chan)
 		},
 
 		async getJoinedChannels(): Promise<Channel[]> {
@@ -224,9 +227,8 @@ export default defineComponent({
 			if (response_json['ok'] === true) {
 				channel.owner = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channel.id + '/owner', { credentials: 'include' })).json())['id'];
 				this.channels.push(channel);
-				this.selectedChannel = channel;
+				this.updateSelectedChannel(channel);
 				this.selectedChannel.messages = await this.getChannelMessages(channel.id);
-				this.showChannelDiv = true;
 			}
 			else {
 				const notif = useNotification()
@@ -252,8 +254,7 @@ export default defineComponent({
 						catch { }
 					}
 					this.channels.splice(i, 1);
-					this.selectedChannel = {} as Channel;
-					this.showChannelDiv = false;
+					this.updateSelectedChannel(undefined);
 					break;
 				}
 			}
@@ -282,18 +283,20 @@ export default defineComponent({
 		},
 
 		async getChannelMessages(channelId: number): Promise<Message[]> {
+			const userMaps: Map<number, any> = new Map<number, any>;
 			const message_response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/' + channelId + '/list', { credentials: 'include' });
 			let messages = [] as Message[];
 			try {
 				const messages_json = await message_response.json();
 				for (let i = 0; i < messages_json.length; i++) {
-					const user = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].message_sender, { credentials: 'include' })).json();
+					if (!userMaps.get(messages_json[i].message_sender))
+						userMaps.set(messages_json[i].message_sender, await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/id/' + messages_json[i].message_sender, { credentials: 'include' })).json());
 					messages.push({
 						channelId: channelId,
 						text: messages_json[i].message_text,
-						sender: user['id'],
-						sender_name: user['name'],
-						sender_img: user['avatarLink'],
+						sender: userMaps.get(messages_json[i].message_sender)['id'],
+						sender_name: userMaps.get(messages_json[i].message_sender)['name'],
+						sender_img: userMaps.get(messages_json[i].message_sender)['avatarLink'],
 					});
 				}
 				return (messages);
@@ -309,7 +312,24 @@ export default defineComponent({
 				return;
 			}
 			this.showChannel(channel);
-		}
+		},
+
+		updateSelectedChannel(newChan: Channel | undefined){
+			if (newChan){
+				this.selectedChannel = newChan;
+				sessionStorage.setItem('channelId', String(newChan.id));
+			}
+			else {
+				this.selectedChannel = {} as Channel;
+				sessionStorage.removeItem('channelId');
+			}	
+		},
+
+		async fetchSeletedChannel(){
+			this.selectedChannel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId'))).json();
+			this.selectedChannel.messages = await this.getChannelMessages(parseInt(sessionStorage.getItem('channelId')));
+			this.selectedChannel.admins = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId') + '/getAdmins',)).json();
+		},
 	},
 });
 

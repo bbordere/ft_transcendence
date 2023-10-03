@@ -24,6 +24,9 @@ export default {
 			});
 			SocketService.getInstance.emit('refreshFriendListId', this.id1);
 			SocketService.getInstance.emit('refreshFriendListId', this.id2);
+			const text = await response.text();
+			SocketService.getInstance.emit('hideChan', this.id1, text);
+			SocketService.getInstance.emit('hideChan', this.id2, text);
 		},
 
 		async blockUser() {
@@ -92,6 +95,7 @@ export default {
 	transition: all 0.4s ease;
 	min-height: 600px;
 	min-width: 500px;
+	z-index: 3;
 }
 
 .modal_friend {
@@ -100,7 +104,7 @@ export default {
 	flex-direction: column;
 	justify-content: center;
 	right: 70%;
-	width: 30%;
+	width: 40%;
 	height: 30%;
 	background-color: white;
 	border-radius: 20px;

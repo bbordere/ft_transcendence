@@ -22,7 +22,7 @@
 		<div class="send_container" v-if="selectedChannel.name">
 			<form v-on:submit.prevent="sendMessage">
 				<div class="sendbox">
-					<input type="text" v-model="message" :placeholder="'Envoyer un message ' + inputString">
+					<input type="text" maxlength="280" v-model="message" :placeholder="'Envoyer un message ' + inputString">
 					<button type="button" @click="sendMessage()">
 						<font-awesome-icon icon="fa-solid fa-paper-plane" />
 					</button>
@@ -56,15 +56,16 @@ export default {
 			showMenu: false,
 			channelName: "",
 			inputString: "",
+			lastUpdate: 0,
 		};
 	},
 
 	async updated() {
-		if (this.selectedChannel.messages) {
-			await this.getChanName();
+		if (this.selectedChannel.messages && !this.lastUpdate) {
 			const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
-			if (lastMessage)
-				lastMessage[0].scrollIntoView(); 
+			setTimeout(() => {
+				lastMessage[0].scrollIntoView();
+			}, 20);
 		}
 	},
 
@@ -75,6 +76,22 @@ export default {
 	},
 
 	props: ['selectedChannel', 'sender'],
+
+	watch:{
+		selectedChannel: {
+			deep: true,
+			async handler(){
+				if (this.selectedChannel.messages) {
+					await this.getChanName();
+					const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
+						if (lastMessage){
+							lastMessage[0].scrollIntoView({ behavior: !this.lastUpdate || ((Date.now() - this.lastUpdate) < 60) ? 'instant' : 'smooth' });
+							this.lastUpdate = Date.now();
+						}
+				}
+			}
+		}
+	},
 
 	methods: {
 
@@ -131,6 +148,7 @@ export default {
 			const response_json = await response.json();
 			if (response_json['ok'])
 				this.$emit('removeChannel', id);
+			this.lastUpdate = 0;
 		},
 
 		showChatModal(msg: any) {

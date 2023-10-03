@@ -43,7 +43,7 @@ export class FriendService {
 		return ('');
 	}
 
-	async deleteFriend(id1: number, id2: number): Promise<void> {
+	async deleteFriend(id1: number, id2: number): Promise<string> {
 		let friendship = await this.friendRepository.findOne({where: {UserId: id1, FriendId: id2}});
 		if (!friendship)
 			friendship = await this.friendRepository.findOne({where: {UserId: id2, FriendId: id1}});
@@ -52,6 +52,7 @@ export class FriendService {
 		await this.chatService.delete(friendship.channel.name);
 		await this.friendRepository.delete({ UserId: id1, FriendId: id2 });
 		await this.friendRepository.delete({ UserId: id2, FriendId: id1 });
+		return (friendship.channel.name);
 	}
 
 	async acceptFriend(id1: number, id2: number): Promise<void> {

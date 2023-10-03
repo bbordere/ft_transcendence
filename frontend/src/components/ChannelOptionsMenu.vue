@@ -4,7 +4,7 @@
 	</div>
 	<Transition name="fade" mode="out-in">
 		<div v-show="showMenu" class="menu_content" @click.stop>
-			<button class="button_menu_channel" type="button" @click="$emit('quitChannel')">Quitter le channel</button>
+			<button class="button_menu_channel" type="button" @click="$emit('quitChannel'); toggle();">Quitter le channel</button>
 			<button class="button_menu_channel" v-if="isAdmin" type="button" @click="$emit('displayChannelOption', 'ban')">Bannir</button>
 			<button class="button_menu_channel" v-if="isAdmin" type="button" @click="$emit('displayChannelOption', 'unban')">Débannir</button>
 			<button class="button_menu_channel" v-if="isAdmin" type="button" @click="$emit('displayChannelOption', 'add_admin')">Ajouter Admin</button>
@@ -20,13 +20,12 @@
 		props: ['showMenu', 'isProtected', 'isAdmin'],
 	data () {
 		return {
-		active: false
+			active: false
 		}
 	},
 	methods: {
 		toggle () {
 				this.$emit('openMenu');
-				console.log(this.showMenu);
 			}
 		}
 	}

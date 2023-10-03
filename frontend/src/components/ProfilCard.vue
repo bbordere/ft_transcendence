@@ -34,40 +34,13 @@ export default {
 		logout(){
 			router.push("/auth/logout");
 		},
-		failure(){
+
+		notify(title: string, text: string, type: string){
 			const notification = useNotification()
 			notification.notify({
-				title: "Erreur",
-				text: "Mauvais format d'image !",
-				type: 'error',
-				group: 'notif-center'
-			});
-		},
-		updateNotif(){
-			// this.getUser();
-			const notification = useNotification()
-			notification.notify({
-				title: "Nom d'utilisateur changé !",
-				type: 'success',
-				group: 'notif-center'
-			});
-			this.$emit('update');
-		},
-		alreadyExistNotif(){
-			const notification = useNotification()
-			notification.notify({
-				title: "Erreur",
-				text: "Ce nom d'utilisateur existe déjà !",
-				type: 'error',
-				group: 'notif-center'
-			});
-		},
-		badFormatNotif(){
-			const notification = useNotification()
-			notification.notify({
-				title: "Erreur",
-				text: "Veuillez entrer un format valide !",
-				type: 'error',
+				title: title,
+				text: text,
+				type: type,
 				group: 'notif-center'
 			});
 		},
@@ -102,6 +75,7 @@ export default {
 				this.addFriendNotif("Demande d'ami envoyé", "success");
 				this.$emit('close');
 				SocketService.getInstance.emit('refreshFriendList', this.user.name);
+				SocketService.getInstance.emit('addFriendNotif', this.user.name);
 				this.isMyPage = true;
 			}
 		},
@@ -115,6 +89,9 @@ export default {
 			});
 			SocketService.getInstance.emit('refreshFriendListId', this.user.id);
 			SocketService.getInstance.emit('refreshFriendListId', SocketService.getUser.id);
+			const text = await response.text();
+			SocketService.getInstance.emit('hideChan', this.user.id, text);
+			SocketService.getInstance.emit('hideChan', SocketService.getUser.id, text);
 		},
 
 		async blockUser() {
@@ -160,7 +137,7 @@ export default {
 
 <template>
 	<div class="card">
-		<Avatar :editable="editable" :path="user.avatarLink" @updated="$emit('update')" @failure="failure" ></Avatar>
+		<Avatar :editable="editable" :path="user.avatarLink" @updated="$emit('update')" @failure="notify('Erreur', 'Mauvais format d\'image !', 'error')" ></Avatar>
 		<div class="userInfos">
 			<h1>{{ user.name }}</h1>
 		</div>
@@ -168,8 +145,9 @@ export default {
 			<Teleport to="body">
 				<transition name="slide-fade" mode="out-in">
 					<ChangeUsernameModal v-show="showModal" @close-modal="showModal = false"
-											@updated="updateNotif" @already-exist="alreadyExistNotif"
-											@bad-format="badFormatNotif">
+											@updated="notify('', 'Nom d\'utilisateur changé !', 'success'); $emit('update');"
+											@already-exist="notify('Erreur', 'Ce nom d\'utilisateur existe déjà !', 'error')"
+											@bad-format="notify('Erreur', 'Veuillez entrer un format valide !', 'error')">
 					</ChangeUsernameModal>
 				</transition>
 			</Teleport>
@@ -233,6 +211,7 @@ export default {
 
 .button-profile {
 	margin: 10px;
+	height: 50px;
 	/* font-size: clamp(0.75rem, 0.5577rem + 0.6154vw, 1rem); */
 }
 

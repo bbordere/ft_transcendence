@@ -1,9 +1,12 @@
 <template>
 	<div class="list">
-		<ul>
+		<ul v-if="channels_computed.length > 0">
 			<li v-for="channel in channels_computed" :class="clickedChannel(channel['id'])" @click="$emit('showChannel', channel)">
 				<span>{{ channel['name'] }}</span></li>
 		</ul>
+		<div v-else class="empty_chans">
+			Vous n'avez pas encore rejoint de channel !
+		</div>
 	</div>
 </template>
 <script lang="ts">
@@ -35,7 +38,6 @@ export default {
 	height: 100%;
 	align-items: center;
 	overflow-y: scroll;
-	/* background: red; */
 }
 
 .list ul {
@@ -72,4 +74,12 @@ export default {
 .selectedChannel {
 	background-color: #F0F8FF;
 }
+
+.empty_chans {
+	text-align: center;
+	/* background-color: blue; */
+	height: 100%;
+	width: 100%;
+}
+
 </style>

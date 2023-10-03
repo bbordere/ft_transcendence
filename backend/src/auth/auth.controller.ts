@@ -144,7 +144,6 @@ export class AuthController {
 	@Post('/refresh')
 	@UseGuards(JwtAuthGuard)
 	async refreshToken(@Req() req, @Res({passthrough: true}) res: Response){
-		console.log(req["user"]);
 		const tokens: string = await this.authService.getTokenByUser(req["user"]);
 		res.cookie('access_token', tokens, {httpOnly: true, sameSite: "lax"});
 	}

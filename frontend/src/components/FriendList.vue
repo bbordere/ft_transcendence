@@ -5,6 +5,7 @@ import BlockListCell from './BlockListCell.vue';
 import type { Channel } from '@/interfaces/channel.interface';
 import type { Message } from '@/interfaces/message.interface';
 import type { friendTab } from '@/interfaces/friendTab.interface';
+import { useNotification } from '@kyvg/vue3-notification';
 
 export default defineComponent({
 	components: {
@@ -19,6 +20,7 @@ export default defineComponent({
 			sender: -1 as number,
 			block: false as boolean,
 			print: 0 as number,
+			dataLoaded: false,
 		};
 	},
 
@@ -37,6 +39,7 @@ export default defineComponent({
 		this.sender = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json())['id'];
 		await this.fetchBlockList();
 		await this.fetchFriends();
+		this.dataLoaded = true;
 	},
 
 	methods: {
@@ -97,7 +100,6 @@ export default defineComponent({
 			async handler(){
 				await this.fetchFriends();
 				await this.fetchBlockList();
-				console.log("update");
 			}
 		},
 		updateTimestamp: {
@@ -112,19 +114,32 @@ export default defineComponent({
 
 <template>
 	<div class="friend_list_container">
-		<div class="friend_buttons_container">
-			<button class="tri" @click="print = 1;">Demande</button>
-			<button class="tri" @click="print = 2;">Bloqué</button>
-			<div v-if="getFriendRequest"  class="notifDemande">
-				<strong>{{ getFriendRequest }}</strong>
+		<transition name="fade2" mode="out-in">
+			<div class="friend_buttons_container">
+				<button class="tri" @click="print = 1;">Demandes</button>
+				<button class="tri" @click="print = 2;">Bloqué</button>
+				<div v-if="getFriendRequest"  class="notifDemande">
+					<strong>{{ getFriendRequest }}</strong>
+				</div>
 			</div>
-		</div>
-		<div v-if="print === 2" class="list_friend">
-			<BlockListCell v-for="block in blockList" :block=block :myId=sender></BlockListCell>
-		</div>
-		<div v-else class="list_friend">
-			<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print @showChannel="showChannelForwarder"></ProfilCell>
-		</div>
+		</transition>
+		<transition name="fade2" mode="out-in">
+			<div v-if="print === 2" class="list_friend">
+				<BlockListCell v-if="blockList.length > 0" v-for="block in blockList" :block=block :myId=sender></BlockListCell>
+				<div v-else class="empty_blocked">
+					Vous n'avez bloqué aucun utilisateur !
+				</div>
+			</div>
+			<div v-else-if="friends.length > 0" class="list_friend">
+				<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print @showChannel="showChannelForwarder"></ProfilCell>
+			</div>
+			<div v-else-if="dataLoaded && print === 1" class="empty_request">
+				Vous n'avez pas de demandes d'amis !
+			</div>
+			<div v-else-if="dataLoaded" class="empty_blocked">
+				Vous n'avez pas encore ajouté d'amis !
+			</div>
+		</transition>
 	</div>
 </template>
 
@@ -140,6 +155,11 @@ export default defineComponent({
 
 .friend_list_container{
 	height: 100%;
+}
+
+.empty_friends{
+	height: 100%;
+	text-align: center;	
 }
 
 .friend_buttons_container{
@@ -181,5 +201,10 @@ export default defineComponent({
 	margin-right: 20px;
 	margin-bottom: 20px;
 	color: white;
+}
+
+.empty_blocked {
+	text-align: center;
+	margin-top: 10px;
 }
 </style>

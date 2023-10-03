@@ -54,9 +54,10 @@ export class ChatService {
 
 	async addMessageToChannel(msg: {channelId: number, text: string, sender: number}) {
 		const {channelId, text, sender} = msg;
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['messages']});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
 		if (!channel)
 			return (null);
+		let messages = await this.messageRepository.find({where: {channel: channelId}});
 		const senderUser = await this.userRepository.createQueryBuilder('user')
 		.leftJoinAndSelect('user.channels', 'channels')
 		.where('user.id = ' + sender)
@@ -66,10 +67,10 @@ export class ChatService {
 			return (null);
 		const message = new Message();
 		message.text = text;
-		message.channel = channel;
+		message.channel = channel.id;
 		message.sender = senderUser.id;
 		const savedMessage = await this.messageRepository.save(message);
-		channel.messages.push(savedMessage);
+		messages.push(savedMessage);
 		const user = await this.userRepository.findOne({where: {id: sender}, relations: ['stats']});
 		user.stats.totalMessages++;
 		await this.userRepository.save(user);

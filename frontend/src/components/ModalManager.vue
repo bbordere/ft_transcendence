@@ -1,7 +1,7 @@
 <template>
 	<div class="social_buttons">
-		<button class="spe" @click="listView = true;">Channel</button>
-		<button class="spe" @click="listView = false;">Amitié</button>
+		<button class="spe" @click="handleClick(true, 1)" v-bind:class="{ 'focused': focusedButton === 1 }">Channel</button>
+		<button class="spe" @click="handleClick(false, 2)" v-bind:class="{ 'focused': focusedButton === 2 }">Amitiés</button>
 		<ButtonAdd icon="fa-solid fa-user-plus" @click="showModalFriend = true"></ButtonAdd>
 		<ButtonAdd icon="fa-circle-plus" @click="showModal = true"></ButtonAdd>
 		<Teleport to="body">
@@ -9,7 +9,7 @@
 			<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannelForwarder"></ModalAdd>
 			<KickUserModal :show="showKickModal" :channelId="selectedChannel.id" @close="showKickModal = false;"
 				@kick="notifyKickForwarder"></KickUserModal>
-				<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;">
+			<UnBanUserModal :show="showUnBanModal" :channelId="selectedChannel.id" @close="showUnBanModal = false;">
 			</UnBanUserModal>
 			<BanUserModal :show="showBanModal" :channelId="selectedChannel.id"
 				@close="showBanModal = false;" @kick="notifyKickForwarder"></BanUserModal>
@@ -57,6 +57,7 @@ export default {
 			showRemoveAdminModal: false,
 			showAddPasswordModal: false,
 			showKickModal: false,
+			focusedButton: 2,
 		}
 	},
 
@@ -71,6 +72,11 @@ export default {
 
 		updateButtonForwarder() {
 			this.$emit('updateButton');
+		},
+
+		handleClick(listviewState: boolean, buttonId: number){
+			this.listView = listviewState;
+			this.focusedButton = buttonId;
 		},
 	},
 }
@@ -109,7 +115,11 @@ export default {
 	background-color: #032f3d;
 }
 
-.spe:focus {
+/* .spe:focus {
+	background-color: #032f3d;
+} */
+
+.focused {
 	background-color: #032f3d;
 }
 </style>

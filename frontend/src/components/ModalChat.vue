@@ -38,7 +38,9 @@ export default {
 			});
 			SocketService.getInstance.emit('refreshFriendListId', this.connected_user.id);
 			SocketService.getInstance.emit('refreshFriendListId', this.friendId);
-			SocketService.getInstance.emit('refreshChannels');
+			const text = await response.text();
+			SocketService.getInstance.emit('hideChan', this.connected_user.id, text);
+			SocketService.getInstance.emit('hideChan', this.friendId, text);
 		},
 
 		async blockUser() {
@@ -64,7 +66,6 @@ export default {
 			const user = await user_resp.json();
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.selectedChannel.id + '/kick', { credentials: 'include', method: 'POST' });
 			const response_json = await response.json();
-			console.log(response_json);
 			if (response_json['ok']) {
 				SocketService.getInstance.emit('kick', this.$props.selectedChannel.id, user['id'], false);
 				this.$emit('close');

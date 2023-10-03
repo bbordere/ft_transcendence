@@ -58,7 +58,7 @@ import { SocketService } from '@/services/SocketService';
 	
 <style>
 
-.match-card{
+.match-card {
 	border-radius: 30px;
 	background-color: rgba(34, 158, 230, 0.103);
 	width: 90%;
@@ -69,7 +69,7 @@ import { SocketService } from '@/services/SocketService';
 	font-size: clamp(0.875rem, 0.5077rem + 0.6186vw, 1.25rem);
 }
 
-.player-card{
+.player-card {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -79,13 +79,13 @@ import { SocketService } from '@/services/SocketService';
 	font-size: clamp(0.75rem, 0.2603rem + 0.8247vw, 1.25rem);
 }
 
-.score-card{
+.score-card {
 	display: flex;
 	justify-content: center;
 	flex-direction: column;
 }
 
-.avatar-match{
+.avatar-match {
 	border-radius: 50%;
 	width: 20%;
 	aspect-ratio: 1;
@@ -93,29 +93,29 @@ import { SocketService } from '@/services/SocketService';
 	transition: background-color 0.5s ease;
 }
 
-.avatar-match:hover{
+.avatar-match:hover {
 	opacity: 0.5;
 	cursor: pointer;
 }
 
 @media screen and (max-width: 950px) {
-	.match-card{
+	.match-card {
 		height: 25%;
 		font-size: clamp(0.5rem, -0.3333rem + 2.6667vw, 1.25rem);
 	}
-	.player-card{
+	.player-card {
 		justify-content: center;
 		font-size: 70%;
 		font-weight: bold;
 	}
-	.mode{
+	.mode {
 		margin-top: 1px;
 		font-size: 1.7vw;
 	}
 	.avatar-match {
 		display: none;
 	}
-	.score-text{
+	.score-text {
 		font-size: clamp(0.5rem, -0.3333rem + 2.6667vw, 1.25rem);
 	}
 }

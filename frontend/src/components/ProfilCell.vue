@@ -110,40 +110,48 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)"
-		@click="showChannel(friend)">
-		<div class="img_user">
-			<img alt="avatar" class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
+	<transition name="fade2" mode="out-in">
+		<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)"
+			@click="showChannel(friend)">
+			<div class="img_user">
+				<img alt="avatar" class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
+			</div>
+			<div class="name_cell">
+				{{ friend.username }}
+			</div>
+			<div :style="{ 'color': borderColor }">
+				<font-awesome-icon @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" icon="fa-solid fa-gamepad" :class="{'inviteButton': borderColor === 'green'}" @click="borderColor === 'green' ? (modalInvite = true) : null"></font-awesome-icon>
+				<span class="tooltip" v-if="showTooltip">{{ stateText }}</span>
+			</div>
+			<div v-on:click="modalHamburger = true" class="menu-button">
+				<font-awesome-icon icon="fa-solid fa-xmark" />
+			</div>
+			<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="myId" :id2="friend.id" :username="friend.username"></hamburger>
+			<invite :show="modalInvite" @close="modalInvite = false" :myId="myId" :friendId="friend.id"></invite>
 		</div>
-		<div class="name_cell">
-			{{ friend.username }}
+		<div class="box" v-else-if="dataLoaded && print === 1 && friend.request !== myId && friend.status === 'pending' && !blockList.includes(friend.id)">
+			<div class="img_user">
+				<img alt="avatar" class="img_user_profil" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
+			</div>
+			<div class="name_cell">
+				{{ friend.username }}
+			</div>
+			<div class="buttons_profilCell">
+				<button class="green_color" v-on:click="acceptFriend">
+					<font-awesome-icon icon="fa-solid fa-check"/>
+				</button>
+				<button class="red_color" v-on:click="deleteUser">
+					<font-awesome-icon icon="fa-solid fa-xmark"/>
+				</button>
+			</div>
 		</div>
-		<div :style="{ 'color': borderColor }">
-			<font-awesome-icon @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" icon="fa-solid fa-gamepad" :class="{'inviteButton': borderColor === 'green'}" @click="borderColor === 'green' ? (modalInvite = true) : null"></font-awesome-icon>
-			<span class="tooltip" v-if="showTooltip">{{ stateText }}</span>
+		<div v-else-if="dataLoaded && print === 1" class="empty_request">
+			Vous n'avez pas de demandes d'amis !
 		</div>
-		<div v-on:click="modalHamburger = true" class="menu-button">
-			<font-awesome-icon icon="fa-solid fa-xmark" />
+		<div v-else-if="dataLoaded" class="empty_request">
+			Vous n'avez pas encore ajouté d'amis !
 		</div>
-		<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="myId" :id2="friend.id" :username="friend.username"></hamburger>
-		<invite :show="modalInvite" @close="modalInvite = false" :myId="myId" :friendId="friend.id"></invite>
-	</div>
-	<div class="box" v-else-if="dataLoaded && print === 1 && friend.request !== myId && friend.status === 'pending' && !blockList.includes(friend.id)">
-		<div class="img_user">
-			<img alt="avatar" class="img_user_profil" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
-		</div>
-		<div class="name_cell">
-			{{ friend.username }}
-		</div>
-		<div class="buttons_profilCell">
-			<button class="green_color" v-on:click="acceptFriend">
-				<font-awesome-icon icon="fa-solid fa-check"/>
-			</button>
-			<button class="red_color" v-on:click="deleteUser">
-				<font-awesome-icon icon="fa-solid fa-xmark"/>
-			</button>
-		</div>
-	</div>
+	</transition>
 </template>
 
 <style>
@@ -263,6 +271,11 @@ export default defineComponent({
 	border: 2px #515151 solid;
 	cursor: pointer;
 	color: white;
+}
+
+.empty_request {
+	text-align: center;
+	margin-top: 10px;
 }
 
 </style>

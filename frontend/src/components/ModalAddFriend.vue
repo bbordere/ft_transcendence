@@ -43,6 +43,7 @@ export default {
 				this.addFriendNotif("Demande d'ami envoyé", "success");
 				this.$emit('close');
 				SocketService.getInstance.emit('refreshFriendList', this.username);
+				SocketService.getInstance.emit('addFriendNotif', this.username);
 			}
 			else
 				this.addFriendNotif(ret, "error");

@@ -220,4 +220,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const target = await this.userService.getById(payload);
 		this.clients.get(target?.id)?.client_socket.emit('updateFriendList');
 	}
+
+	@SubscribeMessage('hideChan')
+	async hideChan(client: Socket, payload: string[]){
+		const target = await this.userService.getById(parseInt(payload[0]));
+		this.clients.get(target?.id)?.client_socket.emit('hideChan', payload[1]);
+	}
+
+	@SubscribeMessage('addFriendNotif')
+	async displayFriendNotif(client: Socket, payload: string){
+		const target = await this.userService.getByName(payload);
+		this.clients.get(target?.id)?.client_socket.emit('friendNotif');
+	}
 }

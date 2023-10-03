@@ -2,6 +2,7 @@
 import router from '@/router';
 import { SocketService } from '@/services/SocketService';
 import { State } from '@/views/Home.vue';
+import { useNotification } from '@kyvg/vue3-notification';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -36,6 +37,14 @@ export default defineComponent({
 
 	async created() {
 		await this.getInfos();
+		SocketService.getInstance.on('friendNotif', () =>{
+			const notif = useNotification();
+			notif.notify({
+				type: 'status',
+				text: "Vous avez reçu une demande d'ami !",
+				group: 'notif-center'
+			});
+		})
 	},
 
 })

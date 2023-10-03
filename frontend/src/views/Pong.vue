@@ -298,34 +298,4 @@ export default {
 	font-family: 'digital-clock-font', regular;
 }
 
-@media screen and (max-width: 800px) {
-	.pong_content{
-		/* background: red; */
-		/* flex-direction: column; */
-		display: grid;
-		/* grid-template-columns: repeat(3, 1fr); */
-		/* grid-template-rows: repeat(5, 1fr); */
-		/* grid-template-rows: 1fr min-content; */
-		grid-column-gap: 0px;
-		grid-row-gap: 0px;
-		/* background: yellow; */
-	}
-
-	.left_column_pong {
-		width: 100%;
-		grid-area: 1 / 1 / 2 / 2;
-		/* background: yellow; */
-	}
-	
-	.middle_column_pong {
-		width: 100%;
-		grid-area: 3 / 1 / 6 / 4;
-		/* background: blue; */
-	}
-
-	.right_column_pong {
-		width: 100%;
-		grid-area: 1 / 3 / 2 / 4;
-	}
-}
 </style>
