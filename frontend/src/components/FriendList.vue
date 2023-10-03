@@ -21,6 +21,7 @@ export default defineComponent({
 			block: false as boolean,
 			print: 0 as number,
 			dataLoaded: false,
+			selectedFriend: {} as friendTab,
 		};
 	},
 
@@ -92,6 +93,14 @@ export default defineComponent({
 
 		showChannelForwarder(channelId: number): void {
 			this.$emit('showPrivateMessage', channelId);
+		},
+
+		selectFriend(friend: friendTab): void {
+			this.selectedFriend = friend;
+		},
+
+		getSelectedFriendClass(friend: friendTab): string {
+			return (friend === this.selectedFriend ? 'selected' : '');
 		}
 	},
 
@@ -206,5 +215,9 @@ export default defineComponent({
 .empty_blocked {
 	text-align: center;
 	margin-top: 10px;
+}
+
+.selected {
+	background-color: #F0F8FF;
 }
 </style>

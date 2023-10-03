@@ -4,9 +4,9 @@
 			<div class="left_column">
 				<PlayButton />
 				<div class="friend_list">
-					<ModalManager :selectedChannel="selectedChannel" :sender="sender"
-					@joinChannel="joinChannel" @updateButton='selectedChannel.protected = true;'
-						ref="ModalManager" @click="updateTimestamp = Date.now()"/>
+					<ModalManager :selectedChannel="selectedChannel" :sender="sender" @joinChannel="joinChannel"
+						@updateButton='selectedChannel.protected = true;' ref="ModalManager"
+						@click="updateTimestamp = Date.now()" />
 					<Transition name="fade2" mode="out-in">
 						<ChannelList v-if="ModalManagerData && ModalManagerData.listView" :channels="channels"
 						:selectedChannel="selectedChannel" @showChannel="showChannel" />
@@ -104,7 +104,24 @@ export default defineComponent({
 		async init() {
 			this.$emit('socketReady');
 			SocketService.getInstance.on('mute', (data: any) => {
-				console.log(data);
+				const { started, channelName, id } = data;
+				let message;
+				const channel = this.findChannel(id);
+				if (started) {
+					message = `Vous avez été mute du channel: ${channelName}.`;
+					channel.muted = true;
+				}
+				else {
+					message = `Vous avez été unmute du channel: ${channelName}.`;
+					channel.muted = false;
+				}
+				const notif = useNotification();
+				notif.notify({
+					title: "Mute",
+					type: started ? 'error' : 'success',
+					text: message,
+					group: 'notif-center',
+				});
 			});
 			SocketService.getInstance.on('message',
 				(data: {
@@ -142,7 +159,7 @@ export default defineComponent({
 							const notif = useNotification()
 							notif.notify({
 								title: 'Erreur',
-								text: `Vous avez ete ${ban ? 'ban' : 'kick'} du channel: ${channel_name}`,
+								text: `Vous avez été ${ban ? 'ban' : 'kick'} du channel: ${channel_name}`,
 								type: 'error',
 								group: 'notif-center',
 							});
@@ -160,7 +177,7 @@ export default defineComponent({
 							const notif = useNotification();
 							notif.notify({
 								title: 'Nouvel owner',
-								text: `Vous avez ete promu owner du channel ${this.channels[i].name}`,
+								text: `Vous avez été promu owner du channel ${this.channels[i].name}`,
 								type: 'success',
 								group: 'notif-center',
 							});
@@ -202,6 +219,7 @@ export default defineComponent({
 					isPrivate: channels_json[i]['isPrivate'],
 					protected: channels_json[i]['protected'],
 					admins: await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/getAdmins', { credentials: 'include' })).json(),
+					muted: false,
 				});
 			}
 			return (channels);
@@ -369,14 +387,11 @@ h1 {
 	max-width: 450px;
 }
 
-.chat_container{
+.chat_container {
 	max-width: 800px;
-	/* width: 100%; */
-	/* height: 100%; */
 }
 
 .friend_list {
-	/* position: relative; */
 	display: flex;
 	flex-direction: column;
 	height: 80%;

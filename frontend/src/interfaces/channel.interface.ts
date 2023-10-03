@@ -4,8 +4,9 @@ export interface Channel {
 	id: number;
 	name: string;
 	owner: number;
-	messages: Message[],
-	protected: boolean,
-	isPrivate: boolean,
+	messages: Message[];
+	protected: boolean;
+	isPrivate: boolean;
 	admins: number[];
+	muted: boolean;
 }
