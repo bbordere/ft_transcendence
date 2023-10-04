@@ -6,7 +6,7 @@ import router from './router'
 import type { RouteRecordName } from 'vue-router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus, faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane} from '@fortawesome/free-solid-svg-icons'
+import { faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus, faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane, faTrophy} from '@fortawesome/free-solid-svg-icons'
 import VueApexCharts from "vue3-apexcharts";
 import Notifications from '@kyvg/vue3-notification'
 
@@ -15,7 +15,7 @@ async function isLogged() {
 	return ((res.status != 401));
 }
 
-library.add(faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus, faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane);
+library.add(faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus, faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane, faTrophy);
 const app = createApp(App)
 
 router.beforeEach(async (to, from, next) => {

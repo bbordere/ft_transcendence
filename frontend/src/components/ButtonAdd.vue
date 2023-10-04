@@ -1,28 +1,75 @@
 <template>
-	<button class="add-button"><font-awesome-icon :icon="this.icon"/> {{ this.text }}</button>
+	<div class="add_container">
+		<button class="add-button"><font-awesome-icon :icon="this.icon"/> {{ this.text }}</button>
+		<span class="tooltiptext">{{tooltip_text}}</span>
+	</div>
 </template>
 
 <script lang="ts">
 
 export default{
-	props: ["text", "icon"],
+	props: ["text", "icon", "tooltip_text"],
 }
 
 </script>
 
 <style>
 
-.add-button{
-	display: flex;
-	justify-content: center;
-	align-items: center;
+.add_container {
+	height: 90%;
+	width: 25%;
+	position: relative;
+	display: inline-block;
 	border-radius: 120px;
+}
+
+.add_container .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #032f3d;
+
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+ 
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+
+  width: 120px;
+  bottom: 120%;
+  left: 50%;
+  margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+  font-size: clamp(0.625rem, 0.4327rem + 0.6154vw, 0.875rem);
+}
+
+.add_container .tooltiptext::after {
+    content: " ";
+    position: absolute;
+    top: 100%; /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+}
+
+.add_container:hover .tooltiptext {
+  visibility: visible;
+}
+
+.add-button{
+	border-radius: 120px;
+	/* display: flex; */
+	/* justify-content: center; */
+	/* align-items: center; */
 	background-color: #046280;
-	height: 75%;
-	width: 25%;;
+	height: 100%;
+	width: 100%;;
 	color: white;
 	border: none;
-	font-size: 1em;
+	font-size: clamp(0.625rem, 0.3365rem + 0.9231vw, 1rem);
 	overflow: hidden;
 	cursor: pointer;
 }

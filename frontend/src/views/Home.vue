@@ -343,6 +343,7 @@ export default defineComponent({
 			this.selectedChannel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId'))).json();
 			this.selectedChannel.messages = await this.getChannelMessages(parseInt(sessionStorage.getItem('channelId')));
 			this.selectedChannel.admins = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId') + '/getAdmins',)).json();
+			this.selectedChannel.owner = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.selectedChannel.id + '/owner', { credentials: 'include' })).json())['id'];
 		},
 	},
 });

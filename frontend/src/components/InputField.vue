@@ -21,7 +21,7 @@
 <script setup lang="ts">
 	import { ref } from 'vue';
 	let status = ref("");
-	const emit = defineEmits(['complete']);
+	const emit = defineEmits(['complete', 'reset']);
 	const props = defineProps(['isInvalidCode']);
 
 	let codeArr: string[] = ["", "", "", "", "", ""];
@@ -42,8 +42,9 @@
 	function handleInput(event: Event){
 		const inputType = (event as InputEvent).inputType;
 		let currentActiveElement = event.target as HTMLInputElement;
-		if (props.isInvalidCode)
-			codeArr = ["", "", "", "", "", ""];
+		if (props.isInvalidCode){
+			emit('reset');
+		}
 		if (inputType === "insertText")
 			(currentActiveElement.nextElementSibling as HTMLElement)?.focus();
 		if (inputType === "insertFromPaste" && inputData) {

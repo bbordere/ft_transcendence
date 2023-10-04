@@ -210,7 +210,7 @@ export default {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background: #F0F8FF;
+	background: white;
 	/* background-color: red; */
 	/* background: #fff9cf; */
 	border: 3px solid #515151;

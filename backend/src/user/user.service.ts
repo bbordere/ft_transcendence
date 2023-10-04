@@ -27,12 +27,12 @@ export class UserService {
 		return (res += "invalide !");
 	}
 
-	async getPartialUser(user: User): Promise<Partial<User>>{
+	getPartialUser(user: User): Partial<User>{
 		return {
 			id: user.id,
 			email: user.email,
 			name: user.name,
-			auth2f: user.auth2f,
+			// auth2f: user.auth2f,
 			avatarLink: user.avatarLink,
 			stats: user.stats,
 		}
@@ -239,5 +239,11 @@ export class UserService {
 	async getBlockList(userId: number) {
 		let user = await this.usersRepository.findOne({where: {id: userId}});
 		return (user.blockList);
+	}
+
+	async getLeaderBoard(){
+		const users = (await this.usersRepository.find()).map((user) => this.getPartialUser(user));
+		users.sort((a, b) => b.stats.mmr - a.stats.mmr);
+		return (users);
 	}
 }

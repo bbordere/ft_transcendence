@@ -40,6 +40,10 @@ export default {
 	overflow-y: scroll;
 }
 
+.list::-webkit-scrollbar {
+  display: none;
+}
+
 .list ul {
 	margin: 0;
 	padding: 0;

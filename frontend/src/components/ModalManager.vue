@@ -2,8 +2,9 @@
 	<div class="social_buttons">
 		<button class="spe" @click="handleClick(true, 1)" v-bind:class="{ 'focused': focusedButton === 1 }">Channel</button>
 		<button class="spe" @click="handleClick(false, 2)" v-bind:class="{ 'focused': focusedButton === 2 }">Amitiés</button>
-		<ButtonAdd icon="fa-solid fa-user-plus" @click="showModalFriend = true"></ButtonAdd>
-		<ButtonAdd icon="fa-circle-plus" @click="showModal = true"></ButtonAdd>
+		<ButtonAdd tooltip_text="Ajouter un ami" icon="fa-solid fa-user-plus" @click="showModalFriend = true"></ButtonAdd>
+		<ButtonAdd tooltip_text="Rejoindre un channel" icon="fa-circle-plus" @click="showModal = true"></ButtonAdd>
+		<ButtonAdd tooltip_text="Classement" icon="fa-trophy" @click="showLeaderboard = true"></ButtonAdd>
 		<Teleport to="body">
 			<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>
 			<ModalAdd :show="showModal" @close="showModal = false" @newChannel="joinChannelForwarder"></ModalAdd>
@@ -18,6 +19,7 @@
 			<RemoveAdminModal :show="showRemoveAdminModal" :channelId="selectedChannel.id" :sender="sender" @close='showRemoveAdminModal = false;' />
 			<AddPasswordModal :show="showAddPasswordModal" :channelId="selectedChannel.id" :sender="sender" @close="showAddPasswordModal = false;"
 				@updateButton="updateButtonForwarder" />
+			<Leaderboard :show="showLeaderboard" @close="showLeaderboard = false;"></Leaderboard>
 		</Teleport>
 	</div>
 </template>
@@ -30,6 +32,7 @@ import AddAdminModal from './AddAdminModal.vue';
 import RemoveAdminModal from './RemoveAdminModal.vue';
 import AddPasswordModal from './AddPasswordModal.vue';
 import BanUserModal from './BanUserModal.vue';
+import Leaderboard from './Leaderboard.vue';
 
 export default {
 	components: {
@@ -40,7 +43,8 @@ export default {
 		AddAdminModal,
 		RemoveAdminModal,
 		AddPasswordModal,
-		BanUserModal
+		BanUserModal,
+		Leaderboard,
 	},
 
 	props: ['selectedChannel', 'sender'],
@@ -58,6 +62,7 @@ export default {
 			showAddPasswordModal: false,
 			showKickModal: false,
 			focusedButton: 2,
+			showLeaderboard: false,
 		}
 	},
 
@@ -101,7 +106,7 @@ export default {
 	background-color: #046280;
 	height: 90%;
 	flex-shrink: 0;
-	width: 37%;
+	width: 28%;
 	overflow: hidden;
 	border-radius: 20px;
 	border: none;

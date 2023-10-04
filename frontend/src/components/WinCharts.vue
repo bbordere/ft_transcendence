@@ -2,6 +2,7 @@
 	<div class="chart">
 		<div v-if="show">
 			<apexchart type="donut" :options="chartOptions" :series="getSerie()"></apexchart>
+			<!-- <div class="title">Ratio Victoires / Défaites</div> -->
 		</div>
     </div>
 </template>
@@ -18,8 +19,15 @@ export default{
 					show: false
 				},
 				title: {
-					text: "Taux de victoires",
+					margin: 50,
+					text: "Ratio Victoires / Défaites",
 					align: 'center',
+					style: {
+						fontSize:  '16px',
+						fontWeight:  'bold',
+						fontFamily:  undefined,
+						color:  '#263238'
+					},
 				},
 				labels: ['Victoires', 'Défaites'],
 				plotOptions: {
@@ -30,7 +38,7 @@ export default{
 					},
 				},
 				responsive: [{
-					breakpoint: 480,
+					breakpoint: 950,
 				}],
 				colors:['#00A300', '#D22B2B'],
 			},
@@ -48,7 +56,17 @@ export default{
 
 </script>
 
-<style>
+<style scoped>
+
+	.title {
+		position: absolute;
+		/* background-color: red; */
+		text-align: center;
+		width: 100%;
+		bottom: 30%;
+		/* left: 50%; */
+	}
+
 	.chart{
 		/* margin-top: 20%; */
 		/* margin-top: 1vh; */
@@ -57,13 +75,14 @@ export default{
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		position: relative;
 	}
 
 	.text-chart{
 		display: none;
 	}
 
-	@media screen and (max-width: 550px) {
+	@media screen and (max-width: 950px) {
 		.chart{
 			display: none;
 		}

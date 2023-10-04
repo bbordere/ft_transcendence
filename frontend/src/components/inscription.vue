@@ -51,18 +51,18 @@ async function register(){
     <div v-if="show" class="modal-mask" @click="$emit('close')">
     	<div class="modal-container" @click.stop>
         	<div class="modal-body">
-				<span class="text">inscription</span>
+				<span class="text">Inscription</span>
 					<div class="form">
 						<div class="field">
-							<input type="email" placeholder="@ email" v-model="email" />
+							<input type="email" placeholder="Email" v-model="email" />
 						</div>
 						<div class="field">
-							<input type="text" placeholder="pseudo" v-model="pseudo" />
+							<input type="text" placeholder="Nom d'utilisateur" v-model="pseudo" />
 						</div>
 						<div class="field">
-							<input type="password" placeholder="mot de passe" v-model="password" />
+							<input type="password" placeholder="Mot de passe" v-model="password" />
 						</div>
-						<button @click="register">inscription</button>
+						<button @click="register">S'inscrire</button>
 						</div>
         		</div>
     		</div>
@@ -73,7 +73,7 @@ async function register(){
 <style scoped>
 .modal-mask {
 	position: fixed;
-	z-index: 9998;
+	z-index: 2;
 	left: 0;
 	top: 0;
 	width: 100%;
@@ -85,10 +85,10 @@ async function register(){
 
 .modal-container {
 	margin: auto;
-	background-color: #B4CFECD0;
+	background: #EBECF0;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
 
-	width:450px;
+	width: 400px;
 	height: auto;
 	padding: 40px 30px;
 	display: flex;
@@ -137,7 +137,7 @@ async function register(){
 	font-size: 18px;
 	line-height: 50px;
 	font-weight: 600;
-	background: #dde1e7;
+	/* background: #dde1e7; */
 	border-radius: 25px;
 	border: none;
 	outline: none;
@@ -145,6 +145,7 @@ async function register(){
 	color: #595959;
 	box-shadow:  4px 4px 4px #616161,
              -4px -4px 4px #eaeaea;
+	background: white;	
 }
 
 .form button:focus {
@@ -170,7 +171,7 @@ async function register(){
 	outline: none;
 	border: none;
 	font-size: 18px;
-	background: #dde1e7;
+	/* background: #dde1e7; */
 	color: #595959;
 	border-radius: 25px;
 	box-shadow: inset 2px 2px 5px #BABECC,

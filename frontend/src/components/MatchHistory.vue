@@ -7,7 +7,7 @@
 			</div>
 		</div>
 		<div v-else class="no-match">
-			Pas de matchs joues ! 
+			Pas de matchs joués ! 
 		</div>
 	</div>
 </template>

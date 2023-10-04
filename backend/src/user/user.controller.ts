@@ -22,6 +22,11 @@ export class UserController {
 		const user = await this.userService.getById(id);
 		return (this.userService.getPartialUser(user));
 	}
+
+	@Get('/leaderboard')
+	async getLeaderboardData(){
+		return await this.userService.getLeaderBoard();
+	}
 	
 	@Get(":name")
 	async getUserByName(@Param('name') name: string){

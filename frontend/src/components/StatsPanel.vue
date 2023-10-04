@@ -1,14 +1,14 @@
 <template>
 	<div class="panel">
 		<div class="left-panel">
-			<div class="centered-panel-item">
+			<div class="centered-panel-item" id="ch">
 				<div v-if="dataLoaded && (stats.wins + stats.looses)">
-					<div v-if="windowWidth >= 700" class="chart">
+					<div v-if="windowWidth > 950" class="chart">
 						<WinCharts :wins="stats.wins" :looses="stats.looses" :show="dataLoaded"></WinCharts>
 					</div>
 					<div v-else class="small-winrate">
 						<div class="small-winrate-title">
-							Taux de victoires: {{ ((this.stats.wins * 100) /  (this.stats.wins +this.stats.looses)).toFixed(2) }}%
+							Ratio victoires / défaites: {{ ((this.stats.wins * 100) /  (this.stats.wins +this.stats.looses)).toFixed(2) }}%
 						</div>
 						<div class="small-winrate-text">
 							Victoires: {{ stats.wins }}
@@ -23,11 +23,14 @@
 				</div>
 			</div>
 			<div class="centered-panel-item">
-				<div class="titleRank">Classement</div>
+				<div class="rank_container">
+					<div class="titleRank">Classement</div>
+					<span class="rank">{{userRank}}er / {{ totalUsers }}</span>
+				</div>
 				<div class="split-stats">
 					<div class="rank-stat">
 						<h5>Côte</h5>
-						{{ stats.mmr }} mmr					
+						{{ stats.mmr }} pts					
 					</div>
 					<div class="rank-stat">
 						<h5>Score Moyen</h5>
@@ -58,10 +61,9 @@
 					{{ this.stats["totalFriendsDuel"] }}
 					<h5>Nombre de Powerups Activés</h5>
 					{{ this.stats["totalPowerups"] }}
-					<hr/>
 					<h5>Nombre de Messages Envoyés</h5>
 					{{ this.stats["totalMessages"] }}
-					<h5>Nombre de Emotes Envoyes</h5>
+					<h5>Nombre d'emotes Envoyées</h5>
 					{{ this.stats["totalEmotes"] }}
 				</div>
 			</div>
@@ -79,7 +81,12 @@ export default{
 	},
 	props: ["user"],
 	data(){
-		return {stats: Object, dataLoaded: false, windowWidth: window.innerWidth,};
+		return {stats: Object,
+				dataLoaded: false,
+				windowWidth: window.innerWidth,
+				userRank: 0,
+				totalUsers: 0,
+		};
 	},
 
 	methods:{
@@ -87,9 +94,13 @@ export default{
 			this.windowWidth = window.innerWidth;
 		},
 	},
-	mounted(){
+	async mounted(){
 		window.addEventListener('resize', this.handleResize);
 		this.stats = this.user.stats;
+		const json = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/stats/rank/' + this.stats.id,
+		{credentials: 'include',})).json()
+		this.userRank = json["rank"];
+		this.totalUsers = json["total"];
 		this.dataLoaded = true;
 	},
 }
@@ -98,7 +109,39 @@ export default{
 
 
 
-<style>
+<style scoped>
+
+#ch{
+	max-height: 50%;
+}
+
+.rank_container {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
+
+.rank {
+	text-align: center;
+	/* width: 100%; */
+	/* background-color: red; */
+	font-size: clamp(0.625rem, 0.4327rem + 0.6154vw, 0.875rem);
+}
+
+.titleRank{
+    /* display: block; */
+    /* margin-top: 1em; */
+    /* margin-bottom: 1em; */
+    /* margin-left: 0; */
+    /* margin-right: 0; */
+    font-weight: bold;
+	/* padding-top: 0%; */
+	/* margin-top: 0; */
+	font-size: clamp(0.6875rem, 0.1319rem + 1.7778vw, 1.1875rem);
+	/* background-color: blue; */
+}
 
 .small-winrate{
 	/* background-color: rgb(180, 154, 206); */
@@ -144,7 +187,6 @@ export default{
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	flex-flow: column wrap;
 }
 
 .stat-panel-item {
@@ -156,18 +198,6 @@ export default{
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-}
-
-.titleRank{
-    display: block;
-    margin-top: 1em;
-    margin-bottom: 1em;
-    margin-left: 0;
-    margin-right: 0;
-    font-weight: bold;
-	padding-top: 0%;
-	margin-top: 0;
-	font-size: clamp(0.6875rem, 0.1319rem + 1.7778vw, 1.1875rem);
 }
 
 .split-stats{
@@ -208,14 +238,20 @@ h3{
 .list-stats {
 	text-align: center;
 	overflow-y: auto;
+	/* overflow: scroll; */
+	height: 80%;
+	width: 90%;
+	border-radius: 20px;
 }
 
 h5{
 	font-size: clamp(0.4375rem, -0.1875rem + 2vw, 1rem);
+	font-size: clamp(0.625rem, 0.3365rem + 0.9231vw, 1rem);
 }
 
 h3{
 	font-size: clamp(0.6875rem, -0.0764rem + 2.4444vw, 1.375rem);
+	/* font-size: clamp(0.625rem, 0.3365rem + 0.9231vw, 1rem); */
 }
 
 </style>

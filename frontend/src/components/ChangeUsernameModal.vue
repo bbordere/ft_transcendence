@@ -84,7 +84,7 @@ export default{
 	text-align: center;
 	background-color: white;
 	height: 30%;
-	width: 40%;
+	width: 30%;
 	margin-top: auto;
 	margin-bottom: auto;
 	padding: 60px 0;

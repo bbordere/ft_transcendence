@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
 import { StatsService } from './stats.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Request, Response } from 'express'
@@ -27,5 +27,10 @@ export class StatsController {
 		else{
 			return await this.statsService.getUserStats(user["stats"]["id"]);
 		}
+	}
+
+	@Get('/rank/:id')
+	async getRank(@Param('id') id : number){
+		return await this.statsService.getRankPosition(id);
 	}
 }

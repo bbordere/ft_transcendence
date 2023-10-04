@@ -8,7 +8,6 @@ import router from '../router'
 const email = ref('')
 const password = ref('')
 const showModal = ref(false)
-const status = ref('')
 
 sessionStorage.removeItem('channelId');
 
@@ -65,20 +64,14 @@ async function login(){
 <div class="connection">
 	<div class= "co-42">
 		<img class="logo42" src="../assets/img/42.png" alt="logo 42">
-		<button @click="$redirect('/auth/42/login')" type="button" class="btn42">Login</button>
-		
-
+		<button @click="$redirect('/auth/42/login')" type="button" class="btn42">Connexion</button>
 	</div>
 	<div class= "co-email">
-		<span class="text">Connection</span>
+		<span class="text">Authentification</span>
 		<div class="form">
-			<div class="field">
-				<input type="email" id="email" placeholder="Email / pseudo" v-model="email" />
-			</div>
-			<div class="field">
-				<input type="password" placeholder="Mot de passe" v-model="password" />
-			</div>
-			<button @click="login">Connection</button>
+			<input class="field" type="email" id="email" placeholder="Email / pseudo" v-model="email" />
+			<input class="field" type="password" placeholder="Mot de passe" v-model="password" />
+			<button @click="login">Connexion</button>
 		</div>
 		<div class="inscription">
 			<button id="inscription-btn" @click="showModal = true">Inscription</button>
@@ -86,7 +79,6 @@ async function login(){
 		<Teleport to="body">
 			<inscription :show="showModal" @close="showModal = false" />
 		</Teleport>
-		{{status}}
 	</div>
 </div>
 
@@ -101,25 +93,28 @@ async function login(){
 	width: 100vw;
 	display: flex;
 	flex-direction: row;
+	gap: 20px;
 	justify-content: space-around;
 	align-items: center;
 
 }
 .co-42 {
-	width:350px;
-	height: 350px;
-
+	width: 30%;
+	aspect-ratio: 1;
+	max-width: 300px;
+	/* height: 350px; */
 	padding: 40px 30px;
-
-	background: #EBECF0AA;
+	background-color: pink;
+	/* background: #EBECF0AA; */
+	background: #EBECF0;
 	border-radius: 10px;
 	box-shadow:  4px 4px 4px #474747,
              -4px -4px 4px #eaeaea;
 }
 
 .co-42 .logo42 {
-	height: 160x;
-	width: 160px;
+	aspect-ratio: 1;
+	width: 60%;
 
 	display: block;
 	margin-left: auto;
@@ -129,11 +124,13 @@ async function login(){
 .co-email {
 	display: flex;
 	flex-direction: column;
-	width:450px;
-	height: auto;
+	width: 35%;
+	max-width: 500px;
+	height: 400px;
 	padding: 40px 30px;
 	gap: 20px;
-	background: #EBECF0AA;
+	/* background: #EBECF0AA; */
+	background: #EBECF0;
 
 	border-radius: 10px;
 	box-shadow:  4px 4px 4px #474747,
@@ -141,7 +138,7 @@ async function login(){
 }
 
 .co-email .text {
-	font-size: 33px;
+	font-size: clamp(1.25rem, 0.4808rem + 2.4615vw, 2.25rem);
 	font-weight: 600;
 	display: flex;
 	align-items: center;
@@ -168,6 +165,10 @@ async function login(){
 	font-weight: 500;
 	color: #fff;
 	z-index: 2;
+}
+
+.btn42:hover {
+	cursor: pointer;
 }
 
 .btn42::after {
@@ -200,7 +201,7 @@ async function login(){
 	mask-composite: exclude;
 	-webkit-mask-composite: destination-out;
 	filter: hue-rotate(0);
-	animation: rotate-hue linear 500ms infinite;
+	animation: rotate-hue linear 1s infinite;
 	animation-play-state: paused;
 }
 
@@ -213,7 +214,7 @@ async function login(){
 
 @keyframes rotate-hue {
 	to {
-	filter: hue-rotate(1turn);
+		filter: hue-rotate(1turn);
 	}
 }
 
@@ -224,8 +225,23 @@ async function login(){
 }
 
 #inscription-btn {
-	margin: 15px 0;
+	/* margin: 15px 0;
 	width: 80%;
+	height: 50px;
+	font-size: 18px;
+	line-height: 50px;
+	font-weight: 600;
+	background: #dde1e7;
+	border-radius: 25px;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	color: #595959;
+	box-shadow:  4px 4px 4px #616161,
+             -4px -4px 4px #eaeaea; */
+	margin-top: 10px;
+	width: 80%;
+	max-width: 300px;
 	height: 50px;
 	font-size: 18px;
 	line-height: 50px;
@@ -257,8 +273,10 @@ async function login(){
 }
 
 .form button {
-	margin: 15px 0;
-	width: 100%;
+	/* width: 100%; */
+	margin-top: 10px;
+	width: 80%;
+	max-width: 300px;
 	height: 50px;
 	font-size: 18px;
 	line-height: 50px;
@@ -282,42 +300,44 @@ async function login(){
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	align-self: center;
-	align-content: center;
+	justify-content: center;
 	gap: 20px;
+	/* background: pink; */
 }
 
-.form .field input{ 
-	padding-left: 25px;
-	padding-right: 25px;
+.field {
+	font-size: clamp(1rem, 0.8077rem + 0.6154vw, 1.25rem);
+	width: 80%;
+	max-width: 350px;
+	padding-left: 10px;
+	padding-right: 10px;
 	height: 50px;
-	width: 300px;
 	outline: none;
 	border: none;
-	font-size: 18px;
 	background: #dde1e7;
 	color: #595959;
 	border-radius: 25px;
 	box-shadow: inset 2px 2px 5px #BABECC,
 				inset -5px -5px 10px #ffffff73;
 }
-.field input:focus{
+
+.field:focus{
 	box-shadow: inset 1px 1px 2px #BABECC,
 				inset -1px -1px 2px #ffffff73;
 }
 .field span {
-	position: absolute;
-	color: #595959;
-	width: 50px;
-	line-height: 50px;
+	/* position: absolute; */
+	/* color: #595959; */
+	/* width: 50px; */
+	/* line-height: 50px; */
 }
 .field label {
-	position: absolute;
+	/* position: absolute;
 	top: 50%;
 	transform: translateY(-50%);
 	left: 25px;
 	pointer-events: none;
-	color: #666666;
+	color: #666666; */
 }
 
 .field button {

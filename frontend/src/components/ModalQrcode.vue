@@ -9,7 +9,7 @@
 			<div class="instructions">
 				Entrez le code présent sur l'application.
 			</div>
-			<InputField class="qrcode_input" @complete="fecthCode" :is-invalid-code="isInvalidCode"></InputField>
+			<InputField class="qrcode_input" @complete="fecthCode" :is-invalid-code="isInvalidCode" @reset="isInvalidCode = false"></InputField>
 			<button :class="!isActivated ? 'activate_button' : 'desactivate_button'" @click="sendCode">
 				{{ isActivated ? "Désactiver" : "Activer" }}
 			</button>
@@ -39,6 +39,7 @@ export default {
 			this.isInvalidCode = false;
 		},
 		fecthCode(code: string){
+			console.log("fetch", code);
 			this.code = code;
 		},
 		getUrl(){

@@ -74,6 +74,18 @@ export class StatsService {
 		const expectedScore = 1 / (1 + 10 ** ((mmr2 - mmr1) / 400));
 		const result = score1 > score2 ? 1 : (score1 < score2 ? 0 : 0.5);
 		const ratingChange = 64 * (result - expectedScore);
+		// if (!ratingChange){
+		// 	return (score1 > )
+		// }
 		return (mmr1 + ratingChange);
+	}
+
+	async getRankPosition(statsId: number){
+		let allStats: StatsDetail[] = await this.statsRepository.find();
+		allStats.sort((a, b) => b.mmr - a.mmr);
+		for (let i = 0; i < allStats.length; i++) {
+			if (allStats[i].id == statsId)
+				return ({rank: i + 1, total: allStats.length});
+		}
 	}
 }

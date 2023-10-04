@@ -60,13 +60,10 @@ export default defineComponent ({
 	<Transition name="slide-fade" mode="out-in">
 	<div v-if="show" class="modal_overlay_channel" @click="$emit('close')">
 		<div class="modal_channel" @click.stop>
+			<SlidingTitle text="Rejoindre un channel"/>
 			<div class="field_channel">
-				<SlidingTitle text="Nom du channel"/>
 				<input v-model="channel_name" class="entry_channel" type="text" maxlength="15" placeholder="Nom du channel"/>
-			</div>
-			<SlidingTitle text="Mot de Passe"/>
-			<div class="field_channel">
-				<input class="entry_channel" type="password" placeholder="Champ optionnel" v-model="channel_password"/>
+				<input class="entry_channel" type="password" placeholder="Mot de passe (optionnel)" v-model="channel_password"/>
 				<BlueButton text="Confirmer" icon="" @click="addChannel()" />
 			</div>
 		</div>
@@ -89,11 +86,14 @@ export default defineComponent ({
 .field_channel {
 	display: flex;
 	flex-direction: column;
+	margin-top: 20px;
 	width: 50%;
-	height: 30%;
-	justify-content: space-around;
+	height: 50%;
+	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 5%;
+	/* background: red; */
+	/* margin-bottom: 5%; */
+	gap: 30px;
 
 	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);
 }
