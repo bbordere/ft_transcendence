@@ -21,13 +21,30 @@ export default {
 
 <style>
 .emoteContainer {
+
 	position: relative;
+  background: #fff;
+  border-radius: 50%;
+  margin: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  background-color: #229EE6;
+
+  border: #0e6394 solid 1px;
+	/* position: relative;
 	overflow: hidden;
-	background-color: #229EE6;
-	border: #515151 solid 1px;
-	border-radius: 20px;
+	border-radius: 20px; */
 	/* font-size: 2.5vh; */
-	font-size: clamp(0.75rem, 0.4853rem + 1.4118vw, 1.5rem);padding: 3px;
+	font-size: clamp(0.75rem, 0.4853rem + 1.4118vw, 1.5rem);
+	/* font-size: clamp(0.8125rem, 0.476rem + 1.0769vw, 1.25rem); */
+	padding: 3px;
 }
 
 .emoteContainer:hover {

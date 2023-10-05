@@ -39,7 +39,6 @@ export default {
 			this.isInvalidCode = false;
 		},
 		fecthCode(code: string){
-			console.log("fetch", code);
 			this.code = code;
 		},
 		getUrl(){

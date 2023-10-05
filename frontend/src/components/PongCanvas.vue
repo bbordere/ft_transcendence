@@ -1,6 +1,6 @@
 <template>
 	<div class="pong_screen">
-		<canvas v-show="isLoaded" id="pongCanvas" width="1200" height="600"></canvas>
+		<canvas id="pongCanvas" width="1200" height="600"></canvas>
 	</div>
 </template>
 
@@ -39,6 +39,7 @@ export default {
 			
 			domCtx: {} as CanvasRenderingContext2D,
 			isLoaded: false,
+			lastTimeStamp: window.performance.now(),
 		}
 	},
 	methods: {
@@ -56,18 +57,27 @@ export default {
 			this.sprites.push(await createImageBitmap(await this.loadImage("queueing_ananas.png")));
 			this.domCtx = (<HTMLCanvasElement>document.getElementById('pongCanvas')).getContext('2d') as CanvasRenderingContext2D;
 			this.isLoaded = true;
+
 		},
 
 		animate(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
 			this.animId = requestAnimationFrame(() => { this.animate(ctx, canvas) });
+			const msNow = window.performance.now()
+			const msPassed = msNow - this.lastTimeStamp
 
+			if (msPassed < (1000 / 60))
+				return
+
+			const excessTime = msPassed % (1000 / 60)
+			this.lastTimeStamp = msNow - excessTime;
+			this.$emit('setState', 0)
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.drawImage(this.sprites[5], 0, 0, canvas.width, canvas.height);
 
 			this.angle += 0.02;
 			this.offsetX += 1;
-			let offsetY = canvas.height / 2 + Math.sin(this.angle) * 20;
-			if (this.offsetX > canvas.width - this.sprites[6].width / 8) {
+			let offsetY = canvas.height / 2.2 + Math.sin(this.angle) * 20;
+			if (this.offsetX > canvas.width) {
 				this.offsetX = -this.sprites[6].width;
 			}
 			ctx.drawImage(this.sprites[6], this.offsetX, offsetY - canvas.height / 6);
@@ -99,6 +109,7 @@ export default {
 			},
 
 		async drawEndPage(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+
 			ctx.fillStyle = 'white dark'
 			ctx.textBaseline = "middle";
 			ctx.textAlign = "center";
@@ -119,23 +130,20 @@ export default {
 			ctx.drawImage(this.user2Img, canvas.width - canvas.width / 3,canvas.height / 3, 200, 200)
 
 			ctx.font = "100px poppins";
-			if (this.user1Id === this.discoUserId) {
-				ctx.fillText("DNF", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-				ctx.fillText("Victoire", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-			} else if (this.user2Id === this.discoUserId) {
-				ctx.fillText("Victoire", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-				ctx.fillText("DNF", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-			} else if (this.score1 > this.score2) {
-				ctx.fillText("Victoire", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-				ctx.fillText("Défaite", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-			} else if (this.score2 > this.score1) {
-				ctx.fillText("Défaite", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-				ctx.fillText("Victoire", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-			} else {
-				ctx.fillText("Egalité", canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-				ctx.fillText("Egalité", canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
-			}
+			let text1: string;
+			let text2: string;
 
+
+			if (this.discoUserId !== -1){
+				text1 = this.user1Id === this.discoUserId ? "ABD" : "Victoire";
+				text2 = this.user2Id === this.discoUserId ? "ABD" : "Victoire";
+			}
+			else {
+				text1 = this.score1 > this.score2 ? "Victoire" : (this.score2 > this.score1) ? "Défaite" : "Égalité";
+				text2 = this.score2 > this.score1 ? "Victoire" : (this.score1 > this.score2) ? "Défaite" : "Égalité";
+			}
+			ctx.fillText(text1, canvas.width / 4, canvas.height / 6 + canvas.height / 20);
+			ctx.fillText(text2, canvas.width - canvas.width / 4, canvas.height / 6 + canvas.height / 20);
 		},
 
 		async animateEnd(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
@@ -155,6 +163,7 @@ export default {
 			this.user2Img.src = player2Json["avatarLink"]
 			
 			await this.drawEndPage(ctx, canvas);
+			this.$emit('setState', 2)
 		},
 
 
@@ -193,6 +202,7 @@ export default {
 		},
 
 		draw(time: number) {
+			this.animId = requestAnimationFrame(this.draw);
 			if (this.lastUpdate === -1) {
 				this.lastUpdate = time;
 			}
@@ -201,13 +211,10 @@ export default {
 				this.pad1 = this.gameInfos.pad1;
 				this.pad2 = this.gameInfos.pad2;
 			}
+			this.ball.position.x += (this.gameInfos.ball.position.x - this.ball.position.x) * 0.5;
+			this.ball.position.y += (this.gameInfos.ball.position.y - this.ball.position.y) * 0.5;
 
-			const factor = Math.trunc(time - this.lastUpdate) > 17 ? 1 : 0.5;
-			this.ball.position.x += (this.gameInfos.ball.position.x - this.ball.position.x) * factor;
-			this.ball.position.y += (this.gameInfos.ball.position.y - this.ball.position.y) * factor;
-
-			// this.ball = targetBall;
-			// console.log(this.ball.position, this.gameInfos.ball.position);
+			// this.ball = this.gameInfos.ball;
 
 			this.pad1.pos.x += (this.gameInfos.pad1.pos.x - this.pad1.pos.x) * 0.2;
 			this.pad1.pos.y += (this.gameInfos.pad1.pos.y - this.pad1.pos.y) * 0.2;
@@ -222,22 +229,16 @@ export default {
 			this.domCtx.drawImage(this.sprites[4], ~~this.pad2.pos.x, ~~this.pad2.pos.y,
 				this.gameInfos.pad2.width, this.gameInfos.pad2.size);
 
-			// this.drawRect(ctx, this.pad1.pos.x, this.pad1.pos.y, 
-			// 				pad1.width, pad1.size, "#5151510F");
-			// this.drawRect(ctx, this.pad2.pos.x, this.pad2.pos.y, 
-			// 				pad2.width, pad2.size, "#515151");
-
 			this.drawCircle(this.domCtx, ~~this.ball.position.x, ~~this.ball.position.y,
 				this.ball.radius, this.ball.speed === 30 ? "#F44E1A" : "#515151");
 
 			this.drawPowerups(this.domCtx);
-			this.lastUpdate = time;
-			this.animId = requestAnimationFrame(this.draw);
 		},
 	},
 	async mounted() {
 		await this.init();
 		this.socket.on('updateGame', (ball: ball, racket1: paddle, racket2: paddle, powerups: string) => {
+			this.$emit('setState', 1)
 			this.gameInfos = { ball: ball, pad1: racket1, pad2: racket2, powerups: JSON.parse(powerups)};
 			if (this.animId === -1 || !this.isInGame) {
 				if (this.animId !== -1)
@@ -272,13 +273,15 @@ export default {
 
 <style>
 .pong_screen {
-	margin-top: -20px;
+	/* margin-top: -20px; */
+	/* height: 80%; */
 	max-width: 100%;
 	max-height: 80%;
 	min-width: auto;
 	border: 3px solid #515151;
 	border-radius: 20px;
 	overflow: hidden;
+
 }
 
 #pongCanvas {

@@ -6,16 +6,21 @@ import router from './router'
 import type { RouteRecordName } from 'vue-router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus, faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane, faTrophy} from '@fortawesome/free-solid-svg-icons'
+import { faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus,
+		faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane,
+		faTrophy, faCircleQuestion} from '@fortawesome/free-solid-svg-icons'
 import VueApexCharts from "vue3-apexcharts";
 import Notifications from '@kyvg/vue3-notification'
 
 async function isLogged() {
-	const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth", {method: "get", credentials: "include"});
+	const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth",
+		{method: "get", credentials: "include"});
 	return ((res.status != 401));
 }
 
-library.add(faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus, faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane, faTrophy);
+library.add(faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus,
+			faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane,
+			faTrophy, faCircleQuestion);
 const app = createApp(App)
 
 router.beforeEach(async (to, from, next) => {

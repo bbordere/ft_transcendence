@@ -51,9 +51,6 @@ export class StatsService {
 			case "Classée":
 				stats.totalRankedGames++;
 				break;
-			case "Duel":
-				stats.totalFriendsDuel++;
-				break;
 			default:
 				stats.totalFriendsDuel++;
 				break;
@@ -70,14 +67,29 @@ export class StatsService {
 		user.stats = stats;
 	}
 
-	async getUpdatedMmr(score1: number, score2: number, mmr1: number, mmr2: number): Promise<number>{
-		const expectedScore = 1 / (1 + 10 ** ((mmr2 - mmr1) / 400));
-		const result = score1 > score2 ? 1 : (score1 < score2 ? 0 : 0.5);
-		const ratingChange = 64 * (result - expectedScore);
-		// if (!ratingChange){
-		// 	return (score1 > )
-		// }
-		return (mmr1 + ratingChange);
+	async getUpdatedMmr(match: Match){
+		if (match.leaverId != -1){
+			const factor = match.player1.id === match.leaverId ? -20 : 20;
+			match.player1.stats.mmr += factor;
+			match.player2.stats.mmr += -factor;
+			return;
+		}
+		const k = 128;
+		const expectedScore1 = 1 / (1 + Math.pow(10, (match.player2.stats.mmr - match.player1.stats.mmr ) / 400));
+		const expectedScore2 = 1 / (1 + Math.pow(10, (match.player1.stats.mmr - match.player2.stats.mmr ) / 400));
+
+		const res1 = match.scorePlayer1 / (match.scorePlayer1 + match.scorePlayer2);
+		const res2 = match.scorePlayer2 / (match.scorePlayer2 + match.scorePlayer1);
+
+		const MMRModifier = Math.abs(match.scorePlayer1 - match.scorePlayer2) <= 2 ? 1 : 0.5;
+
+		match.player1.stats.mmr += Math.ceil(k * (MMRModifier * (res1 - expectedScore1)));
+		match.player2.stats.mmr += Math.ceil(k * (MMRModifier * (res2 - expectedScore2)));
+		// const expectedScore = 1 / (1 + 10 ** ((mmr2 - mmr1) / 400));
+		// const result = score1 > score2 ? 1 : (score1 < score2 ? 0 : 0.5);
+		// const ratingChange = 64 * (result - expectedScore);``
+		// return (mmr1 + ratingChange);
+
 	}
 
 	async getRankPosition(statsId: number){

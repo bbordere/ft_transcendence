@@ -25,7 +25,7 @@
 			<div class="centered-panel-item">
 				<div class="rank_container">
 					<div class="titleRank">Classement</div>
-					<span class="rank">{{userRank}}er / {{ totalUsers }}</span>
+					<span class="rank">{{userRank}}{{ userRank === 1 ? "er" : "e" }} / {{ totalUsers }}</span>
 				</div>
 				<div class="split-stats">
 					<div class="rank-stat">

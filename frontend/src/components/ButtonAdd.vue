@@ -15,6 +15,13 @@ export default{
 
 <style>
 
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+
 .add_container {
 	height: 90%;
 	width: 25%;

@@ -104,7 +104,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (userId === channelOwner.id) {
 			data.error = true;
 			data.message = 'Vous ne pouvez pas mute le owner du channel.';
-			console.log('Cannot mute owner');
 			target?.client_socket.emit('mute', data);
 			return ;
 		}
@@ -156,8 +155,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('kick')
 	handleKick(client: Socket, payload: any) {
-		console.log(payload);
-		// this.server.emit('kick', payload);
 		this.clients.get(Number(payload[1])).client_socket.emit('kick', payload);
 		return (payload);
 	}

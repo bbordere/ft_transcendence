@@ -1,20 +1,30 @@
 <template>
 	<div class="pong_body">
 		<div class="pong_content">
+			<div class="tooltip_pong">
+				<font-awesome-icon icon="fa-solid fa-circle-question" />
+				<span class="tooltip_pong_text">Utilisez les flèches pour déplacer la raquette</span>
+			</div>
 			<div class="left_column_pong">
 				<PongPlayerCard v-if="dataLoaded" :id="player1Id" side="0" :emote="emote1.emoji"></PongPlayerCard>
 			</div>
 			<div class="middle_column_pong" v-if="dataLoaded">
-				<div class="timer">
-					<label>{{ timer }}</label>
+				<div class="top_infos" v-if="state === 1">
+					<div class="timer">
+						<span>{{ timer }}</span>
+						<label>-</label>
+					</div>
+					<div class="scores">
+						<span id="score1">{{ score1 }}</span>
+						<span id="score1">{{ score2 }}</span>
+					</div>
 				</div>
-				<div class="scores">
-					<span id="score1">{{ score1 }}</span>
-					-
-					<span id="score1">{{ score2 }}</span>
+				<div v-else class="top_infos">
+					<span id="state_msg">{{ messageTop }}</span>
 				</div>
 				<PongCanvas :socket="this.socket" :playId1="this.player1Id" :playId2="this.player2Id"
-					:score1="score1" :score2="score2" @toggleBackground="toggleBackground"/>
+					:score1="score1" :score2="score2" @toggleBackground="toggleBackground" 
+					@setState="setState"/>
 				<div class="button_panel">
 					<div class="reaction_panel">
 						<EmoteButton emoji="🤣" :socket="socket"></EmoteButton>
@@ -22,12 +32,7 @@
 						<EmoteButton emoji="😭" :socket="socket"></EmoteButton>
 						<EmoteButton emoji="🤝" :socket="socket"></EmoteButton>
 					</div>
-
-					<div class="forgive_button">
-						<router-link to="/" draggable="false">
-							<button id="exit_button" role="link">Quitter la partie</button>
-						</router-link>
-					</div>
+					<BlueButton id="exit_button" text="Quitter la partie" @click="$router.push('/')"></BlueButton>
 				</div>
 			</div>
 			<div class="right_column_pong">
@@ -47,6 +52,7 @@ import EmoteButton from '@/components/EmoteButton.vue'
 import PongCanvas from '@/components/PongCanvas.vue'
 import { SocketService } from '@/services/SocketService';
 import { State } from './Home.vue';
+import BlueButton from '@/components/BlueButton.vue';
 
 interface emote {
 	emoji: string,
@@ -67,14 +73,24 @@ export default {
 			score2: 0,
 			emote1: { emoji: '' } as emote,
 			emote2: { emoji: '' } as emote,
+			state: 0,
 		};
 	},
 	components: {
 		PongPlayerCard,
 		EmoteButton,
 		PongCanvas,
+		BlueButton
+	},
+	computed: {
+		messageTop() {
+			return (!this.state ? "En attente de joueur..." : "");
+		}
 	},
 	methods: {
+		setState(newState: number){
+			this.state = newState;
+		},
 		getIdMode(mode: string) {
 			const modes: string[] = ["classic", "arcade", "ranked", "duelClassic", "duelArcade"];
 			if (!modes.includes(mode)) {
@@ -155,7 +171,6 @@ export default {
 
 		this.socket.on('disconnect', () => {
 			this.socket.disconnect();
-			console.log('Vous avez été déconnecté du jeu.');
 		});
 
 		this.socket.on('ids', (player1: string, player2: string) => {
@@ -197,7 +212,7 @@ export default {
 }
 
 .pong_body {
-	/* width: 100vw; */
+	width: 100vw;
 	height: 90%;
 	display: flex;
 	align-items: center;
@@ -205,13 +220,14 @@ export default {
 }
 
 .pong_content {
+	position: relative;
 	height: 90%;
 	width: 90%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	background: white;
-	/* background-color: red; */
+	min-height: 300px;
 	/* background: #fff9cf; */
 	border: 3px solid #515151;
 	border-radius: 20px;
@@ -230,21 +246,31 @@ export default {
 
 .middle_column_pong {
 	height: 100%;
-	width: 70%;
+	width: 80%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	/* gap: 20px;*/
 	justify-content: center;
+	/* background-color: blue; */
 }
 
 .timer {
 	display: flex;
-	height: 10%;
+	flex-direction: column;
+	height: 100%;
 	width: 100%;
 	align-items: center;
 	justify-content: center;
-	font-size: 2em;
 	font-family: 'digital-clock-font', monospace;
+	font-size: clamp(1.25rem, 0.5769rem + 2.1538vw, 2.125rem);
+	margin-bottom: -10px;
+	margin-top: 10px;
+}
+
+.timer label{
+	height: min-content;
+	margin-top: clamp(-10px, -4%, -20px);
 }
 
 .button_panel {
@@ -266,19 +292,17 @@ export default {
 
 #exit_button {
 	position: relative;
-	background-color: #229EE6;
 	font-size: 2vh;
 	padding: 0.7vw;
 	margin-right: 1vw;
 	border-radius: 40px;
-	border-color: #229EE6;
 	font-family: "Poppins", sans-serif;
 }
 
-#exit_button:hover {
+/* #exit_button:hover {
 	background-color: #91CEF2;
 	cursor: pointer;
-}
+} */
 
 @font-face {
 	font-family: 'digital-clock-font';
@@ -290,12 +314,79 @@ export default {
 	flex-direction: row;
 	width: 100%;
 	justify-content: center;
-	gap: 20%;
-	padding-bottom: 20px;
-	font-size: 3em;
-	margin-top: -35px;
-	margin-bottom: 5px;
+	gap: 50%;
+	font-size: clamp(1.75rem, 1.1731rem + 1.8462vw, 2.5rem);
+	margin-top: -25px;
+	text-align: center;
+	height: 100%;
 	font-family: 'digital-clock-font', regular;
 }
+
+.top_infos {
+	min-height: 80px;
+	width: 100%;
+	display: flex;
+	height: 10%;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	max-width: 1200px;
+}
+
+#state_msg {
+	font-size: clamp(1.25rem, 0.5769rem + 2.1538vw, 2.125rem);
+}
+
+.tooltip_pong{
+	display: inline-block;
+	position: absolute;
+	text-align: center;
+	font-size: 2em;
+	top: 0px;
+	left: 10px;
+	color: #2d8dc4;
+	height: 50px;
+}
+
+.tooltip_pong .tooltip_pong_text {
+  visibility: hidden;
+  width: 80px;
+  background-color: #032f3d;
+
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+ 
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+
+  width: 120px;
+  top: 100%;
+  left: 50%;
+  margin-left: -40px; /* Use half of the width (120/2 = 60), to center the tooltip */
+  font-size: clamp(0.625rem, 0.4327rem + 0.6154vw, 0.875rem);
+}
+
+.tooltip_pong_text::after {
+	content: " ";
+  position: absolute;
+  bottom: 100%;  /* At the top of the tooltip */
+  left: 33%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent;
+}
+
+.tooltip_pong:hover {
+	cursor: pointer;
+}
+
+.tooltip_pong:hover .tooltip_pong_text {
+  visibility: visible;
+}
+
 
 </style>

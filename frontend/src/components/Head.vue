@@ -51,15 +51,15 @@ export default defineComponent({
 </script>
 
 <template>
-<header class="header">
-	<img class="logo" src="../assets/img/logoPinaColaPong2.png" @click="redirectToHome()" draggable="false" alt="logo">
-	<router-link to="/profile" class="profile" draggable="false">
-		<img class="img_profile" v-bind:src=avatar draggable="false" alt="avatar">
-		<div class="profile_name">
-			<span class="name">{{ name }}</span>
-		</div>
-	</router-link>
-</header>
+	<header class="header">
+		<img class="logo" src="../assets/img/logoPinaColaPong2.png" @click="redirectToHome()" draggable="false" alt="logo">
+		<router-link to="/profile" class="profile" draggable="false">
+			<img class="img_profile" v-bind:src=avatar draggable="false" alt="avatar">
+			<div class="profile_name">
+				<span class="name">{{ name }}</span>
+			</div>
+		</router-link>
+	</header>
 </template>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Happy+Monkey&display=swap');
@@ -68,12 +68,15 @@ export default defineComponent({
 	font-family: 'Poppins', sans-serif;
 	display: flex;
 	height: 10vh;
+	width: 100vw;
 	border-bottom: 2px solid #515151;
 	/* background: #f7f4dd; */
 	background: white;
 	justify-content: space-between;
 	align-items: center;
-	min-height: 50px;
+	min-height: 40px;
+	position: relative;
+	/* display: none; */
 }
 
 .logo {

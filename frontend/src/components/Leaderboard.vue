@@ -7,8 +7,8 @@
 					<div v-for="(user, index) in leaderboardData" class="player_card" ref="userRef">
 						<div class="card_content">
 							<span class="position">{{ getMedal(index) }}</span>
-							<div class="player_content" @click="redirecToProfil(user.name)">
-								<img :src="user.avatarLink" alt="avatar" class="avatar" >
+							<div class="player_content">
+								<img :src="user.avatarLink" alt="avatar" class="avatar" @click="redirecToProfil(user.name)">
 								<span>{{ user.name }}</span>
 							</div>
 							<span><strong></strong>{{ user.stats.mmr }}pts</span>
@@ -50,6 +50,7 @@ export default{
 				if (this.leaderboardData[i].id === SocketService.getUser.id){
 					setTimeout(() => {
 						this.$refs.userRef[i].scrollIntoView({behavior: 'smooth'});
+						this.$refs.userRef[i].classList.value = ['my_card']
 					}, 50);
 				}
 			}
@@ -141,7 +142,6 @@ export default{
 	border-radius: 20px;
 	background-color: rgba(80, 179, 236, 0.178);
 }
-
 .card_content {
 	display: flex;
 	justify-content: space-around;
@@ -183,6 +183,17 @@ export default{
 
 .medal span {
 	font-size: 1.50em;
+}
+
+.my_card {
+	width: 100%;
+	height: 15%;
+	max-height: 100px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;	
+	border-radius: 20px;
+	background-color: rgba(32, 103, 236, 0.288);
 }
 
 </style>

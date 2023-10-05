@@ -90,10 +90,8 @@ export default defineComponent({
 		setInterval(async () => {
 			const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 			sessionStorage.setItem('token', await token.text());
-			console.log("token");
 		}, 1000 * 60 * 5);
 		// const response_test = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/count', { credentials: 'include' });
-		// console.log(await response_test.json());
 	},
 
 	methods: {
