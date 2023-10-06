@@ -115,7 +115,7 @@ export default defineComponent({
 		<div class="box" v-if="dataLoaded && print === 0 && friend.status === 'accepted' && !blockList.includes(friend.id)"
 			@click="showChannel(friend)">
 			<div class="img_user">
-				<img alt="avatar" class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
+				<img draggable="false" alt="avatar" class="img_user_profil" :style="{'border-color': borderColor}" :src="getAvatarUrl(friend.id)" @click="redirecToProfil(friend.username)">
 			</div>
 			<div class="name_cell">
 				{{ friend.username }}

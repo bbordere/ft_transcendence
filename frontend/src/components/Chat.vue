@@ -14,7 +14,7 @@
 		<div class="message_box">
 			<div v-for="(msg, index) in selectedChannel.messages" class="single_message"
 				:class="sender.id === msg.sender ? 'sent' : 'received'">
-				<img v-if="sender.id !== msg.sender" alt="avatar" @click="showChatModal(msg)" :src="msg.sender_img">
+				<img draggable="false" v-if="sender.id !== msg.sender" alt="avatar" @click="showChatModal(msg)" :src="msg.sender_img">
 				<div class="msg_txt_box">
 					<span v-if="sender.id !== msg.sender" class="sender_name">{{ msg.sender_name }}</span>
 					<div :class="sender.id === msg.sender ? 'sent_txt' : 'received_txt'" :ref="`message-${index}`"
@@ -109,6 +109,8 @@ export default {
 	async updated() {
 		if (this.selectedChannel.messages && !this.lastUpdate) {
 			const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
+			if (!lastMessage)
+				return;
 			setTimeout(() => {
 				lastMessage[0].scrollIntoView();
 			}, 20);

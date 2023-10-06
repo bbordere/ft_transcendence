@@ -1,5 +1,5 @@
 <template>
-	<img alt="notFound" src="/public/pinaRecipe.svg" class="recipe">
+	<img draggable="false" alt="notFound" src="/public/pinaRecipe.svg" class="recipe">
 </template>
 
 <script setup lang="ts">

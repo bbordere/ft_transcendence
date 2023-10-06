@@ -45,6 +45,11 @@ export default defineComponent({
 				group: 'notif-center'
 			});
 		})
+		setInterval(async () => {
+			await SocketService.fetchUser();
+			const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
+			sessionStorage.setItem('token', await token.text());
+		}, 1000 * 60);
 	},
 })
 

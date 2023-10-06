@@ -8,7 +8,7 @@
 						<div class="card_content">
 							<span class="position">{{ getMedal(index) }}</span>
 							<div class="player_content">
-								<img :src="user.avatarLink" alt="avatar" class="avatar" @click="redirecToProfil(user.name)">
+								<img draggable="false" :src="user.avatarLink" alt="avatar" class="avatar" @click="redirecToProfil(user.name)">
 								<span>{{ user.name }}</span>
 							</div>
 							<span><strong></strong>{{ user.stats.mmr }}pts</span>

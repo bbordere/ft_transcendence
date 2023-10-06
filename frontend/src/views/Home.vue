@@ -87,10 +87,6 @@ export default defineComponent({
 		await this.init();
 		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
 		sessionStorage.setItem('token', await token.text());
-		setInterval(async () => {
-			const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
-			sessionStorage.setItem('token', await token.text());
-		}, 1000 * 60 * 5);
 		// const response_test = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/count', { credentials: 'include' });
 	},
 

@@ -14,15 +14,12 @@ export class ChatController {
 	@Get('/:name')
 	async getByName(@Param('name') name: any) {
 		let channel = null;
-		try {
+		if (!isNaN(name))
 			channel = await this.chatService.getById(name);
-			if (!channel)
-				throw new Error("Not an ID");
-		}
-		catch {
+		else {
 			if (Array.from(name)[0] != '#')
-					name = '#' + name;
-				channel = await this.chatService.getByName(name);
+				name = '#' + name;
+			channel = await this.chatService.getByName(name);
 		}
 		return (channel);
 	}

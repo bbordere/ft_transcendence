@@ -6,7 +6,6 @@ import { Effect, Powerup } from './interface/powerup.interface';
 
 import { PongConstants } from './interface/constants.interface';
 import { UserService } from 'src/user/user.service';
-import { max } from 'class-validator';
 
 @Injectable()
 export class PongGame {
@@ -189,11 +188,10 @@ export class PongGame {
 			}
 				break;
 			case Effect.SPEEDY_BALL: {
-				const oldSpeed = room.ball.speed;
 				room.ball.speed += 2;
 				setTimeout(() => {
 					if (room.ball.speed === PongConstants.SPEED_BALL_POWERUP)
-						room.ball.speed = oldSpeed;
+						room.ball.speed -= 2;
 				}, PongConstants.SPEEDY_BALL_DURATION)
 			}
 				break;
@@ -299,9 +297,9 @@ export class PongGame {
 	}
 
 	generatePowerup(room: Room): Powerup | undefined {
-		const possibilities = [{ name: "Grande Raquette", color: "#1A2E61", effect: Effect.BIG_PADDLE },
-		{ name: "Petite Raquette", color: "#B38ED3", effect: Effect.LIL_PADDLE },
-		{ name: "Balle Rapide", color: "#F44E1A", effect: Effect.SPEEDY_BALL }];
+		const possibilities = [{ name: "Grande Raquette", effect: Effect.BIG_PADDLE },
+		{ name: "Petite Raquette", effect: Effect.LIL_PADDLE },
+		{ name: "Balle Rapide", effect: Effect.SPEEDY_BALL }];
 		const choice = possibilities[this.randInt(0, 2)];
 		const res: Powerup = {
 			name: choice.name,
@@ -309,7 +307,6 @@ export class PongGame {
 			activatedBy: -1,
 			pos: { x: -1, y: -1 },
 			radius: 64,
-			color: choice.color,
 		}
 		return (this.isValidPowerupPos(res, room));
 	}
@@ -320,7 +317,7 @@ export class PongGame {
 		const it = setInterval(() => {
 			if (room.state === State.FINAL)
 				clearInterval(it);
-			if (room.time % 2 === 1) {
+			if (room.time % 5 === 3) {
 				const power = this.generatePowerup(room);
 				if (power)
 					room.powerups.push(power);

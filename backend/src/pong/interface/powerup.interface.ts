@@ -6,7 +6,6 @@ export class Powerup {
 	activatedBy: number;
 	pos: Coords;
 	radius: number = 20;
-	color: string;
 }
 
 export enum Effect {

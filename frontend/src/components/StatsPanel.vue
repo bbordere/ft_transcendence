@@ -18,7 +18,7 @@
 						</div>
 					</div>
 				</div>
-				<div v-else>
+				<div v-else class="empty-stats">
 					Aucune Statistiques à afficher !
 				</div>
 			</div>
@@ -252,6 +252,10 @@ h5{
 h3{
 	font-size: clamp(0.6875rem, -0.0764rem + 2.4444vw, 1.375rem);
 	/* font-size: clamp(0.625rem, 0.3365rem + 0.9231vw, 1rem); */
+}
+
+.empty-stats {
+	text-align: center;
 }
 
 </style>
