@@ -123,7 +123,7 @@ export class ChatService {
 	}
 
 	async addAdminInChannel(channelId: number, userId: number): Promise<Channel> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admins', 'owner', 'bannedUsers']});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
 		const user = await this.userRepository.findOne({where: {id: userId}});
 
 		if (!channel)
@@ -132,9 +132,9 @@ export class ChatService {
 			throw new Error("Could not find user.");
 		if (user.id === channel.owner.id)
 			throw new Error("The user is the owner of the channel.");
-		if (channel.bannedUsers.includes(user))
+		if (channel.bannedUsers.includes(user.id))
 			throw new Error("This user has been banned from this channel");
-		channel.admins.push(user);
+		channel.admins.push(user.id);
 		return (await this.channelRepository.save(channel));
 	}
 
@@ -146,11 +146,11 @@ export class ChatService {
 			throw new Error("Could not find channel.");
 		if (!user)
 			throw new Error("Could not find user.");
-		if (channel.admins.includes(user))
+		if (channel.admins.includes(user.id))
 			throw new Error("User is banned.");
 		for (let admin of channel.admins) {
-			if (admin.id === user.id) {
-				channel.admins.splice(channel.admins.indexOf(user), 1);
+			if (admin === user.id) {
+				channel.admins.splice(channel.admins.indexOf(user.id), 1);
 				return (await this.channelRepository.save(channel));
 			}
 		}
@@ -189,9 +189,8 @@ export class ChatService {
 		return (await this.channelRepository.save(channel));
 	}
 
-	async getAdmins(channelId: number): Promise<User[]> {
+	async getAdmins(channelId: number): Promise<number[]> {
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admins']});
-
 		if (!channel)
 			return (undefined);
 		return (channel.admins);
@@ -225,5 +224,22 @@ export class ChatService {
 		if (!user)
 			return (0);
 		return (user.stats.totalMessages);
+	}
+
+	async isUserBan(channelId: number, userId: number): Promise<boolean> {
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		for (let id of channel.bannedUsers){
+			if (id == userId)
+				return (true);
+		}
+		return (false);
+	}
+
+	async getBanList(channelId: number): Promise<number[]> {
+		const channel = await this.channelRepository.createQueryBuilder('channel')
+		.leftJoinAndSelect('channel.bannedUsers', 'bannedUsers')
+		.where('channel.id = :channelId', { channelId })
+		.getOne();
+		return (channel.bannedUsers);
 	}
 }

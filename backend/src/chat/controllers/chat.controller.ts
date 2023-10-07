@@ -101,7 +101,7 @@ export class ChatController {
 
 	@Get('/:channelId/getAdmins')
 	async getAdmins(@Param('channelId') channelId: number) {
-		return (await this.chatService.getAdmins(channelId));
+		// return (await this.chatService.getAdmins(channelId));
 	}
 
 	@Post('/:channelId/:userId/changePassword')
@@ -122,5 +122,15 @@ export class ChatController {
 	@Get('/:channelId/isUserInChannel/:userId')
 	async isUserInChannel(@Param('channelId') channelId: number, @Param('userId') userId: number) {
 		return (await this.chatService.isUserInChannel(channelId, userId));
+	}
+
+	@Get('/:channelId/isUserBan/:userId')
+	async isUserBan(@Param('channelId') channelId: number, @Param('userId') userId: number) {
+		return (await this.chatService.isUserBan(channelId, userId));
+	}
+
+	@Get('/:channelId/banList')
+	async getBanList(@Param('channelId') channelId: number) {
+		// return (await this.chatService.getBanList(channelId));
 	}
 }

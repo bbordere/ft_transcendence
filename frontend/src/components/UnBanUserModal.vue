@@ -29,9 +29,23 @@ export default {
 			const notif = useNotification();
 			try {
 				const user = await user_resp.json();
-				await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/unban', {credentials: 'include', method: 'POST'});
+				const isUserInChan = await (await fetch('http://' + import.meta.env.VITE_HOST +
+						':3000/chat/' + this.$props.channelId + '/isUserBan/'
+							+ user['id'], { credentials: 'include' })).json();
+				if (!isUserInChan){
+					notif.notify({
+						title: 'Erreur',
+						text: "Cet utilisateur n'est pas banni !",
+						type: 'error',
+						group: 'notif-center',
+					});
+					return;
+				}
+				await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/'
+							+ this.$props.channelId + '/unban', {credentials: 'include', method: 'POST'});
 				this.$emit('close');
 				notif.notify({
+					title: 'Modération',
 					text: "Bannissement révoqué !",
 					type: 'success',
 					group: 'notif-center',

@@ -19,7 +19,7 @@
 					</div>
 				</div>
 				<div v-else class="empty-stats">
-					Aucune Statistiques à afficher !
+					Aucune victoire ou défaite enregistrée !
 				</div>
 			</div>
 			<div class="centered-panel-item">
@@ -256,6 +256,7 @@ h3{
 
 .empty-stats {
 	text-align: center;
+	width: 90%;
 }
 
 </style>

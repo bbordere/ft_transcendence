@@ -85,8 +85,7 @@ export default defineComponent({
 		}
 		this.isChannelLoaded = true;
 		await this.init();
-		const token = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/token", { credentials: 'include' });
-		sessionStorage.setItem('token', await token.text());
+		await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/refresh", { credentials: 'include', method: 'POST' });
 		// const response_test = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/count', { credentials: 'include' });
 	},
 
@@ -149,7 +148,7 @@ export default defineComponent({
 							const notif = useNotification()
 							notif.notify({
 								title: 'Erreur',
-								text: `Vous avez été ${ban ? 'ban' : 'kick'} du channel: ${channel_name}`,
+								text: `Vous avez été ${ban ? 'banni' : 'exclu'} du channel: ${channel_name}`,
 								type: 'error',
 								group: 'notif-center',
 							});
@@ -208,8 +207,9 @@ export default defineComponent({
 					messages: await this.getChannelMessages(channels_json[i]['id']),
 					isPrivate: channels_json[i]['isPrivate'],
 					protected: channels_json[i]['protected'],
-					admins: await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channels_json[i]['id'] + '/getAdmins', { credentials: 'include' })).json(),
+					admins: channels_json[i]['admins'],
 					muted: false,
+					bannedUsers: channels_json[i]['bannedUsers'],
 				});
 			}
 			return (channels);
@@ -334,10 +334,15 @@ export default defineComponent({
 		},
 
 		async fetchSeletedChannel(){
-			this.selectedChannel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId'))).json();
-			this.selectedChannel.messages = await this.getChannelMessages(parseInt(sessionStorage.getItem('channelId')));
-			this.selectedChannel.admins = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId') + '/getAdmins',)).json();
-			this.selectedChannel.owner = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.selectedChannel.id + '/owner', { credentials: 'include' })).json())['id'];
+			try {
+				this.selectedChannel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId'))).json();
+				this.selectedChannel.messages = await this.getChannelMessages(parseInt(sessionStorage.getItem('channelId')));
+				// this.selectedChannel.admins = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId') + '/getAdmins',)).json();
+				this.selectedChannel.owner = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.selectedChannel.id + '/owner', { credentials: 'include' })).json())['id'];
+				// this.selectedChannel.bannedUsers =  await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId') + '/banList',)).json();
+			} catch (error) {
+				this.selectedChannel = {} as Channel;
+			}
 		},
 	},
 });

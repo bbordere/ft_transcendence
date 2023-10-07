@@ -6,6 +6,7 @@ import { UserService } from '../user/user.service';
 import { Channel } from 'src/chat/entities/channel.entity';
 import { ChatService } from 'src/chat/chat.service';
 import * as bcrypt from 'bcrypt';
+import { User } from 'src/user/user.entity';
 
 
 export interface friendTab {
@@ -30,10 +31,13 @@ export class FriendService {
 		const friendToAdd = await this.userService.getByName(username);
 		if (!friendToAdd)
 			return ("Ce nom d'utilisateur n'existe pas !");
-		else if (friendToAdd.id === sender)
-			return ("Tu ne peux pas t'ajouter en ami !");
-		else if (await this.getFriendId(friendToAdd.id, sender))
-			return ("Cet utilisateur est dans ta liste d'amis !");
+		if (friendToAdd.id === sender)
+			return ("Vous ne pouvez pas vous ajouter en ami !");
+		if (await this.getFriendId(friendToAdd.id, sender))
+			return ("Cet utilisateur est déjà dans votre liste d'amis !");
+		const user: User = await this.userService.getById(sender);
+		if (user.blockList.includes(friendToAdd.id))
+			return ("Vous ne pouvez pas ajouter un utilisateur bloqué !");
 		const friend = new Friend();
 		friend.UserId = sender;
 		friend.FriendId = friendToAdd.id;

@@ -18,10 +18,10 @@ export class GameService {
 	checkRoom(room: Room) {
 		let countDown: number = 0;
 		let isStarted: boolean = false;
-		const it = setInterval(() => {
+		const it = setInterval(async () => {
 			if (!isStarted && room.players.length === 2) {
 				isStarted = true;
-				this.playGame(room);
+				await this.playGame(room);
 			}
 			switch (room.state) {
 				case State.WAITING: {
@@ -45,10 +45,10 @@ export class GameService {
 
 				case State.ENDGAME: {
 
-					if (countDown < (1000 / PongConstants.GAME_TICK) * 5 && !this.roomService.haveUserDisco(room.id))
-						countDown++
-					else
-						this.roomService.endGame(room);
+					// if (countDown < (1000 / PongConstants.GAME_TICK) * 5 && !this.roomService.haveUserDisco(room.id))
+					// 	countDown++
+					// else
+					await this.roomService.endGame(room);
 				}
 					break;
 
@@ -102,6 +102,7 @@ export class GameService {
 		room.gameInterval = setInterval(() => {
 			switch (room.state) {
 				case State.INIT: {
+					this.roomService.emitToPlayers(room, 'time', this.pongGame.formatTime(room.time, room.mode));
 					room.state = State.COOLDOWN;
 				}
 					break;

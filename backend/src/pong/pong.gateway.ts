@@ -12,13 +12,14 @@ import { GameService } from './game.service';
 import { Player } from './interface/player.interface';
 import { Room, } from './interface/room.interface';
 import { UserService } from 'src/user/user.service';
+// import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({ namespace: '/pong' })
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() server: Server;
 	private playerMap: Map<string, Player> = new Map<string, Player>;
 
-	// // private logger: Logger = new Logger('PongGateway');
+	// private logger: Logger = new Logger('PongGateway');
 	constructor(private readonly gameService: GameService,
 		private readonly authService: AuthService,
 		private readonly roomService: RoomService,

@@ -199,7 +199,7 @@ export class RoomService {
 			room.players[1].socket.emit(event, ...args);
 	}
 
-	endGame(room: Room){
+	async endGame(room: Room){
 		if (room.players.length != 2)
 			return;
 		const modes: string[] = ["Classique", "Arcade", "Classée", "Duel Classique", "Duel Arcade"];
@@ -215,7 +215,7 @@ export class RoomService {
 		if (matchDto.leaverId !== -1){
 			this.emitToPlayers(room, 'userDisco', matchDto.leaverId);
 		}
-		this.matchService.createMatch(matchDto, room.mode === Mode.RANKED);
+		await this.matchService.createMatch(matchDto, room.mode === Mode.RANKED);
 	}
 
 	haveUserDisco(roomId: number): Boolean {
@@ -226,7 +226,7 @@ export class RoomService {
 	finalGame(room: Room){
 		this.disconnectedUsers.delete(room.id);
 		this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
-		this.emitToPlayers(room, 'text', "FINISHED");
+		this.emitToPlayers(room, 'text', "ENDGAME");
 		clearInterval(room.players[0].socket.data.gameInterval);
 		if (room.players[1]){
 			clearInterval(room.players[1].socket.data.gameInterval);

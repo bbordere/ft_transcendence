@@ -23,25 +23,45 @@ export default {
 
 	methods: {
 		async banUser(username: string) {
+			const notif = useNotification();
+			if (username === SocketService.getUser.name){
+				notif.notify({
+					title: 'Erreur',
+					text: "Vous ne pouvez pas vous auto-bannir !",
+					type: 'error',
+					group: 'notif-center',
+				});
+				return;
+			}
+
 			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + username, {credentials: 'include'});
 
 			if (!user_resp['ok'] || username == '') {
 				this.$emit('close');
 				return ;
 			}
-			const notif = useNotification();
 			try {
 				const user = await user_resp.json();
 				const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.channelId + '/ban', {credentials: 'include', method: 'POST'});
 				const response_json = await response.json();
-				this.$emit('close');
-				if (response_json['ok'])
+				if (response_json['ok']){
 					SocketService.getInstance.emit('kick', this.$props.channelId, user['id'], true);
-				notif.notify({
-					text: "Utilisateur banni !",
-					type: 'success',
-					group: 'notif-center',
-				});
+					notif.notify({
+						title: 'Modération',
+						text: "Utilisateur banni !",
+						type: 'success',
+						group: 'notif-center',
+					});
+					this.$emit('close');
+				}
+				else {
+					notif.notify({
+						title: 'Erreur',
+						text: response_json["message"],
+						type: 'error',
+						group: 'notif-center',
+					});
+				}
 			} catch (error) {
 				notif.notify({
 					title: 'Erreur',

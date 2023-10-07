@@ -134,12 +134,15 @@ export class UserService {
 
 	async addUserToChannel(userId: number, channelId: number, password: string) {
 		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['bannedUsers']});
-
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
 		if (password === undefined)
 			return ;
-		if (channel.bannedUsers.some(bannedUser => bannedUser.id === user.id)) 
-			throw new Error('Utilisateur ban.');
+
+		for (let banned of channel.bannedUsers){
+			if (banned == userId)
+				throw new Error('Utilisateur banni.');
+		}
+	
 		if (channel.protected && await bcrypt.compare(password, channel.password) === false)
 			throw new Error('Mauvais mot de passe.');
 		user.channels.push(channel);
@@ -149,12 +152,21 @@ export class UserService {
 	async removeUserFromChannel(userId: number, channelId: number) {
 		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
 		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
-	
-		user.channels = user.channels.filter((c) => c.id !== channel.id);
+			user.channels = user.channels.filter((c) => c.id !== channel.id);
 		let users = await this.usersRepository.createQueryBuilder('user')
 			.leftJoinAndSelect('user.channels', 'channel')
 			.where('channel.id = ' + channel.id)
 			.getMany();
+		const usersId: number[] = users.map((user) => user.id);
+		let isInChan: boolean = false;
+		for (let id of usersId){
+			if (id == userId){
+				isInChan = true;
+				break;
+			}
+		}
+		if (!isInChan)
+			return;
 		if (!(users.length - 1)) {
 			await this.channelRepository.delete(channel.id);
 			return (null);
@@ -189,27 +201,28 @@ export class UserService {
 
 	async banUserFromChannel(userId: number, channelId: number) {
 		const user = await this.usersRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['bannedUsers', 'owner']});
-
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
 		if (!user || !channel)
 			return ;
 		if (user.id === channel.owner.id)
 			throw new Error('You cannot ban the owner of the channel.');
-		for (let ban of channel.bannedUsers)
-			if (ban.id === user.id)
-				throw new Error('User already banned.');
+		for (let ban of channel.bannedUsers){
+			if (ban == user.id){
+				throw new Error('Utilisateur déjà banni !');
+			}
+		}
 		await this.removeUserFromChannel(userId, channelId);
-		channel.bannedUsers.push(user);
+		channel.bannedUsers.push(user.id);
 		await this.channelRepository.save(channel);
 	}
 
 	async UnbanUserFromChannel(userId: number, channelId: number) {
 		const user = await this.usersRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['bannedUsers']});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
 
 		if (!user || !channel)
 			return ;
-		channel.bannedUsers = channel.bannedUsers.filter((toRemove) => toRemove.id !== user.id);
+		channel.bannedUsers = channel.bannedUsers.filter((toRemove) => toRemove !== user.id);
 		await this.channelRepository.save(channel);
 	}
 

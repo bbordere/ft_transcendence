@@ -5,7 +5,6 @@ import BlockListCell from './BlockListCell.vue';
 import type { Channel } from '@/interfaces/channel.interface';
 import type { Message } from '@/interfaces/message.interface';
 import type { friendTab } from '@/interfaces/friendTab.interface';
-import { useNotification } from '@kyvg/vue3-notification';
 
 export default defineComponent({
 	components: {
@@ -34,6 +33,10 @@ export default defineComponent({
 			}
 			return (number);
 		},
+
+		emptyMessage(){
+			return (this.print === 1 ? "Vous n'avez pas de demande d'amis !" : "Vous n'avez pas encore ajouté d'amis !");
+		}
 	},
 
 	async mounted() {
@@ -51,7 +54,7 @@ export default defineComponent({
 			for (let friend of friends) {
 				const owner: number = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + friend['channel']['id'] + '/owner', {credentials: 'include'})).json())['id'];
 				const messages: Message[] = await this.getChannelMessages(friend['channel']['id']);
-				const admins: number[] = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + friend['channel']['id'] + '/getAdmins', { credentials: 'include' })).json();
+				const admins: number[] = friend['channel']['admins'];
 				const channel: Channel = {
 					id: friend['channel']['id'],
 					name: friend['channel']['name'],
@@ -125,28 +128,33 @@ export default defineComponent({
 	<div class="friend_list_container">
 		<transition name="fade2" mode="out-in">
 			<div class="friend_buttons_container">
-				<button class="tri" @click="print = 1;">Demandes</button>
-				<button class="tri" @click="print = 2;">Bloqué</button>
+				<button v-bind:class="{ 'focused': print === 1 }" class="tri" @click="print = 1;">Demandes</button>
+				<button v-bind:class="{ 'focused': print === 2 }" class="tri" @click="print = 2;">Bloqué</button>
 				<div v-if="getFriendRequest"  class="notifDemande">
 					<strong>{{ getFriendRequest }}</strong>
 				</div>
 			</div>
 		</transition>
 		<transition name="fade2" mode="out-in">
-			<div v-if="print === 2" class="list_friend">
+			<div v-if="!print" class="list_friend">
+				<div v-if="!friends.length" class="empty_blocked">
+					 <span>{{ emptyMessage }}</span>
+				</div>
+				<ProfilCell v-else v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList
+						:print=print @showChannel="showChannelForwarder"></ProfilCell>
+			</div>
+			<div v-else-if="dataLoaded && print === 1" class="list_friend">
+				<div v-if="!friends.length" class="empty_blocked">
+					 <span>{{ emptyMessage }}</span>
+				</div>
+				<ProfilCell v-else v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList
+						:print=print @showChannel="showChannelForwarder"></ProfilCell>
+			</div>
+			<div v-else-if="print === 2" class="list_friend">
 				<BlockListCell v-if="blockList.length > 0" v-for="block in blockList" :block=block :myId=sender></BlockListCell>
 				<div v-else class="empty_blocked">
 					Vous n'avez bloqué aucun utilisateur !
 				</div>
-			</div>
-			<div v-else-if="friends.length > 0" class="list_friend">
-				<ProfilCell v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList :print=print @showChannel="showChannelForwarder"></ProfilCell>
-			</div>
-			<div v-else-if="dataLoaded && print === 1" class="empty_request">
-				Vous n'avez pas de demandes d'amis !
-			</div>
-			<div v-else-if="dataLoaded" class="empty_blocked">
-				Vous n'avez pas encore ajouté d'amis !
 			</div>
 		</transition>
 	</div>
@@ -193,7 +201,6 @@ export default defineComponent({
 }
 
 .tri:hover {
-	background-color: #032f3d;
 }
 
 .tri:focus {
@@ -220,4 +227,9 @@ export default defineComponent({
 .selected {
 	background-color: #F0F8FF;
 }
+
+.focused {
+	background-color: #032f3d;
+}
+
 </style>

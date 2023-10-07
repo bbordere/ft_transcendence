@@ -32,8 +32,8 @@ export class MatchService {
 
 	async createMatch(matchDto: MatchDto, isRanked: boolean = false){
 		const match = this.matchRepository.create(matchDto);
-		match.player1 =  await this.userService.getPartialUser(await this.userService.getById(matchDto.player1Id));
-		match.player2 = await this.userService.getPartialUser(await this.userService.getById(matchDto.player2Id));
+		match.player1 = this.userService.getPartialUser(await this.userService.getById(matchDto.player1Id));
+		match.player2 = this.userService.getPartialUser(await this.userService.getById(matchDto.player2Id));
 		if (!match.player1 || !match.player2)
 			return;
 		await this.statsService.updateStats(match, match.player1, 1, matchDto.leaverId);

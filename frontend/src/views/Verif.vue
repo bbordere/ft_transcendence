@@ -104,7 +104,7 @@
 			const json = await res.json();
 			status.value = json["status"];
 			if (status.value === "Success"){
-				sessionStorage.setItem('tokens', json["token"]);	
+				sessionStorage.setItem('tokens', json["token"]);
 				delay(1000).then(any=>{router.push('/home');});
 			}
 		}

@@ -37,14 +37,21 @@ export default {
 					throw new Error("Cet utilisateur n'est pas dans le channel !");
 				const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + '/addAdmin/' + user['id'], { credentials: 'include', method: 'POST' });
 				const response_json = await response.json();
-				this.$emit('close');
+				const notif = useNotification();
 				if (response_json['ok']) {
 					const data = {
 						channelId: this.$props.channelId,
 						new_owner_id: user['id'],
 					}
 					SocketService.getInstance.emit('changeAdmin', data);
-					const notif = useNotification();
+					this.$emit('close');
+					notif.notify({
+						text: 'Admin ajouté !',
+						type: 'success',
+						group: 'notif-center',
+					});
+				}
+				else {
 					notif.notify({
 						text: 'Admin ajouté !',
 						type: 'success',

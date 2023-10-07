@@ -40,7 +40,6 @@ export class StatsService {
 		stats.loosePoints += match[`scorePlayer${opId}`];
 		stats.highScore = Math.max(match[`scorePlayer${indexPlayer}`], stats.highScore);
 
-		const modes: string[] = ["Classique", "Arcade", "Classée", "Duel Classique", "Duel Arcade"];
 		switch (match["mode"]){
 			case "Classique":
 				stats.totalClassicGames++;
@@ -85,11 +84,6 @@ export class StatsService {
 
 		match.player1.stats.mmr += Math.ceil(k * (MMRModifier * (res1 - expectedScore1)));
 		match.player2.stats.mmr += Math.ceil(k * (MMRModifier * (res2 - expectedScore2)));
-		// const expectedScore = 1 / (1 + 10 ** ((mmr2 - mmr1) / 400));
-		// const result = score1 > score2 ? 1 : (score1 < score2 ? 0 : 0.5);
-		// const ratingChange = 64 * (result - expectedScore);``
-		// return (mmr1 + ratingChange);
-
 	}
 
 	async getRankPosition(statsId: number){

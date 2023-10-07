@@ -3,7 +3,7 @@
 		<div class="pong_content">
 			<div class="tooltip_pong">
 				<font-awesome-icon icon="fa-solid fa-circle-question" />
-				<span class="tooltip_pong_text">Utilisez les flèches pour déplacer la raquette</span>
+				<span class="tooltip_pong_text">Utilisez les flèches du clavier pour déplacer la raquette</span>
 			</div>
 			<div class="left_column_pong">
 				<PongPlayerCard v-if="dataLoaded" :id="player1Id" side="0" :emote="emote1.emoji"></PongPlayerCard>
@@ -68,7 +68,7 @@ export default {
 			player2Id: "",
 			dataLoaded: false,
 			socket: io(),
-			timer: "00:00",
+			timer: "",
 			score1: 0,
 			score2: 0,
 			emote1: { emoji: '' } as emote,
@@ -159,7 +159,10 @@ export default {
 			this.$router.push('notfound');
 			return;
 		}
-		this.timer = mode === "ranked" ? "00:00" : "01:00";
+		// if (!sessionStorage.getItem('timer'))
+		// 	this.timer = mode === "ranked" ? "00:00" : "01:00";
+		// else
+		// 	this.timer = sessionStorage.getItem('timer');
 
 		this.myUser = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' })).json()
 		SocketService.getInstance.emit('setStatus', this.myUser["id"], State.INGAME);
@@ -171,6 +174,7 @@ export default {
 
 		this.socket.on('disconnect', () => {
 			this.socket.disconnect();
+			sessionStorage.setItem('timer', this.timer);
 		});
 
 		this.socket.on('ids', (player1: string, player2: string) => {
@@ -195,9 +199,10 @@ export default {
 				this.emoteHandling(2, emoji);
 		});
 	},
-	beforeUnmount() {
+	async beforeUnmount() {
 		this.socket.disconnect();
 		this.dataLoaded = false;
+		await SocketService.fetchUser();
 	}
 }
 </script>

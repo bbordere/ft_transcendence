@@ -15,6 +15,7 @@
 </template>
 <script lang="ts">
 import PlayModal from './PlayModal.vue';
+import { SocketService } from '@/services/SocketService';
 
 export default {
 	components: {
@@ -42,8 +43,10 @@ export default {
 			const disconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
 			this.recoButton = disconnectObject["disconnect"];
 			timer++;
-			if (timer === 8 || !this.recoButton)
+			if (timer === 8 || !this.recoButton){
 				clearInterval(it);
+				await SocketService.fetchUser();
+			}
 		}, 500);
 	},
 

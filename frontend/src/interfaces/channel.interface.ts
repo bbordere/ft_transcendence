@@ -9,4 +9,5 @@ export interface Channel {
 	isPrivate: boolean;
 	admins: number[];
 	muted: boolean;
+	bannedUsers: number[];
 }

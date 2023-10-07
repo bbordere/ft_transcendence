@@ -1,6 +1,6 @@
 export abstract class PongConstants {
 	static readonly RACKET_WIDTH: number = 30;
-	static readonly RACKET_HEIGHT: number = 600;
+	static readonly RACKET_HEIGHT: number = 100;
 	static readonly MIN_BALL_SPEED: number = 4;
 	static readonly MAX_BALL_SPEED: number = 8;
 	static readonly WIN_SCORE_VALUE: number = 7;

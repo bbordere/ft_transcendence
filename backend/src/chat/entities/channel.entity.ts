@@ -34,11 +34,9 @@ export class Channel {
 	@JoinColumn()
 	public owner: User;
 
-	@ManyToMany(() => User)
-	@JoinTable()
-	public bannedUsers: User[];
+	@Column('int', { array: true, default: [] })
+	public bannedUsers: number[];
 
-	@ManyToMany(() => User)
-	@JoinTable()
-	public admins: User[];
+	@Column('int', { array: true, default: [] })
+	public admins: number[];
 };

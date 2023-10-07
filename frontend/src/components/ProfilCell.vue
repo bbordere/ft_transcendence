@@ -8,7 +8,7 @@ import { SocketService } from '@/services/SocketService';
 import type { friendTab } from '@/interfaces/friendTab.interface';
 
 export default defineComponent({
-	props: ["friend", "myId", "blockList", "print", ],
+	props: ["friend", "myId", "blockList", "print"],
 
 	components: {
 		Hamburger,
@@ -124,7 +124,7 @@ export default defineComponent({
 				<font-awesome-icon @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" icon="fa-solid fa-gamepad" :class="{'inviteButton': borderColor === 'green'}" @click="borderColor === 'green' ? (modalInvite = true) : null"></font-awesome-icon>
 				<span class="tooltip" v-if="showTooltip">{{ stateText }}</span>
 			</div>
-			<div v-on:click="modalHamburger = true" class="menu-button">
+			<div v-on:click="modalHamburger = true" class="menu-button" @click.stop>
 				<font-awesome-icon icon="fa-solid fa-xmark" />
 			</div>
 			<hamburger :show="modalHamburger" @close="modalHamburger = false" :id1="myId" :id2="friend.id" :username="friend.username"></hamburger>
@@ -159,7 +159,7 @@ export default defineComponent({
 
 .box {
 	margin-top: 10px;
-	width: 90%;
+	width: 95%;
 	height: 10%;
 	display: flex;
 	border-radius: 20px;
@@ -277,6 +277,9 @@ export default defineComponent({
 .empty_request {
 	text-align: center;
 	margin-top: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 </style>
