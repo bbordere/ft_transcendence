@@ -23,6 +23,16 @@ export default {
 
 	methods: {
 		async removeAdmin(username: string) {
+			if (!username.length || !username.match(/^(?=.{1,15}$)[\p{L}\p{N}_]+$/u)){
+				const notif = useNotification();
+				notif.notify({
+					title: 'Erreur',
+					text: "Veuillez entrer un nom d'utilisateur valide !",
+					type: 'error',
+					group: 'notif-center',
+				});
+				return;
+			}
 			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + username, { credentials: 'include' });
 			if (!user_resp['ok'] || username == '') {
 				this.$emit('close');
@@ -38,6 +48,7 @@ export default {
 				if (!userInChannel)
 					throw new Error("Cet utilisateur n'est pas dans le channel !");
 				const response_json = await response.json();
+				console.log(response_json);
 				if (response_json['ok']) {
 					const data = {
 						channelId: this.$props.channelId,

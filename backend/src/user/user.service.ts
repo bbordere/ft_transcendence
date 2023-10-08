@@ -205,10 +205,10 @@ export class UserService {
 		if (!user || !channel)
 			return ;
 		if (user.id === channel.owner.id)
-			throw new Error('You cannot ban the owner of the channel.');
+			throw new Error('Vous ne pouvez pas bannir le propriétaire du channel !');
 		for (let ban of channel.bannedUsers){
 			if (ban == user.id){
-				throw new Error('Utilisateur déjà banni !');
+				throw new Error('Cet utilisateur est déjà banni !');
 			}
 		}
 		await this.removeUserFromChannel(userId, channelId);

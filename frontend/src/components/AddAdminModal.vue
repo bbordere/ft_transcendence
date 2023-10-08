@@ -22,6 +22,16 @@ export default {
 
 	methods: {
 		async addAdmin(username: string) {
+			if (!username.length || !username.match(/^(?=.{1,15}$)[\p{L}\p{N}_]+$/u)){
+				const notif = useNotification();
+				notif.notify({
+					title: 'Erreur',
+					text: "Veuillez entrer un nom d'utilisateur valide !",
+					type: 'error',
+					group: 'notif-center',
+				});
+				return;
+			}
 			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + username, { credentials: 'include' });
 			if (!user_resp['ok'] || username == '') {
 				this.$emit('close');
@@ -46,6 +56,7 @@ export default {
 					SocketService.getInstance.emit('changeAdmin', data);
 					this.$emit('close');
 					notif.notify({
+						title: "Modération",
 						text: 'Admin ajouté !',
 						type: 'success',
 						group: 'notif-center',
@@ -53,8 +64,9 @@ export default {
 				}
 				else {
 					notif.notify({
-						text: 'Admin ajouté !',
-						type: 'success',
+						title: 'Erreur',
+						text: response_json["message"],
+						type: 'error',
 						group: 'notif-center',
 					});
 				}

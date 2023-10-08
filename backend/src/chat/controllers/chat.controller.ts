@@ -101,7 +101,7 @@ export class ChatController {
 
 	@Get('/:channelId/getAdmins')
 	async getAdmins(@Param('channelId') channelId: number) {
-		// return (await this.chatService.getAdmins(channelId));
+		return (await this.chatService.getAdmins(channelId));
 	}
 
 	@Post('/:channelId/:userId/changePassword')

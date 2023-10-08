@@ -22,6 +22,15 @@ export default {
 		}
 	},
 
+	computed: {
+		displayButton(): boolean {
+			return (this.connected_user.id === this.selectedChannel.owner
+				|| (this.userIsAdmin(this.connected_user.id)
+				&& this.friendId !== this.selectedChannel.owner
+				&& !this.userIsAdmin(this.friendId)));
+		}
+	},
+
 	methods: {
 
 		redirecToProfil(name: string) {
@@ -90,17 +99,10 @@ export default {
 
 		userIsAdmin(userId: number): boolean {
 			for (let admin of this.selectedChannel.admins)
-				if (admin.id === userId)
+				if (admin === userId)
 					return (true);
 			return (false);
 		},
-
-		displayButton(): boolean {
-			return (this.connected_user.id === this.selectedChannel.owner
-				|| (this.userIsAdmin(this.connected_user.id)
-				&& this.friendId !== this.selectedChannel.owner
-				&& !this.userIsAdmin(this.friendId)));
-		}
 	}
 }
 
@@ -111,13 +113,13 @@ export default {
 		<div v-if="show" class="modal_overlay_chat" @click="$emit('close')">
 			<div class="modal_chat" @click.stop>
 				<div class="grid">
-					<div :class="displayButton() ? 'button_grid_column' : 'button_grid_row'">
+					<div :class="displayButton ? 'button_grid_column' : 'button_grid_row'">
 						<BlueButton class="modal_chat_button" :text="'Profil de ' + username" @click="redirecToProfil(username); $emit('close')" />
 						<BlueButton class="modal_chat_button" text="Inviter à jouer" @click="modalInvite = true" />
 						<BlueButton class="modal_chat_button" text="Bloquer" @click="blockUser(); deleteFriend(); $emit('close')" />
-						<BlueButton class="modal_chat_button" v-if="displayButton()" text="Mettre en sourdine" @click="showMuteModal = true;" />
-						<BlueButton class="modal_chat_button" v-if="displayButton()" text="Exclure" @click="kickUser()" />
-						<BlueButton class="modal_chat_button" v-if="displayButton()" text="Bannir" @click="banUser()" />
+						<BlueButton class="modal_chat_button" v-if="displayButton" text="Mettre en sourdine" @click="showMuteModal = true;" />
+						<BlueButton class="modal_chat_button" v-if="displayButton" text="Exclure" @click="kickUser()" />
+						<BlueButton class="modal_chat_button" v-if="displayButton" text="Bannir" @click="banUser()" />
 					</div>
 				</div>
 			</div>

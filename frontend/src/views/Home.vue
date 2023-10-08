@@ -134,7 +134,7 @@ export default defineComponent({
 							this.selectedChannel = channel;
 					}
 				});
-			SocketService.getInstance.on('kick', (data: any) => {
+			SocketService.getInstance.on('kick', async (data: any) => {
 				const channelId = data[0];
 				const userId = data[1];
 				const ban = data[2];
@@ -144,7 +144,7 @@ export default defineComponent({
 							const channel_name = this.channels[i].name;
 							this.channels.splice(i, 1);
 							if (this.selectedChannel.id === channelId)
-								this.updateSelectedChannel(undefined);
+								await this.updateSelectedChannel(undefined);
 							const notif = useNotification()
 							notif.notify({
 								title: 'Erreur',
@@ -157,43 +157,66 @@ export default defineComponent({
 					}
 				}
 			});
-			SocketService.getInstance.on('changeAdmin', (data: { channel_id: number, new_owner_id: number }) => {
-				const { channel_id, new_owner_id } = data;
-				if (this.sender.id === new_owner_id) {
-					for (let i = 0; i < this.channels.length; i++) {
-						if (this.channels[i].id === channel_id) {
-							this.channels[i].owner = new_owner_id;
-							const notif = useNotification();
-							notif.notify({
-								title: 'Nouvel owner',
-								text: `Vous avez été promu owner du channel ${this.channels[i].name}`,
-								type: 'success',
-								group: 'notif-center',
-							});
-							break;
-						}
-					}
-				}
+			SocketService.getInstance.on('changeAdmin', async(payload) => {
+				// await this.fetchSeletedChannel();
+				if (this.selectedChannel.id === payload.channelId)
+					this.selectedChannel.admins = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId') + '/getAdmins')).json();
+
+				// const { channel_id, new_owner_id } = data;
+				// console.log(this.sender.id, new_owner_id);
+				// if (this.sender.id === new_owner_id) {
+				// 	for (let i = 0; i < this.channels.length; i++) {
+				// 		if (this.channels[i].id === channel_id) {
+				// 			this.channels[i].owner = new_owner_id;
+				// 			const notif = useNotification();
+				// 			notif.notify({
+				// 				title: 'Nouveau propriétaire',
+				// 				text: `Vous avez été promu propriétaire du channel ${this.channels[i].name}`,
+				// 				type: 'success',
+				// 				group: 'notif-center',
+				// 			});
+				// 			break;
+				// 		}
+				// 	}
+				// }
 			});
+
+			SocketService.getInstance.on('changeOwner', async (data) => {
+				const { channel_id, new_owner_id } = data;
+				if (this.selectedChannel.id === channel_id)
+					this.selectedChannel.owner = new_owner_id;
+				if (SocketService.getUser.id === new_owner_id){
+					const chanName = (await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/chat/" + channel_id,
+						{method: "get", credentials: "include"})).json())["name"];
+					const notif = useNotification();
+					notif.notify({
+						title: 'Nouveau propriétaire',
+						text: `Vous avez été promu propriétaire du channel ${chanName}`,
+						type: 'success',
+						group: 'notif-center',
+					});
+				}
+			})			
+
 			SocketService.getInstance.on('updateFriendList', async () => {
 				this.refreshTimestamp = Date.now();
 				this.channels = await this.getJoinedChannels();
 				for (let channel of this.channels) {
 					channel.messages = await this.getChannelMessages(channel.id);
 					if (channel.id === this.selectedChannel.id)
-						this.updateSelectedChannel(channel)
+						await this.updateSelectedChannel(channel)
 				}
 				
 			});
 
-			SocketService.getInstance.on('hideChan', (payload) => {
+			SocketService.getInstance.on('hideChan', async (payload) => {
 				if (this.selectedChannel.name === payload)
-					this.updateSelectedChannel(undefined)
+					await this.updateSelectedChannel(undefined)
 			})
 		},
 
 		async showChannel(chan: Channel) {
-			this.updateSelectedChannel(chan)
+			await this.updateSelectedChannel(chan)
 		},
 
 		async getJoinedChannels(): Promise<Channel[]> {
@@ -235,7 +258,7 @@ export default defineComponent({
 			if (response_json['ok'] === true) {
 				channel.owner = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + channel.id + '/owner', { credentials: 'include' })).json())['id'];
 				this.channels.push(channel);
-				this.updateSelectedChannel(channel);
+				await this.updateSelectedChannel(channel);
 				this.selectedChannel.messages = await this.getChannelMessages(channel.id);
 			}
 			else {
@@ -257,12 +280,12 @@ export default defineComponent({
 						try {
 							const new_owner_id = (await owner_response.json())['id'];
 							let channel_id = this.channels[i].id;
-							SocketService.getInstance.emit('changeAdmin', { channel_id, new_owner_id });
+							SocketService.getInstance.emit('changeOwner', { channel_id, new_owner_id });
 						}
 						catch { }
 					}
 					this.channels.splice(i, 1);
-					this.updateSelectedChannel(undefined);
+					await this.updateSelectedChannel(undefined);
 					break;
 				}
 			}
@@ -322,9 +345,12 @@ export default defineComponent({
 			this.showChannel(channel);
 		},
 
-		updateSelectedChannel(newChan: Channel | undefined){
+		async updateSelectedChannel(newChan: Channel | undefined){
 			if (newChan){
 				this.selectedChannel = newChan;
+				this.selectedChannel.owner = (await (await fetch('http://'
+						+ import.meta.env.VITE_HOST + ':3000/chat/'
+						+ this.selectedChannel.id + '/owner', { credentials: 'include' })).json())['id'];
 				sessionStorage.setItem('channelId', String(newChan.id));
 			}
 			else {
@@ -333,12 +359,15 @@ export default defineComponent({
 			}	
 		},
 
-		async fetchSeletedChannel(){
+		async fetchSeletedChannel(loadMessage: boolean = true){
 			try {
 				this.selectedChannel = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId'))).json();
-				this.selectedChannel.messages = await this.getChannelMessages(parseInt(sessionStorage.getItem('channelId')));
+				this.selectedChannel.owner = (await (await fetch('http://'
+						+ import.meta.env.VITE_HOST + ':3000/chat/'
+						+ this.selectedChannel.id + '/owner', { credentials: 'include' })).json())['id'];
+				if (loadMessage)
+					this.selectedChannel.messages = await this.getChannelMessages(parseInt(sessionStorage.getItem('channelId')));
 				// this.selectedChannel.admins = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId') + '/getAdmins',)).json();
-				this.selectedChannel.owner = (await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.selectedChannel.id + '/owner', { credentials: 'include' })).json())['id'];
 				// this.selectedChannel.bannedUsers =  await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + sessionStorage.getItem('channelId') + '/banList',)).json();
 			} catch (error) {
 				this.selectedChannel = {} as Channel;

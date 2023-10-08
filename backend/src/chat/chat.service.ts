@@ -131,30 +131,31 @@ export class ChatService {
 		if (!user)
 			throw new Error("Could not find user.");
 		if (user.id === channel.owner.id)
-			throw new Error("The user is the owner of the channel.");
+			throw new Error("Cet utilisateur est le propriétaire de ce channel !");
 		if (channel.bannedUsers.includes(user.id))
-			throw new Error("This user has been banned from this channel");
+			throw new Error("Cet utilisateur est banni de ce channel !");
+		if (channel.admins.includes(user.id))
+			throw new Error("Cet utilisateur est déjà admin de ce channel !");
 		channel.admins.push(user.id);
 		return (await this.channelRepository.save(channel));
 	}
 
 	async removeAdminInChannel(channelId: number, userId: number): Promise<Channel> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admins', 'owner', 'bannedUsers']});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
 		const user = await this.userRepository.findOne({where: {id: userId}});
 
 		if (!channel)
 			throw new Error("Could not find channel.");
 		if (!user)
 			throw new Error("Could not find user.");
-		if (channel.admins.includes(user.id))
-			throw new Error("User is banned.");
+		if (!channel.admins.includes(user.id))
+			throw new Error("Cet utilisateur n'est pas admin de ce channel !");
 		for (let admin of channel.admins) {
 			if (admin === user.id) {
 				channel.admins.splice(channel.admins.indexOf(user.id), 1);
 				return (await this.channelRepository.save(channel));
 			}
 		}
-		throw new Error('User is not an admin.');
 	}
 
 	async removePassword(userId: number, channelId: number) {
@@ -190,21 +191,28 @@ export class ChatService {
 	}
 
 	async getAdmins(channelId: number): Promise<number[]> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['admins']});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}});
 		if (!channel)
 			return (undefined);
 		return (channel.admins);
 	}
 
 	async setOwner(channelId: number, userId: number): Promise<Channel> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
 		const user = await this.userRepository.findOne({where: {id: userId}});
 
 		if (!channel || !user)
 			return (undefined);
 		channel.owner = user;
-		this.channelRepository.save(channel);
-		return (channel);
+		if (channel.admins.includes(user.id)){
+			for (let admin of channel.admins) {
+				if (admin === user.id) {
+					channel.admins.splice(channel.admins.indexOf(user.id), 1);
+					break;
+				}
+			}
+		}
+		return (await this.channelRepository.save(channel));
 	}
 
 	async isUserInChannel(channelId: number, userId: number): Promise<boolean> {

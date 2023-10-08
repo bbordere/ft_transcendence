@@ -12,6 +12,16 @@ export default defineComponent({
 
 	methods: {
 		async addPassword(password: string) {
+			if (!password.length || !password.match(/^(?=.{1,15}$)[\p{L}\p{N}_]+$/u)){
+				const notif = useNotification();
+				notif.notify({
+					title: 'Erreur',
+					text: "Veuillez entrer un mot de passe valide !",
+					type: 'error',
+					group: 'notif-center',
+				});
+				return;
+			}
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/chat/' + this.$props.channelId + "/" + this.$props.sender.id + '/changePassword', {
 				credentials: 'include',
 				method: 'POST',
@@ -71,6 +81,7 @@ export default defineComponent({
 	transition: all 0.4s ease;
 	min-height: 600px;
 	min-width: 500px;
+	z-index: 3;
 }
 
 .modal {

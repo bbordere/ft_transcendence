@@ -165,6 +165,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		return (payload);
 	}
 
+	@SubscribeMessage('changeOwner')
+	async changeOwner(client: Socket, payload: any){
+		await this.chatService.setOwner(payload.channel_id, payload.new_owner_id);
+		this.server.emit('changeOwner', payload);
+	}
+
 	async afterInit(server: Server) {
 		this.logger.log('Websocket server has started up !');
 	}

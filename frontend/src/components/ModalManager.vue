@@ -14,8 +14,8 @@
 			</UnBanUserModal>
 			<BanUserModal :show="showBanModal" :channelId="selectedChannel.id"
 				@close="showBanModal = false;" @kick="notifyKickForwarder"></BanUserModal>
-				<MuteModal :show="showMuteModal" :channelId="selectedChannel.id" @close="showMuteModal = false" />
-				<AddAdminModal :show="showAddAdminModal" :channelId="selectedChannel.id" @close="showAddAdminModal = false;"/>
+			<MuteModal :show="showMuteModal" :channelId="selectedChannel.id" @close="showMuteModal = false" />
+			<AddAdminModal :show="showAddAdminModal" :channelId="selectedChannel.id" @close="showAddAdminModal = false;"/>
 			<RemoveAdminModal :show="showRemoveAdminModal" :channelId="selectedChannel.id" :sender="sender" @close='showRemoveAdminModal = false;' />
 			<AddPasswordModal :show="showAddPasswordModal" :channelId="selectedChannel.id" :sender="sender" @close="showAddPasswordModal = false;"
 				@updateButton="updateButtonForwarder" />
