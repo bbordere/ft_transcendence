@@ -1,9 +1,9 @@
 <template>
 	<div class="social_buttons">
-		<button class="spe" @click="handleClick(true, 1)" v-bind:class="{ 'focused': focusedButton === 1 }">Channel</button>
+		<button class="spe" @click="handleClick(true, 1)" v-bind:class="{ 'focused': focusedButton === 1 }">Channels</button>
 		<button class="spe" @click="handleClick(false, 2)" v-bind:class="{ 'focused': focusedButton === 2 }">Amitiés</button>
 		<ButtonAdd tooltip_text="Ajouter un ami" icon="fa-solid fa-user-plus" @click="showModalFriend = true"></ButtonAdd>
-		<ButtonAdd tooltip_text="Rejoindre un channel" icon="fa-circle-plus" @click="showModal = true"></ButtonAdd>
+		<ButtonAdd tooltip_text="Rejoindre un channel" icon="fa-comment-medical" @click="showModal = true"></ButtonAdd>
 		<ButtonAdd tooltip_text="Classement" icon="fa-trophy" @click="showLeaderboard = true"></ButtonAdd>
 		<Teleport to="body">
 			<ModalAddFriend :show="showModalFriend" @close="showModalFriend = false"></ModalAddFriend>

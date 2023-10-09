@@ -8,7 +8,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus,
 		faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane,
-		faTrophy, faCircleQuestion} from '@fortawesome/free-solid-svg-icons'
+		faTrophy, faCircleQuestion, faCommentMedical } from '@fortawesome/free-solid-svg-icons'
 import VueApexCharts from "vue3-apexcharts";
 import Notifications from '@kyvg/vue3-notification'
 
@@ -20,7 +20,7 @@ async function isLogged() {
 
 library.add(faGear, faRightFromBracket, faPen, faLock, faUserGroup, faUserPlus,
 			faCirclePlus, faCheck, faXmark, faTableTennis, faGamepad, faPaperPlane,
-			faTrophy, faCircleQuestion);
+			faTrophy, faCircleQuestion, faCommentMedical);
 const app = createApp(App)
 
 router.beforeEach(async (to, from, next) => {

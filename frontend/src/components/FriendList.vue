@@ -129,15 +129,15 @@ export default defineComponent({
 		<transition name="fade2" mode="out-in">
 			<div class="friend_buttons_container">
 				<button v-bind:class="{ 'focused': print === 1 }" class="tri" @click="print = 1;">Demandes</button>
-				<button v-bind:class="{ 'focused': print === 2 }" class="tri" @click="print = 2;">Bloqué</button>
+				<button v-bind:class="{ 'focused': print === 2 }" class="tri" @click="print = 2;">Bloqués</button>
 				<div v-if="getFriendRequest"  class="notifDemande">
 					<strong>{{ getFriendRequest }}</strong>
 				</div>
 			</div>
 		</transition>
 		<transition name="fade2" mode="out-in">
-			<div v-if="!print" class="list_friend">
-				<div v-if="!friends.length" class="empty_blocked">
+			<div v-if="dataLoaded && !print" class="list_friend">
+				<div v-if="!(friends.length - getFriendRequest)" class="empty_blocked">
 					 <span>{{ emptyMessage }}</span>
 				</div>
 				<ProfilCell v-else v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList
@@ -147,8 +147,11 @@ export default defineComponent({
 				<div v-if="!friends.length" class="empty_blocked">
 					 <span>{{ emptyMessage }}</span>
 				</div>
-				<ProfilCell v-else v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList
+				<ProfilCell v-else-if="getFriendRequest" v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList
 						:print=print @showChannel="showChannelForwarder"></ProfilCell>
+				<div v-else class="empty_blocked">
+					Vous n'avez pas de demandes d'amis !
+				</div>
 			</div>
 			<div v-else-if="print === 2" class="list_friend">
 				<BlockListCell v-if="blockList.length > 0" v-for="block in blockList" :block=block :myId=sender></BlockListCell>

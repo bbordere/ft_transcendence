@@ -47,11 +47,9 @@ export default defineComponent({
 		})
 		const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/refresh", { credentials: 'include', method: 'POST' });
 		sessionStorage.setItem('token', (await res.json())["token"]);
-		console.log("refresh token")
 		setInterval(async () => {
 			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/refresh", { credentials: 'include', method: 'POST' });
 			sessionStorage.setItem('token', (await res.json())["token"]);
-			console.log("refresh token")
 		}, 1000 * 60 * 1);
 	},
 })

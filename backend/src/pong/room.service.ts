@@ -227,10 +227,7 @@ export class RoomService {
 		this.disconnectedUsers.delete(room.id);
 		this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
 		this.emitToPlayers(room, 'text', "ENDGAME");
-		clearInterval(room.players[0].socket.data.gameInterval);
-		if (room.players[1]){
-			clearInterval(room.players[1].socket.data.gameInterval);
-		}
+		clearInterval(room.gameInterval);
 		room.isFinished = true;
 		this.checkedRooms.delete(room);
 	}

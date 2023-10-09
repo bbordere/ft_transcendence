@@ -38,16 +38,19 @@ export default {
 		this.gameId = disconnectObject["id"];
 		if (!this.recoButton)
 			return;
-		let timer: number = 0;
 		const it = setInterval(async () => {
 			const disconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
 			this.recoButton = disconnectObject["disconnect"];
-			timer++;
-			if (timer === 8 || !this.recoButton){
-				clearInterval(it);
+			if (!this.recoButton){
 				await SocketService.fetchUser();
+				this.recoButton = false;
+				clearInterval(it);
 			}
 		}, 500);
+		setTimeout(() => {
+			clearInterval(it);
+			this.recoButton = false;
+		}, 4750)
 	},
 
 	methods: {

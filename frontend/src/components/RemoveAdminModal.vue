@@ -48,7 +48,6 @@ export default {
 				if (!userInChannel)
 					throw new Error("Cet utilisateur n'est pas dans le channel !");
 				const response_json = await response.json();
-				console.log(response_json);
 				if (response_json['ok']) {
 					const data = {
 						channelId: this.$props.channelId,

@@ -1,7 +1,9 @@
 <template>
 	<div class="add_container">
-		<button class="add-button"><font-awesome-icon :icon="this.icon"/> {{ this.text }}</button>
-		<span class="tooltiptext">{{tooltip_text}}</span>
+		<button @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" class="add-button"><font-awesome-icon :icon="this.icon"/> {{ this.text }}</button>
+		<transition name="fade2" mode="out-in">
+			<span v-if="showTooltip" class="tooltiptext">{{tooltip_text}}</span>
+		</transition>
 	</div>
 </template>
 
@@ -9,18 +11,15 @@
 
 export default{
 	props: ["text", "icon", "tooltip_text"],
+
+	data() {
+		return ({showTooltip: false})
+	}
 }
 
 </script>
 
-<style>
-
-.bounce-enter-active {
-  animation: bounce-in 0.5s;
-}
-.bounce-leave-active {
-  animation: bounce-in 0.5s reverse;
-}
+<style scoped>
 
 .add_container {
 	height: 90%;
@@ -83,6 +82,17 @@ export default{
 
 .add-button:hover {
 	background-color: #032f3d;
+}
+
+.fade2-enter-active,
+.fade2-leave-active {
+  transition: opacity 0.2s ease;
+  opacity: 1;
+}
+
+.fade2-enter-from,
+.fade2-leave-to {
+  opacity: 0;
 }
 
 </style>

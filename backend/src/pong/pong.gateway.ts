@@ -32,7 +32,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	async handleDisconnect(client: Socket) {
 		// this.logger.log(`Client disconnected: ${client.id}`);
 		await this.roomService.leaveRoomSocket(client.id, client);
-		clearInterval(client.data.gameInterval);
 		client.disconnect();
 	}
 

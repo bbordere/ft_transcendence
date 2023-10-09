@@ -146,12 +146,6 @@ export default defineComponent({
 				</button>
 			</div>
 		</div>
-		<div v-else-if="dataLoaded && print === 1" class="empty_request">
-			Vous n'avez pas de demandes d'amis !
-		</div>
-		<div v-else-if="dataLoaded" class="empty_request">
-			Vous n'avez pas encore ajouté d'amis !
-		</div>
 	</transition>
 </template>
 
