@@ -207,14 +207,20 @@ export class PongGame {
 		}
 	}
 
-	updateGame(client: Socket, room: Room) {
+	updateGame(client: Socket, room: Room, updatePhysics: boolean = true) {
 		client.emit('time', this.formatTime(room.time, room.mode))
-		this.updateBall(room);
-		this.updateRacket(client, room, client.data.keyUp, client.data.keyDown);
-		this.powerupsHandling(room);
+		if (updatePhysics){
+			this.updateBall(room);
+			this.updateRacket(client, room, client.data.keyUp, client.data.keyDown);
+			this.powerupsHandling(room);
+		}
 		const { ["effectTimeout"]: timeOut1, ...racket1 } = room.players[0].racket;
 		const { ["effectTimeout"]: timeOut2, ...racket2 } = room.players[1].racket;
-		client.emit("updateGame", room.ball, racket1, racket2, JSON.stringify(room.powerups));
+
+		client.emit("updateBall", room.ball);
+		client.emit("updatePads", racket1, racket2);
+		client.emit("updatePowerups", room.powerups);
+		client.emit("updateGame");
 	}
 
 	async initGame(room: Room) {

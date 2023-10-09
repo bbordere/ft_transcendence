@@ -16,8 +16,8 @@ export abstract class PongConstants {
 
 	static readonly SPEED_BALL_POWERUP: number = 15;
 
-	static readonly BIG_PADDLE_DURATION: number = 15000; //miliseconds
+	static readonly BIG_PADDLE_DURATION: number = 7000; //miliseconds
 	static readonly LIL_PADDLE_DURATION: number = 7000; //miliseconds
-	static readonly SPEEDY_BALL_DURATION: number = 15000;//miliseconds
+	static readonly SPEEDY_BALL_DURATION: number = 7000;//miliseconds
 
 };

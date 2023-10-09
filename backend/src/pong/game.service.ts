@@ -4,6 +4,7 @@ import { RoomService } from './room.service';
 import { Mode, Room, State } from './interface/room.interface';
 import { Socket } from 'socket.io';
 import { PongConstants } from './interface/constants.interface';
+import { Powerup } from './interface/powerup.interface';
 
 
 @Injectable()
@@ -37,7 +38,7 @@ export class GameService {
 						room.state = State.INIT;
 						countDown = 0;
 					}
-					if (countDown === 200) {
+					if (countDown > (1000 / PongConstants.GAME_TICK) * 5) {
 						room.state = State.ENDGAME;
 					}
 				}
@@ -92,6 +93,10 @@ export class GameService {
 		});
 	}
 
+	isPromise(obj: any){
+		return (Object(obj).constructor === Promise);
+	}
+
 	async playGame(room: Room) {
 		await this.pongGame.initGame(room);
 		await this.pongGame.startTimer(room);
@@ -108,12 +113,15 @@ export class GameService {
 					break;
 
 				case State.COOLDOWN: {
-					room.powerups = [];
-					this.roomService.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, JSON.stringify(room.powerups));
+					room.powerups = [] as Powerup[];
+					this.pongGame.updateGame(room.players[0].socket, room, false);
+					this.pongGame.updateGame(room.players[1].socket, room, false);
+
 					if (needUpdate) {
 						needUpdate = false;
 						this.pongGame.resetBall(room);
-						this.roomService.emitToPlayers(room, "updateGame", room.ball, room.players[0].racket, room.players[1].racket, JSON.stringify(room.powerups));
+						this.pongGame.updateGame(room.players[0].socket, room, false);
+						this.pongGame.updateGame(room.players[1].socket, room, false);
 						this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
 					}
 					if (room.timerInterval) {

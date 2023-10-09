@@ -237,9 +237,8 @@ export default {
 	},
 	async mounted() {
 		await this.init();
-		this.socket.on('updateGame', (ball: ball, racket1: paddle, racket2: paddle, powerups: string) => {
+		this.socket.on('updateGame', () => {
 			this.$emit('setState', 1)
-			this.gameInfos = { ball: ball, pad1: racket1, pad2: racket2, powerups: JSON.parse(powerups)};
 			if (this.animId === -1 || !this.isInGame) {
 				if (this.animId !== -1)
 					cancelAnimationFrame(this.animId);
@@ -247,6 +246,19 @@ export default {
 				this.animId = requestAnimationFrame(this.draw);
 			}
 		});
+
+		this.socket.on('updateBall', (ball: ball) => {
+			this.gameInfos.ball = ball;
+		})
+
+		this.socket.on('updatePads', (pad1: paddle, pad2: paddle)=> {
+			this.gameInfos.pad1 = pad1;
+			this.gameInfos.pad2 = pad2;
+		})
+
+		this.socket.on('updatePowerups', (powerups: []) =>{
+			this.gameInfos.powerups = powerups;
+		})
 
 		this.socket.on('text', (data: string) => {
 			cancelAnimationFrame(this.animId);
