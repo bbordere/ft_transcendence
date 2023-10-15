@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   postgres:
-    image: postgres:15
+    image: postgres:latest
     restart: on-failure
     env_file:
       - postgres.env
@@ -23,7 +23,7 @@ services:
       - "5050:80"
 
   nestjs:
-    restart: "no"
+    restart: on-failure
     depends_on:
       - postgres
     build: backend/
@@ -39,11 +39,11 @@ services:
     container_name: frontend
     restart: on-failure
     build:
-      dockerfile: ./frontend.dockerfile
+      dockerfile: ./frontend/Dockerfile
     ports:
       - "8080:8080"
     volumes:
-      - .:/frontend
+      - ./frontend:/frontend
 
 volumes:
   db-data:

@@ -1,7 +1,7 @@
 <template>
 	<div class="modal-overlay" @click="closeModal">
 		<div class="modal-username" @click.stop>
-			<SlidingTitle text="Changer Pseudo"/>
+			<SlidingTitle text="Changer de Pseudo"/>
 			<div class="username-items">
 				<div class="form__group">
 					<input type="text" maxlength="15" v-model="username" class="input_username" id="name" placeholder="Nouveau Pseudo"/>
@@ -93,6 +93,8 @@ export default{
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	min-width: 270px;
+	max-width: 600px;
 }
 
 .username-items{

@@ -67,7 +67,15 @@ export default defineComponent({
 	</div>
 
 </template>
-<style>
+<style scoped>
+
+.name {
+	font-size: clamp(0.6875rem, 0.2548rem + 1.3846vw, 1.25rem);
+	/* font-weight: bold; */
+	text-align: center;
+	margin-left: 5px;
+	/* background: red; */
+}
 
 .img_user_profil_block {
 	border-radius: 25px;

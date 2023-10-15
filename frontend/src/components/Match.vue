@@ -70,6 +70,7 @@ import { SocketService } from '@/services/SocketService';
 }
 
 .player-card {
+	/* background: red; */
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -80,6 +81,8 @@ import { SocketService } from '@/services/SocketService';
 }
 
 .score-card {
+	/* background: blue; */
+	width: 30%;
 	display: flex;
 	justify-content: center;
 	flex-direction: column;
@@ -100,12 +103,15 @@ import { SocketService } from '@/services/SocketService';
 
 @media screen and (max-width: 950px) {
 	.match-card {
+		/* background: red; */
+		width: 95%;
 		height: 25%;
-		font-size: clamp(0.5rem, -0.3333rem + 2.6667vw, 1.25rem);
+		/* font-size: clamp(0.5rem, -0.3333rem + 2.6667vw, 1.25rem); */
 	}
 	.player-card {
 		justify-content: center;
-		font-size: 70%;
+		/* font-size: 70%; */
+		font-size: clamp(0.5rem, 0.2115rem + 0.9231vw, 0.875rem);
 		font-weight: bold;
 	}
 	.mode {
@@ -116,7 +122,8 @@ import { SocketService } from '@/services/SocketService';
 		display: none;
 	}
 	.score-text {
-		font-size: clamp(0.5rem, -0.3333rem + 2.6667vw, 1.25rem);
+		/* font-size: clamp(0.5rem, -0.3333rem + 2.6667vw, 1.25rem); */
+		font-size: clamp(0.75rem, 0.5577rem + 0.6154vw, 1rem);
 	}
 }
 

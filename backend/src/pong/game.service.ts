@@ -45,10 +45,6 @@ export class GameService {
 					break;
 
 				case State.ENDGAME: {
-
-					// if (countDown < (1000 / PongConstants.GAME_TICK) * 5 && !this.roomService.haveUserDisco(room.id))
-					// 	countDown++
-					// else
 					await this.roomService.endGame(room);
 				}
 					break;

@@ -45,7 +45,8 @@
 <style>
 
 .history-title{
-
+	margin-top: 5px;
+	font-size: clamp(0.6875rem, 0.2548rem + 1.3846vw, 1.25rem);
 }
 
 .history_container{
@@ -54,13 +55,17 @@
 	align-items: center;
 	height: 100%;
 	width: 100%;
+	border-radius: 50px;
+	overflow: hidden;
 }
 
 .no-match{
 	display: flex;
+	text-align: center;
 	justify-content: center;
 	align-items: center;
 	background-color: rgba(34, 158, 230, 0.103);
+	font-size: clamp(0.625rem, 0.1442rem + 1.5385vw, 1.25rem);
 	border-radius: 50px;
 	/* flex: 1; */
 	width: 96%;
@@ -73,6 +78,7 @@
 	align-items: center;
 	overflow-y: auto;
 	height: 92%;
+	width: 100%;
 }
 
 .history{
@@ -92,15 +98,6 @@
 /* Hide scrollbar for Chrome, Safari and Opera */
 .matches::-webkit-scrollbar {
   display: none;
-}
-
-@media screen and (max-width: 950px) {
-	.matches{
-		width: 100%;
-	}
-	.history-title{
-		font-size: 2vw;
-	}
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */

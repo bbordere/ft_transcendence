@@ -38,11 +38,8 @@ export class MatchService {
 			return;
 		await this.statsService.updateStats(match, match.player1, 1, matchDto.leaverId);
 		await this.statsService.updateStats(match, match.player2, 2, matchDto.leaverId);
-		if (isRanked){
-			const tempScore1 = (match.leaverId === match.player1.id ? 0 : match.scorePlayer1);
-			const tempScore2 = (match.leaverId === match.player2.id ? 0 : match.scorePlayer2);
+		if (isRanked)
 			await this.statsService.getUpdatedMmr(match)
-		}
 		await this.userService.saveUser(match.player1);
 		await this.userService.saveUser(match.player2);
 		await this.matchRepository.save(match);

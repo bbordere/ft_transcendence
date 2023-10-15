@@ -211,10 +211,10 @@ export class RoomService {
 			matchDto.leaverId = matchDto.player1Id;
 		else if (leaverEmail && room.players[1].user["email"] === leaverEmail)
 			matchDto.leaverId = matchDto.player2Id;
-		room.state = State.FINAL;
 		if (matchDto.leaverId !== -1){
 			this.emitToPlayers(room, 'userDisco', matchDto.leaverId);
 		}
+		room.state = State.FINAL;
 		await this.matchService.createMatch(matchDto, room.mode === Mode.RANKED);
 	}
 

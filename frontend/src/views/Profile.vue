@@ -88,16 +88,17 @@ export default{
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-
 	}
 	
 	.profileCard{
 		padding-top: 2.5%;
 		width: 80%;
 		min-width: 480px;
+		max-width: 2000px;
 	}
 	
 	.subCard{
+		max-width: 2000px;
 		min-width: 480px;
 		display: flex;
 		flex-direction: row;

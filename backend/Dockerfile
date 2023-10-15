@@ -14,3 +14,4 @@ EXPOSE 3000
 EXPOSE 5432
 
 ENTRYPOINT [ "/bin/sh", "-c", "npm install --save && npm run start:dev" ]
+# ENTRYPOINT [ "/bin/sh", "-c", "npm install --save && npm run build && npm run start:prod" ]

@@ -69,7 +69,7 @@ async function login(){
 	<div class= "co-email">
 		<span class="text">Authentification</span>
 		<div class="form">
-			<input class="field" type="email" id="email" placeholder="Email / pseudo" v-model="email" />
+			<input class="field" type="email" id="email" placeholder="Email / Pseudo" v-model="email" />
 			<input class="field" type="password" placeholder="Mot de passe" v-model="password" />
 			<button @click="login">Connexion</button>
 		</div>

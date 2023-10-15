@@ -267,7 +267,7 @@ input:placeholder-shown {
 	background-color: white;
 	border: 3px solid #515151;
 	border-radius: 10px;
-	background-image: url('/public/chat_background.png');
+	background-image: url('/public/chat_background.webp');
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -289,7 +289,7 @@ input:placeholder-shown {
 	height: 100%;
 	border: 3px solid #515151;
 	border-radius: 10px;
-	background-image: url('/public/chat_background.png');
+	background-image: url('/public/chat_background.webp');
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;

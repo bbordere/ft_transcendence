@@ -43,27 +43,27 @@
 			<div class="stat-panel-item">
 				<h3>Statistiques</h3>
 				<div class="list-stats">
-					<h5>Nombre de Points Gagnés</h5>
+					<h5>Nombre de points marqués</h5>
 					{{ this.stats["winPoints"] }}
-					<h5>Nombre de Points Perdus</h5>
+					<h5>Nombre de points perdus</h5>
 					{{ this.stats["loosePoints"] }}
 					<h5>Score Maximal</h5>
 					{{ this.stats["highScore"] }}
-					<h5>Nombre de Parties Total</h5>
+					<h5>Nombre total de parties</h5>
 					{{ this.stats["totalGames"] }}
-					<h5>Nombre de Parties Classiques</h5>
+					<h5>Nombre de parties classiques</h5>
 					{{ this.stats["totalClassicGames"] }}
-					<h5>Nombre de Parties Arcades</h5>
+					<h5>Nombre de parties arcades</h5>
 					{{ this.stats["totalArcadeGames"] }}
-					<h5>Nombre de Parties Classées</h5>
+					<h5>Nombre de parties classées</h5>
 					{{ this.stats["totalRankedGames"] }}
-					<h5>Nombre de Duels Amis</h5>
+					<h5>Nombre de duels amis</h5>
 					{{ this.stats["totalFriendsDuel"] }}
-					<h5>Nombre de Powerups Activés</h5>
+					<h5>Nombre de powerups activés</h5>
 					{{ this.stats["totalPowerups"] }}
-					<h5>Nombre de Messages Envoyés</h5>
+					<h5>Nombre de messages envoyés</h5>
 					{{ this.stats["totalMessages"] }}
-					<h5>Nombre d'emotes Envoyées</h5>
+					<h5>Nombre d'emotes envoyées</h5>
 					{{ this.stats["totalEmotes"] }}
 				</div>
 			</div>
@@ -125,40 +125,33 @@ export default{
 
 .rank {
 	text-align: center;
-	/* width: 100%; */
-	/* background-color: red; */
 	font-size: clamp(0.625rem, 0.4327rem + 0.6154vw, 0.875rem);
 }
 
 .titleRank{
-    /* display: block; */
-    /* margin-top: 1em; */
-    /* margin-bottom: 1em; */
-    /* margin-left: 0; */
-    /* margin-right: 0; */
     font-weight: bold;
-	/* padding-top: 0%; */
-	/* margin-top: 0; */
 	font-size: clamp(0.6875rem, 0.1319rem + 1.7778vw, 1.1875rem);
-	/* background-color: blue; */
 }
 
 .small-winrate{
-	/* background-color: rgb(180, 154, 206); */
+	height: 100px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-around;
-	gap: 20px;
+	align-items: center;
+	width: 95%;
+	margin: 2.5%;
 	text-align: center;
+	border-radius: 50px;
 }
 
 .small-winrate-title{
-	font-size: 2.3vw;
+	font-size: clamp(0.625rem, 0.3365rem + 0.9231vw, 1rem);
 	font-weight: bold;
 }
 
 .small-winrate-text{
-	font-size: 2vw;
+	font-size: clamp(0.625rem, 0.3365rem + 0.9231vw, 1rem);
 }
 
 .panel{
@@ -173,9 +166,7 @@ export default{
 	width: 50%;
  	display: flex;
 	flex-direction: column;
-	font-size: clamp(0.5rem, -0.1944rem + 2.2222vw, 1.125rem);
-
-	/* border: 1px solid black; */
+	font-size: clamp(0.625rem, 0.1442rem + 1.5385vw, 1.25rem);
 }
 
 .centered-panel-item {
@@ -238,20 +229,17 @@ h3{
 .list-stats {
 	text-align: center;
 	overflow-y: auto;
-	/* overflow: scroll; */
 	height: 80%;
 	width: 90%;
 	border-radius: 20px;
 }
 
 h5{
-	font-size: clamp(0.4375rem, -0.1875rem + 2vw, 1rem);
 	font-size: clamp(0.625rem, 0.3365rem + 0.9231vw, 1rem);
 }
 
 h3{
 	font-size: clamp(0.6875rem, -0.0764rem + 2.4444vw, 1.375rem);
-	/* font-size: clamp(0.625rem, 0.3365rem + 0.9231vw, 1rem); */
 }
 
 .empty-stats {

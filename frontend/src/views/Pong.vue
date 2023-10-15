@@ -289,7 +289,7 @@ export default {
 .reaction_panel {
 	display: flex;
 	flex-direction: row;
-	gap: 10px;
+	gap: 0.1vw;
 	margin-left: 20px;
 	/* justify-content: space-between; */
 	/* width: 42%; */
@@ -297,11 +297,12 @@ export default {
 
 #exit_button {
 	position: relative;
-	font-size: 2vh;
-	padding: 0.7vw;
+	min-width: 100px;
+	font-size: clamp(0.6875rem, 0.2548rem + 1.3846vw, 1.25rem);
+	/* font-size: 2vh; */
+	padding: 10px;
 	margin-right: 1vw;
 	border-radius: 40px;
-	font-family: "Poppins", sans-serif;
 }
 
 /* #exit_button:hover {
