@@ -159,10 +159,6 @@ export default {
 			this.$router.push('notfound');
 			return;
 		}
-		// if (!sessionStorage.getItem('timer'))
-		// 	this.timer = mode === "ranked" ? "00:00" : "01:00";
-		// else
-		// 	this.timer = sessionStorage.getItem('timer');
 
 		this.myUser = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/user/me", { credentials: 'include' })).json()
 		SocketService.getInstance.emit('setStatus', this.myUser["id"], State.INGAME);

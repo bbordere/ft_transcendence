@@ -276,7 +276,6 @@ export class PongGame {
 				clearInterval(room.timerInterval);
 			}, (PongConstants.GAME_DURATION - room.time) * 1000);
 		}
-
 	}
 
 	randInt(min: number, max: number): number {
