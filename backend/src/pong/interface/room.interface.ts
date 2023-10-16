@@ -57,5 +57,6 @@ export class Room {
 	gameInterval: NodeJS.Timeout;
 	canvas: Canvas;
 	isFinished: boolean;
+	isSavingData: boolean;
 	powerups: Array<Powerup>;
 }

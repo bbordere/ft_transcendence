@@ -16,7 +16,7 @@ export default defineComponent({
 		});
 	},
 
-	props: ['title', 'show', 'placeholder', 'callback', 'isDigit'],
+	props: ['title', 'show', 'placeholder', 'callback', 'isDigit', 'isPassword'],
 
 	methods: {
 		isNumber(evt: KeyboardEvent): void {
@@ -34,7 +34,8 @@ export default defineComponent({
 <template>
 	<div class="channel_options_modal">
 		<SlidingTitle class="channel_options_title" :text="title"></SlidingTitle>
-		<input v-if="isDigit" :maxlength="7" v-model="input" @keypress="isNumber($event)" class="channel_options_input" :placeholder=placeholder />
+		<input v-if="isPassword" type="password" :maxlength="32" v-model="input" class="channel_options_input" :placeholder=placeholder />
+		<input v-else-if="isDigit" :maxlength="5" v-model="input" @keypress="isNumber($event)" class="channel_options_input" :placeholder=placeholder />
 		<input v-else v-model="input" class="channel_options_input" type="text" :placeholder=placeholder />
 		<BlueButton class="channel_options_button" text="Confirmer" @click="$emit('callback', input)"></BlueButton>
 	</div>

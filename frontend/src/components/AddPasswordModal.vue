@@ -4,7 +4,7 @@ import { useNotification } from '@kyvg/vue3-notification';
 import ChannelOptionModal from './ChannelOptionModal.vue';
 
 export default defineComponent({
-	props: ['show', 'channelId', 'sender'],
+	props: ['show', 'channelId', 'sender',],
 
 	components: {
 		ChannelOptionModal
@@ -12,7 +12,7 @@ export default defineComponent({
 
 	methods: {
 		async addPassword(password: string) {
-			if (!password.length || !password.match(/^(?=.{1,15}$)[\p{L}\p{N}_]+$/u)){
+			if (!password.length || !password.match(/^(?=.{1,32}$)[\p{L}\p{N}_]+$/u)){
 				const notif = useNotification();
 				notif.notify({
 					title: 'Erreur',
@@ -61,7 +61,10 @@ export default defineComponent({
 <template>
 	<Transition name="slide-fade" mode="out-in">
 		<div v-if="show" class="modal_overlay" @click="$emit('close')">
-			<ChannelOptionModal @click.stop title="Modifier le mot de passe" placeholder="Nouveau mot de passe" @callback="addPassword" ></ChannelOptionModal>
+			<ChannelOptionModal @click.stop title="Modifier le mot de passe"
+				placeholder="Nouveau mot de passe"
+				@callback="addPassword"
+				isPassword="1" ></ChannelOptionModal>
 		</div>
 	</Transition>
 </template>

@@ -261,6 +261,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('addFriendNotif')
 	async displayFriendNotif(client: Socket, payload: string){
 		const target = await this.userService.getByName(payload);
-		this.clients.get(target?.id)?.client_socket.emit('friendNotif');
+		if (!target.blockList.includes(client.data.userId))
+			this.clients.get(target?.id)?.client_socket.emit('friendNotif');
 	}
 }

@@ -9,7 +9,9 @@ import { StatsService } from 'src/stats/stats.service';
 
 @Injectable()
 export class MatchService {
-	constructor(@InjectRepository(Match) private matchRepository: Repository<Match>, private userService: UserService, private statsService: StatsService) {}
+	constructor(@InjectRepository(Match) private matchRepository: Repository<Match>,
+										private userService: UserService,
+										private statsService: StatsService) {}
 
 	async filterMatchesEntry(matches: Match[]){
 		const test = matches.map((match) => {
@@ -36,13 +38,13 @@ export class MatchService {
 		match.player2 = this.userService.getPartialUser(await this.userService.getById(matchDto.player2Id));
 		if (!match.player1 || !match.player2)
 			return;
-		await this.statsService.updateStats(match, match.player1, 1, matchDto.leaverId);
-		await this.statsService.updateStats(match, match.player2, 2, matchDto.leaverId);
+		match.player1.stats = await this.statsService.updateStats(match, match.player1.stats.id, 1, matchDto.leaverId);
+		match.player2.stats = await this.statsService.updateStats(match, match.player2.stats.id, 2, matchDto.leaverId);
 		if (isRanked)
 			await this.statsService.getUpdatedMmr(match)
 		await this.userService.saveUser(match.player1);
 		await this.userService.saveUser(match.player2);
-		await this.matchRepository.save(match);
+		return (await this.matchRepository.save(match));
 	}
 	
 	async getMyMatches(req: Request){

@@ -16,7 +16,7 @@ export class UserController {
 
 	@Get()
 	async getUsers(){
-		return (this.userService.getAllUsers());
+		return (await this.userService.getAllUsers());
 	}
 	
 	@Get('/me')
@@ -133,26 +133,31 @@ export class UserController {
 
 	@Post('/:userId/channels/:channelId/unban')
 	async UnbanUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
-		this.userService.UnbanUserFromChannel(userId, channelId);
+		await this.userService.UnbanUserFromChannel(userId, channelId);
 	}
 
 	@Get('/:userId/joinedChannels')
 	async getJoinedChannels(@Param('userId') userId: number) {
-		return (this.userService.getJoinedChannels(userId));
+		return (await this.userService.getJoinedChannels(userId));
 	}
 
 	@Post('/block/blocked')
 	async blockUser(@Body('userId') userId: number, @Body('blockId') blockId: number) {
-		return (this.userService.blockUser(userId, blockId));
+		return (await this.userService.blockUser(userId, blockId));
 	}
 
 	@Get('/:userId/block/blocklist')
 	async getBlockList(@Param('userId') userId: number) {
-		return (this.userService.getBlockList(userId));
+		return (await this.userService.getBlockList(userId));
 	}
 
 	@Patch('/block/unblock')
 	async unblockUser(@Body('userId') userId: number, @Body('unblockId') unblockId: number) {
-		return (this.userService.unblockUser(userId, unblockId));
+		return (await this.userService.unblockUser(userId, unblockId));
+	}
+
+	@Post('/isBlocked')
+	async isUserBlocked(@Body('userId') userId: number, @Body('blockId') blockId: number){
+		return ((await this.userService.getBlockList(userId)).includes(blockId));
 	}
 }

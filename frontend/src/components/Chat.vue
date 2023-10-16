@@ -6,7 +6,8 @@
 		</Teleport>
 		<div class="top_chat_container">
 			<div class="channel_name" v-if="selectedChannel.name">{{ channelName }}</div>
-			<ChannelOptionsMenu v-if="selectedChannel.name && selectedChannel.name.length <= 16" :isAdmin="selectedChannel.owner === sender.id"
+			<ChannelOptionsMenu v-if="selectedChannel.name && selectedChannel.name.length <= 16"
+			:isOwner="selectedChannel.owner === sender.id" :isAdmin="selectedChannel.admins.includes(sender.id)"
 			:showMenu="showMenu" :isProtected="selectedChannel.protected"
 			@openMenu="toggleMenu" @quitChannel="quitChannel(sender.id)" 
 			@removePassword="removePassword()" @displayChannelOption="emitToModalManager"></ChannelOptionsMenu>

@@ -23,10 +23,10 @@ export default {
 	data(){
 		return ({
 				showModal: false,
-				isMyPage: false,
 				windowWidth: window.innerWidth,
 				showQrcode: false,
 				showBlockButton: true,
+				showAddButton: true,
 			});
 	},
 
@@ -76,7 +76,7 @@ export default {
 				this.$emit('close');
 				SocketService.getInstance.emit('refreshFriendList', this.user.name);
 				SocketService.getInstance.emit('addFriendNotif', this.user.name);
-				this.isMyPage = true;
+				this.showAddButton = false;
 			}
 		},
 		async deleteFriend() {
@@ -107,11 +107,11 @@ export default {
 				}),
 			});
 			this.showBlockButton = false;
-			this.isMyPage = true;
+			this.showAddButton = false;
 			await this.deleteFriend();
 		},
 
-		async isMe(){
+		async init(){
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/friend/isFriend',{
 				credentials: 'include',
 				method: 'POST',
@@ -124,12 +124,26 @@ export default {
 				})
 			})
 			const ret = await (await response.blob()).text();
-			this.isMyPage = this.isMyPage || this.user.name === 'me' || this.user.name === SocketService.getUser["name"] || (ret !== "false");
+			const isBlockedRes = await fetch(`http://${import.meta.env.VITE_HOST}:3000/user/isBlocked`,{
+				credentials: 'include',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					userId: SocketService.getUser.id,
+					blockId: this.user.id,
+				}),
+			});
+			const retBlocked = await isBlockedRes.json();
+			this.showAddButton = ret === "true" ? false : true;
+			this.showAddButton = this.showAddButton && !retBlocked;
+			this.showBlockButton = !retBlocked;
 		},
 	},
 	async created(){
 		window.addEventListener('resize', this.handleResize);
-		await this.isMe();
+		await this.init();
 	},
 }
 
@@ -164,7 +178,7 @@ export default {
 				<BlueButton class="button-profile"  text="Déconnection " icon="fa-solid fa-right-from-bracket" @click="logout" :display-text="windowWidth >= 1250"></BlueButton>
 			</div>
 			<div v-else class="buttons-items">
-				<BlueButton class="button-profile" v-if="!isMyPage" @click="addUser" text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 1250" ></BlueButton>
+				<BlueButton class="button-profile" v-if="showAddButton" @click="addUser" text="Ajouter en ami " icon="fa-solid fa-user-group" :display-text="windowWidth >= 1250" ></BlueButton>
 				<BlueButton class="button-profile" v-if="showBlockButton" @click="blockUser" text="Bloquer" icon="fa-solid fa-lock" :display-text="windowWidth >= 1250" ></BlueButton>
 			</div>
 		</div>

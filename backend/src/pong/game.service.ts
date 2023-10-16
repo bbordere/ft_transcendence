@@ -51,8 +51,10 @@ export class GameService {
 
 				case State.FINAL: {
 					countDown = 0;
-					this.roomService.finalGame(room);
-					clearInterval(it);
+					if (!room.isSavingData){
+						this.roomService.finalGame(room);
+						clearInterval(it);
+					}
 				}
 					break;
 
@@ -87,10 +89,6 @@ export class GameService {
 			client.data.keyDown = keyDown;
 			client.data.keyUp = keyUp;
 		});
-	}
-
-	isPromise(obj: any){
-		return (Object(obj).constructor === Promise);
 	}
 
 	async playGame(room: Room) {
