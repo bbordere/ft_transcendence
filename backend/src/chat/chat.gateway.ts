@@ -101,6 +101,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			target?.client_socket.emit('mute', data);
 			return ;
 		}
+		if (channel.isPrivate) {
+			data.error = true;
+			data.message = "Vous ne pouvez pas faire d'operations sur un channel prive.";
+			target?.client_socket.emit('mute', data);
+			return ;
+		}
 		if (userId === channelOwner.id) {
 			data.error = true;
 			data.message = 'Vous ne pouvez pas mute le owner du channel.';

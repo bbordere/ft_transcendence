@@ -86,7 +86,6 @@ export default defineComponent({
 		this.isChannelLoaded = true;
 		await this.init();
 		await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/refresh", { credentials: 'include', method: 'POST' });
-		// const response_test = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/message/count', { credentials: 'include' });
 	},
 
 	methods: {

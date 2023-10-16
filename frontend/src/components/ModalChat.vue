@@ -24,6 +24,8 @@ export default {
 
 	computed: {
 		displayButton(): boolean {
+			if (this.selectedChannel.isPrivate)
+				return (false);
 			return (this.connected_user.id === this.selectedChannel.owner
 				|| (this.userIsAdmin(this.connected_user.id)
 				&& this.friendId !== this.selectedChannel.owner
@@ -90,7 +92,6 @@ export default {
 			const user = await user_resp.json();
 			const response = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + user['id'] + '/channels/' + this.$props.selectedChannel.id + '/ban', { credentials: 'include', method: 'POST' });
 			const response_json = await response.json();
-			this.$emit('close');
 			if (response_json['ok']) {
 				SocketService.getInstance.emit('kick', this.$props.selectedChannel.id, user['id'], true);
 				this.$emit('close');

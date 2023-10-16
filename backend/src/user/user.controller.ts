@@ -2,10 +2,14 @@ import { Body, Controller, Get, Param, Patch, Post, Query, Req, Res, UseGuards,}
 import { Response, Request } from 'express';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
+import { ChatService } from 'src/chat/chat.service';
 
 @Controller('user')
 export class UserController {
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly userService: UserService,
+		private readonly chatService: ChatService
+	) {}
 
 
 	//TODO SEND PARTIAL USER TO NOT SEND CRITICAL VALUES
@@ -54,7 +58,12 @@ export class UserController {
 
 	@Post('/:userId/channels/:channelId/add')
 	async addUserToChannel(@Param('userId') userId: number, @Param('channelId') channelId: number, @Body('password') password: string) {
-		try {await this.userService.addUserToChannel(userId, channelId, password);}
+		try {
+			const channel = await this.chatService.getById(channelId);
+			if (channel?.isPrivate)
+				throw new Error("Vous ne pouvez pas faire d'operations dans un channel prive.");
+			await this.userService.addUserToChannel(userId, channelId, password);
+		}
 		catch (e) {
 			return {
 				ok: false,
@@ -69,6 +78,12 @@ export class UserController {
 
 	@Post('/:userId/channels/:channelId/remove')
 	async removeUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
+		const channel = await this.chatService.getById(channelId);
+			if (channel?.isPrivate)
+				return ({
+					ok: false,
+					message: "Vous ne pouvez pas faire d'operations dans un channel prive.",
+				});
 		await this.userService.removeUserFromChannel(userId, channelId);
 		return ({
 			ok: true,
@@ -78,7 +93,12 @@ export class UserController {
 
 	@Post('/:userId/channels/:channelId/kick')
 	async kickUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
-		try {await this.userService.kickUserFromChannel(userId, channelId);}
+		try {
+			const channel = await this.chatService.getById(channelId);
+			if (channel?.isPrivate)
+				throw new Error("Vous ne pouvez pas faire d'operations dans un channel prive.");
+			await this.userService.kickUserFromChannel(userId, channelId);
+		}
 		catch (e) {
 			return {
 				ok: false,
@@ -93,7 +113,12 @@ export class UserController {
 
 	@Post('/:userId/channels/:channelId/ban')
 	async banUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
-		try {await this.userService.banUserFromChannel(userId, channelId);}
+		try {
+			const channel = await this.chatService.getById(channelId);
+			if (channel?.isPrivate)
+				throw new Error("Vous ne pouvez pas faire d'operations dans un channel prive.");
+			await this.userService.banUserFromChannel(userId, channelId);
+		}
 		catch (e) {
 			return {
 				ok: false,

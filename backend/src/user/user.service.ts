@@ -142,7 +142,6 @@ export class UserService {
 			if (banned == userId)
 				throw new Error('Utilisateur banni.');
 		}
-	
 		if (channel.protected && await bcrypt.compare(password, channel.password) === false)
 			throw new Error('Mauvais mot de passe.');
 		user.channels.push(channel);
@@ -171,7 +170,6 @@ export class UserService {
 			await this.channelRepository.delete(channel.id);
 			return (null);
 		}
-		// Check if there are admin, if so, search in them
    		if (user.id === channel.owner.id) {
 			let index = Math.floor(Math.random() * (users.length));
 			while (users[index].id === user.id)
@@ -220,7 +218,7 @@ export class UserService {
 		const user = await this.usersRepository.findOne({where: {id: userId}});
 		const channel = await this.channelRepository.findOne({where: {id: channelId}});
 
-		if (!user || !channel)
+		if (!user || !channel || !channel.isPrivate)
 			return ;
 		channel.bannedUsers = channel.bannedUsers.filter((toRemove) => toRemove !== user.id);
 		await this.channelRepository.save(channel);
