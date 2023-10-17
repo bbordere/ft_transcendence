@@ -237,6 +237,7 @@ export default {
 	},
 	async mounted() {
 		await this.init();
+		this.domCtx.drawImage(this.sprites[5], 0, 0);
 		this.socket.on('updateGame', () => {
 			this.$emit('setState', 1)
 			if (this.animId === -1 || !this.isInGame) {

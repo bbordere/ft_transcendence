@@ -13,7 +13,7 @@
 				</div>
 			</div>
 		</transition>
-		<notifications position="top center" group="notif-center" max="1" />
+		<notifications position="top center" group="notif-center" max="2" />
 		<FloatingSquares v-if="displayBackground"></FloatingSquares>
 		<div v-else class="background"></div>
 

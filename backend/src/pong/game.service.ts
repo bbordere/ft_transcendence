@@ -7,71 +7,126 @@ import { PongConstants } from './interface/constants.interface';
 import { Powerup } from './interface/powerup.interface';
 
 
+interface GameVar {
+	needUpdate: boolean;
+	countDown: number;
+	cooldown: number;
+};
+
 @Injectable()
 export class GameService {
+	private infosMap: Map<number, GameVar> = new Map<number, GameVar>;
+
 	constructor(private readonly pongGame: PongGame, private readonly roomService: RoomService) {
-		setInterval(() => {
-			this.roomService.checkRoomLoop(this);
+		setInterval(async () => {
+			await this.roomService.checkRoomLoop(this);
 		}, 200);
 	};
 
-
-	checkRoom(room: Room) {
-		let countDown: number = 0;
-		let isStarted: boolean = false;
-		const it = setInterval(async () => {
-			if (!isStarted && room.players.length === 2) {
-				isStarted = true;
-				await this.playGame(room);
+	async checkRoom(room: Room) {
+		if (room.isFinished)
+			return;
+		// const it = setInterval(async () => {
+		if (!this.infosMap.get(room.id) && room.players.length === 2) {
+			this.infosMap.set(room.id, { needUpdate: false, countDown: 0, cooldown: 0 } as GameVar)
+			await this.playGame(room);
+		}
+		let gameVars: GameVar = this.infosMap.get(room.id);
+		switch (room.state) {
+			case State.INIT: {
+				this.roomService.emitToPlayers(room, 'time', this.pongGame.formatTime(room.time, room.mode));
+				room.state = State.COOLDOWN;
 			}
-			switch (room.state) {
-				case State.WAITING: {
-					if (room.timerInterval) {
-						clearInterval(room.timerInterval);
-						clearTimeout(room.timerTimeout);
-						room.timerInterval = null;
-					}
+				break;
+			case State.COOLDOWN: {
+				room.powerups = [] as Powerup[];
+				this.pongGame.updateGame(room.players[0].socket, room, false);
+				this.pongGame.updateGame(room.players[1].socket, room, false);
 
-					this.roomService.emitToPlayers(room, 'text', 'WAITING');
-					countDown++;
-					if (!this.roomService.haveUserDisco(room.id)) {
-						room.state = State.INIT;
-						countDown = 0;
-					}
-					if (countDown > (1000 / PongConstants.GAME_TICK) * 5) {
-						room.state = State.ENDGAME;
-					}
+				if (gameVars.needUpdate) {
+					gameVars.needUpdate = false;
+					this.pongGame.resetBall(room);
+					this.pongGame.updateGame(room.players[0].socket, room, false);
+					this.pongGame.updateGame(room.players[1].socket, room, false);
+					this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
 				}
-					break;
-
-				case State.ENDGAME: {
-					await this.roomService.endGame(room);
+				if (room.timerInterval) {
+					clearInterval(room.timerInterval);
+					clearTimeout(room.timerTimeout);
 				}
-					break;
-
-				case State.FINAL: {
-					countDown = 0;
-					if (!room.isSavingData){
-						this.roomService.finalGame(room);
-						clearInterval(it);
-					}
+				if (gameVars.cooldown < (1000 / PongConstants.GAME_TICK) * 2)
+					gameVars.cooldown++;
+				else {
+					gameVars.cooldown = 0;
+					room.state = State.PLAY;
+					this.pongGame.startTimer(room);
+					gameVars.needUpdate = true;
 				}
-					break;
-
-				case State.PLAY: {
-					countDown = 0;
-				}
-					break;
-
-				case State.QUEUE: {
-					this.roomService.emitToPlayers(room, 'text', "QUEUEING");
-				}
-					break;
-
-				default:
-					break;
 			}
-		}, PongConstants.GAME_TICK);
+				break;
+			case State.WAITING: {
+				if (room.timerInterval) {
+					clearInterval(room.timerInterval);
+					clearTimeout(room.timerTimeout);
+					room.timerInterval = null;
+				}
+
+				this.roomService.emitToPlayers(room, 'text', 'WAITING');
+				gameVars.countDown++;
+				if (!this.roomService.haveUserDisco(room.id)) {
+					room.state = State.INIT;
+					gameVars.countDown = 0;
+				}
+				if (gameVars.countDown > (1000 / PongConstants.GAME_TICK) * 5) {
+					room.state = State.ENDGAME;
+				}
+			}
+				break;
+
+			case State.ENDGAME: {
+
+				clearInterval(room.gameInterval);
+				clearInterval(room.timerInterval);
+				this.roomService.emitToPlayers(room, 'text', "ENDGAME");
+				await this.roomService.endGame(room);
+			}
+				break;
+
+			case State.FINAL: {
+				this.infosMap.delete(room.id);
+				if (!room.isSavingData) {
+					this.roomService.finalGame(room);
+					// clearInterval(it);
+				}
+			}
+				break;
+
+			case State.PLAY: {
+				gameVars.countDown = 0;
+				gameVars.cooldown = 0;
+				this.pongGame.updateGame(room.players[0].socket, room);
+				this.pongGame.updateGame(room.players[1].socket, room);
+				if (room.mode === Mode.RANKED && (room.players[0].score === PongConstants.WIN_SCORE_VALUE || room.players[1].score === PongConstants.WIN_SCORE_VALUE)) {
+					this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
+					room.state = State.ENDGAME;
+				}
+			}
+				break;
+
+			case State.QUEUE: {
+				this.roomService.emitToPlayers(room, 'text', "QUEUEING");
+			}
+				break;
+
+			default:
+				break;
+		}
+		if (!room.isFinished) {
+			setTimeout(async () => {
+				await this.checkRoom(room);
+			}, PongConstants.GAME_TICK)
+		}
+		// }, PongConstants.GAME_TICK);
 	}
 
 	async keyHandling(client: Socket) {
@@ -95,64 +150,7 @@ export class GameService {
 		await this.pongGame.initGame(room);
 		await this.pongGame.startTimer(room);
 		await this.pongGame.powerupsInit(room);
-		let cooldown: number = 0;
-		let needUpdate = true;
 		this.roomService.emitToPlayers(room, "ids", room.players[0].user.id, room.players[1].user.id)
-		room.gameInterval = setInterval(() => {
-			switch (room.state) {
-				case State.INIT: {
-					this.roomService.emitToPlayers(room, 'time', this.pongGame.formatTime(room.time, room.mode));
-					room.state = State.COOLDOWN;
-				}
-					break;
-
-				case State.COOLDOWN: {
-					room.powerups = [] as Powerup[];
-					this.pongGame.updateGame(room.players[0].socket, room, false);
-					this.pongGame.updateGame(room.players[1].socket, room, false);
-
-					if (needUpdate) {
-						needUpdate = false;
-						this.pongGame.resetBall(room);
-						this.pongGame.updateGame(room.players[0].socket, room, false);
-						this.pongGame.updateGame(room.players[1].socket, room, false);
-						this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
-					}
-					if (room.timerInterval) {
-						clearInterval(room.timerInterval);
-						clearTimeout(room.timerTimeout);
-					}
-					if (cooldown < (1000 / PongConstants.GAME_TICK) * 2)
-						cooldown++;
-					else {
-						cooldown = 0;
-						room.state = State.PLAY;
-						this.pongGame.startTimer(room);
-						needUpdate = true;
-					}
-				}
-					break;
-
-				case State.ENDGAME: {
-					clearInterval(room.gameInterval);
-					clearInterval(room.timerInterval);
-					this.roomService.emitToPlayers(room, 'text', "ENDGAME");
-				}
-					break;
-
-				case State.PLAY: {
-					cooldown = 0;
-					this.pongGame.updateGame(room.players[0].socket, room);
-					this.pongGame.updateGame(room.players[1].socket, room);
-					if (room.mode === Mode.RANKED && (room.players[0].score === PongConstants.WIN_SCORE_VALUE || room.players[1].score === PongConstants.WIN_SCORE_VALUE)) {
-						this.roomService.emitToPlayers(room, "updateScore", room.players[0].score, room.players[1].score);
-						room.state = State.ENDGAME;
-					}
-				}
-					break;
-
-			}
-		}, PongConstants.GAME_TICK);
 	}
 
 }

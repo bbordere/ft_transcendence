@@ -24,48 +24,48 @@ export class RoomService {
 		this.roomsMap.set(Mode.DUEL_ARCADE, []);
 	}
 
-	checkRoomLoop(gameService: GameService){
+	async checkRoomLoop(gameService: GameService) {
 		const keysArray = Array.from(this.roomsMap.keys());
-		for (var key of keysArray as Mode[]){
-			for (var room of this.roomsMap.get(key) as Room[]){
-				if (!this.checkedRooms.has(room)){
-					gameService.checkRoom(room);
+		for (var key of keysArray as Mode[]) {
+			for (var room of this.roomsMap.get(key) as Room[]) {
+				if (!this.checkedRooms.has(room)) {
+					await gameService.checkRoom(room);
 					this.checkedRooms.add(room);
 				}
 			}
 		}
 	}
 
-	async extractRoom(rooms: Room[]){
+	async extractRoom(rooms: Room[]) {
 		const filteredRooms = rooms.map(room => {
 			const { players, timerInterval, timerTimeout, gameInterval, ...rest } = room;
 			const filteredPlayers = players.map(({ socket, ...player }) => player);
 			return { ...rest, players: filteredPlayers };
-		  });
+		});
 		return filteredRooms;
 	}
 
 	async hasDisconnect(email: string): Promise<Object> {
 		let roomId: number = -1;
 		for (let [key, value] of this.disconnectedUsers.entries()) {
-			if (value === email){
+			if (value === email) {
 				roomId = key;
 				break;
 			}
 		}
-		return ({status: roomId !== -1, roomId: roomId});
+		return ({ status: roomId !== -1, roomId: roomId });
 	}
 
-	async getRooms(){
+	async getRooms() {
 		let res = [];
 		const keysArray = Array.from(this.roomsMap.keys());
-		for (var key of keysArray){
+		for (var key of keysArray) {
 			res.push(await this.extractRoom(this.roomsMap.get(key)));
 		}
 		return (res);
 	}
 
-	async getRoomById(id: number){
+	async getRoomById(id: number) {
 		for (let [key, value] of this.roomsMap) {
 			const res = value.find(room => room.id === id);
 			if (res)
@@ -81,7 +81,7 @@ export class RoomService {
 			players: [],
 			ball: null,
 			time: 0,
-			canvas: {width: PongConstants.CANVAS_WIDTH, height: PongConstants.CANVAS_HEIGHT},
+			canvas: { width: PongConstants.CANVAS_WIDTH, height: PongConstants.CANVAS_HEIGHT },
 			timerInterval: null,
 			timerTimeout: null,
 			gameInterval: null,
@@ -116,15 +116,15 @@ export class RoomService {
 		}
 	}
 
-	async isSocketInsideRoom(room: Room, socketId: string): Promise<Boolean>{
+	async isSocketInsideRoom(room: Room, socketId: string): Promise<Boolean> {
 		const playerNames: string[] = room.players.map((player) => player.socket.id);
 		return (playerNames.includes(socketId));
 	}
 
-	async isEmailInGame(email: string): Promise<Boolean>{
+	async isEmailInGame(email: string): Promise<Boolean> {
 		const keysArray = Array.from(this.roomsMap.keys());
-		for (var key of keysArray){
-			for (var room of this.roomsMap.get(key)){
+		for (var key of keysArray) {
+			for (var room of this.roomsMap.get(key)) {
 				if (this.isEmailInsideRoom(room, email))
 					return (true);
 			}
@@ -132,19 +132,19 @@ export class RoomService {
 		return (false);
 	}
 
-	async isPlayerInsideRoom(room: Room, player: Player): Promise<Boolean>{
+	async isPlayerInsideRoom(room: Room, player: Player): Promise<Boolean> {
 		const playerNames: string[] = room.players.map((player) => player.user.email);
 		return (playerNames.includes(player.user.email) && room.players.length === 1);
 	}
 
-	async isEmailInsideRoom(room: Room, email: string): Promise<Boolean>{
+	async isEmailInsideRoom(room: Room, email: string): Promise<Boolean> {
 		const playerNames: string[] = room.players.map((player) => player.user.email);
 		return (playerNames.includes(email));
 	}
 
-	async duelHandling(client: Socket, player: Player, mode: Mode, id: number){
-		for (var room of this.roomsMap.get(mode) as Room[]){
-			if (room.id === id){
+	async duelHandling(client: Socket, player: Player, mode: Mode, id: number) {
+		for (var room of this.roomsMap.get(mode) as Room[]) {
+			if (room.id === id) {
 				if (this.disconnectedUsers.get(room.id))
 					this.disconnectedUsers.delete(room.id);
 				return (this.joinRoom(client, room, player));
@@ -156,12 +156,12 @@ export class RoomService {
 	}
 
 	async searchRoom(client: Socket, player: Player, mode: Mode, id?: any): Promise<Room> {
-		if (mode === Mode.DUEL_ARCADE || mode === Mode.DUEL_DEFAULT){
+		if (mode === Mode.DUEL_ARCADE || mode === Mode.DUEL_DEFAULT) {
 			return (this.duelHandling(client, player, mode, id));
 		}
-		if (this.roomsMap.get(mode)){
-			for (var room of this.roomsMap.get(mode) as Room[]){
-				if ((room.id === player.roomId || room.state === State.QUEUE) && !await this.isPlayerInsideRoom(room, player)){
+		if (this.roomsMap.get(mode)) {
+			for (var room of this.roomsMap.get(mode) as Room[]) {
+				if ((room.id === player.roomId || room.state === State.QUEUE) && !await this.isPlayerInsideRoom(room, player)) {
 					if (this.disconnectedUsers.get(room.id))
 						this.disconnectedUsers.delete(room.id);
 					return (this.joinRoom(client, room, player));
@@ -173,48 +173,50 @@ export class RoomService {
 		return (this.joinRoom(client, newRoom, player));
 	}
 
-	async leaveRoomSocket(socketId: string, client: Socket){
+	async leaveRoomSocket(socketId: string, client: Socket) {
 		const keysArray = Array.from(this.roomsMap.keys());
-		for (var key of keysArray as Mode[]){
-			for (var room of this.roomsMap.get(key) as Room[]){
+		for (var key of keysArray as Mode[]) {
+			for (var room of this.roomsMap.get(key) as Room[]) {
 				if (!await this.isSocketInsideRoom(room, socketId))
 					continue;
-				if (room.players.length === 2 && room.state !== State.ENDGAME){
+				if (room.players.length === 2 && room.state !== State.ENDGAME) {
 					room.state = State.WAITING;
-					if (this.disconnectedUsers.get(room.id)){
+					if (this.disconnectedUsers.get(room.id)) {
 						room.state = State.ENDGAME;
 					}
 					else
 						this.disconnectedUsers.set(room.id, client.data.user.email);
 				}
-				else if (room.players.length === 1){
+				else if (room.players.length === 1) {
 					room.state = State.FINAL;
 				}
 			}
 		}
 	}
 
-	emitToPlayers(room: Room, event: string, ...args: any[]){
+	emitToPlayers(room: Room, event: string, ...args: any[]) {
 		room.players[0].socket.emit(event, ...args);
 		if (room.players[1])
 			room.players[1].socket.emit(event, ...args);
 	}
 
-	async endGame(room: Room){
+	async endGame(room: Room) {
 		if (room.players.length != 2)
 			return;
 		if (room.gameInterval)
 			clearInterval(room.timerInterval);
 		const modes: string[] = ["Classique", "Arcade", "Classée", "Duel Classique", "Duel Arcade"];
-		const matchDto: MatchDto = {player1Id: room.players[0].user["id"], player2Id: room.players[1].user["id"],
-									scorePlayer1: room.players[0].score, scorePlayer2: room.players[1].score,
-									mode: modes[room.mode], leaverId: -1}
+		const matchDto: MatchDto = {
+			player1Id: room.players[0].user["id"], player2Id: room.players[1].user["id"],
+			scorePlayer1: room.players[0].score, scorePlayer2: room.players[1].score,
+			mode: modes[room.mode], leaverId: -1
+		}
 		const leaverEmail: string = this.disconnectedUsers.get(room.id);
 		if (leaverEmail && room.players[0].user["email"] === leaverEmail)
 			matchDto.leaverId = matchDto.player1Id;
 		else if (leaverEmail && room.players[1].user["email"] === leaverEmail)
 			matchDto.leaverId = matchDto.player2Id;
-		if (matchDto.leaverId !== -1){
+		if (matchDto.leaverId !== -1) {
 			this.emitToPlayers(room, 'userDisco', matchDto.leaverId);
 		}
 		room.isSavingData = true;
@@ -228,7 +230,7 @@ export class RoomService {
 	}
 
 
-	finalGame(room: Room){
+	finalGame(room: Room) {
 		this.disconnectedUsers.delete(room.id);
 		this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
 		this.emitToPlayers(room, 'text', "ENDGAME");
@@ -239,7 +241,7 @@ export class RoomService {
 
 	getRoomFromSocket(client: Socket): Room {
 		for (var room of this.checkedRooms) {
-			const sockets = room.players.map((player) => {return player.socket;});
+			const sockets = room.players.map((player) => { return player.socket; });
 			if (sockets.includes(client))
 				return room
 		}

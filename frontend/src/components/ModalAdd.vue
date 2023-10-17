@@ -3,6 +3,7 @@
 import { defineComponent } from 'vue';
 import BlueButton from "./BlueButton.vue";
 import SlidingTitle from "./SlidingTitle.vue";
+import { useNotification } from '@kyvg/vue3-notification';
 
 export default defineComponent ({
 	data() {
@@ -23,8 +24,16 @@ export default defineComponent ({
 
 	methods: {
 		async addChannel() {
-			if (this.channel_name === '')
+			if (!this.channel_name.length || !this.channel_name.match(/^(?=.{1,15}$)[\p{L}\p{N}_]+$/u)){
+				const notif = useNotification();
+				notif.notify({
+						title: 'Erreur',
+						text: "Veuillez entrer un nom valide !",
+						type: 'error',
+						group: 'notif-center',
+					});
 				return ;
+			}
 			if (Array.from(this.channel_name)[0] === '#')
 				this.channel_name.split('#').join('');
 			const me = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', {credentials: 'include'})).json();
