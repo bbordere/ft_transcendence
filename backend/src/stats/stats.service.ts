@@ -29,12 +29,12 @@ export class StatsService {
 			where: {
 				id: statsId
 			},
-			loadRelationIds: true
+			// loadRelationIds: true
 		});
 	}
 
-	async updateStats(match: Match, user: Partial<User>, indexPlayer: number, leaverId: number){
-		const stats: StatsDetail = await this.getUserStats(user.stats.id);
+	async updateStats(match: Match, userId: number, indexPlayer: number, leaverId: number){
+		const stats: StatsDetail = await this.getUserStats(userId);
 		const opId = indexPlayer ^ 3;
 		stats.winPoints += match[`scorePlayer${indexPlayer}`];
 		stats.loosePoints += match[`scorePlayer${opId}`];
@@ -57,13 +57,13 @@ export class StatsService {
 		stats.totalGames++;
 		if (match[`scorePlayer${indexPlayer}`] != match[`scorePlayer${opId}`] || leaverId != -1)
 		{
-			if ((match[`scorePlayer${indexPlayer}`] > match[`scorePlayer${opId}`] && user.id !== leaverId) || match['player' + opId].id === leaverId)
+			if ((match[`scorePlayer${indexPlayer}`] > match[`scorePlayer${opId}`] && userId !== leaverId) || match['player' + opId].id === leaverId)
 				stats.wins += 1;
 			else
 				stats.looses += 1;
 		}
 		stats.meanScore = stats.winPoints / stats.totalGames;
-		user.stats = stats;
+		return (await this.statsRepository.save(stats));
 	}
 
 	async getUpdatedMmr(match: Match){

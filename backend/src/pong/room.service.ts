@@ -87,6 +87,7 @@ export class RoomService {
 			gameInterval: null,
 			isFinished: false,
 			powerups: [],
+			isSavingData: false,
 		};
 		if (id)
 			room.id = id;
@@ -202,6 +203,8 @@ export class RoomService {
 	async endGame(room: Room){
 		if (room.players.length != 2)
 			return;
+		if (room.gameInterval)
+			clearInterval(room.timerInterval);
 		const modes: string[] = ["Classique", "Arcade", "Classée", "Duel Classique", "Duel Arcade"];
 		const matchDto: MatchDto = {player1Id: room.players[0].user["id"], player2Id: room.players[1].user["id"],
 									scorePlayer1: room.players[0].score, scorePlayer2: room.players[1].score,
@@ -214,8 +217,10 @@ export class RoomService {
 		if (matchDto.leaverId !== -1){
 			this.emitToPlayers(room, 'userDisco', matchDto.leaverId);
 		}
+		room.isSavingData = true;
 		room.state = State.FINAL;
-		await this.matchService.createMatch(matchDto, room.mode === Mode.RANKED);
+		if (await this.matchService.createMatch(matchDto, room.mode === Mode.RANKED))
+			room.isSavingData = false;
 	}
 
 	haveUserDisco(roomId: number): Boolean {

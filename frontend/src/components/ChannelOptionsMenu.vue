@@ -5,19 +5,19 @@
 	<Transition name="fade" mode="out-in">
 		<div v-show="showMenu" class="menu_content" @click.stop>
 			<button class="button_menu_channel" type="button" @click="$emit('quitChannel'); toggle();">Quitter le channel</button>
-			<button class="button_menu_channel" v-if="isAdmin" type="button" @click="$emit('displayChannelOption', 'ban')">Bannir</button>
-			<button class="button_menu_channel" v-if="isAdmin" type="button" @click="$emit('displayChannelOption', 'unban')">Débannir</button>
-			<button class="button_menu_channel" v-if="isAdmin" type="button" @click="$emit('displayChannelOption', 'add_admin')">Ajouter Admin</button>
-			<button class="button_menu_channel" v-if="isAdmin" type="button" @click="$emit('displayChannelOption', 'remove_admin')">Supprimer Admin</button>
-			<button class="button_menu_channel" v-if="isAdmin" type="button" @click="$emit('displayChannelOption', 'add_password')">Ajouter mot de passe</button>
-			<button class="button_menu_channel" v-if="isAdmin && isProtected" type="button" @click="$emit('removePassword')">Supprimer mot de passe</button>	
+			<button class="button_menu_channel" v-if="isAdmin || isOwner" type="button" @click="$emit('displayChannelOption', 'ban')">Bannir</button>
+			<button class="button_menu_channel" v-if="isAdmin || isOwner" type="button" @click="$emit('displayChannelOption', 'unban')">Débannir</button>
+			<button class="button_menu_channel" v-if="isOwner" type="button" @click="$emit('displayChannelOption', 'add_admin')">Ajouter Admin</button>
+			<button class="button_menu_channel" v-if="isOwner" type="button" @click="$emit('displayChannelOption', 'remove_admin')">Supprimer Admin</button>
+			<button class="button_menu_channel" v-if="isOwner" type="button" @click="$emit('displayChannelOption', 'add_password')">{{isProtected ? "Modifier" : "Ajouter"}} mot de passe</button>
+			<button class="button_menu_channel" v-if="isOwner && isProtected" type="button" @click="$emit('removePassword')">Supprimer mot de passe</button>	
 		</div>
 	</Transition>
 </template>
   
 <script lang="ts">
 	export default {
-		props: ['showMenu', 'isProtected', 'isAdmin'],
+		props: ['showMenu', 'isProtected', 'isAdmin', 'isOwner'],
 	data () {
 		return {
 			active: false

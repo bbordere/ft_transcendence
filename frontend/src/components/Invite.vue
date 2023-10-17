@@ -20,7 +20,7 @@ export default {
 		goToPong(mode: string) {
 			SocketService.getInstance.emit('pongInvite', this.myId, this.friendId,
 				SocketService.getUser.name, mode);
-			this.$emit('close');
+			this.$emit('close-modals');
 			// this.$router.push({ path: '/pong', query: { mode: mode, id: this.myId}});
 		}
 	}

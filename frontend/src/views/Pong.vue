@@ -198,7 +198,6 @@ export default {
 	async beforeUnmount() {
 		this.socket.disconnect();
 		this.dataLoaded = false;
-		await SocketService.fetchUser();
 	}
 }
 </script>

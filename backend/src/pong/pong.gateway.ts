@@ -62,7 +62,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		if (!room)
 			return;
 		client.data.user.stats.totalEmotes += 1;
-		this.userService.saveUser(client.data.user);
+		await this.userService.saveUser(client.data.user);
 		if (room.players[0] && room.players[0].socket === client)
 			this.roomService.emitToPlayers(room, "emote", 0, emoji)
 		else

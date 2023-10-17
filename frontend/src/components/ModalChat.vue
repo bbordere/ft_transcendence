@@ -124,7 +124,7 @@ export default {
 					</div>
 				</div>
 			</div>
-			<invite :show="modalInvite" @close="modalInvite = false" :myId="connected_user.id" :friendId="friendId"></invite>
+			<invite @click.stop :show="modalInvite" @close="modalInvite = false" @close-modals="modalInvite = false; $emit('close')" :myId="connected_user.id" :friendId="friendId"></invite>
 		</div>
 	</Transition>
 	<Teleport to="body">

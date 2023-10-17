@@ -32,7 +32,6 @@ export class UserService {
 			id: user.id,
 			email: user.email,
 			name: user.name,
-			// auth2f: user.auth2f,
 			avatarLink: user.avatarLink,
 			stats: user.stats,
 		}
@@ -122,7 +121,7 @@ export class UserService {
 	}
 
 	async saveUser(user: Partial<User>){
-		this.usersRepository.save(user);
+		await this.usersRepository.save(user);
 	}
 
 	async getEmailByUsername(username: string): Promise<string>{
@@ -171,10 +170,16 @@ export class UserService {
 			return (null);
 		}
    		if (user.id === channel.owner.id) {
-			let index = Math.floor(Math.random() * (users.length));
-			while (users[index].id === user.id)
-				index = Math.floor(Math.random() * (users.length));
-			channel.owner = users[index];
+			if (channel.admins.length){
+				let index = Math.floor(Math.random() * (channel.admins.length));
+				channel.owner = await this.getById(channel.admins[index]);
+			}
+			else {
+				let index = Math.floor(Math.random() * (users.length));
+				while (users[index].id === user.id)
+					index = Math.floor(Math.random() * (users.length));
+				channel.owner = users[index];
+			}
 			await this.channelRepository.save(channel);
     	}
    		return (await this.usersRepository.save(user));

@@ -1,4 +1,5 @@
 <script lang="ts">
+import { useNotification } from '@kyvg/vue3-notification';
 import ChannelOptionModal from './ChannelOptionModal.vue';
 import { SocketService } from '@/services/SocketService';
 
@@ -15,6 +16,16 @@ export default {
 
 	methods: {
 		async MuteUser(time: string) {
+			if (/^0*$/.test(time)){
+				const notif = useNotification();
+				notif.notify({
+					title: 'Erreur',
+					text: "Veuillez entrer un nombre strictement positif !",
+					type: 'error',
+					group: 'notif-center',
+				});
+				return;
+			}
 			const user_resp = await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/' + this.$props.username, {credentials: 'include'});
 			if (!user_resp['ok'] || this.$props.username == '') {
 				this.$emit('close');
