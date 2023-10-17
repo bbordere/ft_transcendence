@@ -79,11 +79,11 @@ export class UserController {
 	@Post('/:userId/channels/:channelId/remove')
 	async removeUserFromChannel(@Param('userId') userId: number, @Param('channelId') channelId: number) {
 		const channel = await this.chatService.getById(channelId);
-			if (channel?.isPrivate)
-				return ({
-					ok: false,
-					message: "Vous ne pouvez pas faire d'operations dans un channel prive.",
-				});
+		if (channel?.isPrivate)
+			return ({
+				ok: false,
+				message: "Vous ne pouvez pas faire d'operations dans un channel prive.",
+			});
 		await this.userService.removeUserFromChannel(userId, channelId);
 		return ({
 			ok: true,

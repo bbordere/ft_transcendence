@@ -218,7 +218,7 @@ export class UserService {
 		const user = await this.usersRepository.findOne({where: {id: userId}});
 		const channel = await this.channelRepository.findOne({where: {id: channelId}});
 
-		if (!user || !channel || !channel.isPrivate)
+		if (!user || !channel || channel.isPrivate)
 			return ;
 		channel.bannedUsers = channel.bannedUsers.filter((toRemove) => toRemove !== user.id);
 		await this.channelRepository.save(channel);
