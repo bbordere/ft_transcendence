@@ -6,6 +6,7 @@ import { MatchDto } from './match.dto';
 import { UserService } from 'src/user/user.service';
 import { Request } from 'express';
 import { StatsService } from 'src/stats/stats.service';
+import { Room } from 'src/pong/interface/room.interface';
 
 @Injectable()
 export class MatchService {
@@ -74,10 +75,10 @@ export class MatchService {
 		match.player2.stats.meanScore = match.player2.stats.winPoints / match.player2.stats.totalGames;
 	}
 
-	async createMatch(matchDto: MatchDto, isRanked: boolean = false) {
+	async createMatch(matchDto: MatchDto, isRanked: boolean, room: Room) {
 		const match = this.matchRepository.create(matchDto);
-		match.player1 = this.userService.getPartialUser(await this.userService.getById(matchDto.player1Id));
-		match.player2 = this.userService.getPartialUser(await this.userService.getById(matchDto.player2Id));
+		match.player1 = room.players[0].user;
+		match.player2 = room.players[1].user;
 		if (!match.player1 || !match.player2)
 			return;
 		this.updateStats(match);

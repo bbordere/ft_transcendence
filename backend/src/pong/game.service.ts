@@ -92,10 +92,7 @@ export class GameService {
 
 			case State.FINAL: {
 				this.infosMap.delete(room.id);
-				if (!room.isSavingData) {
-					this.roomService.finalGame(room);
-					// clearInterval(it);
-				}
+				this.roomService.finalGame(room);
 			}
 				break;
 

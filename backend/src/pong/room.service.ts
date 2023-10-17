@@ -110,8 +110,10 @@ export class RoomService {
 			if (room.players.length === 1)
 				client.emit("ids", player.user.id, "");
 			return (room);
-		} else {
+		}
+		else {
 			player.roomId = room.id;
+			player.user.stats = await this.statsService.getUserStats(player.user.stats.id);
 			client.data.room = room;
 			client.emit("ids", room.players[0].user.id, room.players[1].user.id);
 			return (room);
@@ -222,7 +224,7 @@ export class RoomService {
 			this.emitToPlayers(room, 'userDisco', matchDto.leaverId);
 		}
 		room.state = State.FINAL;
-		return (await this.matchService.createMatch(matchDto, room.mode === Mode.RANKED));
+		return (await this.matchService.createMatch(matchDto, room.mode === Mode.RANKED, room));
 	}
 
 	haveUserDisco(roomId: number): Boolean {
