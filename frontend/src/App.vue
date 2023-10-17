@@ -13,10 +13,7 @@
 				</div>
 			</div>
 		</transition>
-		<notifications position="top center" group="notif-center" max="2" />
-		<notifications position="top right" group="friend" />
-
-		<!-- <SlidingDiag></SlidingDiag> -->
+		<notifications position="top center" group="notif-center" max="1" />
 		<FloatingSquares v-if="displayBackground"></FloatingSquares>
 		<div v-else class="background"></div>
 
@@ -36,9 +33,7 @@ import Head from './components/Head.vue';
 import { SocketService } from './services/SocketService';
 import router from '@/router';
 
-import SlidingDiag from './components/SlidingDiag.vue';
 import FloatingSquares from './components/FloatingSquares.vue';
-import State from './views/Home.vue';
 import ModalInvite from './components/ModalInvite.vue'; 
 
 

@@ -153,6 +153,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}
 	}
 
+	@SubscribeMessage('getClientStatus')
+	getClientStatus(client: Socket, payload: number){
+		return (client.emit('getClientStatus', this.clients.get(payload).state));
+	}
+
 	@SubscribeMessage('setStatus')
 	async setStatus(client: Socket, payload: any) {
 		this.clients.set(payload[0], { client_socket: client, state: payload[1], displayUpdate: false });
@@ -213,7 +218,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('pongInvite')
 	async sendPongInvite(client: Socket, payload: any) {
-		if (this.invites.get(payload[1]) || this.invites.get(payload[0]) || !client.data.canInvite)
+		if (this.invites.get(payload[1]) || this.invites.get(payload[0]) || !client.data.canInvite || 
+				this.clients.get(payload[1]).state !== State.ONLINE)
 			return;
 		this.clients.get(payload[0])?.client_socket.emit('displayInvite', true, payload[2], payload[3]);
 		this.clients.get(payload[1])?.client_socket.emit('displayInvite', false, payload[2], payload[3]);

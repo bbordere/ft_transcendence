@@ -137,7 +137,7 @@ export default defineComponent({
 		</transition>
 		<transition name="fade2" mode="out-in">
 			<div v-if="dataLoaded && !print" class="list_friend">
-				<div v-if="!(friends.length - getFriendRequest)" class="empty_blocked">
+				<div v-if="!friends.length || !(friends.length - getFriendRequest - blockList.length)" class="empty_blocked">
 					 <span>{{ emptyMessage }}</span>
 				</div>
 				<ProfilCell v-else v-for="friend in friends" :friend="friend" :myId=sender :blockList=blockList

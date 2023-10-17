@@ -1,5 +1,6 @@
 <script lang="ts">
 
+import { useNotification } from '@kyvg/vue3-notification';
 import BlueButton from './BlueButton.vue';
 import { SocketService } from '@/services/SocketService';
 
@@ -18,6 +19,18 @@ export default {
 
 	methods: {
 		goToPong(mode: string) {
+			SocketService.getInstance.emit('getClientStatus', this.friendId);
+			SocketService.getInstance.on('getClientStatus', (payload) =>{
+				if (payload !== 1){
+					const notif = useNotification();
+					notif.notify({
+						title: 'Erreur',
+						text: "Ce joueur est déjà en jeu !",
+						type: 'error',
+						group: 'notif-center',
+					});
+				}
+			});
 			SocketService.getInstance.emit('pongInvite', this.myId, this.friendId,
 				SocketService.getUser.name, mode);
 			this.$emit('close-modals');
