@@ -219,10 +219,8 @@ export class RoomService {
 		if (matchDto.leaverId !== -1) {
 			this.emitToPlayers(room, 'userDisco', matchDto.leaverId);
 		}
-		room.isSavingData = true;
 		room.state = State.FINAL;
-		if (await this.matchService.createMatch(matchDto, room.mode === Mode.RANKED))
-			room.isSavingData = false;
+		return (await this.matchService.createMatch(matchDto, room.mode === Mode.RANKED));
 	}
 
 	haveUserDisco(roomId: number): Boolean {
