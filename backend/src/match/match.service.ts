@@ -60,10 +60,6 @@ export class MatchService {
 		match.player1.stats.totalGames++;
 		match.player2.stats.totalGames++;
 		if (match.scorePlayer1 != match.scorePlayer2 || match.leaverId != -1) {
-			// if (match.leaverId === match.player1.id) {
-			// 	match.player1.stats.wins++;
-			// 	match.player2.stats.looses++;
-			// }
 			if ((match.scorePlayer1 > match.scorePlayer2
 				&& match.player1.id !== match.leaverId) || match.player2.id === match.leaverId) {
 				match.player1.stats.wins++;

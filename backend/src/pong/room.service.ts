@@ -7,6 +7,7 @@ import { Player } from "./interface/player.interface";
 import { MatchDto } from "src/match/match.dto";
 import { GameService } from "./game.service";
 import { PongConstants } from "./interface/constants.interface";
+import { StatsService } from "src/stats/stats.service";
 
 @Injectable()
 export class RoomService {
@@ -16,7 +17,8 @@ export class RoomService {
 	private disconnectedUsers: Map<number, string> = new Map();
 	private checkedRooms: Set<Room> = new Set();
 
-	constructor(private readonly matchService: MatchService) {
+	constructor(private readonly matchService: MatchService,
+		private readonly statsService: StatsService) {
 		this.roomsMap.set(Mode.DEFAULT, []);
 		this.roomsMap.set(Mode.ARCADE, []);
 		this.roomsMap.set(Mode.RANKED, []);
@@ -97,6 +99,7 @@ export class RoomService {
 
 	async joinRoom(client: Socket, room: Room, player: Player): Promise<Room> {
 		if (room.players.length < 2) {
+			player.user.stats = await this.statsService.getUserStats(player.user.stats.id);
 			room.players.push(player);
 			client.data.room = room;
 			if (room.players.length === 2) {
@@ -112,7 +115,6 @@ export class RoomService {
 			client.data.room = room;
 			client.emit("ids", room.players[0].user.id, room.players[1].user.id);
 			return (room);
-			// Gérer le cas où la salle est pleine
 		}
 	}
 
@@ -203,7 +205,7 @@ export class RoomService {
 	async endGame(room: Room) {
 		if (room.players.length != 2)
 			return;
-		if (room.gameInterval)
+		if (room.timerInterval)
 			clearInterval(room.timerInterval);
 		const modes: string[] = ["Classique", "Arcade", "Classée", "Duel Classique", "Duel Arcade"];
 		const matchDto: MatchDto = {
@@ -232,9 +234,8 @@ export class RoomService {
 		this.disconnectedUsers.delete(room.id);
 		this.roomsMap.set(room.mode, this.roomsMap.get(room.mode).filter((el) => el !== room));
 		this.emitToPlayers(room, 'text', "ENDGAME");
-		clearInterval(room.gameInterval);
-		room.isFinished = true;
 		this.checkedRooms.delete(room);
+		room.isFinished = true;
 	}
 
 	getRoomFromSocket(client: Socket): Room {

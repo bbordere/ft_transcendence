@@ -8,13 +8,13 @@ import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class StatsService {
-	constructor(@InjectRepository(StatsDetail) private statsRepository: Repository<StatsDetail>) {}
+	constructor(@InjectRepository(StatsDetail) private statsRepository: Repository<StatsDetail>) { }
 
-	async getAllStats(){
+	async getAllStats() {
 		return this.statsRepository.find()
 	}
 
-	async getPersonnalStats(@Req() req: Request): Promise<StatsDetail>{
+	async getPersonnalStats(@Req() req: Request): Promise<StatsDetail> {
 		const user = req["user"]["user"];
 		return await this.statsRepository.findOne({
 			where: {
@@ -24,23 +24,23 @@ export class StatsService {
 		});
 	}
 
-	async getUserStats(statsId: number){
+	async getUserStats(statsId: number) {
 		return await this.statsRepository.findOne({
 			where: {
 				id: statsId
 			},
-			// loadRelationIds: true
+			loadRelationIds: true
 		});
 	}
 
-	async updateStats(match: Match, userId: number, indexPlayer: number, leaverId: number){
+	async updateStats(match: Match, userId: number, indexPlayer: number, leaverId: number) {
 		const stats: StatsDetail = await this.getUserStats(userId);
 		const opId = indexPlayer ^ 3;
 		stats.winPoints += match[`scorePlayer${indexPlayer}`];
 		stats.loosePoints += match[`scorePlayer${opId}`];
 		stats.highScore = Math.max(match[`scorePlayer${indexPlayer}`], stats.highScore);
 
-		switch (match["mode"]){
+		switch (match["mode"]) {
 			case "Classique":
 				stats.totalClassicGames++;
 				break;
@@ -55,8 +55,7 @@ export class StatsService {
 				break;
 		}
 		stats.totalGames++;
-		if (match[`scorePlayer${indexPlayer}`] != match[`scorePlayer${opId}`] || leaverId != -1)
-		{
+		if (match[`scorePlayer${indexPlayer}`] != match[`scorePlayer${opId}`] || leaverId != -1) {
 			if ((match[`scorePlayer${indexPlayer}`] > match[`scorePlayer${opId}`] && userId !== leaverId) || match['player' + opId].id === leaverId)
 				stats.wins += 1;
 			else
@@ -66,16 +65,16 @@ export class StatsService {
 		return (await this.statsRepository.save(stats));
 	}
 
-	async getUpdatedMmr(match: Match){
-		if (match.leaverId != -1){
+	async getUpdatedMmr(match: Match) {
+		if (match.leaverId != -1) {
 			const factor = match.player1.id === match.leaverId ? -20 : 20;
 			match.player1.stats.mmr += factor;
 			match.player2.stats.mmr += -factor;
 			return;
 		}
 		const k = 128;
-		const expectedScore1 = 1 / (1 + Math.pow(10, (match.player2.stats.mmr - match.player1.stats.mmr ) / 400));
-		const expectedScore2 = 1 / (1 + Math.pow(10, (match.player1.stats.mmr - match.player2.stats.mmr ) / 400));
+		const expectedScore1 = 1 / (1 + Math.pow(10, (match.player2.stats.mmr - match.player1.stats.mmr) / 400));
+		const expectedScore2 = 1 / (1 + Math.pow(10, (match.player1.stats.mmr - match.player2.stats.mmr) / 400));
 
 		const res1 = match.scorePlayer1 / (match.scorePlayer1 + match.scorePlayer2);
 		const res2 = match.scorePlayer2 / (match.scorePlayer2 + match.scorePlayer1);
@@ -86,12 +85,12 @@ export class StatsService {
 		match.player2.stats.mmr += Math.ceil(k * (MMRModifier * (res2 - expectedScore2)));
 	}
 
-	async getRankPosition(statsId: number){
+	async getRankPosition(statsId: number) {
 		let allStats: StatsDetail[] = await this.statsRepository.find();
 		allStats.sort((a, b) => b.mmr - a.mmr);
 		for (let i = 0; i < allStats.length; i++) {
 			if (allStats[i].id == statsId)
-				return ({rank: i + 1, total: allStats.length});
+				return ({ rank: i + 1, total: allStats.length });
 		}
 	}
 }

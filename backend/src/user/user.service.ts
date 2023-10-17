@@ -16,9 +16,9 @@ export class UserService {
 		private usersRepository: Repository<User>,
 		@InjectRepository(Channel)
 		private channelRepository: Repository<Channel>,
-	) {}
+	) { }
 
-	async getErrorMsg(errors: ValidationError[]): Promise<string>{
+	async getErrorMsg(errors: ValidationError[]): Promise<string> {
 		let res: string = "";
 		if (errors[0]["property"] === "email")
 			res += "Adresse Email ";
@@ -27,7 +27,7 @@ export class UserService {
 		return (res += "invalide !");
 	}
 
-	getPartialUser(user: User): Partial<User>{
+	getPartialUser(user: User): Partial<User> {
 		return {
 			id: user.id,
 			email: user.email,
@@ -37,12 +37,12 @@ export class UserService {
 		}
 	}
 
-	getAllUsers(): Promise<string[]>{
+	getAllUsers(): Promise<string[]> {
 		// return (this.usersRepository.find({select: {name: true}}));
 		const names = this.usersRepository
-		.createQueryBuilder('entity')
-		.select('entity.name', 'name')
-		.getRawMany();
+			.createQueryBuilder('entity')
+			.select('entity.name', 'name')
+			.getRawMany();
 		return names.then(names => names.map((res) => res.name))
 	}
 
@@ -63,7 +63,7 @@ export class UserService {
 
 	async createUser42(data: AuthLogin42Dto): Promise<User> {
 		let i: number = 1;
-		while(await this.getByName(data.name) != null)
+		while (await this.getByName(data.name) != null)
 			data.name += i++;
 		data.password = Math.random().toString(36).slice(-8);
 		const user = await this.usersRepository.create(data);
@@ -73,45 +73,45 @@ export class UserService {
 	}
 
 	async getByEmail(email: string): Promise<User> {
-		const retUser = await this.usersRepository.findOne({where: {email: email}});
+		const retUser = await this.usersRepository.findOne({ where: { email: email } });
 		return (retUser);
 	}
 
 	async getByName(name: string): Promise<User> {
-		const retUser = await this.usersRepository.findOne({where: {name: name}});
+		const retUser = await this.usersRepository.findOne({ where: { name: name } });
 		return (retUser);
 	}
 
 	async getById(id: number): Promise<User> {
-		const retUser = this.usersRepository.findOne({where: {id: id}});
+		const retUser = await this.usersRepository.findOne({ where: { id: id } });
 		return (retUser);
 	}
 
-	async set2faSecret(secret: string, id: number){
+	async set2faSecret(secret: string, id: number) {
 		const user = await this.getById(id);
 		user.auth2fSecret = secret;
 		await this.usersRepository.save(user);
 	}
 
-	async enable2fa(id: number){
+	async enable2fa(id: number) {
 		const user = await this.getById(id);
 		user.auth2f = true;
 		this.usersRepository.save(user);
 	}
 
-	async disable2fa(id: number){
+	async disable2fa(id: number) {
 		const user = await this.getById(id);
 		user.auth2f = false;
 		this.usersRepository.save(user);
 	}
 
-	async updatePictureLink(email: string, link: string = "http://" + process.env.HOST + ":3000/avatar/default.png"){
+	async updatePictureLink(email: string, link: string = "http://" + process.env.HOST + ":3000/avatar/default.png") {
 		const user = await this.getByEmail(email);
 		user.avatarLink = link;
 		await this.usersRepository.save(user);
 	}
 
-	async updateUsername(email: string, username: string){
+	async updateUsername(email: string, username: string) {
 		const user = await this.getByEmail(email);
 		if (await this.getByName(username) != null)
 			return (false);
@@ -120,24 +120,24 @@ export class UserService {
 		return (true);
 	}
 
-	async saveUser(user: Partial<User>){
+	async saveUser(user: Partial<User>) {
 		await this.usersRepository.save(user);
 	}
 
-	async getEmailByUsername(username: string): Promise<string>{
-		const user = (await this.usersRepository.findOne({where: {name: username}}));
+	async getEmailByUsername(username: string): Promise<string> {
+		const user = (await this.usersRepository.findOne({ where: { name: username } }));
 		if (!user)
 			throw new NotAcceptableException('User not found');
 		return (user.email);
 	}
 
 	async addUserToChannel(userId: number, channelId: number, password: string) {
-		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		const user = await this.usersRepository.findOne({ where: { id: userId }, relations: ['channels'] });
+		const channel = await this.channelRepository.findOne({ where: { id: channelId } });
 		if (password === undefined)
-			return ;
+			return;
 
-		for (let banned of channel.bannedUsers){
+		for (let banned of channel.bannedUsers) {
 			if (banned == userId)
 				throw new Error('Utilisateur banni.');
 		}
@@ -148,17 +148,17 @@ export class UserService {
 	}
 
 	async removeUserFromChannel(userId: number, channelId: number) {
-		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
-			user.channels = user.channels.filter((c) => c.id !== channel.id);
+		const user = await this.usersRepository.findOne({ where: { id: userId }, relations: ['channels'] });
+		const channel = await this.channelRepository.findOne({ where: { id: channelId }, relations: ['owner'] });
+		user.channels = user.channels.filter((c) => c.id !== channel.id);
 		let users = await this.usersRepository.createQueryBuilder('user')
 			.leftJoinAndSelect('user.channels', 'channel')
 			.where('channel.id = ' + channel.id)
 			.getMany();
 		const usersId: number[] = users.map((user) => user.id);
 		let isInChan: boolean = false;
-		for (let id of usersId){
-			if (id == userId){
+		for (let id of usersId) {
+			if (id == userId) {
 				isInChan = true;
 				break;
 			}
@@ -169,8 +169,8 @@ export class UserService {
 			await this.channelRepository.delete(channel.id);
 			return (null);
 		}
-   		if (user.id === channel.owner.id) {
-			if (channel.admins.length){
+		if (user.id === channel.owner.id) {
+			if (channel.admins.length) {
 				let index = Math.floor(Math.random() * (channel.admins.length));
 				channel.owner = await this.getById(channel.admins[index]);
 			}
@@ -181,19 +181,19 @@ export class UserService {
 				channel.owner = users[index];
 			}
 			await this.channelRepository.save(channel);
-    	}
-   		return (await this.usersRepository.save(user));
+		}
+		return (await this.usersRepository.save(user));
 	}
-	
+
 	async kickUserFromChannel(userId: number, channelId: number) {
-		const user = await this.usersRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+		const user = await this.usersRepository.findOne({ where: { id: userId } });
+		const channel = await this.channelRepository.findOne({ where: { id: channelId }, relations: ['owner'] });
 		const channel_users = await this.usersRepository.createQueryBuilder('user')
-		.leftJoinAndSelect('user.channels', 'channel')
-		.where('channel.id = ' + channel.id)
-		.getMany();
+			.leftJoinAndSelect('user.channels', 'channel')
+			.where('channel.id = ' + channel.id)
+			.getMany();
 		if (!user)
-			return ;
+			return;
 		if (user.id === channel.owner.id)
 			throw new Error('You cannot kick the owner of the channel.');
 		for (let channel_user of channel_users)
@@ -203,14 +203,14 @@ export class UserService {
 	}
 
 	async banUserFromChannel(userId: number, channelId: number) {
-		const user = await this.usersRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+		const user = await this.usersRepository.findOne({ where: { id: userId } });
+		const channel = await this.channelRepository.findOne({ where: { id: channelId }, relations: ['owner'] });
 		if (!user || !channel)
-			return ;
+			return;
 		if (user.id === channel.owner.id)
 			throw new Error('Vous ne pouvez pas bannir le propriétaire du channel !');
-		for (let ban of channel.bannedUsers){
-			if (ban == user.id){
+		for (let ban of channel.bannedUsers) {
+			if (ban == user.id) {
 				throw new Error('Cet utilisateur est déjà banni !');
 			}
 		}
@@ -220,24 +220,24 @@ export class UserService {
 	}
 
 	async UnbanUserFromChannel(userId: number, channelId: number) {
-		const user = await this.usersRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		const user = await this.usersRepository.findOne({ where: { id: userId } });
+		const channel = await this.channelRepository.findOne({ where: { id: channelId } });
 
 		if (!user || !channel || channel.isPrivate)
-			return ;
+			return;
 		channel.bannedUsers = channel.bannedUsers.filter((toRemove) => toRemove !== user.id);
 		await this.channelRepository.save(channel);
 	}
 
 	async getJoinedChannels(userId: number): Promise<Channel[] | null> {
-		const user = await this.usersRepository.findOne({where: {id: userId}, relations: ['channels']});
+		const user = await this.usersRepository.findOne({ where: { id: userId }, relations: ['channels'] });
 		if (!user)
 			return (null);
 		return (user.channels);
 	}
 
 	async blockUser(userId: number, blockId: number) {
-		const user = await this.usersRepository.findOne({where: {id: userId}});
+		const user = await this.usersRepository.findOne({ where: { id: userId } });
 		if (!user.blockList.includes(blockId, 0)) {
 			user.blockList.push(blockId);
 			await this.usersRepository.save(user);
@@ -245,19 +245,19 @@ export class UserService {
 	}
 
 	async unblockUser(userId: number, unblockId: number) {
-		const user = await this.usersRepository.findOne({where: {id: userId}});
-		if (user.blockList.includes(unblockId, 0)){
+		const user = await this.usersRepository.findOne({ where: { id: userId } });
+		if (user.blockList.includes(unblockId, 0)) {
 			user.blockList = user.blockList.filter((elem) => elem != unblockId);
 			await this.usersRepository.save(user);
 		}
 	}
 
 	async getBlockList(userId: number) {
-		let user = await this.usersRepository.findOne({where: {id: userId}});
+		let user = await this.usersRepository.findOne({ where: { id: userId } });
 		return (user.blockList);
 	}
 
-	async getLeaderBoard(){
+	async getLeaderBoard() {
 		const users = (await this.usersRepository.find()).map((user) => this.getPartialUser(user));
 		users.sort((a, b) => b.stats.mmr - a.stats.mmr);
 		return (users);

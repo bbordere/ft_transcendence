@@ -84,8 +84,6 @@ export class GameService {
 				break;
 
 			case State.ENDGAME: {
-
-				clearInterval(room.gameInterval);
 				clearInterval(room.timerInterval);
 				this.roomService.emitToPlayers(room, 'text', "ENDGAME");
 				await this.roomService.endGame(room);

@@ -6,10 +6,9 @@ import { StatsDetail } from './stats.entity';
 import { UserModule } from 'src/user/user.module';
 
 @Module({
-  providers: [StatsService],
-  controllers: [StatsController],
-  imports: [TypeOrmModule.forFeature([StatsDetail]), UserModule],
-  exports:[StatsService]
-
+	providers: [StatsService],
+	controllers: [StatsController],
+	imports: [TypeOrmModule.forFeature([StatsDetail]), UserModule],
+	exports: [StatsService]
 })
-export class StatsModule {}
+export class StatsModule { }
