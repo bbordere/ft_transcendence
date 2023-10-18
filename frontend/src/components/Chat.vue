@@ -7,15 +7,16 @@
 		<div class="top_chat_container">
 			<div class="channel_name" v-if="selectedChannel.name">{{ channelName }}</div>
 			<ChannelOptionsMenu v-if="selectedChannel.name && selectedChannel.name.length <= 16"
-			:isOwner="selectedChannel.owner === sender.id" :isAdmin="selectedChannel.admins.includes(sender.id)"
-			:showMenu="showMenu" :isProtected="selectedChannel.protected"
-			@openMenu="toggleMenu" @quitChannel="quitChannel(sender.id)" 
-			@removePassword="removePassword()" @displayChannelOption="emitToModalManager"></ChannelOptionsMenu>
+				:isOwner="selectedChannel.owner === sender.id" :isAdmin="selectedChannel.admins.includes(sender.id)"
+				:showMenu="showMenu" :isProtected="selectedChannel.protected" @openMenu="toggleMenu"
+				@quitChannel="quitChannel(sender.id)" @removePassword="removePassword()"
+				@displayChannelOption="emitToModalManager"></ChannelOptionsMenu>
 		</div>
 		<div class="message_box">
 			<div v-for="(msg, index) in selectedChannel.messages" class="single_message"
 				:class="sender.id === msg.sender ? 'sent' : 'received'">
-				<img draggable="false" v-if="sender.id !== msg.sender" alt="avatar" @click="showChatModal(msg)" :src="msg.sender_img">
+				<img draggable="false" v-if="sender.id !== msg.sender" alt="avatar" @click="showChatModal(msg)"
+					:src="msg.sender_img">
 				<div class="msg_txt_box">
 					<span v-if="sender.id !== msg.sender" class="sender_name">{{ msg.sender_name }}</span>
 					<div :class="sender.id === msg.sender ? 'sent_txt' : 'received_txt'" :ref="`message-${index}`"
@@ -26,7 +27,8 @@
 		<div class="send_container" v-if="selectedChannel.name">
 			<form v-on:submit.prevent="sendMessage">
 				<div class="sendbox">
-					<input v-if="!selectedChannel.muted" type="text" maxlength="280" v-model="message" :placeholder="'Envoyer un message ' + inputString">
+					<input v-if="!selectedChannel.muted" type="text" maxlength="280" v-model="message"
+						:placeholder="'Envoyer un message ' + inputString">
 					<input v-else disabled type="text" placeholder="Vous avez été mute de ce channel.">
 					<button type="button" @click="sendMessage()">
 						<font-awesome-icon icon="fa-solid fa-paper-plane" />
@@ -36,13 +38,13 @@
 		</div>
 	</div>
 	<div v-else class="empty_chat">
-		<h1>🍹Bienvenue sur PiñaColaPong !🍹</h1> 
+		<h1>🍹Bienvenue sur PiñaColaPong !🍹</h1>
 		<div class="paragraphs">
 			<div class="presentation_paragraph">
 				PiñaColaPong est l'endroit parfait où le fun et l'amitié se rencontrent !
 			</div>
 			<div class="presentation_paragraph">
-				Vous pouvez défier vos amis dans des parties de Pong endiablées 
+				Vous pouvez défier vos amis dans des parties de Pong endiablées
 				tout en sirotant votre cocktail préféré, comme si vous étiez en
 				vacances sur une île paradisiaque.
 			</div>
@@ -51,18 +53,18 @@
 				<br>
 				<br>
 				<strong>Classique 🏓</strong>: Marquez des points dans un jeu simple qui fera
-											ressurgir la nostalgie du Pong d'antan.
+				ressurgir la nostalgie du Pong d'antan.
 				<br>
 				<br>
-				<strong>Arcade 🌶️</strong>: Une expérience de jeu plus palpitante avec la possibilité 
-										d'utiliser des power-ups pour donner une nouvelle dimension à 
-										vos parties.
+				<strong>Arcade 🌶️</strong>: Une expérience de jeu plus palpitante avec la possibilité
+				d'utiliser des power-ups pour donner une nouvelle dimension à
+				vos parties.
 				<br>
 				<br>
 				<strong>Classé 🏆</strong>: Si vous êtes plutôt du genre loup solitaire
-										assoiffé de victoires, alors ce mode est fait pour
-										vous ! Votre adresse ainsi que votre rapidité seront mises
-										à rude épreuve !
+				assoiffé de victoires, alors ce mode est fait pour
+				vous ! Votre adresse ainsi que votre rapidité seront mises
+				à rude épreuve !
 			</div>
 			<br>
 			<div class="presentation_paragraph">
@@ -94,7 +96,6 @@ export default {
 
 	data() {
 		return {
-			disabled: false,
 			message: '' as string,
 			modalChat: false as boolean,
 			connected_user: -1 as number,
@@ -126,17 +127,17 @@ export default {
 
 	props: ['selectedChannel', 'sender'],
 
-	watch:{
+	watch: {
 		selectedChannel: {
 			deep: true,
-			async handler(){
+			async handler() {
 				if (this.selectedChannel.messages) {
 					await this.getChanName();
 					const lastMessage = this.$refs[`message-${this.selectedChannel.messages.length - 1}`] as any;
-						if (lastMessage){
-							lastMessage[0].scrollIntoView({ behavior: !this.lastUpdate || ((Date.now() - this.lastUpdate) < 60) ? 'instant' : 'smooth' });
-							this.lastUpdate = Date.now();
-						}
+					if (lastMessage) {
+						lastMessage[0].scrollIntoView({ behavior: !this.lastUpdate || ((Date.now() - this.lastUpdate) < 60) ? 'instant' : 'smooth' });
+						this.lastUpdate = Date.now();
+					}
 				}
 			}
 		}
@@ -178,8 +179,8 @@ export default {
 				return;
 			}
 			const json = await (await fetch("http://" + import.meta.env.VITE_HOST + ":3000/chat/" + this.selectedChannel.id + '/getUsers',
-				{method: "get", credentials: "include"})).json();
-			if (json[0].id === SocketService.getUser.id){
+				{ method: "get", credentials: "include" })).json();
+			if (json[0].id === SocketService.getUser.id) {
 				this.channelName = json[1].name;
 				this.inputString = "à @" + json[1].name;
 			}
@@ -237,14 +238,14 @@ export default {
 </script>
 
 <style scoped>
-
 input:placeholder-shown {
 	text-overflow: ellipsis;
 }
 
-.empty_chat h1{
+.empty_chat h1 {
 	font-size: 1.35em;
 }
+
 .paragraphs {
 	width: 95%;
 	height: 80%;
@@ -295,6 +296,7 @@ input:placeholder-shown {
 	background-repeat: no-repeat;
 	background-position: center;
 }
+
 .top_chat_container {
 	display: flex;
 	align-items: center;

@@ -139,6 +139,19 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		}, mute_instance.time);
 	}
 
+	@SubscribeMessage('getMute')
+	async handleGetMute(client: Socket, payload: number) {
+		let response = [];
+		const channels = await this.userService.getJoinedChannels(payload);
+		for (let channel of channels) {
+			const muted = this.muteds.get(channel.id);
+			const mute_instance = this.searchMute(payload, muted);
+			if (mute_instance)
+				response.push(channel.id);
+		}
+		this.clients.get(payload).client_socket.emit('getMute', response);
+	}
+
 	@SubscribeMessage('getStatus')
 	async handleGetStatus(client: Socket, payload: number) {
 		const friends = await this.friendService.getFriendsFromUser(Number(payload));

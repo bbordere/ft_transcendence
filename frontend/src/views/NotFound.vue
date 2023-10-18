@@ -9,7 +9,6 @@ import { State } from './Home.vue';
 if (SocketService.getStatus)
 	SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE);
 
-
 </script>
 
 <style>
