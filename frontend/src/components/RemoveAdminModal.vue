@@ -54,8 +54,11 @@ export default {
 						new_owner_id: user['id'],
 					}
 					SocketService.getInstance.emit('changeAdmin', data);
+					SocketService.getInstance.emit('unsetAdmin', user['id'], data.channelId);
+
 					const notif = useNotification();
 					notif.notify({
+						title: "Modération",
 						text: 'Admin supprimé !',
 						type: 'success',
 						group: 'notif-center',

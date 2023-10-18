@@ -54,6 +54,7 @@ export default {
 						new_owner_id: user['id'],
 					}
 					SocketService.getInstance.emit('changeAdmin', data);
+					SocketService.getInstance.emit('setAdmin', user['id'], data.channelId);
 					this.$emit('close');
 					notif.notify({
 						title: "Modération",

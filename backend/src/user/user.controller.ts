@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req, Res, UseGuards,} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req, Res, UseGuards, } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
@@ -9,37 +9,37 @@ export class UserController {
 	constructor(
 		private readonly userService: UserService,
 		private readonly chatService: ChatService
-	) {}
+	) { }
 
 	@Get()
-	async getUsers(){
+	async getUsers() {
 		return (await this.userService.getAllUsers());
 	}
-	
+
 	@Get('/me')
 	@UseGuards(JwtAuthGuard)
-	async me(@Req() req: Request){
+	async me(@Req() req: Request) {
 		const id = req["user"]["user"]["id"];
 		const user = await this.userService.getById(id);
 		return (this.userService.getPartialUser(user));
 	}
 
 	@Get('/leaderboard')
-	async getLeaderboardData(){
+	async getLeaderboardData() {
 		return await this.userService.getLeaderBoard();
 	}
-	
+
 	@Get(":name")
-	async getUserByName(@Param('name') name: string){
+	async getUserByName(@Param('name') name: string) {
 		const user = await this.userService.getByName(name)
 		if (!user)
 			return (null);
 		return (this.userService.getPartialUser(user));
 	}
-	
+
 	@Post('/setname')
 	@UseGuards(JwtAuthGuard)
-	async setUsername(@Req() req, @Body() body, @Res() res: Response){
+	async setUsername(@Req() req, @Body() body, @Res() res: Response) {
 		if (! await this.userService.updateUsername(req["user"]["user"]["email"], body["username"]))
 			res.statusCode = 403;
 		else
@@ -48,7 +48,7 @@ export class UserController {
 	}
 
 	@Get("/id/:id")
-	async getUserById(@Param('id') id: number){
+	async getUserById(@Param('id') id: number) {
 		const user = await this.userService.getById(id);
 		return (this.userService.getPartialUser(user));
 	}
@@ -58,7 +58,7 @@ export class UserController {
 		try {
 			const channel = await this.chatService.getById(channelId);
 			if (channel?.isPrivate)
-				throw new Error("Vous ne pouvez pas faire d'operations dans un channel prive.");
+				throw new Error("Vous ne pouvez pas faire d'operations dans un channel privé.");
 			await this.userService.addUserToChannel(userId, channelId, password);
 		}
 		catch (e) {
@@ -79,7 +79,7 @@ export class UserController {
 		if (channel?.isPrivate)
 			return ({
 				ok: false,
-				message: "Vous ne pouvez pas faire d'operations dans un channel prive.",
+				message: "Vous ne pouvez pas faire d'operations dans un channel privé.",
 			});
 		await this.userService.removeUserFromChannel(userId, channelId);
 		return ({
@@ -93,7 +93,7 @@ export class UserController {
 		try {
 			const channel = await this.chatService.getById(channelId);
 			if (channel?.isPrivate)
-				throw new Error("Vous ne pouvez pas faire d'operations dans un channel prive.");
+				throw new Error("Vous ne pouvez pas faire d'operations dans un channel privé.");
 			await this.userService.kickUserFromChannel(userId, channelId);
 		}
 		catch (e) {
@@ -104,7 +104,7 @@ export class UserController {
 		}
 		return {
 			ok: true,
-			message: 'Kicked user from channel',
+			message: 'Utilisateur exclu !',
 		}
 	}
 
@@ -113,7 +113,7 @@ export class UserController {
 		try {
 			const channel = await this.chatService.getById(channelId);
 			if (channel?.isPrivate)
-				throw new Error("Vous ne pouvez pas faire d'operations dans un channel prive.");
+				throw new Error("Vous ne pouvez pas faire d'operations dans un channel privé.");
 			await this.userService.banUserFromChannel(userId, channelId);
 		}
 		catch (e) {
@@ -124,7 +124,7 @@ export class UserController {
 		}
 		return {
 			ok: true,
-			message: 'Banned user from channel',
+			message: 'Utilisateur banni !',
 		}
 	}
 
@@ -154,7 +154,7 @@ export class UserController {
 	}
 
 	@Post('/isBlocked')
-	async isUserBlocked(@Body('userId') userId: number, @Body('blockId') blockId: number){
+	async isUserBlocked(@Body('userId') userId: number, @Body('blockId') blockId: number) {
 		return ((await this.userService.getBlockList(userId)).includes(blockId));
 	}
 }

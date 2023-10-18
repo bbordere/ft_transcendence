@@ -5,7 +5,6 @@ import { Repository, getConnection } from "typeorm";
 import { Message } from "./entities/message.entity";
 import { User } from "src/user/user.entity";
 import * as bcrypt from 'bcrypt';
-import { DataSource } from "typeorm";
 
 @Injectable()
 export class ChatService {
@@ -16,7 +15,7 @@ export class ChatService {
 		private messageRepository: Repository<Message>,
 		@InjectRepository(User)
 		private userRepository: Repository<User>,
-	) {}
+	) { }
 
 	getAll(): Promise<Channel[]> {
 		return (this.channelRepository.find());
@@ -48,21 +47,21 @@ export class ChatService {
 	async delete(name: string) {
 		let rm = await this.getByName(name);
 		if (rm == null)
-			return ;
+			return;
 		this.channelRepository.delete({ id: rm.id });
 	}
 
-	async addMessageToChannel(msg: {channelId: number, text: string, sender: number}) {
-		const {channelId, text, sender} = msg;
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+	async addMessageToChannel(msg: { channelId: number, text: string, sender: number }) {
+		const { channelId, text, sender } = msg;
+		const channel = await this.channelRepository.findOne({ where: { id: channelId } });
 		if (!channel)
 			return (null);
-		let messages = await this.messageRepository.find({where: {channel: channelId}});
+		let messages = await this.messageRepository.find({ where: { channel: channelId } });
 		const senderUser = await this.userRepository.createQueryBuilder('user')
-		.leftJoinAndSelect('user.channels', 'channels')
-		.where('user.id = ' + sender)
-		.andWhere('channels.id = ' + channelId)
-		.getOne();
+			.leftJoinAndSelect('user.channels', 'channels')
+			.where('user.id = ' + sender)
+			.andWhere('channels.id = ' + channelId)
+			.getOne();
 		if (!senderUser)
 			return (null);
 		const message = new Message();
@@ -71,7 +70,7 @@ export class ChatService {
 		message.sender = senderUser.id;
 		const savedMessage = await this.messageRepository.save(message);
 		messages.push(savedMessage);
-		const user = await this.userRepository.findOne({where: {id: sender}, relations: ['stats']});
+		const user = await this.userRepository.findOne({ where: { id: sender }, relations: ['stats'] });
 		user.stats.totalMessages++;
 		await this.userRepository.save(user);
 		await this.channelRepository.save(channel);
@@ -79,8 +78,8 @@ export class ChatService {
 	}
 
 	async getChannelMessages(userId: number, channelId: number): Promise<Message[] | null> {
-		const user = await this.userRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		const user = await this.userRepository.findOne({ where: { id: userId } });
+		const channel = await this.channelRepository.findOne({ where: { id: channelId } });
 		if (!user || !channel)
 			return (null);
 		let messages: Message[];
@@ -88,7 +87,7 @@ export class ChatService {
 			messages = await this.messageRepository.createQueryBuilder('message')
 				.select(['message.id', 'message.sender', 'message.text'])
 				.where(`message.channel = ${channel.id}`)
-				.andWhere(`(message.sender NOT IN (:...blockList))`, {blockList: user.blockList})
+				.andWhere(`(message.sender NOT IN (:...blockList))`, { blockList: user.blockList })
 				.orderBy('message.id', 'ASC')
 				.getRawMany()
 		}
@@ -103,28 +102,28 @@ export class ChatService {
 	}
 
 	async getChannelOwner(channelId: number): Promise<User | null> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+		const channel = await this.channelRepository.findOne({ where: { id: channelId }, relations: ['owner'] });
 		if (!channel)
 			return (null);
 		return (channel.owner);
 	}
 
 	async getUsersInChannel(channelId: number): Promise<User[] | null> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		const channel = await this.channelRepository.findOne({ where: { id: channelId } });
 		if (!channel)
 			return (null);
 		const users = await this.userRepository.createQueryBuilder('user')
-		.leftJoinAndSelect('user.channels', 'channel')
-		.where('channel.id = ' + channel.id)
-		.getMany();
+			.leftJoinAndSelect('user.channels', 'channel')
+			.where('channel.id = ' + channel.id)
+			.getMany();
 		if (!users)
 			return (null);
 		return (users);
 	}
 
 	async addAdminInChannel(channelId: number, userId: number): Promise<Channel> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
-		const user = await this.userRepository.findOne({where: {id: userId}});
+		const channel = await this.channelRepository.findOne({ where: { id: channelId }, relations: ['owner'] });
+		const user = await this.userRepository.findOne({ where: { id: userId } });
 
 		if (!channel)
 			throw new Error("Could not find channel.");
@@ -141,8 +140,8 @@ export class ChatService {
 	}
 
 	async removeAdminInChannel(channelId: number, userId: number): Promise<Channel> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
-		const user = await this.userRepository.findOne({where: {id: userId}});
+		const channel = await this.channelRepository.findOne({ where: { id: channelId }, relations: ['owner'] });
+		const user = await this.userRepository.findOne({ where: { id: userId } });
 
 		if (!channel)
 			throw new Error("Could not find channel.");
@@ -159,8 +158,8 @@ export class ChatService {
 	}
 
 	async removePassword(userId: number, channelId: number) {
-		const user = await this.userRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+		const user = await this.userRepository.findOne({ where: { id: userId } });
+		const channel = await this.channelRepository.findOne({ where: { id: channelId }, relations: ['owner'] });
 
 		if (!user)
 			throw new Error('Could not find user.');
@@ -176,8 +175,8 @@ export class ChatService {
 	}
 
 	async changePassword(userId: number, channelId: number, password: string) {
-		const user = await this.userRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
+		const user = await this.userRepository.findOne({ where: { id: userId } });
+		const channel = await this.channelRepository.findOne({ where: { id: channelId }, relations: ['owner'] });
 
 		if (!user)
 			throw new Error('Could not find user.');
@@ -191,20 +190,20 @@ export class ChatService {
 	}
 
 	async getAdmins(channelId: number): Promise<number[]> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		const channel = await this.channelRepository.findOne({ where: { id: channelId } });
 		if (!channel)
 			return (undefined);
 		return (channel.admins);
 	}
 
 	async setOwner(channelId: number, userId: number): Promise<Channel> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}, relations: ['owner']});
-		const user = await this.userRepository.findOne({where: {id: userId}});
+		const channel = await this.channelRepository.findOne({ where: { id: channelId }, relations: ['owner'] });
+		const user = await this.userRepository.findOne({ where: { id: userId } });
 
 		if (!channel || !user)
 			return (undefined);
 		channel.owner = user;
-		if (channel.admins.includes(user.id)){
+		if (channel.admins.includes(user.id)) {
 			for (let admin of channel.admins) {
 				if (admin === user.id) {
 					channel.admins.splice(channel.admins.indexOf(user.id), 1);
@@ -216,10 +215,10 @@ export class ChatService {
 	}
 
 	async isUserInChannel(channelId: number, userId: number): Promise<boolean> {
-		const user = await this.userRepository.findOne({where: {id: userId}});
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
+		const user = await this.userRepository.findOne({ where: { id: userId } });
+		const channel = await this.channelRepository.findOne({ where: { id: channelId } });
 		if (!user || !channel)
-			return (false); 
+			return (false);
 		const result = await this.userRepository.createQueryBuilder('user')
 			.innerJoinAndSelect('user.channels', 'channel', `channel.id = ${channel.id}`)
 			.where(`user.id = ${user.id}`)
@@ -228,15 +227,15 @@ export class ChatService {
 	}
 
 	async getCountMessages(userId: number): Promise<number> {
-		const user = await this.userRepository.findOne({where: {id: userId}, relations: ['stats']});
+		const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['stats'] });
 		if (!user)
 			return (0);
 		return (user.stats.totalMessages);
 	}
 
 	async isUserBan(channelId: number, userId: number): Promise<boolean> {
-		const channel = await this.channelRepository.findOne({where: {id: channelId}});
-		for (let id of channel.bannedUsers){
+		const channel = await this.channelRepository.findOne({ where: { id: channelId } });
+		for (let id of channel.bannedUsers) {
 			if (id == userId)
 				return (true);
 		}
@@ -245,9 +244,9 @@ export class ChatService {
 
 	async getBanList(channelId: number): Promise<number[]> {
 		const channel = await this.channelRepository.createQueryBuilder('channel')
-		.leftJoinAndSelect('channel.bannedUsers', 'bannedUsers')
-		.where('channel.id = :channelId', { channelId })
-		.getOne();
+			.leftJoinAndSelect('channel.bannedUsers', 'bannedUsers')
+			.where('channel.id = :channelId', { channelId })
+			.getOne();
 		return (channel.bannedUsers);
 	}
 }

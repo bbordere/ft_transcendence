@@ -100,10 +100,23 @@ export default defineComponent({
 					channel.muted = true;
 				}
 			});
+
 			SocketService.getInstance.on('mute', (data: any) => {
+				if (data.error){
+					const notif = useNotification();
+					notif.notify({
+						title: "Mute",
+						type: 'error',
+						text: data.message,
+						group: 'notif-center',
+					});
+					return;
+				}
 				const { started, channelName, id } = data;
 				let message;
 				const channel = this.findChannel(id);
+				if (!channel)
+					return;
 				if (started) {
 					message = `Vous avez été mute du channel: ${channelName}.`;
 					channel.muted = true;
@@ -201,6 +214,26 @@ export default defineComponent({
 			SocketService.getInstance.on('hideChan', async (payload) => {
 				if (this.selectedChannel.name === payload)
 					await this.updateSelectedChannel(undefined)
+			})
+
+			SocketService.getInstance.on('upgradeAdmin', (chanName) => {
+				const notif = useNotification();
+				notif.notify({
+					title: 'Modération',
+					text: `Vous avez été promu admin du channel ${chanName}`,
+					type: 'success',
+					group: 'notif-center',
+				});
+			})
+			
+			SocketService.getInstance.on('downgradeAdmin', (chanName) => {
+				const notif = useNotification();
+				notif.notify({
+					title: 'Modération',
+					text: `Vous avez été supprimé des admins du channel ${chanName}`,
+					type: 'error',
+					group: 'notif-center',
+				});
 			})
 		},
 

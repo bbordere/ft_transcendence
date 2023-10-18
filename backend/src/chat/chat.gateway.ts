@@ -12,7 +12,6 @@ import { ChatService } from './chat.service';
 import { State } from 'src/user/user.entity';
 import { FriendService } from 'src/friend/friend.service';
 import { UserService } from 'src/user/user.service';
-import { Channel } from './entities/channel.entity';
 
 interface Mute {
 	userId: number,
@@ -99,25 +98,33 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			data.error = true;
 			data.message = 'Entrez un nombre strictement positif.';
 			target?.client_socket.emit('mute', data);
-			return ;
+			return;
 		}
 		if (channel.isPrivate) {
 			data.error = true;
-			data.message = "Vous ne pouvez pas faire d'operations sur un channel prive.";
+			data.message = "Vous ne pouvez pas faire d'operations sur un channel privé.";
 			target?.client_socket.emit('mute', data);
-			return ;
+			return;
 		}
 		if (userId === channelOwner.id) {
 			data.error = true;
 			data.message = 'Vous ne pouvez pas mute le owner du channel.';
 			target?.client_socket.emit('mute', data);
-			return ;
+			return;
 		}
 		if (client.data.userId !== channelOwner.id) {
 			data.error = true;
 			data.message = 'Seul le owner du channel peut mute.';
 			target?.client_socket.emit('mute', data);
-			return ;
+			return;
+		}
+		let users = (await this.chatService.getUsersInChannel(channelId));
+		const usersId = users.map((user) => user.id);
+		if (!usersId.includes(userId)) {
+			data.error = true;
+			data.message = 'Cet utilisateur n\'est pas dans le channel !';
+			client.emit('mute', data);
+			return;
 		}
 		const mute_instance = {
 			userId: userId,
@@ -128,8 +135,18 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 			array.push(mute_instance);
 			this.muteds.set(channelId, array);
 		}
-		else
-			this.muteds.get(channelId).push(mute_instance);0
+		else {
+			const arr = this.muteds.get(channelId);
+			for (var el of arr) {
+				if (el.userId === userId) {
+					data.error = true;
+					data.message = 'Cet utilisateur est déjà mute !';
+					client.emit('mute', data);
+					return;
+				}
+			}
+			this.muteds.get(channelId).push(mute_instance);
+		}
 		let muted = this.muteds.get(channelId);
 		target?.client_socket.emit('mute', data);
 		setTimeout(() => {
@@ -167,7 +184,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('getClientStatus')
-	getClientStatus(client: Socket, payload: number){
+	getClientStatus(client: Socket, payload: number) {
 		return (client.emit('getClientStatus', this.clients.get(payload).state));
 	}
 
@@ -190,7 +207,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('changeOwner')
-	async changeOwner(client: Socket, payload: any){
+	async changeOwner(client: Socket, payload: any) {
 		await this.chatService.setOwner(payload.channel_id, payload.new_owner_id);
 		this.server.emit('changeOwner', payload);
 	}
@@ -201,15 +218,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	handleDisconnect(client: Socket) {
 		this.logger.log(`Client disconnected: ${client.id}`);
-		if (!this.clients.get(client.data.userId)){
+		if (!this.clients.get(client.data.userId)) {
 			client.disconnect();
 			return;
 		}
 
 		this.clients.get(client.data.userId).displayUpdate = true;
-		if (this.clients.get(client.data.userId)?.displayUpdate){
+		if (this.clients.get(client.data.userId)?.displayUpdate) {
 			setTimeout(() => {
-				if (this.clients.get(client.data.userId)?.displayUpdate){
+				if (this.clients.get(client.data.userId)?.displayUpdate) {
 					this.handleGetStatus(client, client.data.userId);
 					this.clients.delete(client.data.userId);
 				}
@@ -231,8 +248,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
 	@SubscribeMessage('pongInvite')
 	async sendPongInvite(client: Socket, payload: any) {
-		if (this.invites.get(payload[1]) || this.invites.get(payload[0]) || !client.data.canInvite || 
-				this.clients.get(payload[1]).state !== State.ONLINE)
+		if (this.invites.get(payload[1]) || this.invites.get(payload[0]) || !client.data.canInvite ||
+			this.clients.get(payload[1]).state !== State.ONLINE)
 			return;
 		this.clients.get(payload[0])?.client_socket.emit('displayInvite', true, payload[2], payload[3]);
 		this.clients.get(payload[1])?.client_socket.emit('displayInvite', false, payload[2], payload[3]);
@@ -260,27 +277,37 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	@SubscribeMessage('refreshFriendList')
-	async refreshFriendList(client: Socket, payload: string){
+	async refreshFriendList(client: Socket, payload: string) {
 		const target = await this.userService.getByName(payload);
 		this.clients.get(target.id).client_socket.emit('updateFriendList');
 	}
 
 	@SubscribeMessage('refreshFriendListId')
-	async refreshFriendListId(client: Socket, payload: number){
+	async refreshFriendListId(client: Socket, payload: number) {
 		const target = await this.userService.getById(payload);
 		this.clients.get(target?.id)?.client_socket.emit('updateFriendList');
 	}
 
 	@SubscribeMessage('hideChan')
-	async hideChan(client: Socket, payload: string[]){
+	async hideChan(client: Socket, payload: string[]) {
 		const target = await this.userService.getById(parseInt(payload[0]));
 		this.clients.get(target?.id)?.client_socket.emit('hideChan', payload[1]);
 	}
 
 	@SubscribeMessage('addFriendNotif')
-	async displayFriendNotif(client: Socket, payload: string){
+	async displayFriendNotif(client: Socket, payload: string) {
 		const target = await this.userService.getByName(payload);
 		if (!target.blockList.includes(client.data.userId))
 			this.clients.get(target?.id)?.client_socket.emit('friendNotif');
+	}
+
+	@SubscribeMessage('setAdmin')
+	async setAdmin(client: Socket, payload: any[]) {
+		this.clients.get(payload[0]).client_socket.emit('upgradeAdmin', (await this.chatService.getById(payload[1])).name);
+	}
+
+	@SubscribeMessage('unsetAdmin')
+	async unsetAdmin(client: Socket, payload: any[]) {
+		this.clients.get(payload[0]).client_socket.emit('downgradeAdmin', (await this.chatService.getById(payload[1])).name);
 	}
 }

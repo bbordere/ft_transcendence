@@ -5,6 +5,7 @@ import Invite from './Invite.vue';
 import router from '@/router';
 import MuteModal from './MuteModal.vue';
 import { SocketService } from '@/services/SocketService';
+import { useNotification } from '@kyvg/vue3-notification';
 
 export default {
 	props: ["connected_user", "friendId", "username", "show", "selectedChannel"],
@@ -79,7 +80,23 @@ export default {
 			const response_json = await response.json();
 			if (response_json['ok']) {
 				SocketService.getInstance.emit('kick', this.$props.selectedChannel.id, user['id'], false);
+				const notif = useNotification();
+				notif.notify({
+					title: 'Modération',
+					text: response_json["message"],
+					type: 'success',
+					group: 'notif-center',
+				});
 				this.$emit('close');
+			}
+			else {
+				const notif = useNotification();
+				notif.notify({
+					title: 'Erreur',
+					text: response_json["message"],
+					type: 'error',
+					group: 'notif-center',
+				});
 			}
 		},
 
@@ -94,7 +111,23 @@ export default {
 			const response_json = await response.json();
 			if (response_json['ok']) {
 				SocketService.getInstance.emit('kick', this.$props.selectedChannel.id, user['id'], true);
+				const notif = useNotification();
+				notif.notify({
+					title: 'Modération',
+					text: response_json["message"],
+					type: 'success',
+					group: 'notif-center',
+				});
 				this.$emit('close');
+			}
+			else {
+				const notif = useNotification();
+				notif.notify({
+					title: 'Erreur',
+					text: response_json["message"],
+					type: 'error',
+					group: 'notif-center',
+				});
 			}
 		},
 

@@ -198,7 +198,7 @@ export class UserService {
 		for (let channel_user of channel_users)
 			if (channel_user.id === user.id)
 				return (await this.removeUserFromChannel(user.id, channel.id));
-		throw new Error("User not in channel.");
+		throw new Error("Cet utilisateur n'est pas dans le channel !");
 	}
 
 	async banUserFromChannel(userId: number, channelId: number) {
