@@ -12,6 +12,7 @@ import { GameService } from './game.service';
 import { Player } from './interface/player.interface';
 import { Room, } from './interface/room.interface';
 import { UserService } from 'src/user/user.service';
+import { StatsService } from 'src/stats/stats.service';
 // import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({ namespace: '/pong' })
@@ -23,7 +24,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	constructor(private readonly gameService: GameService,
 		private readonly authService: AuthService,
 		private readonly roomService: RoomService,
-		private readonly userService: UserService) { }
+		private readonly userService: UserService,
+		private readonly statsService: StatsService) { }
 
 	async handleConnection(client: Socket) {
 		client.data.userId = Number(client.handshake.query['userId']); //TEMP FIX
@@ -61,6 +63,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const room: Room = client.data.room;
 		if (!room)
 			return;
+		client.data.user.stats = await this.statsService.getUserStats(client.data.user.stats.id);
 		client.data.user.stats.totalEmotes += 1;
 		await this.userService.saveUser(client.data.user);
 		if (room.players[0] && room.players[0].socket === client)

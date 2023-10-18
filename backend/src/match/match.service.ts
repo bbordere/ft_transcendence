@@ -79,6 +79,8 @@ export class MatchService {
 		const match = this.matchRepository.create(matchDto);
 		match.player1 = room.players[0].user;
 		match.player2 = room.players[1].user;
+		match.player1.stats = await this.statsService.getUserStats(match.player1.stats.id);
+		match.player2.stats = await this.statsService.getUserStats(match.player2.stats.id);
 		if (!match.player1 || !match.player2)
 			return;
 		this.updateStats(match);
