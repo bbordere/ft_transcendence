@@ -114,7 +114,6 @@
 		height: 30px;
 		border-radius: 80px;
 		outline: none;
-		/* font-size: 1.125rem; */
 		font-size: clamp(0.875rem, 0.25rem + 2vw, 1.375rem);
 		text-align: center;
 		border: 1px solid #515151;

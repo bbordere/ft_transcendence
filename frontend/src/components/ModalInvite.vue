@@ -55,14 +55,12 @@ function handleClick(value: boolean) {
 	height: 100%;
 	width: 100%;
 	padding: 40px;
-	/* background: pink; */
 }
 
 .progress-container {
 	margin-top: 5px;
     width: 100%;
     height: 10px;
-    /* background-color: #ccc; */
     border-radius: 10px;
     overflow: hidden;
 }

@@ -115,11 +115,9 @@ export default{
 .input_username {
 	font-family: 'Poppins', sans-serif;
 	color: #333;
-	/* font-size: 1em; */
 	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);
 	border-radius: 10px;
 	background-color: rgb(255, 255, 255);
-	/* width: 90%; */
 	display: block;
 	transition: all 0.3s;
 }

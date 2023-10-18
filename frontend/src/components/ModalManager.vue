@@ -95,7 +95,6 @@ export default {
 	gap: 1%;
 	height: 7%;
 	padding: 3px;
-	/* background: pink; */
 }
 
 .spe {
@@ -119,10 +118,6 @@ export default {
 .spe:hover {
 	background-color: #032f3d;
 }
-
-/* .spe:focus {
-	background-color: #032f3d;
-} */
 
 .focused {
 	background-color: #032f3d;

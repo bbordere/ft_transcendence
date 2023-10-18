@@ -111,7 +111,6 @@
 .buttons-parameters{
 	display: flex;
 	flex-direction: column;
-	/* justify-content: center; */
 	gap: 90px;
 	flex: 1;
 	margin-top: 40px;

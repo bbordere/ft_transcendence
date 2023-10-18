@@ -8,26 +8,12 @@ export class Message {
 	@Generated('increment')
 	public id: number;
 
-	// @ManyToOne(() => Channel, {
-	// 	nullable: false,
-	// 	onDelete: 'CASCADE',
-	// })
-	// @JoinColumn({ name: 'channel' })
-	// public channel: Channel;
-
 	@Column()
 	public channel: number;
 
 	@Column()
 	public text: string;
 
-	// @ManyToOne(() => User, {
-	// 	nullable: false,
-	// 	cascade: true,
-	// 	eager: true,
-	// })
-	// @JoinColumn({ name: 'sender' })
-	// public sender: User;
 	@Column()
 	public sender: number;
 }

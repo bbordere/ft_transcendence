@@ -13,14 +13,12 @@ import { Player } from './interface/player.interface';
 import { Room, } from './interface/room.interface';
 import { UserService } from 'src/user/user.service';
 import { StatsService } from 'src/stats/stats.service';
-// import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({ namespace: '/pong' })
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() server: Server;
 	private playerMap: Map<string, Player> = new Map<string, Player>;
 
-	// private logger: Logger = new Logger('PongGateway');
 	constructor(private readonly gameService: GameService,
 		private readonly authService: AuthService,
 		private readonly roomService: RoomService,
@@ -28,11 +26,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		private readonly statsService: StatsService) { }
 
 	async handleConnection(client: Socket) {
-		client.data.userId = Number(client.handshake.query['userId']); //TEMP FIX
+		client.data.userId = Number(client.handshake.query['userId']);
 	}
 
 	async handleDisconnect(client: Socket) {
-		// this.logger.log(`Client disconnected: ${client.id}`);
 		await this.roomService.leaveRoomSocket(client.id, client);
 		client.disconnect();
 	}

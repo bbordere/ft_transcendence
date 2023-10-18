@@ -67,7 +67,6 @@ export default{
     justify-content: center;
     align-content: center;
     align-items: center;
-	/* background-color: rebeccapurple; */
 }
 
 .auth-card{
@@ -83,13 +82,6 @@ export default{
 
 .title{
 	font-size: clamp(0.625rem, -0.2083rem + 2.6667vw, 1.375rem);
-	/* font-family: 'Baloo Tamma', cursive;
-	text-align: center;
-	color: #FFFFFF;
-	text-shadow: 0 1px 0 #CCCCCC, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15);
-	color: #FFFFFF;
-	width: 100%;
-	font-size: 60px; */
 }
 
 .auth-container{
@@ -116,18 +108,16 @@ export default{
 	justify-content: center;
 	height: 100%;
 	width: 50%;
-	/* width: 30%; */
-	/* margin-right: 10%; */
 }
 
 .img-2fa { 
-    image-rendering: optimizeSpeed;             /* STOP SMOOTHING, GIVE ME SPEED  */
-    image-rendering: -moz-crisp-edges;          /* Firefox                        */
-    image-rendering: -o-crisp-edges;            /* Opera                          */
-    image-rendering: -webkit-optimize-contrast; /* Chrome (and eventually Safari) */
-    image-rendering: pixelated;                 /* Universal support since 2021   */
-    image-rendering: optimize-contrast;         /* CSS3 Proposed                  */
-    -ms-interpolation-mode: nearest-neighbor;   /* IE8+                           */
+    image-rendering: optimizeSpeed;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+	image-rendering: pixelated;
+    image-rendering: optimize-contrast;
+    -ms-interpolation-mode: nearest-neighbor;
 	transition: filter 0.5s ease-in-out;
 	width: clamp(100px, 40%, 400px);
 	margin-left: 30px;

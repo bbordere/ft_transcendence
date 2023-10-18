@@ -2,7 +2,6 @@
 	<div class="chart">
 		<div v-if="show">
 			<apexchart type="donut" :options="chartOptions" :series="getSerie()"></apexchart>
-			<!-- <div class="title">Ratio Victoires / Défaites</div> -->
 		</div>
     </div>
 </template>
@@ -60,16 +59,12 @@ export default{
 
 	.title {
 		position: absolute;
-		/* background-color: red; */
 		text-align: center;
 		width: 100%;
 		bottom: 30%;
-		/* left: 50%; */
 	}
 
 	.chart{
-		/* margin-top: 20%; */
-		/* margin-top: 1vh; */
 		padding-top: 1%;
 		margin-bottom: -5%;
 		display: flex;

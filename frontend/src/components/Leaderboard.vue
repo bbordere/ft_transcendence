@@ -102,7 +102,6 @@ export default{
 }
 
 .rankings {
-	/* background-color: pink; */
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -124,11 +123,9 @@ export default{
 	width: 10%;
 	text-align: center;
 }
-
-/* Hide scrollbar for IE, Edge and Firefox */
 .rankings {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   
 }
 
@@ -165,19 +162,16 @@ export default{
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	/* background-color: yellow; */
 	width: 45%;
 	gap: 15%;
 	padding: 5px;
 }
 
 .player_content span{
-	/* background-color: red; */
 	width: 40%;
 }
 
 .medal {
-	/* background-color: red; */
 	margin-left: -20px;
 }
 

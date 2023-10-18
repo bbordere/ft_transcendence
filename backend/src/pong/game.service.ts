@@ -26,7 +26,6 @@ export class GameService {
 	async checkRoom(room: Room) {
 		if (room.isFinished)
 			return;
-		// const it = setInterval(async () => {
 		if (!this.infosMap.get(room.id) && room.players.length === 2) {
 			this.infosMap.set(room.id, { needUpdate: false, countDown: 0, cooldown: 0 } as GameVar)
 			await this.playGame(room);
@@ -121,7 +120,6 @@ export class GameService {
 				await this.checkRoom(room);
 			}, PongConstants.GAME_TICK)
 		}
-		// }, PongConstants.GAME_TICK);
 	}
 
 	async keyHandling(client: Socket) {

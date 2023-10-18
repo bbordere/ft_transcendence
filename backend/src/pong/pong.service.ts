@@ -43,7 +43,6 @@ export class PongGame {
 			room.players[1].racket.pos.x = (PongConstants.CANVAS_WIDTH - (PongConstants.RACKET_WIDTH * 2));
 			room.players[1].racket.pos.y = (PongConstants.CANVAS_HEIGHT / 2) - (PongConstants.RACKET_HEIGHT / 2);
 			room.players[1].racket.size = PongConstants.RACKET_HEIGHT;
-			// room.players[1].racket.size = 600;
 			room.players[1].racket.width = PongConstants.RACKET_WIDTH;
 			if (room.players[1].racket.effectTimeout) {
 				clearTimeout(room.players[1].racket.effectTimeout);

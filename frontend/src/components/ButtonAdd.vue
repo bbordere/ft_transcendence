@@ -39,21 +39,20 @@ export default{
   padding: 5px 0;
   border-radius: 6px;
  
-  /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 1;
 
   width: 120px;
   bottom: 120%;
   left: 50%;
-  margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+  margin-left: -60px;
   font-size: clamp(0.625rem, 0.4327rem + 0.6154vw, 0.875rem);
 }
 
 .add_container .tooltiptext::after {
     content: " ";
     position: absolute;
-    top: 100%; /* At the bottom of the tooltip */
+    top: 100%;
     left: 50%;
     margin-left: -5px;
     border-width: 5px;
@@ -67,9 +66,6 @@ export default{
 
 .add-button{
 	border-radius: 120px;
-	/* display: flex; */
-	/* justify-content: center; */
-	/* align-items: center; */
 	background-color: #046280;
 	height: 100%;
 	width: 100%;;

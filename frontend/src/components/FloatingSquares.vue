@@ -63,7 +63,6 @@
     width: 20px;
     height: 20px;
     background: rgb(255, 255, 255, 0.4);
-    // background: rgb(255, 255, 255, 255);
     animation: animate 10s linear infinite;
 }
 

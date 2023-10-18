@@ -42,7 +42,6 @@ export default {
 			const disconnectObject = await ((await fetch("http://" + import.meta.env.VITE_HOST + ":3000/pong/status", { credentials: 'include' })).json());
 			this.recoButton = disconnectObject["disconnect"];
 			if (!this.recoButton){
-				// await SocketService.fetchUser();
 				this.recoButton = false;
 				clearInterval(it);
 			}

@@ -143,22 +143,17 @@ export default {
 }
 
 .qrcode { 
-    image-rendering: optimizeSpeed;             /* STOP SMOOTHING, GIVE ME SPEED  */
-    image-rendering: -moz-crisp-edges;          /* Firefox                        */
-    image-rendering: -o-crisp-edges;            /* Opera                          */
-    image-rendering: -webkit-optimize-contrast; /* Chrome (and eventually Safari) */
-    image-rendering: pixelated;                 /* Universal support since 2021   */
-    image-rendering: optimize-contrast;         /* CSS3 Proposed                  */
-    -ms-interpolation-mode: nearest-neighbor;   /* IE8+                           */
+    image-rendering: optimizeSpeed;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: pixelated;
+    image-rendering: optimize-contrast;
+	-ms-interpolation-mode: nearest-neighbor;
 	aspect-ratio: 1;
 	padding: 3px;
 	border: 2px #515151 solid;
 	border-radius: 25px;
-	/* margin-bottom: 10px; */
-}
-
-.qrcode_input{
-	/* width: 100%; */
 }
 
 .activate_button{

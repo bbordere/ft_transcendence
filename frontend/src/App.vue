@@ -50,7 +50,6 @@ let timeoutId: number = -1;
 
 function socketReady() {
 	socketReadyRef.value = true;
-	// SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE); //WTF POURQUOI CA PETE LE CSS DE LA HOME ?
 	SocketService.getInstance.on('displayInvite', (isSender: boolean, name: string, mode: string) => {
 		senderName.value = name;
 		const ref = isSender ? displayModalSend : displayModalInvite;
@@ -105,40 +104,12 @@ body {
 	position: absolute;
 	height: 100vh;
 	width: 100vw;
-	
-	//   --sinus:0.57357643635;
-	//   --d:50000px;
-	//   background-color: #000;
-	//   background: repeating-linear-gradient(35deg,	#c4e8f6e0,
-	// 												#9ccef2e0,
-	// 												#c4e8f6e0,
-	// 												#509ac9e0,
-	// 												#206fade0,
-	// 												#c4e8f6e0 var(--d));
-	//   background-size: calc(var(--d)/var(--sinus)) 100%;
-	//   animation: AnimationName 10s linear infinite reverse;
 	overflow: scroll;
-
-	// background: linear-gradient(125deg, #c4e8f6aa, #509ac9aa, #2a8cd8aa, );
-	// background-size: 600% 600%;
-	// -webkit-animation: AnimationName 10s ease infinite;
-	// -moz-animation: AnimationName 10s ease infinite;
-	// -o-animation: AnimationName 10s ease infinite;
-	// animation: AnimationName 10s ease infinite;
-
-
 }
 .background{
     background: #92ccf0;
 }
-// .css-selector {
-//     background: linear-gradient(125deg, #f9c683, #ecead5, #8edae6);
-//     background-size: 600% 600%;
-//     -webkit-animation: AnimationName 27s ease infinite;
-//     -moz-animation: AnimationName 27s ease infinite;
-//     -o-animation: AnimationName 27s ease infinite;
-//     animation: AnimationName 27s ease infinite;
-// }
+
 @-webkit-keyframes AnimationName {
 	0% {
 		background-position: 0% 52%
@@ -199,12 +170,6 @@ body {
 body::-webkit-scrollbar {
 	display: none;
 }
-
-// @keyframes AnimationName {
-//   0% {
-//     background-position: calc(var(--d)/var(--sinus)) 0;
-//   }
-// }
 
 .grow-in-enter-from, .grow-in-leave-to {
 	opacity: 0;

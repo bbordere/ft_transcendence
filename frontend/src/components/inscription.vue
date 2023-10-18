@@ -137,7 +137,6 @@ async function register(){
 	font-size: 18px;
 	line-height: 50px;
 	font-weight: 600;
-	/* background: #dde1e7; */
 	border-radius: 25px;
 	border: none;
 	outline: none;
@@ -171,7 +170,6 @@ async function register(){
 	outline: none;
 	border: none;
 	font-size: 18px;
-	/* background: #dde1e7; */
 	color: #595959;
 	border-radius: 25px;
 	box-shadow: inset 2px 2px 5px #BABECC,

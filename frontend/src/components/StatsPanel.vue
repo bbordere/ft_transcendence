@@ -210,16 +210,13 @@ h3{
 	text-align: center;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 .list-stats::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 .list-stats {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-  
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .rank-stat{

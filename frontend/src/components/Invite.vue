@@ -10,12 +10,6 @@ export default {
 	},
 
 	props: ["myId", "friendId", "show"],
-	// props: {
-	// 	myId: Number,
-	// 	friendId: Number,
-	// 	show: Boolean,
-	// 	senderName: "",
-	// },
 
 	methods: {
 		goToPong(mode: string) {
@@ -34,7 +28,6 @@ export default {
 			SocketService.getInstance.emit('pongInvite', this.myId, this.friendId,
 				SocketService.getUser.name, mode);
 			this.$emit('close-modals');
-			// this.$router.push({ path: '/pong', query: { mode: mode, id: this.myId}});
 		}
 	}
 }

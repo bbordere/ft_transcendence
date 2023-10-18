@@ -84,9 +84,6 @@ export class MatchService {
 		if (!match.player1 || !match.player2)
 			return;
 		this.updateStats(match);
-		// match.player1.stats = await this.statsService.updateStats(match, match.player1.stats.id, 1, matchDto.leaverId);
-		// match.player2.stats = await this.statsService.updateStats(match, match.player2.stats.id, 2, matchDto.leaverId);
-		// await this.statsService.updateStats()
 		if (isRanked)
 			await this.statsService.getUpdatedMmr(match)
 		await this.userService.saveUser(match.player1);
@@ -101,7 +98,6 @@ export class MatchService {
 			order: {
 				id: 'DESC'
 			},
-			// loadRelationIds: true
 		});
 		return (await this.filterMatchesEntry(matches));
 	}
@@ -112,7 +108,6 @@ export class MatchService {
 			order: {
 				id: 'DESC'
 			},
-			// loadRelationIds: true
 		})
 		return (await this.filterMatchesEntry(matches));
 	};

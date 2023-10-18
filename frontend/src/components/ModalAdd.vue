@@ -100,8 +100,6 @@ export default defineComponent ({
 	height: 50%;
 	justify-content: space-between;
 	align-items: center;
-	/* background: red; */
-	/* margin-bottom: 5%; */
 	gap: 30px;
 
 	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);

@@ -226,7 +226,6 @@ export default {
 .button-profile {
 	margin: 10px;
 	height: 50px;
-	/* font-size: clamp(0.75rem, 0.5577rem + 0.6154vw, 1rem); */
 }
 
 .buttons {

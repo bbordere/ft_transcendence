@@ -38,7 +38,6 @@ export class UserService {
 	}
 
 	getAllUsers(): Promise<string[]> {
-		// return (this.usersRepository.find({select: {name: true}}));
 		const names = this.usersRepository
 			.createQueryBuilder('entity')
 			.select('entity.name', 'name')

@@ -47,8 +47,6 @@ export default{
 .modal {
 	text-align: center;
 	background-color: white;
-	/* height: 30%; */
-	/* width: 30%; */
 	margin-top: auto;
 	margin-bottom: auto;
 	padding: 40px;

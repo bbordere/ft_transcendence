@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request } from 'express'
 import { Match } from 'src/match/match.entity';
-import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class StatsService {

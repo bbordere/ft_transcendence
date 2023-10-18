@@ -228,14 +228,12 @@ export default {
 	align-items: center;
 	background: white;
 	min-height: 300px;
-	/* background: #fff9cf; */
 	border: 3px solid #515151;
 	border-radius: 20px;
 	gap: 10px;
 }
 
 .left_column_pong, .right_column_pong {
-	/* background-color: purple; */
 	height: 100%;
 	width: 15%;
 	display: flex;
@@ -250,9 +248,7 @@ export default {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	/* gap: 20px;*/
 	justify-content: center;
-	/* background-color: blue; */
 }
 
 .timer {
@@ -286,24 +282,16 @@ export default {
 	flex-direction: row;
 	gap: 0.1vw;
 	margin-left: 20px;
-	/* justify-content: space-between; */
-	/* width: 42%; */
 }
 
 #exit_button {
 	position: relative;
 	min-width: 100px;
 	font-size: clamp(0.6875rem, 0.2548rem + 1.3846vw, 1.25rem);
-	/* font-size: 2vh; */
 	padding: 10px;
 	margin-right: 1vw;
 	border-radius: 40px;
 }
-
-/* #exit_button:hover {
-	background-color: #91CEF2;
-	cursor: pointer;
-} */
 
 @font-face {
 	font-family: 'digital-clock-font';
@@ -359,21 +347,20 @@ export default {
   padding: 5px 0;
   border-radius: 6px;
  
-  /* Position the tooltip text - see examples below! */
   position: absolute;
   z-index: 1;
 
   width: 120px;
   top: 100%;
   left: 50%;
-  margin-left: -40px; /* Use half of the width (120/2 = 60), to center the tooltip */
+  margin-left: -40px;
   font-size: clamp(0.625rem, 0.4327rem + 0.6154vw, 0.875rem);
 }
 
 .tooltip_pong_text::after {
 	content: " ";
   position: absolute;
-  bottom: 100%;  /* At the top of the tooltip */
+  bottom: 100%;
   left: 33%;
   margin-left: -5px;
   border-width: 5px;

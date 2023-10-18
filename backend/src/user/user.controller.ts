@@ -11,9 +11,6 @@ export class UserController {
 		private readonly chatService: ChatService
 	) {}
 
-
-	//TODO SEND PARTIAL USER TO NOT SEND CRITICAL VALUES
-
 	@Get()
 	async getUsers(){
 		return (await this.userService.getAllUsers());

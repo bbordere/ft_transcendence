@@ -71,7 +71,6 @@ export default {
 }
 
 .button_box button {
-	/* font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem); */
 	font-size: clamp(0.75rem, 0.6176rem + 0.7059vw, 1.125rem);
 	display: flex;
 	justify-content: center;

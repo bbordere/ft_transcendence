@@ -76,23 +76,15 @@ export default defineComponent({
 	height: 10vh;
 	width: 100vw;
 	border-bottom: 2px solid #515151;
-	/* background: #f7f4dd; */
 	background: white;
 	justify-content: space-between;
 	align-items: center;
 	min-height: 40px;
 	position: relative;
-	/* display: none; */
 }
 
 .logo {
 	height: 90%;
-	/* max-width: 20%; */
-	/* min-width: 145px; */
-	/* background-color: white; */
-	/* border-radius: 290px; */
-	/* border: 3px solid #515151; */
-	/* padding-left: 10%; */
 	margin-left: 0.8%;
 	cursor: pointer	;
 }
@@ -110,21 +102,14 @@ export default defineComponent({
 	font-weight: bold;
 	max-width: 50%;
 	height: 90%;
-	/* background: pink; */
 	border: 2px solid #515151;
 	margin-right: 0.1%;
 	border-radius: 27px;
 	overflow: hidden;
 	overflow-wrap: anywhere;
 	position: relative;
-	/* border-bottom-width: 0px; */
-	/* border-radius: 50px; */
-	/* width: 25%; */
 }
 
-/* .profile:hover{
-	background-color: #d1e6eee0;
-} */
 
 .profile::before{
 	content: "";
@@ -135,7 +120,6 @@ export default defineComponent({
 	position: absolute;
 	border-radius: 27px;
 	top: 0.1%;
-	/* left: 0; */
 	transition: width 700ms ease-in-out;
 	opacity: 50%;
 }

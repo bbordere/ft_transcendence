@@ -214,8 +214,6 @@ export default {
 			this.ball.position.x += (this.gameInfos.ball.position.x - this.ball.position.x) * 0.5;
 			this.ball.position.y += (this.gameInfos.ball.position.y - this.ball.position.y) * 0.5;
 
-			// this.ball = this.gameInfos.ball;
-
 			this.pad1.pos.x += (this.gameInfos.pad1.pos.x - this.pad1.pos.x) * 0.2;
 			this.pad1.pos.y += (this.gameInfos.pad1.pos.y - this.pad1.pos.y) * 0.2;
 
@@ -286,8 +284,6 @@ export default {
 
 <style>
 .pong_screen {
-	/* margin-top: -20px; */
-	/* height: 80%; */
 	max-width: 100%;
 	max-height: 80%;
 	min-width: auto;

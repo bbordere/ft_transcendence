@@ -252,8 +252,6 @@ input:placeholder-shown {
 	display: flex;
 	gap: 10px;
 	flex-direction: column;
-	/* justify-content: space-evenly; */
-	/* background-color: pink; */
 	align-items: center;
 }
 
@@ -278,7 +276,6 @@ input:placeholder-shown {
 .creators_names {
 	align-self: end;
 	margin-right: 10px;
-	/* margin-top: 10%; */
 }
 
 .chat {

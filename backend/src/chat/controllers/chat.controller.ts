@@ -128,9 +128,4 @@ export class ChatController {
 	async isUserBan(@Param('channelId') channelId: number, @Param('userId') userId: number) {
 		return (await this.chatService.isUserBan(channelId, userId));
 	}
-
-	@Get('/:channelId/banList')
-	async getBanList(@Param('channelId') channelId: number) {
-		// return (await this.chatService.getBanList(channelId));
-	}
 }

@@ -67,7 +67,6 @@
 	background-color: rgba(34, 158, 230, 0.103);
 	font-size: clamp(0.625rem, 0.1442rem + 1.5385vw, 1.25rem);
 	border-radius: 50px;
-	/* flex: 1; */
 	width: 96%;
 	height: 96%;
 }
@@ -95,15 +94,13 @@
 	margin-bottom: 2%;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 .matches::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 .matches {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 </style>

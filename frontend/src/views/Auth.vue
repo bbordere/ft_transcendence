@@ -102,10 +102,8 @@ async function login(){
 	width: 30%;
 	aspect-ratio: 1;
 	max-width: 300px;
-	/* height: 350px; */
 	padding: 40px 30px;
 	background-color: pink;
-	/* background: #EBECF0AA; */
 	background: #EBECF0;
 	border-radius: 10px;
 	box-shadow:  4px 4px 4px #474747,
@@ -129,7 +127,6 @@ async function login(){
 	height: 400px;
 	padding: 40px 30px;
 	gap: 20px;
-	/* background: #EBECF0AA; */
 	background: #EBECF0;
 
 	border-radius: 10px;
@@ -225,20 +222,6 @@ async function login(){
 }
 
 #inscription-btn {
-	/* margin: 15px 0;
-	width: 80%;
-	height: 50px;
-	font-size: 18px;
-	line-height: 50px;
-	font-weight: 600;
-	background: #dde1e7;
-	border-radius: 25px;
-	border: none;
-	outline: none;
-	cursor: pointer;
-	color: #595959;
-	box-shadow:  4px 4px 4px #616161,
-             -4px -4px 4px #eaeaea; */
 	margin-top: 10px;
 	width: 80%;
 	max-width: 300px;
@@ -273,7 +256,6 @@ async function login(){
 }
 
 .form button {
-	/* width: 100%; */
 	margin-top: 10px;
 	width: 80%;
 	max-width: 300px;
@@ -302,7 +284,6 @@ async function login(){
 	align-items: center;
 	justify-content: center;
 	gap: 20px;
-	/* background: pink; */
 }
 
 .field {
@@ -325,21 +306,6 @@ async function login(){
 	box-shadow: inset 1px 1px 2px #BABECC,
 				inset -1px -1px 2px #ffffff73;
 }
-.field span {
-	/* position: absolute; */
-	/* color: #595959; */
-	/* width: 50px; */
-	/* line-height: 50px; */
-}
-.field label {
-	/* position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	left: 25px;
-	pointer-events: none;
-	color: #666666; */
-}
-
 .field button {
 	margin: 15px 0;
 	width: 100%;

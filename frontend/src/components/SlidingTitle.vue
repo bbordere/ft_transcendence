@@ -2,7 +2,6 @@
 	<div class="container-sliding-title">
 		<div class="box-sliding">
 			<div class="title-sliding">
-				<!-- <span class="block-sliding"></span> -->
 				<div class="text-sliding">{{ text }}<span>
 				</span></div>
 			</div>
@@ -67,7 +66,6 @@ export default {
 				-webkit-animation: mainFadeIn 0.5s forwards;
 				-o-animation: mainFadeIn 0.5s forwards;
 				animation: mainFadeIn 0.5s forwards;
-				// animation-delay: 0.5s;
 				opacity: 0;
 				display: flex;
 				align-items: baseline;

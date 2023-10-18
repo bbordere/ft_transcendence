@@ -154,7 +154,6 @@
 		box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 	}
 	.verify h4 {
-		/* font-size: clamp(0.625rem, 0.0694rem + 1.7778vw, 1.125rem); */
 		font-size: 1.25em;
 		color: #333;
 		font-weight: 500;

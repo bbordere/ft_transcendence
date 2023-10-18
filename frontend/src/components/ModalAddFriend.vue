@@ -79,14 +79,11 @@ export default {
 
 .input_friend {
 	display: flex;
-	/* background: pink; */
-	/* margin-top: 5%; */
 	width: 100%;
 	height: 50%;
 	justify-content: center;
 	align-items: center;
 	gap: 15px;
-	/* font-size: larger; */
 	font-size: clamp(0.75rem, 0.3654rem + 1.2308vw, 1.25rem);
 }
 .entry_friend {
@@ -95,7 +92,6 @@ export default {
 	height: 50%;
 	width: 40%;
 	outline: none;
-	/* border: none; */
 	text-align: center;
 	font-size: larger;
 }
@@ -104,15 +100,9 @@ export default {
 	font-size: larger;
 	height: 50%;
 	text-align: center;
-	/* font-size: 0.5em; */
-	/* width: 25%; */
-	/* background-color: #036280;; */
-	/* border: 1px solid #000000; */
 	border-radius: 20px;
 }
 .title_modal_friend {
-	/* height: 50%; */
-	/* font-size: 2em; */
 	text-align: center;
 	font-size: clamp(0.9375rem, 0.2163rem + 2.3077vw, 1.875rem);
 }

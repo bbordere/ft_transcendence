@@ -39,7 +39,6 @@
 	background-color: white;
 	border: none;
 	border-radius: 20px;
-	/* border: none; */
 	cursor: pointer;
 	font-size: clamp(1rem, 0.4231rem + 1.8462vw, 1.75rem);
 }

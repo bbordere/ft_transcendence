@@ -73,8 +73,6 @@ export default{
 }
 
 .icon{
-	/* flex-grow: 1; */
-	/* background-color: red; */
 	width: 30%;
 }
 
