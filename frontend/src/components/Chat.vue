@@ -75,7 +75,7 @@
 		</div>
 		<div class="creators_names">
 			by <strong>bbordere</strong>, <strong>hubretec</strong>,
-			<strong>jrossett</strong> and <strong>T.O</strong>
+			<strong>jrossett</strong> and <strong>tdesmet</strong>
 		</div>
 	</div>
 </template>
@@ -439,4 +439,5 @@ input:placeholder-shown {
 
 .sendbox button:hover {
 	background-color: #004d64;
-}</style>
+}
+</style>
