@@ -252,6 +252,8 @@ export class UserService {
 	}
 
 	async getBlockList(userId: number) {
+		if (!userId)
+			return ([]);
 		let user = await this.usersRepository.findOne({ where: { id: userId } });
 		return (user.blockList);
 	}

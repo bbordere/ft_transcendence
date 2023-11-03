@@ -9,7 +9,8 @@
 			<div class="instructions">
 				Entrez le code présent sur l'application.
 			</div>
-			<InputField class="qrcode_input" @complete="fecthCode" :is-invalid-code="isInvalidCode" @reset="isInvalidCode = false"></InputField>
+			<InputField v-on:keydown.enter.prevent class="qrcode_input" @complete="fecthCode"
+				:is-invalid-code="isInvalidCode" @reset="isInvalidCode = false"></InputField>
 			<button :class="!isActivated ? 'activate_button' : 'desactivate_button'" @click="sendCode">
 				{{ isActivated ? "Désactiver" : "Activer" }}
 			</button>
@@ -25,7 +26,7 @@ import { useNotification } from '@kyvg/vue3-notification';
 import { ref } from 'vue';
 
 export default {
-	data(){
+	data() {
 		return ({
 			isActivated: false,
 			isDataLoaded: false,
@@ -34,32 +35,32 @@ export default {
 		})
 	},
 	methods: {
-		closeModal(){
+		closeModal() {
 			this.$emit('close');
 			this.isInvalidCode = false;
 		},
-		fecthCode(code: string){
+		fecthCode(code: string) {
 			this.code = code;
 		},
-		getUrl(){
+		getUrl() {
 			return ("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/qrcode")
 		},
-		async sendCode(){
+		async sendCode() {
 			this.isInvalidCode = false;
 			const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/" + (this.isActivated ? "off" : "on"),
-			{
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					code: this.code,
+				{
+					method: 'POST',
+					credentials: 'include',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						code: this.code,
+					})
 				})
-			})
 			const json = await res.json();
 			const notification = useNotification()
-			if (json["status"] === "Failure"){
+			if (json["status"] === "Failure") {
 				notification.notify({
 					title: "Code incorrect !",
 					type: 'error',
@@ -75,7 +76,7 @@ export default {
 					title: message,
 					type: 'success',
 					group: 'notif-center'
-				});	
+				});
 				this.isActivated = !this.isActivated;
 			}
 		},
@@ -84,11 +85,11 @@ export default {
 		SlidingTitle,
 		InputField
 	},
-	async beforeMount(){
+	async beforeMount() {
 		const res = await fetch("http://" + import.meta.env.VITE_HOST + ":3000/auth/2fa/completeStatus", { method: "get", credentials: "include" });
-        const infos = (await res.json());
-		if (!infos["generated"]){
-			await fetch('http://' + import.meta.env.VITE_HOST + ':3000/auth/2fa/generate', {credentials: 'include', method: 'POST'});
+		const infos = (await res.json());
+		if (!infos["generated"]) {
+			await fetch('http://' + import.meta.env.VITE_HOST + ':3000/auth/2fa/generate', { credentials: 'include', method: 'POST' });
 		}
 		this.isActivated = infos["activated"];
 		this.isDataLoaded = true;
@@ -99,19 +100,18 @@ export default {
 </script>
 
 <style>
-
-.instructions{
+.instructions {
 	margin-left: 10px;
 	margin-right: 10px;
 	font-size: clamp(0.875rem, 0.25rem + 2vw, 1.375rem);
 }
 
-.qrcode_title{
+.qrcode_title {
 	margin-top: 15px;
 	margin-bottom: -15px;
 }
 
-.qrcode_modal_overlay{
+.qrcode_modal_overlay {
 	position: fixed;
 	top: 0;
 	bottom: 0;
@@ -126,7 +126,7 @@ export default {
 	z-index: 2;
 }
 
-.qrcode_modal{
+.qrcode_modal {
 	font-family: 'poppins';
 	text-align: center;
 	display: flex;
@@ -142,13 +142,13 @@ export default {
 	padding: 10px;
 }
 
-.qrcode { 
-    image-rendering: optimizeSpeed;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -o-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: pixelated;
-    image-rendering: optimize-contrast;
+.qrcode {
+	image-rendering: optimizeSpeed;
+	image-rendering: -moz-crisp-edges;
+	image-rendering: -o-crisp-edges;
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: pixelated;
+	image-rendering: optimize-contrast;
 	-ms-interpolation-mode: nearest-neighbor;
 	aspect-ratio: 1;
 	padding: 3px;
@@ -156,7 +156,7 @@ export default {
 	border-radius: 25px;
 }
 
-.activate_button{
+.activate_button {
 	background-color: green;
 
 	font-family: 'poppins';
@@ -169,7 +169,7 @@ export default {
 	color: white;
 }
 
-.desactivate_button{
+.desactivate_button {
 	background-color: red;
 	font-family: 'poppins';
 	border-radius: 250px;
@@ -180,5 +180,4 @@ export default {
 	cursor: pointer;
 	color: white;
 }
-
 </style>

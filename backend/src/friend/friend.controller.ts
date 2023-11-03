@@ -4,7 +4,7 @@ import { friendDto } from './dtos/friend.dto';
 
 @Controller('friend')
 export class FriendController {
-	constructor(private friendService: FriendService) {}
+	constructor(private friendService: FriendService) { }
 
 	@Post('/add')
 	async addFriend(@Body() friendDto: friendDto) {
@@ -23,11 +23,13 @@ export class FriendController {
 
 	@Get('/:id/list')
 	async getFriend(@Param('id') id: number) {
+		if (isNaN(id))
+			return ([]);
 		return await this.friendService.getFriend(id);
 	}
 
 	@Post('/isFriend')
 	async isFriend(@Body() friendDto: friendDto) {
 		return await this.friendService.isFriend(friendDto.username, friendDto.sender);
-	}	
+	}
 }

@@ -19,6 +19,9 @@ export class UserController {
 	@Get('/me')
 	@UseGuards(JwtAuthGuard)
 	async me(@Req() req: Request) {
+		if (!req["user"]["user"]) {
+			return ({ error: true });
+		}
 		const id = req["user"]["user"]["id"];
 		const user = await this.userService.getById(id);
 		return (this.userService.getPartialUser(user));
@@ -135,26 +138,36 @@ export class UserController {
 
 	@Get('/:userId/joinedChannels')
 	async getJoinedChannels(@Param('userId') userId: number) {
+		if (isNaN(userId))
+			return ([]);
 		return (await this.userService.getJoinedChannels(userId));
 	}
 
 	@Post('/block/blocked')
 	async blockUser(@Body('userId') userId: number, @Body('blockId') blockId: number) {
+		if (isNaN(userId) || isNaN(blockId))
+			return;
 		return (await this.userService.blockUser(userId, blockId));
 	}
 
 	@Get('/:userId/block/blocklist')
 	async getBlockList(@Param('userId') userId: number) {
+		if (isNaN(userId))
+			return ([]);
 		return (await this.userService.getBlockList(userId));
 	}
 
 	@Patch('/block/unblock')
 	async unblockUser(@Body('userId') userId: number, @Body('unblockId') unblockId: number) {
+		if (isNaN(userId))
+			return;
 		return (await this.userService.unblockUser(userId, unblockId));
 	}
 
 	@Post('/isBlocked')
 	async isUserBlocked(@Body('userId') userId: number, @Body('blockId') blockId: number) {
+		if (isNaN(userId))
+			return (false);
 		return ((await this.userService.getBlockList(userId)).includes(blockId));
 	}
 }

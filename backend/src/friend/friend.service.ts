@@ -19,7 +19,7 @@ export interface friendTab {
 
 @Injectable()
 export class FriendService {
-	
+
 	constructor(
 		@InjectRepository(Friend)
 		private friendRepository: Repository<Friend>,
@@ -48,9 +48,9 @@ export class FriendService {
 	}
 
 	async deleteFriend(id1: number, id2: number): Promise<string> {
-		let friendship = await this.friendRepository.findOne({where: {UserId: id1, FriendId: id2}});
+		let friendship = await this.friendRepository.findOne({ where: { UserId: id1, FriendId: id2 } });
 		if (!friendship)
-			friendship = await this.friendRepository.findOne({where: {UserId: id2, FriendId: id1}});
+			friendship = await this.friendRepository.findOne({ where: { UserId: id2, FriendId: id1 } });
 		if (!friendship)
 			return;
 		await this.chatService.delete(friendship.channel.name);
@@ -67,8 +67,8 @@ export class FriendService {
 			],
 		});
 		if (!friendship)
-			return ;
-		friendship.Status = 'accepted';		
+			return;
+		friendship.Status = 'accepted';
 		await this.userService.addUserToChannel(friendship.FriendId, friendship.channel.id, '');
 		await this.userService.addUserToChannel(friendship.UserId, friendship.channel.id, '');
 		await this.friendRepository.save(friendship);
@@ -87,6 +87,8 @@ export class FriendService {
 	}
 
 	async getFriendsFromUser(userId: number): Promise<number[]> {
+		if (isNaN(userId))
+			return ([]);
 		const friendships = await this.friendRepository.find({
 			where: [
 				{ UserId: userId },
@@ -129,9 +131,9 @@ export class FriendService {
 		return friends;
 	}
 
-	async isFriend(username: string, requester: number): Promise<boolean>{
+	async isFriend(username: string, requester: number): Promise<boolean> {
 		const friends = await this.getFriend(requester);
-		for (var friend of friends){
+		for (var friend of friends) {
 			if (friend.username === username)
 				return (true);
 		}

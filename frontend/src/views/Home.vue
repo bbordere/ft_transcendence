@@ -36,6 +36,7 @@ import { SocketService } from '@/services/SocketService'
 import type { Channel } from '@/interfaces/channel.interface';
 import type { Message } from '@/interfaces/message.interface';
 import type { User } from '@/interfaces/user.interface';
+import router from '@/router';
 
 export enum State {
 	OFFLINE,
@@ -72,10 +73,16 @@ export default defineComponent({
 	},
 
 	async mounted() {
+		const user = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json()
+		if (user.error) {
+			router.push('/auth');
+			return;
+		}
 		if (SocketService.getStatus)
 			SocketService.getInstance.emit('setStatus', SocketService.getUser.id, State.ONLINE);
 		this.ModalManagerData = this.$refs['ModalManager'];
-		const user = await (await fetch('http://' + import.meta.env.VITE_HOST + ':3000/user/me', { credentials: 'include' })).json()
+		if (user) {
+		}
 		this.sender.id = user['id'];
 		this.sender.name = user['name'];
 		this.sender.img = user['avatarLink'];
@@ -102,7 +109,7 @@ export default defineComponent({
 			});
 
 			SocketService.getInstance.on('mute', (data: any) => {
-				if (data.error){
+				if (data.error) {
 					const notif = useNotification();
 					notif.notify({
 						title: "Mute",
@@ -225,7 +232,7 @@ export default defineComponent({
 					group: 'notif-center',
 				});
 			})
-			
+
 			SocketService.getInstance.on('downgradeAdmin', (chanName) => {
 				const notif = useNotification();
 				notif.notify({
