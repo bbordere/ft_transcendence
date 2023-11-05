@@ -4,7 +4,7 @@ Final project of 42's common core.
 
 ## Overview
 
-This project is a single page application fullstack where you can play classical pong game with other players using a match-making system, chat with them, move up the rankings and check your view your statistics. You can add friends and challenge them in 2 game modes. This project uses ``NestJs`` for the backend, ``VueJs`` for the frontend and ``PostgreSQL`` for the database. It runs on 3 docker containers managed with docker compose.
+This project is a single page application fullstack where you can play classical pong game with other players using a match-making system, chat with them, move up the rankings and check your statistics. You can add friends and challenge them in 2 game modes. This project uses ``NestJs`` for the backend, ``VueJs`` for the frontend and ``PostgreSQL`` for the database. It runs on 3 docker containers managed with docker compose.
 
 ## Installation
 
